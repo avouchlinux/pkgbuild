@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+
+pkgname=qbs
+pkgver=1.15.0
+pkgrel=1
+pkgdesc='Cross platform build tool'
+arch=('x86_64')
+grous=('dev-utils')
+url='https://wiki.qt.io/Qbs'
+license=(LGPL)
+depends=(qt5-script)
+source=(http://download.qt.io/official_releases/qbs/${pkgver}/qbs-src-${pkgver}.tar.gz)
+
+build() {
+    cd $pkgname-src-$pkgver
+    qmake QBS_INSTALL_PREFIX=/usr \
+        CONFIG+=qbs_enable_project_file_updates \
+        QBS_LIBEXEC_INSTALL_DIR=/usr/lib/qbs \
+        QBS_LIBEXEC_DESTDIR=../../../lib/qbs \
+        QBS_RELATIVE_LIBEXEC_PATH=../lib/qbs \
+        qbs.pro
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-src-$pkgver
+    INSTALL_ROOT="$pkgdir" make install
+
+    # For some reason they don't install all the headers so we'll have to do that
+    # by hand.
+    #cp src/lib/corelib/tools/*.h "$pkgdir"/usr/include/qbs/tools/
+}

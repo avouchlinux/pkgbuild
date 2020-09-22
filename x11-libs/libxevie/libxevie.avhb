@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxevie
+_realname=libXevie
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="X11 EvIE extension library"
+arch=('x86_64')
+groups=('x11-libs')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxext')
+makedepends=('xorg-util-macros' 'evieext')
+source=("${url}/releases/individual/lib/libXevie-${pkgver}.tar.bz2")
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,39 @@
+--- isdn4k-utils/capiinit/capiinit.c.capi	2013-11-23 12:23:42.000000000 +0100
++++ isdn4k-utils/capiinit/capiinit.c	2013-11-23 13:24:33.099608191 +0100
+@@ -1248,6 +1248,7 @@
+ 	if (check_procfs() < 0) return -1;
+ 	if (check_for_kernelcapi() < 0) return -1;
+ 	if (check_for_capi() < 0) return -1;
++	sleep(5); /* wait until the device node is created successfully by udev */
+ 	if (check_for_devcapi() < 0) return -1;
+ 	if (check_for_capifs() < 0) return 0; /* only warning */
+ 	if (check_for_capifs_mounted() < 0) return -1;
+@@ -1492,8 +1493,8 @@
+ 		unload_module("capiutil");
+ 		if ((mp = mounted("capifs")) != 0 && strcmp(mp, "/dev/capi") == 0)
+ 			system("umount /dev/capi");
+-		if (filesystem_available("capifs"))
+-			unload_filesystem("capifs");
++		/*if (filesystem_available("capifs"))
++			unload_filesystem("capifs"); */
+ 	}
+ 	if (cardname && cname[0] == 0) {
+ 		fprintf(stderr,"ERROR: card \"%s\"  not found\n", cardname);
+--- isdn4k-utils/capiinit/capi.conf.capi	2013-11-23 12:23:42.000000000 +0100
++++ isdn4k-utils/capiinit/capi.conf	2013-11-23 13:24:33.098608215 +0100
+@@ -1,10 +1,10 @@
+ # card		file	proto	io	irq	mem	cardnr	options
+ #b1isa		b1.t4	DSS1	0x150	7	-	-	P2P
+-b1pci		b1.t4	DSS1	-	-	-	-
+-c4		c4.bin	DSS1	-	-	-	-
+-c4		-	DSS1	-	-	-	-
+-c4		-	DSS1	-	-	-	-	P2P
+-c4		-	DSS1	-	-	-	-	P2P
++#b1pci		b1.t4	DSS1	-	-	-	-
++#c4		c4.bin	DSS1	-	-	-	-
++#c4		-	DSS1	-	-	-	-
++#c4		-	DSS1	-	-	-	-	P2P
++#c4		-	DSS1	-	-	-	-	P2P
+ #c2		c2.bin	DSS1	-	-	-	-
+ #c2		-	DSS1	-	-	-	-
+ #t1isa		t1.t4	DSS1	0x340	9	-	0

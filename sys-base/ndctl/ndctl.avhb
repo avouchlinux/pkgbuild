@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ndctl
+pkgver=69
+pkgrel=1
+pkgdesc='Utility library for managing the libnvdimm (non-volatile memory device) sub-system in the Linux kernel'
+arch=('x86_64')
+groups=('sys-base')
+url="https://github.com/pmem/ndctl"
+license=('LGPL')
+depends=('json-c' 'kmod' 'systemd-libs' 'libutil-linux')
+makedepends=('asciidoctor' 'xmlto' 'bash-completion')
+source=("https://github.com/pmem/ndctl/archive/v$pkgver.tar.gz")
+
+build() {
+  cd "$srcdir"/$pkgname-$pkgver
+  #export CFLAGS+=' -fcommon'
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir"/$pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

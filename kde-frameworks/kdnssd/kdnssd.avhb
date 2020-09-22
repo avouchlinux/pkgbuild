@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdnssd
+pkgver=5.74.0
+pkgrel=1
+pkgdesc='Abstraction to system DNSSD features'
+arch=('x86_64')
+groups=('kde-frameworks')
+url='https://projects.kde.org/projects/frameworks/kdnssd'
+license=('LGPL')
+depends=('qt5-base' 'avahi')
+makedepends=('extra-cmake-modules' 'qt5-tools')
+replaces=('kdnssd-framework')
+conflicts=('kdnssd-framework')
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

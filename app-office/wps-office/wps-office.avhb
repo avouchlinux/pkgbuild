@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=wps-office
+pkgver=10.1.0.5707_a21
+_pkgver=10.1.0.57077~a21
+pkgrel=1
+pkgdesc="Kingsoft Office (WPS Office) is an office productivity suite"
+arch=('x86_64')
+groups=('app-office')
+license=("custom")
+url="http://wps-community.org/"
+depends=('fontconfig' 'libpng12' 'glib2' 'libsm' 'libxext' 'libxrender' 'libxml2' 'desktop-file-utils' 'shared-mime-info' 'xdg-utils' 'glu')
+optdepends=('cups: for printing support'
+            'pango: for complex (right-to-left) text support')
+conflicts=('kingsoft-office')
+options=('!emptydirs')
+install=${pkgname}.install
+[[ "$CARCH" = "i686" ]] && _archext=x86 || _archext=x86_64
+source_i686=("http://kdl.cc.ksosoft.com/wps-community/download/a21/wps-office_${_pkgver}_x86.tar.xz")
+source_x86_64=("http://kdl.cc.ksosoft.com/wps-community/download/a21/wps-office_${_pkgver}_x86_64.tar.xz")
+
+prepare() {
+	
+	#bsdtar -xf $srcarchive/wps-office-10.1.0.5707-1.a21.x86_64.rpm
+	#cd wps-office_${_pkgver}_$_archext
+
+	sed -i 's|/opt/kingsoft/wps-office|/usr/lib|' wps wpp et
+}
+
+package() {
+  #cd wps-office_${_pkgver}_$_archext
+  
+
+  #install -d "$pkgdir/usr/lib"
+  cp -r etc "$pkgdir/"
+  cp -r opt "$pkgdir/"
+  cp -r usr "$pkgdir/"
+
+  install -Dm644 opt/kingsoft/wps-office/office6/mui/default/EULA.txt "$pkgdir/usr/share/licenses/$pkgname/EULA.txt"
+}

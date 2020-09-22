@@ -1,0 +1,11 @@
+--- data/org.gnome.login-screen.gschema.xml	2020-04-07 17:53:33.000000000 +0000
++++ org.gnome.login-screen.gschema.xml	2020-06-13 12:36:34.085551927 +0000
+@@ -32,7 +32,7 @@
+       </description>
+     </key>
+     <key name="logo" type="s">
+-      <default>''</default>
++      <default>'/usr/share/pixmaps/avouch-gdm.svg'</default>
+       <summary>
+         Path to small image at top of user list
+       </summary>

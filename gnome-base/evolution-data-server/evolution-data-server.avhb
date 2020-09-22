@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=evolution-data-server
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Centralized access to appointments and contacts"
+url="https://wiki.gnome.org/Apps/Evolution"
+arch=(x86_64)
+groups=('gnome-base')
+depends=(gnome-online-accounts nss krb5 libgweather libical db libgdata libphonenumber)
+makedepends=(intltool gperf gobject-introspection vala gtk-doc boost git cmake)
+source=(http://ftp.gnome.org/pub/GNOME/sources/${pkgname}/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIBEXEC_INSTALL_DIR=/usr/lib \
+    -DSYSCONF_INSTALL_DIR=/etc \
+    -DENABLE_INTROSPECTION=ON \
+    -DENABLE_VALA_BINDINGS=ON \
+    -DENABLE_GTK_DOC=OFF \
+    -DWITH_PHONENUMBER=OFF
+  ninja -C build
+}
+
+#check() {
+  # libedata-book tests fail because they try to
+  # mkdir /usr/lib/evolution-data-server/camel-providers
+  # long tie
+  #cmake --build build --target test || :
+#}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,19 @@
+--- alsa-oss-1.1.6/alsa/stdioemu.c	2018-04-03 07:01:38.000000000 +0000
++++ stdioemu.c	2018-09-16 19:39:20.650005614 +0000
+@@ -22,7 +22,7 @@
+ */
+ 
+ /*
+- * This source only exists because some very special programs think that
++ * This sourcsed -e 's/\<#include <stdio.h>\>//g' /build/alsa-oss/alsa-oss-1.1.6/alsa/stdioemu.ce only exists because some very special programs think that
+  * it is a very special idea to access /dev/dsp by the means of stdio, so
+  * we need to fake FILE* access for artsdsp as well.
+  *
+@@ -37,7 +37,6 @@
+ #endif
+ 
+ #include <stdio.h>
+-#include <libio.h>
+ 
+ struct fd_cookie {
+ 	int fd;

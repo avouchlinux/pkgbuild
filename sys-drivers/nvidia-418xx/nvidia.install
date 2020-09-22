@@ -1,0 +1,14 @@
+post_install() {
+    _kernver=$(</usr/src/linux/version)
+    depmod $_kernver
+    # depmod $(cat /usr/lib/modules/$_kernver/version)    
+    echo 'In order to use nvidia module, reboot the system.'
+}
+
+post_upgrade() {
+    post_install
+}
+
+post_remove() {
+    post_install
+}

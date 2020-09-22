@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxrender
+_realname=libXrender
+pkgver=0.9.10
+pkgrel=1
+pkgdesc="X Rendering Extension client library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('lib32-libx11' 'libx11')
+makedepends=('pkgconfig' 'gcc-multilib' renderproto)
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXrender-${pkgver}.tar.bz2)
+sha256sums=('1d14b02f0060aec5d90dfdcf16a996f17002e515292906ed26e3dcbba0f4fc62')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-yaml
+_realname=YAML
+pkgver=1.30
+pkgrel=1
+pkgdesc="Perl/CPAN Module YAML : YAML Aint Markup Language"
+arch=('any')
+groups=('dev-perl')
+url="http://search.cpan.org/dist/YAML/"
+license=('GPL' 'PerlArtistic')
+depends=('perl')
+checkdepends=('perl-test-deep' 'perl-test-yaml')
+options=('!emptydirs')
+source=(https://www.cpan.org/authors/id/T/TI/TINITA/YAML-${pkgver}.tar.gz)
+
+build() {
+  cd YAML-${pkgver}
+  perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+check() {
+  cd YAML-${pkgver}
+  make test
+}
+
+package() {
+  cd YAML-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

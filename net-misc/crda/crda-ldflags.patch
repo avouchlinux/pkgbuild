@@ -1,0 +1,12 @@
+diff -up crda-3.18_2015.04.06/crda-3.18/Makefile.jx crda-3.18_2015.04.06/crda-3.18/Makefile
+--- crda-3.18_2015.04.06/crda-3.18/Makefile.jx	2015-08-14 12:47:40.000000000 -0400
++++ crda-3.18_2015.04.06/crda-3.18/Makefile	2015-08-14 12:49:48.640520841 -0400
+@@ -116,7 +116,7 @@ keys-%.c: utils/key2pub.py $(wildcard $(
+ 
+ $(LIBREG): regdb.h reglib.h reglib.c
+ 	$(NQ) '  CC  ' $@
+-	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -shared -Wl,-soname,$(LIBREG) $^
++	$(Q)$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ -shared -Wl,-soname,$(LIBREG) $(LDFLAGS) $^
+ 
+ install-libreg-headers:
+ 	$(NQ) '  INSTALL  libreg-headers'

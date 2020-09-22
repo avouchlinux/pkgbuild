@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtkspell3
+pkgver=3.0.10
+pkgrel=1
+url="http://gtkspell.sourceforge.net/"
+pkgdesc="GtkSpell provides word-processor-style highlighting and replacement of misspelled words in a GtkTextView widget"
+arch=('x86_64')
+groups=('sys-libs')
+license=('GPL')
+depends=('gtk2' 'enchant')
+makedepends=('intltool' 'gtk-doc')
+options=('!libtool')
+source=(http://gtkspell.sourceforge.net/download/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	#https://bugzilla.gnome.org/show_bug.cgi?id=656231
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

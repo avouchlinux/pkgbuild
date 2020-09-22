@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cpio
+pkgver=2.13
+pkgrel=1
+pkgdesc="A tool to copy files into or out of a cpio or tar archive"
+arch=('x86_64')
+groups=('sys-base')
+license=('GPL')
+url="https://www.gnu.org/software/cpio"
+depends=('glibc')
+source=(https://ftp.gnu.org/gnu/cpio/cpio-${pkgver}.tar.gz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# GCC 10 fix (Gentoo)
+	patch -p1 -i ../cpio-2.12-non-gnu-compilers.patch
+	patch -p1 -i ../cpio-2.12-gcc-10.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --mandir=/usr/share/man
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+
+
+	rm -f ${pkgdir}/usr/bin/mt ${pkgdir}/usr/share/man/man1/mt.1
+	rm -rf ${pkgdir}/usr/libexec
+}
+

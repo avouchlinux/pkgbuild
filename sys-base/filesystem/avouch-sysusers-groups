@@ -1,0 +1,17 @@
+# default avouch groups
+g bin 1 - -
+g daemon 2 - -
+g sys 3 - -
+g mem 8 - -
+g ftp 11 - -
+g usb 14 - -
+g log 17 - -
+g power 33 - -
+g scanner 34 - -
+g plugdev 36 - -
+g proc 37 - -
+g network 40 - -
+g smmsp 44 - -
+g games 50 - -
+g locate 60 - -
+g lock 62 - -

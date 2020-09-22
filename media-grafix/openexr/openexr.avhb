@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=openexr
+pkgver=2.4.1
+pkgrel=1
+pkgdesc="An high dynamic-range image file format library"
+url="https://www.openexr.com/"
+arch=('x86_64')
+groups=('media-grafix')
+license=('BSD')
+makedepends=('cmake' 'fltk' 'python' 'boost' 'freeglut' 'python-numpy' 'chrpath')
+optdepends=('fltk: for exrdisplay' 'boost-libs: python support' 'python: python support') 
+source=($pkgname-$pkgver.tar.gz::"https://github.com/openexr/openexr/archive/v$pkgver.tar.gz"
+        openexr-pc-prefix.patch::"https://github.com/AcademySoftwareFoundation/openexr/commit/0b26a9de.patch")
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../openexr-pc-prefix.patch # Fix prefix in pc file
+}
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_SBINDIR=bin
+
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+  install -D -m644 "$srcdir"/$pkgname-$pkgver/LICENSE.md -t "${pkgdir}/usr/share/licenses/${pkgname}"
+
+# Install missing python module
+  _pythonpath=`python -c "from sysconfig import get_path; print(get_path('platlib'))"`
+  install -Dm755 python3*/imathnumpy.so -t "$pkgdir"/$_pythonpath 
+}

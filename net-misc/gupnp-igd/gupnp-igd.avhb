@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gupnp-igd
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="A library to handle UPnP IGD port mapping"
+arch=('x86_64')
+groups=('net-misc')
+url="https://wiki.gnome.org/Projects/GUPnP"
+license=(LGPL)
+depends=(gupnp)
+makedepends=(gobject-introspection git gtk-doc)
+makedepends=('meson')
+source=("https://gitlab.gnome.org/GNOME/gupnp-igd/-/archive/$pkgver/gupnp-igd-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

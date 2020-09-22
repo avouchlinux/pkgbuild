@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='perl-io-socket-inet6'
+_realname=IO-Socket-INET6
+pkgver=2.72
+pkgrel=1
+pkgdesc="Object interface for AF_INET|AF_INET6 domain sockets"
+arch=('any')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl-socket6')
+makedepends=()
+url='http://search.cpan.org/dist/IO-Socket-INET6'
+source=("http://search.cpan.org/CPAN/authors/id/S/SH/SHLOMIF/IO-Socket-INET6-$pkgver.tar.gz")
+md5sums=('12a80a5164a775294a9bf9c812fc3257')
+sha512sums=('be3398a64daafa0e90e6c66c6a51b94b4063f7fb6527fbb300f5ccd100770929b69b8472602117988cf0b452e4cfb857527861c272c8c0038b3e3efffac77cde')
+_distdir="${srcdir}/IO-Socket-INET6-$pkgver"
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=atkmm
+pkgname=(atkmm atkmm-docs)
+pkgver=2.28.0
+pkgrel=1
+pkgdesc="C++ bindings for ATK"
+url="https://www.gtkmm.org/"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(LGPL)
+depends=(atk glibmm)
+makedepends=(git mm-common perl glibmm-docs)
+source=(http://ftp.gnome.org/pub/GNOME/sources/${pkgbase}/2.22/${pkgbase}-${pkgver}.tar.xz)
+sha256sums=('bfbf846b409b4c5eb3a52fa32a13d86936021969406b3dcafd4dd05abd70f91b')
+
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	./configure --prefix=/usr --enable-maintainer-mode
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package_atkmm() {
+	pkgdesc="C++ bindings for atk"
+	depends=('atk' 'glibmm' 'libsigc++')
+
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	sed -i -e 's/^doc_subdirs/#doc_subdirs/' Makefile
+	make DESTDIR="${pkgdir}" install
+
+}
+
+package_atkmm-docs() {
+	pkgdesc="Developer documentation for atkmm"
+
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make -C doc DESTDIR="${pkgdir}" install
+}

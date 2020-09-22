@@ -1,0 +1,13 @@
+--- tls/openssl/gtlsserverconnection-openssl.c	2017-10-26 12:45:11.000000000 +0000
++++ ../gtlsserverconnection-openssl.c	2018-01-24 21:40:07.625107085 +0000
+@@ -216,8 +216,8 @@
+ {
+   if ((type & SSL_CB_HANDSHAKE_DONE) != 0)
+     {
+-      /* Disable renegotiation (CVE-2009-3555) */
+-      ssl->s3->flags |= SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS;
++      /* Disable renegotiation (CVE-2009-3555) */      
++      //ssl->s3->flags |= SSL3_FLAGS_NO_RENEGOTIATE_CIPHERS;
+     }
+ }
+ 

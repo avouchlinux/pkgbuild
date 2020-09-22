@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+
+pkgname=libdc1394
+pkgver=2.2.6
+pkgrel=1
+pkgdesc="High level programming interface to control IEEE 1394 based cameras"
+arch=('x86_64')
+groups=('media-libs')
+license=('LGPL')
+url="https://sourceforge.net/projects/libdc1394/"
+depends=('libraw1394' 'libusb')
+options=('!emptydirs')
+source=(https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

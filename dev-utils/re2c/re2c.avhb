@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=re2c
+pkgver=1.0.1
+pkgrel=1
+pkgdesc='A tool for generating C-based recognizers from regular expressions'
+arch=('x86_64')
+grous=('dev-utils')
+depends=(gcc-libs)
+url='http://re2c.sourceforge.net/'
+license=(GPL)
+source=(http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+
+build() {
+	cd $pkgname-$pkgver
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd $pkgname-$pkgver
+	make tests
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="$pkgdir" install
+}

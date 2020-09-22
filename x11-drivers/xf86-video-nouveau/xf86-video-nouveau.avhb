@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-nouveau
+pkgver=1.0.16
+pkgrel=1
+pkgdesc="Open Source 3D acceleration driver for nVidia cards"
+arch=('x86_64')
+groups=('x11-drivers')
+url="https://nouveau.freedesktop.org/"
+license=('GPL')
+depends=('systemd-libs' 'mesa')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0' 'systemd')
+source=(https://xorg.freedesktop.org/archive/individual/driver/$pkgname-$pkgver.tar.bz2{,.sig})
+validpgpkeys=('B97BD6A80CAC4981091AE547FE558C72A67013C3') # Maarten Lankhorst <maarten@debian.org>
+validpgpkeys+=('C9FA6B58BC799041500F769AC5469FB8758F9C2B') # "Lyude Paul <lyude@redhat.com>"
+validpgpkeys+=('BFB9B0C276D5767C710086EFB178BE4EA075DE07') # "Ilia Mirkin <imirkin@alum.mit.edu>"
+
+#prepare() {
+#  cd $pkgname-$pkgver
+#}
+
+build() {
+  cd $pkgname-$pkgver
+
+  # Hardened flags are now enabled in ee.conf
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.avouch.org/ / https://bugs.avouch.org/
+  export CFLAGS=${CFLAGS/-fno-plt}
+  export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  export LDFLAGS=${LDFLAGS/-z now}
+
+  ./configure --prefix=/usr
+  make ${MAKEFLGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

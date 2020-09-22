@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=grub-customizer
+pkgver=5.1.0
+pkgrel=1
+pkgdesc="A graphical grub2 settings manager"
+arch=('x86_64')
+groups=('app-utils')
+url="https://launchpad.net/grub-customizer"
+license=('GPL3')
+depends=('gtkmm3' 'openssl' 'hicolor-icon-theme' 'grub-common' 'libarchive' )
+optdepends=('hwinfo')
+makedepends=('cmake')
+provides=('grub-customizer')
+backup=('etc/grub-customizer/grub.cfg')
+source=("https://launchpad.net/${pkgname}/${pkgver%.*}/${pkgver}/+download/${pkgname}_${pkgver}.tar.gz"
+        'grub.cfg')
+
+prepare(){
+  # modifying desktop file
+  sed -i -e '/^Categories=/s/Settings/GTK/' -e '/^X-Ubuntu/d' -e '/^X-KDE/d' \
+    "${srcdir}/${pkgname}-${pkgver}/misc/grub-customizer.desktop"
+}
+
+build(){
+  cd "${pkgname}-${pkgver}/"
+  cmake -DCMAKE_INSTALL_PREFIX=/usr .
+  make ${MAKEFLAGS}
+}
+
+package(){
+  cd "${pkgname}-${pkgver}/"
+  make install DESTDIR="${pkgdir}"
+  # configuration
+  install -t "${pkgdir}/etc/grub-customizer/" -Dm644 "${srcdir}/grub.cfg"
+  # CHANGELOG
+  install -Dm644 changelog "${pkgdir}/usr/share/doc/grub-customizer/CHANGELOG"
+}

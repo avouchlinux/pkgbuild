@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jbig2dec
+pkgver=0.18
+_gsver=gs952
+pkgrel=1
+pkgdesc='Decoder implementation of the JBIG2 image compression format'
+url='https://jbig2dec.com/'
+arch=('x86_64')
+groups=('media-grafix')
+license=('GPL3')
+depends=('libpng')
+source=("https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/${_gsver}/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	autoreconf -vfi
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

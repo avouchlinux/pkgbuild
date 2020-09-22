@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxtst
+_realname=libXtst
+pkgver=1.2.3
+pkgrel=1
+pkgdesc="X11 Testing -- Resource extension library"
+arch=('x86_64')
+groups=('x11-libs')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxext' 'libxi' 'recordproto' 'inputproto' 'libxfixes')
+makedepends=('xorg-util-macros')
+source=("${url}/releases/individual/lib/libXtst-${pkgver}.tar.bz2")
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

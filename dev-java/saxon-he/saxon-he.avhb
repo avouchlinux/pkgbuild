@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=saxon-he
+_realname=SaxonHE10
+pkgver=10.0
+pkgrel=1
+pkgdesc="XSLT 2.0 / XPath 2.0 and 3.0 / XQuery 1.0 and 3.0 processor for Java - Home Edition"
+arch=('any')
+groups=('dev-java')
+url="http://saxon.sourceforge.net/"
+license=('MPL')
+depends=('java-runtime-headless')
+source=("http://sourceforge.net/projects/saxon/files/Saxon-HE/${_major}/SaxonHE${_pkgver}J.zip"
+        saxon-xslt.sh
+        saxon-xquery.sh)
+
+package() {
+    cd "${srcdir}"
+    install -Dm644 saxon-he-$pkgver.jar "${pkgdir}/usr/share/java/saxon/saxon-he-$pkgver.jar"
+    install -Dm755 saxon-xslt.sh "${pkgdir}/usr/bin/saxon-xslt.sh"
+    install -Dm755 saxon-xquery.sh "${pkgdir}/usr/bin/saxon-xquery"
+    # link with simpler name for compat with others
+    ln -s saxon-he-$pkgver.jar "${pkgdir}/usr/share/java/saxon/saxon.jar"
+    ln -s saxon-xslt.sh "${pkgdir}/usr/bin/saxon"
+}

@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fluidsynth
+pkgver=2.1.1
+pkgrel=1
+pkgdesc="A real-time software synthesizer based on the SoundFont 2 specifications"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.fluidsynth.org/"
+license=('LGPL')
+groups=('pro-audio')
+depends=('glib2' 'libpulse' 'portaudio')
+makedepends=('cmake' 'ladspa' 'doxygen')
+optdepends=('pulseaudio: PulseAudio sound support')
+provides=('soundfont-synthesizer')
+backup=("etc/conf.d/$pkgname")
+source=("https://github.com/${pkgname}/${pkgname}/archive/v$pkgver.tar.gz")
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # out-of-tree build
+  mkdir build
+}
+
+build() {
+  cd "${pkgname}-${pkgver}/build"
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr \
+           -DFLUID_DAEMON_ENV_FILE=/etc/conf.d/fluidsynth \
+           -Denable-ladspa=ON \
+           -Denable-portaudio=ON \
+           -DLIB_SUFFIX=""
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "${pkgname}-${pkgver}/build"
+  make -k check
+}
+
+package() {
+  cd "${pkgname}-${pkgver}/build"
+  make DESTDIR="$pkgdir" install
+  # systemd user unit
+  install -vDm 644 "${pkgname}.service" \
+    -t "$pkgdir/usr/lib/systemd/user/"
+  # system-wide configuration file
+  install -vDm 644 "${pkgname}.conf" "${pkgdir}/etc/conf.d/${pkgname}"
+  # docs
+  install -t "${pkgdir}/usr/share/doc/${pkgname}" \
+    -vDm 644 ../{AUTHORS,ChangeLog,NEWS,README.md,THANKS,TODO}
+}

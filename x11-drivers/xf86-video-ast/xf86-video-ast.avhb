@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-ast
+pkgver=1.1.5
+pkgrel=1
+pkgdesc="X.org ASPEED AST Graphics video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

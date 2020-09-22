@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="frogr"
+pkgver="1.6"
+pkgrel="1"
+pkgdesc="A flickr remote organizer for GNOME"
+url="https://wiki.gnome.org/Apps/Frogr"
+arch=('x86_64')
+groups=('gnome-extra')
+license=('GPL3')
+depends=('gtk3' 'libexif' 'hicolor-icon-theme' 'json-glib' 'desktop-file-utils' 'libsoup' 'gstreamer')
+makedepends=('gnome-common' 'intltool' 'meson' 'yelp-tools')
+optdepends=('gst-libav: To support common video formats like .3gp and .MP4 ')
+conflicts=("${pkgname}-git")
+provides=("${pkgname}")
+source=("http://download.gnome.org/sources/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

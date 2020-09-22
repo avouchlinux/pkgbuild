@@ -1,0 +1,67 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mame
+pkgver=0.220
+pkgrel=1
+pkgdesc="A port of the popular Multiple Arcade Machine Emulator using SDL with OpenGL support."
+url="http://mamedev.org/"
+license=(GPL2)
+arch=(x86_64)
+groups=('app-emulation')
+depends=(sdl2_ttf qt5-base lua libutf8proc pugixml portmidi portaudio)
+makedepends=(nasm python asio rapidjson glm libxinerama)
+source=("https://github.com/mamedev/mame/archive/mame${pkgver/./}.tar.gz" mame.sh)
+
+prepare() {
+  cd mame-mame${pkgver/./}
+
+# Use system libraries
+  sed -e 's|\# USE_SYSTEM_LIB|USE_SYSTEM_LIB|g' -i makefile
+}
+
+build() {
+  cd mame-mame${pkgver/./}
+  make \
+    NOWERROR=1 \
+    OPTIMIZE=2 \
+    TOOLS=1 \
+    ARCHOPTS=-flifetime-dse=1
+}
+
+package() {
+  cd mame-mame${pkgver/./}
+
+  # Install the mame script
+  install -Dm755 "$srcdir"/$pkgname.sh "$pkgdir"/usr/bin/$pkgname
+
+  # Install the binaries
+  install -Dm755 mame64 "$pkgdir"/usr/lib/mame/mame
+  for _i in castool chdman imgtool jedutil nltool nlwav pngcmp regrep romcmp src2html \
+            split srcclean ldverify ldresample; do
+    install -m755 $_i -t "$pkgdir"/usr/lib/mame
+  done
+
+  # Install the extra bits
+  install -Dm644 src/osd/modules/opengl/shader/glsl*.*h -t "$pkgdir"/usr/lib/$pkgname/shader/
+  cp -ar {artwork,bgfx,plugins,language,ctrlr,keymaps,hash} "$pkgdir"/usr/lib/$pkgname/
+
+  # Include the license
+  install -Dm644 docs/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+  # FS#28203
+  sed -i 's|KEYCODE_2_PAD|KEYCODE_2PAD|' "$pkgdir"/usr/lib/mame/ctrlr/*.cfg
+  sed -i 's|KEYCODE_4_PAD|KEYCODE_4PAD|' "$pkgdir"/usr/lib/mame/ctrlr/*.cfg
+  sed -i 's|KEYCODE_6_PAD|KEYCODE_6PAD|' "$pkgdir"/usr/lib/mame/ctrlr/*.cfg
+  sed -i 's|KEYCODE_8_PAD|KEYCODE_8PAD|' "$pkgdir"/usr/lib/mame/ctrlr/*.cfg
+
+  # documentation
+  install -dm0755 "$pkgdir"/usr/share/doc
+  cp -a docs "$pkgdir"/usr/share/doc/$pkgname
+  rm -r "$pkgdir"/usr/share/doc/$pkgname/man
+  install -d "$pkgdir"/usr/share/man/man{1,6}
+  install -m644 docs/man/*.1* "$pkgdir"/usr/share/man/man1/
+  install -m644 docs/man/*.6* "$pkgdir"/usr/share/man/man6/
+}

@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sofia-sip
+pkgver=1.12.11
+pkgrel=1
+pkgdesc="An open-source SIP User-Agent library"
+arch=('x86_64')
+groups=('net-misc')
+url="http://sofia-sip.sourceforge.net"
+options=('zipman')
+license=('LGPL')
+depends=('glib2' 'openssl')
+source=(http://downloads.sourceforge.net/sofia-sip/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --with-openssl --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}
+

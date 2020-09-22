@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=less
+pkgver=551
+pkgrel=1
+pkgdesc="A terminal based program for viewing text files"
+license=('GPL3')
+arch=('x86_64')
+groups=('sys-base')
+url='http://www.greenwoodsoftware.com/less'
+groups=('base')
+depends=('glibc' 'ncurses' 'pcre')
+validpgpkeys=('AE27252BD6846E7D6EAE1DD6F153A7C833235259') # Mark Nudelman
+source=("http://www.greenwoodsoftware.com/$pkgname/$pkgname-$pkgver.tar.gz"
+        "$pkgname-$pkgver.tar.gz::http://www.greenwoodsoftware.com/$pkgname/$pkgname-$pkgver.sig")
+md5sums=('8caff88e34afff512b663d7c690bd2cf'
+         '8caff88e34afff512b663d7c690bd2cf')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --with-regex=pcre
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

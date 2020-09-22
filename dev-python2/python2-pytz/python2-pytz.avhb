@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-pytz
+pkgname=('python-pytz' 'python2-pytz')
+_realname=pytz
+pkgver=2019.3
+pkgrel=1
+arch=('any')
+groups=('dev-python')
+url="http://pypi.python.org/pypi/pytz"
+license=("MIT")
+makedepends=('python' 'python2')
+source=("https://pypi.io/packages/source/p/pytz/pytz-${pkgver}.tar.gz")
+md5sums=('c3d84a465fc56a4edd52cca8873ac0df')
+validpgpkeys=('C7ECC365AB6F255E1EB9BA1701FA998FBAC6374A')
+
+prepare() {
+	cp -a ${_realname}-${pkgver} python-build
+	cp -a ${_realname}-${pkgver} python2-build
+}
+
+check(){	
+	cd ${srcdir}/python-build/pytz/tests
+	python3 test_tzinfo.py
+
+	cd ${srcdir}/python2-build/pytz/tests
+	python2 test_tzinfo.py
+}
+
+package_python-pytz(){
+	depends=('python')
+	pkgdesc="Cross platform time zone library for Python"
+
+	cd ${srcdir}/python-build
+
+	python3 setup.py install --root=$pkgdir/
+	# License
+	install -D LICENSE.txt $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}
+
+
+package_python2-pytz(){
+	depends=('python2')
+	pkgdesc="Cross platform time zone library for Python"
+
+	cd ${srcdir}/python2-build
+
+	# python 2 fix
+	sed -i 's_#!/usr/bin/env python_#!/usr/bin/env python2_' pytz/tzfile.py
+
+	python2 setup.py install --root="$pkgdir/"
+	# License
+	install -D LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

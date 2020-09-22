@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=neon
+pkgver=0.31.1
+pkgrel=1
+pkgdesc="HTTP and WebDAV client library with a C interface"
+arch=('x86_64')
+groups=('net-misc')
+url="https://notroj.github.io/neon/"
+license=('GPL' 'LGPL')
+depends=('krb5' 'expat' 'ca-certificates' 'zlib')
+source=(https://notroj.github.io/$pkgname/$pkgname-$pkgver.tar.gz)
+
+build() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+    --with-expat \
+    --enable-shared \
+    --disable-static \
+    --with-ssl=openssl \
+    --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

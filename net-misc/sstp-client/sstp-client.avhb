@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sstp-client
+pkgver=1.0.13
+pkgrel=1
+pkgdesc="SSTP client stable revision"
+arch=('x86_64')
+groups=('net-misc')
+url="http://sstp-client.sourceforge.net/"
+license=('GPL2')
+depends=('libevent' 'openssl')
+makedepends=('ppp')
+optdepends=('ppp')
+install=$pkgname.install
+source=('50-sstp.PROFILE.sh.sample'
+        'sstp.options.sample'
+        "https://sourceforge.net/projects/sstp-client/files/sstp-client/$pkgname-$pkgver.tar.gz")
+
+build() {
+  pppd_version=(`pppd --version 2>&1 | awk '{print $3}'`)
+
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr \
+    --localstatedir=/ \
+    --with-pppd-plugin-dir=/usr/lib/pppd/${pppd_version}
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR=${pkgdir} install
+
+  install -d ${pkgdir}/run/sstpc
+  install -d ${pkgdir}/etc/sstpc
+  install -d ${pkgdir}/etc/ppp/ip-up.d
+
+  install -Dm644 "${srcdir}/sstp.options.sample" "${pkgdir}/etc/sstpc/sstp.options.sample"
+  install -Dm744 "${srcdir}/50-sstp.PROFILE.sh.sample" "${pkgdir}/etc/ppp/ip-up.d/50-sstp.PROFILE.sh.sample"
+
+  rm -rf ${pkgdir}/var
+  rm -rf ${pkgdir}/run
+
+  mv ${pkgdir}/usr/sbin ${pkgdir}/usr/bin
+}

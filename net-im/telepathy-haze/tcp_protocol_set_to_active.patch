@@ -1,0 +1,11 @@
+--- src/media-stream.c	2016-04-24 01:17:20.786541803 +0000
++++ ../media-stream.c	2016-04-24 01:16:26.619875000 +0000
+@@ -1076,7 +1076,7 @@
+       if (proto == TP_MEDIA_STREAM_BASE_PROTO_UDP)
+         protocol = PURPLE_MEDIA_NETWORK_PROTOCOL_UDP;
+       else if (proto == TP_MEDIA_STREAM_BASE_PROTO_TCP)
+-        protocol = PURPLE_MEDIA_NETWORK_PROTOCOL_TCP;
++        protocol = PURPLE_MEDIA_NETWORK_PROTOCOL_TCP_ACTIVE;
+       else
+         DEBUG ("Unknown network protocol");
+ 

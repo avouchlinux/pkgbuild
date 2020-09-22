@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-packaging
+_realname=packaging
+pkgver=20.1
+pkgrel=1
+pkgdesc="Core utilities for Python packages"
+arch=('any')
+groups=('dev-python2')
+url="https://github.com/pypa/packaging"
+license=('Apache')
+depends=('python2')
+makedepends=('python-setuptools' 'python2-setuptools' 'python-pyparsing' 'python2-pyparsing' 'git')
+checkdepends=('python-pytest-runner' 'python2-pytest-runner' 'python-pretend' 'python2-pretend' 'python-coverage' 'python2-coverage')
+source=("git+https://github.com/pypa/packaging.git#tag=$pkgver")
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

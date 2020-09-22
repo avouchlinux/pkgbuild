@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=filezilla
+_realname=FileZilla
+pkgver=3.48.1
+pkgrel=1
+pkgdesc="Fast and reliable FTP, FTPS and SFTP client"
+arch=('x86_64')
+groups=('app-net')
+url="https://filezilla-project.org/"
+license=('GPL')
+depends=('dbus' 'xdg-utils' 'wxgtk3' 'libidn' 'hicolor-icon-theme' 'sqlite' 'gnutls' 'libfilezilla')
+source=("https://download.filezilla-project.org/client/FileZilla_${pkgver}_src.tar.bz2")
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # Fix error: 'std::list' has not been declared.
+  patch -p1 -i ../filezilla-3.47.2.1-interface_Mainfrm_h_include_list.patch
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  ./configure \
+    --prefix=/usr \
+    --disable-manualupdatecheck \
+    --disable-autoupdatecheck \
+    --with-pugixml=builtin \
+    --with-wx-config=/usr/bin/wx-config-gtk3
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+}

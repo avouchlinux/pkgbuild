@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=networkmanager-iodine
+_realname=network-manager-iodine
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="Iodine plugin for NetworkManager"
+arch=('x86_64')
+groups=('net-misc')
+url="http://git.gnome.org/browse/network-manager-iodine"
+license=('GPL')
+depends=('iodine' 'networkmanager' 'libgnome-keyring' 'gtk3' 'libnm-gtk')
+makedepends=('git' 'intltool')
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/v$pkgver/$_realname-v$pkgver.tar.bz2")
+
+build() {
+  cd "${srcdir}/$_realname-v$pkgver"
+  export CFLAGS="-O2 -Wno-error=deprecated-declarations"
+  ./autogen.sh \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --libexecdir=/usr/lib/NetworkManager \
+    --disable-static
+  make ${MAKEFLAGS} || return 1
+}
+
+package() {
+  cd "${srcdir}/$_realname-v$pkgver"
+  make DESTDIR="$pkgdir" install || return 1
+}

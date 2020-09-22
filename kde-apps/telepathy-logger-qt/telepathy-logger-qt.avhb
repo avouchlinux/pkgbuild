@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telepathy-logger-qt
+pkgver=17.09.0
+pkgrel=1
+pkgdesc="Qt bindings for telepathy logger"
+arch=('x86_64')
+groups=('kde-apps')
+url='https://www.kde.org/'
+license=(GPL)
+depends=(telepathy-qt telepathy-logger)
+makedepends=(extra-cmake-modules doxygen python2)
+source=("http://download.kde.org/stable/$pkgname//${pkgver%.*}/src/$pkgname-$pkgver.tar.xz")
+sha256sums=('d098a77de2a58381d9ebcd64c8ae54c773b5206ed7888576653d3b505fe5032a')
+validpgpkeys=(D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heirecka@exherbo.org>
+
+prepare () {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DKDE_INSTALL_LIBDIR=lib \
+    -DPYTHON_EXECUTABLE=/usr/bin/python2
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

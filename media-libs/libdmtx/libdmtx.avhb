@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdmtx
+pkgver=0.7.5
+pkgrel=1
+pkgdesc="A software for reading and writing Data Matrix 2D barcodes"
+url="https://libdmtx.sourceforge.net/"
+arch=('x86_64')
+groups=('media-libs')
+license=(GPL2)
+depends=(glibc)
+source=("https://github.com/dmtx/libdmtx/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+
+build() {
+  cd $pkgname-$pkgver
+  ./autogen.sh
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

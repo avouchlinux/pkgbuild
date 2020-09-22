@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=udisks2
+_realname=udisks
+pkgver=2.9.0
+pkgrel=1
+pkgdesc="Disk Management Service, version 2"
+arch=('x86_64')
+groups=('sys-block')
+url="https://www.freedesktop.org/wiki/Software/udisks"
+license=('GPL2')
+depends=('polkit' 'libatasmart' 'libgudev' 'libblockdev')
+makedepends=('docbook-xsl' 'gobject-introspection' 'parted' 'gtk-doc')
+optdepends=('gptfdisk: GUID partition table support'
+            'ntfs-3g: NTFS filesystem management support'
+            'dosfstools: VFAT filesystem management support')
+source=("https://github.com/storaged-project/udisks/archive/udisks-$pkgver.tar.gz")
+
+prepare() {
+  cd udisks-$pkgver
+  #NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd udisks-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc \
+      --sbindir=/usr/bin --libexecdir=/usr/lib \
+      --with-systemdsystemunitdir=/usr/lib/systemd/system \
+      --localstatedir=/var --disable-static \
+      --enable-gtk-doc enable_available_modules=yes
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd udisks-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd udisks-$pkgver
+  make DESTDIR="$pkgdir" install
+}

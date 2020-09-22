@@ -1,0 +1,68 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mlocate
+pkgver=0.26.git.20170220
+pkgrel=1
+pkgdesc='Merging locate/updatedb implementation'
+url='https://pagure.io/mlocate'
+arch=('x86_64')
+groups=('sys-base')
+license=('GPL')
+backup=('etc/updatedb.conf'
+        'etc/cron.daily/updatedb')
+source=("git+https://pagure.io/mlocate.git#commit=$_commit"
+        'git+https://git.savannah.gnu.org/git/gnulib.git#commit=5861339993f3014cfad1b94fc7fe366fc2573598'
+	'sysusers.d'
+	'updatedb.conf'
+	'updatedb.timer'
+	'updatedb.service')
+sha1sums=('c6e6d81b25359c51c545f4b8ba0f3b469227fcbc'
+          '0150379149bf9d714bc81332d775fc273e7e3535'
+          '8301e6277d27db539af6cf4bc243e8e247bffc2e')
+
+prepare() {
+	bsdtar -xf $srcarchivedir/gnulib-git20200319.tar.xz
+	cd gnulib
+	git checkout 5861339993f3014cfad1b94fc7fe366fc2573598
+
+	cd "${srcdir}/${pkgname}"
+
+	sed -i '/^groupname /s/mlocate/locate/' Makefile.am
+	
+	../gnulib/gnulib-tool --import # See file: ./HACKING
+	autoreconf -is
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var/lib
+	make ${MAKEFLAGS} groupname=locate
+}
+
+check() {
+	cd "${srcdir}/${pkgname}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}"
+
+	make DESTDIR="${pkgdir}" install INSTALL='install -p' groupname=locate
+
+	chgrp 21 "${pkgdir}/usr/bin/locate"
+	chmod 2755 "${pkgdir}/usr/bin/locate"
+	ln -s locate "${pkgdir}/usr/bin/slocate"
+
+	install -dm755 "${pkgdir}/var/lib"
+	install -dm750 -g21 "${pkgdir}/var/lib/locate"
+	
+	install -Dm644 ../updatedb.conf "${pkgdir}/etc/updatedb.conf"
+	install -Dm644 ../sysusers.d "${pkgdir}/usr/lib/sysusers.d/locate.conf"
+	install -Dm644 ../updatedb.timer "${pkgdir}/usr/lib/systemd/system/updatedb.timer"
+	install -Dm644 ../updatedb.service "${pkgdir}/usr/lib/systemd/system/updatedb.service"
+
+	install -d "${pkgdir}/usr/lib/systemd/system/multi-user.target.wants"
+	ln -s ../updatedb.timer "${pkgdir}//usr/lib/systemd/system/multi-user.target.wants/updatedb.timer"
+}

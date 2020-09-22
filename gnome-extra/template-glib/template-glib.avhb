@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=template-glib
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="Library to help you generate text based on a template and user defined state"
+arch=('x86_64')
+groups=('gnome-extra')
+url="http://gnome.org"
+license=('GPL2')
+depends=('dconf' 'gtk3')
+makedepends=('intltool' 'itstool' 'docbook-xsl')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

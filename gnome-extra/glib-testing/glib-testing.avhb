@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glib-testing
+_realname=libglib-testing
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Parental control support for applications"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://gitlab.freedesktop.org/pwithnall/malcontent"
+license=(LGPL2.1)
+depends=(glib2)
+makedepends=(meson gobject-introspection gtk-doc)
+source=("https://gitlab.gnome.org/pwithnall/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $_realname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

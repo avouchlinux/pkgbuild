@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxklavier
+pkgver=5.4+2+g65c132a
+pkgrel=1
+pkgdesc="High-level API for X Keyboard Extension"
+arch=('x86_64')
+groups=('sys-libs')
+license=('LGPL')
+depends=('glib2' 'libxkbfile' 'libxml2' 'xkeyboard-config' 'libxi' 'iso-codes')
+makedepends=('gobject-introspection' 'intltool' 'gtk-doc' 'libxfixes' git)
+options=('!emptydirs')
+url="https://www.freedesktop.org/wiki/Software/LibXklavier/"
+source=("https://anongit.freedesktop.org/git/libxklavier")
+sha256sums=('SKIP')
+
+getsrc(){
+	git clone $source
+}
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^libxklavier-//;s/-/+/g'
+}
+
+build() {
+  cd "$pkgname"
+  ./autogen.sh --prefix=/usr --with-xkb-bin-base=/usr/bin \
+      --with-xkb-base=/usr/share/X11/xkb --disable-static --enable-gtk-doc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$pkgname"
+  make DESTDIR="$pkgdir" install
+}

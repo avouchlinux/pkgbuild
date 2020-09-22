@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mm-common
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="Common build files of the C++ bindings"
+url="http://www.gtkmm.org/"
+arch=('any')
+groups=('dev-cpp')
+depends=(graphviz doxygen gtk-doc libsigc++-docs perl-xml-parser)
+makedepends=(libsigc++ git meson)
+license=(GPL2)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2"
+        https://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/libstdc++.tag)
+
+prepare() {
+  cd $pkgname-$pkgver
+  cp ../libstdc++.tag doctags
+}
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sound-theme-freedesktop
+pkgver=0.8
+pkgrel=1
+pkgdesc="Freedesktop sound theme"
+arch=(any)
+groups=('media-libs')
+url="http://freedesktop.org/wiki/Specifications/sound-theme-spec"
+license=('custom')
+makedepends=('intltool')
+source=(http://people.freedesktop.org/~mccann/dist/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -Dm644 "${srcdir}/${pkgname}-${pkgver}/CREDITS" \
+	"${pkgdir}/usr/share/licenses/${pkgname}/CREDITS"
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

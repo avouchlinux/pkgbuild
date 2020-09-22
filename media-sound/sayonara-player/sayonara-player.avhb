@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sayonara-player
+pkgver=1.5.1
+pkgrel=1
+pkgdesc="Is a small, clear and fast audio player for Linux written in C++, supported by the Qt framework. It uses Gstreamer as audio backend."
+arch=('x86_64')
+groups=('media-sound')
+url="http://sayonara-player.com"
+license=('GPL3')
+depends=('qt5-base' 'taglib' 'gst-plugins-base' 'gst-plugins-good' 'gst-plugins-bad' 'libmtp' 'zlib')
+optdepends=('lame' 'gst-plugins-ugly')
+makedepends=('cmake' 'qt5-tools')
+source=("https://gitlab.com/luciocarreras/$pkgname/-/archive/$pkgver-stable5/$pkgname-$pkgver-stable5.tar.bz2")
+ 
+build() {
+    cmake -S$pkgname-$pkgver-stable5 -Bbuild -GNinja \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DCMAKE_BUILD_TYPE="Release"
+    ninja -C build
+}
+ 
+package() {
+    DESTDIR="$pkgdir/" ninja -C build install
+}

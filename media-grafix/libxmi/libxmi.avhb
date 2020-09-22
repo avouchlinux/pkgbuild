@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxmi
+pkgver=1.2
+pkgrel=1
+pkgdesc="A library for rasterizing 2-D vector graphics"
+arch=('x86_64')
+groups=('media-grafix')
+url="http://www.gnu.org/software/libxmi/libxmi.html"
+license=('GPL')
+depends=('glibc')
+install=libxmi.install
+source=(http://mirrors.usc.edu/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  autoreconf --force --install
+  ./configure --prefix=/usr --infodir=/usr/share/info
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-mock
+_realname=mock
+pkgver=3.0.5
+pkgrel=1
+pkgdesc='Mocking and Patching Library for Testing'
+arch=('any')
+groups=('dev-python2')
+url='http://www.voidspace.org.uk/python/mock/'
+depends=('python2' 'python2-six' 'python2-pbr' 'python2-funcsigs') # Backported Py > 3.3 functionality
+makedepends=('python2' 'python2-setuptools')
+checkdepends=('python2-nose' 'python2-pbr' 'python2-six')
+license=('BSD')
+source=("http://pypi.python.org/packages/source/m/mock/mock-$pkgver.tar.gz")
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  # use unittest instead of unittest2 as they are the same on recent python*
+  sed -i 's/unittest2/unittest/g' mock/tests/*.py
+}
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

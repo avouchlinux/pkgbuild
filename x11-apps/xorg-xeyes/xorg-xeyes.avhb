@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xeyes
+_pkgname=xeyes
+pkgver=1.1.2
+pkgrel=1
+pkgdesc="Follow the mouse/SHAPE extension X demo"
+arch=('x86_64')
+groups=('x11-apps')
+url="https://xorg.freedesktop.org/"
+license=('custom')
+depends=('libx11' 'libxt' 'libxext' 'libxmu' 'libxrender')
+makedepends=('xorg-util-macros')
+source=(https://xorg.freedesktop.org/archive/individual/app/xeyes-${pkgver}.tar.bz2{,.sig})
+
+build() {
+  cd "${srcdir}/xeyes-${pkgver}"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/xeyes-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

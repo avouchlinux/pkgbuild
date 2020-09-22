@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=setools
+pkgver=4.2.2
+pkgrel=1
+pkgdesc="Policy analysis tools for SELinux"
+groups=('selinux')
+arch=('any')
+groups=('sys-security')
+url="https://github.com/SELinuxProject/setools/wiki"
+license=('GPL' 'LGPL')
+depends=('libsepol>=2.8' 'libselinux>=2.8' 'python' 'python-networkx>=2.0')
+optdepends=('python-pyqt5: needed for graphical tools'
+            'qt5-tools: display apol help with Qt Assistant')
+makedepends=('cython' 'python-setuptools' 'python-tox')
+checkdepends=('checkpolicy')
+conflicts=("selinux-${pkgname}")
+provides=("selinux-${pkgname}=${pkgver}-${pkgrel}")
+source=("https://github.com/SELinuxProject/setools/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.bz2")
+sha256sums=('16cabe918ab5938515e4e3b80f56916a6c30b5eebbff8cbac113d0dc83b818c9')
+
+build() {
+  cd "${pkgname}"
+  python setup.py build_ext
+  python setup.py build
+}
+
+check() {
+  cd "${pkgname}"
+  python setup.py test
+}
+
+package() {
+  cd "${pkgname}"
+  python setup.py install --root="$pkgdir" --optimize=1 --skip-build
+}

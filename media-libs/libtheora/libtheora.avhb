@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libtheora
+pkgver=1.1.1
+pkgrel=1
+pkgdesc="An open video codec developed by the Xiph.org"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.xiph.org"
+license=('BSD')
+depends=('libogg')
+makedepends=('libvorbis')
+source=(http://downloads.xiph.org/releases/theora/libtheora-${pkgver}.tar.bz2
+        libtheora-1.1.1-libpng16.patch)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	patch -Np0 -i ../libtheora-1.1.1-libpng16.patch
+	patch -Np1 -i ../libtheora-1.1.1-libm.patch
+	patch -Np1 -i ../libtheora-1.1.1-fix-pp_sharp_mod-calc.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	LIBS='-lm' ./configure --prefix=/usr --enable-shared
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=interbench
+pkgver=0.31
+pkgrel=1
+pkgdesc="Emulates and measures CPU scheduling latency and jitter"
+url="http://users.on.net/~ckolivas/interbench/"
+license=('GPLv2')
+arch=('x86_64')
+groups=('app-benchmark')
+depends=('glibc')
+options=(!strip)
+source=("http://ck.kolivas.org/apps/interbench/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make clean
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  install -Dm755 interbench "$pkgdir/usr/bin/interbench"
+  install -Dm644 interbench.8 "$pkgdir/usr/share/man/man8/interbench.8"
+  install -Dm644 readme "$pkgdir/usr/share/doc/interbench/readme"
+  install -Dm644 readme.interactivity "$pkgdir/usr/share/doc/interbench/readme.interactivity"
+}

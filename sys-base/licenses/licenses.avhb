@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=licenses
+pkgver=1.0
+pkgrel=1
+pkgdesc="Collection of licenses"
+arch=('any')
+groups=('sys-base')
+url="ftp://ftp.gnu.org/gnu/${pkgname}"
+license=('GPL')
+source=("ftp://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+md5sums=('d44b5dddebd8a7a7309aea6c36fda117')
+
+package() {
+	cd "${srcdir}"
+	install -d 644 ${pkgdir}/usr/share/licenses/gnu
+	cp -rf *.txt ${pkgdir}/usr/share/licenses/gnu
+}
+

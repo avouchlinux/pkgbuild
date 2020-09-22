@@ -1,0 +1,12 @@
+diff -Naur src/projectM-libvisual/actor_projectM.cpp src/projectM-libvisual/actor_projectM.cpp
+--- projectM_libvisual-2.0.1-Source-orig/actor_projectM.cpp	2009-12-05 20:20:38.000000000 -0500
++++ projectM_libvisual-2.0.1-Source/actor_projectM.cpp	2012-01-16 11:14:28.445373474 -0500
+@@ -209,7 +209,7 @@
+  * we aren't with projectm, so just ignore :) */
+ extern "C" VisPalette *lv_projectm_palette (VisPluginData *plugin)
+ {
+-	return NULL;
++	return (VisPalette *) NULL;
+ }
+ 
+ /* This is where the real rendering happens! This function is what we call, many times

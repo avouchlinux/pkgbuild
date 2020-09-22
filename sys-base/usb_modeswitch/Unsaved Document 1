@@ -1,0 +1,3 @@
+eject /dev/sr0
+
+usb_modeswitch -J -c /usr/share/usb_modeswitch/12d1:1505

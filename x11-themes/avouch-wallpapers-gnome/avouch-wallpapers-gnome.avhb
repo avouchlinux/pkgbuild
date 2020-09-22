@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avouch-wallpapers-gnome
+_realname=avouch-wallpapers
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Default wallpapers for Avouch Linux"
+arch=('any')
+groups=('x11-themes')
+url="https://avouch.org"
+license=('GPL')
+depends=()
+makedepends=()
+source=(https://avouch.org)
+sha256sums=()
+
+package() {
+  mkdir -p $pkgdir/usr/share/backgrounds/gnome
+  mkdir -p $pkgdir/usr/share/gnome-background-properties
+  cp -r $_realname-$pkgver/wallpaperflare_geometry_abstract.jpg \
+    $pkgdir/usr/share/backgrounds/gnome/wallpaperflare_geometry_abstract.jpg
+  cp gnome-backgrounds.xml \
+    $pkgdir/usr/share/gnome-background-properties/gnome-backgrounds.xml
+}

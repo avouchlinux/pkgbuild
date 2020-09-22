@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=man2html
+pkgver=3.0.1
+pkgrel=1
+pkgdesc="A Unix manpage-to-HTML converter"
+arch=('any')
+groups=('app-text')
+url="http://www.oac.uci.edu/indiv/ehood/man2html.html"
+license=('GPL')
+source=(http://www.oac.uci.edu/indiv/ehood/tar/$pkgname$pkgver.tar.gz)
+
+package() {
+	cd ${srcdir}/${pkgname}${pkgver}
+	install -d ${pkgdir}/usr/bin ${pkgdir}/usr/share/man/man1
+	perl install.me -batch -binpath ${pkgdir}/usr/bin -manpath ${pkgdir}/usr/share/man
+
+	sed -i "s:/usr/local:/usr:" man.cgi
+	install -m755 man.cgi ${pkgdir}/usr/bin/
+
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+

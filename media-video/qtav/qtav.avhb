@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qtav
+_realname=QtAV
+pkgver=1.13.0
+pkgrel=1
+pkgdesc="A cross-platform multimedia playback framework based on Qt and FFmpeg"
+arch=('x86_64')
+groups=('media-video')
+url="https://www.qtav.org/"
+license=('LGPL')
+depends=('qt5-declarative' 'ffmpeg' 'libxv' 'openal' 'uchardet' 'desktop-file-utils' 'qt5-quickcontrols' 'qt5-svg')
+source=("https://github.com/wang-bin/QtAV/archive/v$pkgver.tar.gz")
+
+build() {
+    cd QtAV
+
+    qmake-qt5 "CONFIG+=no_rpath recheck"
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd QtAV
+
+    make INSTALL_ROOT="${pkgdir}" install
+}

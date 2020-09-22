@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mod_perl
+pkgver=2.0.11
+pkgrel=1
+pkgdesc='Apache module that embeds the Perl interpreter within the server'
+arch=('x86_64')
+groups=('app-net')
+url='http://perl.apache.org/'
+license=(APACHE)
+depends=(perl apache db apr-util perl-linux-pid)
+options=(!emptydirs)
+source=(http://apache.org/dist/perl/mod_perl-$pkgver.tar.gz{,.asc})
+validpgpkeys=(2026E6A4A6A4483E61BA6F3FAB34BA0040E92ECE)
+
+build() {
+  cd mod_perl-$pkgver
+  perl Makefile.PL INSTALLDIRS=vendor MP_APXS=/usr/bin/apxs
+  make
+}
+
+check() {
+  cd mod_perl-$pkgver
+  # tests are very flaky
+  # make test
+}
+
+package() {
+  cd mod_perl-$pkgver
+  make install DESTDIR="$pkgdir"
+}

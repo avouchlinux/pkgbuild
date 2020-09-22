@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtksourceview3
+_realname=gtksourceview
+pkgver=3.24.11
+pkgrel=1
+pkgdesc="A text widget adding syntax highlighting and more to GNOME"
+url="https://wiki.gnome.org/Projects/GtkSourceView"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(gtk3 libxml2)
+makedepends=(intltool gobject-introspection vala gtk-doc autoconf-archive
+             yelp-tools git)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$_realname/3.24/$_realname-$pkgver.tar.xz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --disable-static \
+	--enable-glade-catalog --enable-gtk-doc
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

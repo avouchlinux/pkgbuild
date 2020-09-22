@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=quazip
+pkgver=0.8.1
+pkgrel=1
+pkgdesc="C++ wrapper for the Gilles Vollant's ZIP/UNZIP C package"
+arch=('x86_64')
+groups=('dev-libs')
+url="https://stachenov.github.io/quazip/"
+license=(LGPL)
+depends=(qt5-base)
+makedepends=(cmake)
+source=(https://github.com/stachenov/$pkgname/archive/v$pkgver.tar.gz)
+
+build() {
+  cmake -S $pkgname-$pkgver -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS} -C build
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

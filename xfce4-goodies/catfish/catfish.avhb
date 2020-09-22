@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=catfish
+pkgver=1.4.13
+pkgrel=1
+pkgdesc='Versatile file searching tool'
+arch=(any)
+groups=('xfce4-goodies')
+url='https://git.xfce.org/apps/catfish/about/'
+license=(GPL)
+install=$pkgname.install
+depends=(gtk3 python3-cairo python3-gobject python3-pexpect python3-ptyprocess python3-xdg xdg-utils)
+makedepends=(git intltool python3-distutils-extra)
+optdepends=('mlocate: filename search'
+            'zeitgeist: integration with zeitgeist')
+source=("https://git.xfce.org/apps/catfish/snapshot/catfish-$pkgver.tar.gz")
+
+prepare() {
+  # Patch for FS#62864
+  sed -i 's/monitor_at_window(s.get_active/monitor_at_window(s.get_root/g' \
+    "$pkgname-$pkgver/$pkgname/CatfishWindow.py"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  python3 setup.py build
+}
+
+package () {
+  cd "$pkgname-$pkgver"
+
+  python3 setup.py install --root="$pkgdir" --optimize=1
+
+  install -d "$pkgdir/usr/share/pixmaps"
+  ln -s "/usr/share/icons/hicolor/scalable/apps/$pkgname.svg" \
+    "$pkgdir/usr/share/pixmaps/$pkgname.svg"
+}

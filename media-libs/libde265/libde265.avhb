@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libde265
+pkgver=1.0.5
+pkgrel=1
+pkgdesc="Open h.265 video codec implementation"
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/strukturag/libde265"
+license=(LGPL3)
+depends=(gcc-libs)
+makedepends=(ffmpeg sdl qt5-base)
+optdepends=('ffmpeg: for sherlock265' 'qt5-base: for sherlock265'
+            'sdl: dec265 YUV overlay output')
+source=(https://github.com/strukturag/libde265/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz
+        libde265-ffmpeg4.patch::"https://github.com/strukturag/libde265/commit/e5b8e2e7.patch")
+
+prepare() {
+  cd $pkgname-$pkgver
+  #patch -p1 -i ../libde265-ffmpeg4.patch # Fix build with ffmpeg 4.0
+  ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --enable-static=no
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

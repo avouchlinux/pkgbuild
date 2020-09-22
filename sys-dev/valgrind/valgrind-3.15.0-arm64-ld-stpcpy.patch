@@ -1,0 +1,45 @@
+commit 89423f5d8ba05a099c2c62227a00a4f4eec59eb3
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Tue May 7 21:20:04 2019 +0200
+
+    Intercept stpcpy also in ld.so for arm64
+    
+    On other arches stpcpy () is intercepted for both libc.so and ld.so.
+    But not on arm64, where it is only intercepted for libc.so.
+    
+    This can cause memcheck warnings about the use of stpcpy () in ld.so
+    when called through dlopen () because ld.so contains its own copy of
+    that functions.
+    
+    Fix by introducing VG_Z_LD_LINUX_AARCH64_SO_1 (the encoded name of
+    ld.so on arm64) and using that in vg_replace_strmem.c to intercept
+    stpcpy.
+    
+    https://bugs.kde.org/show_bug.cgi?id=407307
+
+diff --git a/include/pub_tool_redir.h b/include/pub_tool_redir.h
+index c97941f..15ba67f 100644
+--- a/include/pub_tool_redir.h
++++ b/include/pub_tool_redir.h
+@@ -313,7 +313,9 @@
+ #define  VG_Z_LD_SO_1               ldZdsoZd1                  // ld.so.1
+ #define  VG_U_LD_SO_1               "ld.so.1"
+ 
++#define  VG_Z_LD_LINUX_AARCH64_SO_1  ldZhlinuxZhaarch64ZdsoZd1
+ #define  VG_U_LD_LINUX_AARCH64_SO_1 "ld-linux-aarch64.so.1"
++
+ #define  VG_U_LD_LINUX_ARMHF_SO_3   "ld-linux-armhf.so.3"
+ 
+ #endif
+diff --git a/shared/vg_replace_strmem.c b/shared/vg_replace_strmem.c
+index 89a7dcc..19143cf 100644
+--- a/shared/vg_replace_strmem.c
++++ b/shared/vg_replace_strmem.c
+@@ -1160,6 +1160,7 @@ static inline void my_exit ( int x )
+  STPCPY(VG_Z_LIBC_SONAME,          __stpcpy_sse2_unaligned)
+  STPCPY(VG_Z_LD_LINUX_SO_2,        stpcpy)
+  STPCPY(VG_Z_LD_LINUX_X86_64_SO_2, stpcpy)
++ STPCPY(VG_Z_LD_LINUX_AARCH64_SO_1,stpcpy)
+ 
+ #elif defined(VGO_darwin)
+  //STPCPY(VG_Z_LIBC_SONAME,          stpcpy)

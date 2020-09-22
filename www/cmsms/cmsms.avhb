@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cmsms
+pkgver=2.2.7
+pkgrel=1
+pkgdesc="An easy to use content management system for simple stable content sites."
+arch=('any')
+url="http://www.cmsmadesimple.org"
+license=('GPL')
+depends=('php' 'mysql')
+optdepends=('apache' 'lighttpd')
+install="cmsmadesimple.install"
+source=(http://s3.amazonaws.com/cmsms/downloads/12559/${pkgname}-${pkgver}-english.tar.gz)
+sha256sums=('2e5f7a077bf8b14a77b32125828a48f07b8354830495f393d13c964ecd2f6b3c')
+
+package() {
+    mkdir -p ${pkgdir}/srv/http/${pkgname}
+    cp ${srcdir}/${pkgname}-${pkgver}-install.php ${pkgdir}/srv/http/${pkgname}/${pkgname}-${pkgver}-install.php
+    cp ${srcdir}/README-PHAR.TXT ${pkgdir}/srv/http/${pkgname}/README-PHAR.TXT
+    chmod 0755 ${pkgdir}/srv/http/${pkgname}
+}

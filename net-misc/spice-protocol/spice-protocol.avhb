@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=spice-protocol
+pkgver=0.14.1
+pkgrel=1
+pkgdesc="Headers for SPICE protocol"
+arch=(any)
+groups=('net-misc')
+url="http://spice-space.org"
+license=('BSD' 'LGPL2.1')
+makedepends=('meson')
+source=(https://www.spice-space.org/download/releases/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-elfutils
+pkgbase=elfutils
+pkgver=0.179
+pkgrel=1
+pkgdesc="Collection of libraries for working with ELF object files and DWARF debugging information (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://fedorahosted.org/elfutils/"
+license=('LGPL3' 'GPL' 'GPL3')
+depends=('lib32-bzip2' 'lib32-zlib' 'elfutils')
+makedepends=('gcc-multilib')
+source=(https://fedorahosted.org/releases/e/l/elfutils/${pkgver}/elfutils-${pkgver}.tar.bz2)
+sha1sums=('09adbbf0f3a35bb1bcb77c2eaa40de8d3443af4d')
+
+
+build() {
+    cd ${srcdir}/${pkgbase}-${pkgver}
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+    CFLAGS+=" -g"  # required for test-suite success
+
+    ./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd ${srcdir}/${pkgbase}-${pkgver}
+    #make check
+}
+
+package() {
+    cd ${srcdir}/${pkgbase}-${pkgver}
+    make DESTDIR=${pkgdir} install
+    rm -rf ${pkgdir}/usr/{bin,include,share}
+}
+

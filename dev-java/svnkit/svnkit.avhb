@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=svnkit
+_realname=org.tmatesoft.svn
+pkgver=1.10.1
+pkgrel=1
+pkgdesc="A Subversion library for Java"
+arch=('any')
+groups=('dev-java')
+url="http://svnkit.com"
+license=('custom')
+depends=('java-runtime')
+source=(http://svnkit.com/org.tmatesoft.svn_${pkgver}.standalone.zip)
+
+build(){
+  true
+}
+
+package() {
+  cd $srcdir/svnkit-${pkgver}*
+  install -m644 -D lib/svnkit-${pkgver}.jar ${pkgdir}/usr/share/java/svnkit/svnkit.jar
+}
+

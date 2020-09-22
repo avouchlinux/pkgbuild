@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+
+pkgname=python3-wheel
+_realname=wheel
+pkgver=0.34.2
+pkgrel=1
+pkgdesc="A built-package format for Python"
+arch=(any)
+groups=('dev-python3')
+url="https://pypi.python.org/pypi/wheel"
+license=('MIT')
+depends=('python')
+optdepends=('python-keyring: for wheel.signatures')
+optdepends=('python-xdg: for wheel.signatures')
+makedepends=('python' 'python-setuptools'
+             'python2' 'python2-setuptools')
+checkdepends=('python-jsonschema' 'python-pytest' 'python-keyring' 'python-keyrings-alt'
+              'python-xdg')
+source=("https://pypi.io/packages/source/w/wheel/$_pypiname-$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/pypa/wheel/archive/$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  PYTHONPATH="$PWD/tmp_install/usr/lib/python3.8/site-packages:$PYTHONPATH" py.test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

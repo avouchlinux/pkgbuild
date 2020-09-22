@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=bluez-qt
+pkgver=5.74.0
+pkgrel=1
+pkgdesc='Qt wrapper for Bluez 5 DBus API'
+arch=('x86_64')
+groups=('kde-frameworks')
+url='https://projects.kde.org/projects/frameworks/bluez-qt'
+license=(GPL2)
+depends=(qt5-declarative bluez)
+makedepends=(extra-cmake-modules)
+conflicts=(libbluedevil-frameworks)
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DUDEV_RULES_INSTALL_DIR=/usr/lib/udev/rules.d \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

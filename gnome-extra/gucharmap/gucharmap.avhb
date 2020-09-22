@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gucharmap
+pkgver=12.0.1
+pkgrel=1
+pkgdesc="Gnome Unicode Charmap"
+url="https://wiki.gnome.org/Apps/Gucharmap"
+arch=(x86_64)
+license=(GPL)
+depends=(dconf gtk3)
+makedepends=(gtk-doc intltool gobject-introspection yelp-tools docbook-xsl
+             python2 appdata-tools unicode-character-database unzip gnome-common git)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    autoreconf -vif
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static \
+    --disable-schemas-compile --enable-introspection --with-unicode-data=/usr/share/unicode
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}
+

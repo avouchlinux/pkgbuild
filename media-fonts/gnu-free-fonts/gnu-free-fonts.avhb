@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnu-free-fonts
+_realname=freefont-otf
+pkgver=20120503
+pkgrel=1
+pkgdesc="A free family of scalable outline fonts"
+url="https://www.gnu.org/software/freefont/"
+license=(GPL3)
+arch=(any)
+groups=('media-fonts')
+provides=(ttf-font)
+replaces=('ttf-freefont<=20120503-5')
+source=(https://ftp.gnu.org/gnu/freefont/freefont-otf-${pkgver}.tar.gz)
+validpgpkeys=('A0156C139D2DAA3B352E42CD506361DBA36FDD52')
+
+package() {
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname%-fonts}" -m644 freefont-$pkgver/*.otf
+}

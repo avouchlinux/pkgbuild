@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=extundelete
+pkgver=0.2.4
+pkgrel=1
+pkgdesc="Utility for recovering deleted files from ext2, ext3 or ext4 partitions by parsing the journal"
+arch=('x86_64')
+groups=('app-utils')
+url="http://extundelete.sourceforge.net"
+license=('GPL')
+depends=('e2fsprogs')
+changelog=$pkgname.changelog
+source=(https://downloads.sourceforge.net/project/$pkgname/$pkgname/$pkgver/$pkgname-$pkgver.tar.bz2
+        extundelete-e2fsprogs-1.44.1.patch)
+sha256sums=('a1f9dd61247056d36401ce5d6785e74d08a184340eebd3865c345ddaa93f19f4'
+            '944a1dc5a0697334fa27eabc198a6b230740199a01d3a942c01570edb996426f')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../extundelete-e2fsprogs-1.44.1.patch # Fix build with e2fsprogs 1.44.1
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	# license
+	install -D -m644 LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

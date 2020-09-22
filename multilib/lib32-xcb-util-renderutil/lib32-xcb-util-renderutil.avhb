@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-xcb-util-renderutil
+pkgbase=xcb-util-renderutil
+pkgver=0.3.9
+pkgrel=1
+pkgdesc="Utility libraries for XC Binding - Convenience functions for the Render extension"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xcb.freedesktop.org"
+license=('custom')
+depends=('libxcb')
+makedepends=('xorg-util-macros')
+source=("http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
+        'LICENSE')
+md5sums=('b346ff598ee093c141f836fbc0f8f721'
+         '2672c2e72dedb40f773e989dd622f298')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

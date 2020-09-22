@@ -1,0 +1,59 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-encode-locale
+_realname=Encode-Locale
+pkgver=1.03
+pkgrel=1
+pkgdesc="Determine the locale encoding"
+arch=(any)
+license=(PerlArtistic GPL)
+options=('!emptydirs')
+depends=('perl')
+makedepends=()
+checkdepends=()
+conflicts=('perl-libwww<6')
+url=http://search.cpan.org/dist/Encode-Locale
+source=(http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/Encode-Locale-1.02.tar.gz)
+md5sums=('96a950ee9b57e47e2b990b4c5dd7bf6e')
+sha512sums=('7263de267486c835f37dd51da573c5002921a8365124e03eeed1e7a97bac368fff42351d6d31e05d3e596f3486ca5506d985f3992652908948006701d21663cf')
+_distdir="${srcdir}/Encode-Locale-1.02"
+
+prepare() {
+
+srcdir="/build/${pkgname}"
+cd "${srcdir}"
+tar -zxf "${srcdir}/${_realname}-${pkgver}.tar.gz"
+cd "${srcdir}/${_realname}-${pkgver}"
+
+}
+
+build() {
+
+cd "${srcdir}/${_realname}-${pkgver}"
+# install module in vendor directories.
+PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+make
+
+}
+
+check() {
+
+cd "$srcdir/Encode-Locale-${pkgver}
+export PERL_MM_USE_DEFAULT=1 PERL5LIB="""
+make test
+
+}
+
+package() {
+
+cd "${srcdir}/${_realname}-${pkgver}"
+make install DESTDIR=${pkgdir}
+
+find $pkgdir -name '.packlist' -delete
+find $pkgdir -name '*.pod' -delete
+
+}
+
+

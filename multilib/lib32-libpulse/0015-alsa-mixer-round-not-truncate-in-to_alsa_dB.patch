@@ -1,0 +1,45 @@
+From 739a4b3d2318f05eb7101c2baa861e5c636125a5 Mon Sep 17 00:00:00 2001
+From: Ian Ray <ian.ray@ge.com>
+Date: Wed, 30 Aug 2017 11:09:48 +0300
+Subject: [PATCH 15/48] alsa-mixer: round, not truncate, in to_alsa_dB
+
+to_alsa_dB() returns a result rounded to two decimal places (instead of
+using integer truncation) to avoid small errors when converting between
+dB and volume.
+
+Consider playback at -22 dB (which is supported by ALSA) but results in
+the higher level of -21 dB plus software attenuation.
+
+    pa_sw_volume_from_dB(-22) = 28172
+    pa_sw_volume_to_dB(28172) = -21.9997351
+    to_alsa_dB(-21.9997351)   = -2199
+
+    ALSA value 106 = -2200
+    ALSA value 107 = -2100
+    ...
+
+    rounding = +1  /* "accurate or first above" */
+    snd_mixer_selem_ask_playback_dB_vol(me, -2199, rounding, &alsa_val)
+    alsa_val = -2100
+
+Signed-off-by: Ian Ray <ian.ray@ge.com>
+---
+ src/modules/alsa/alsa-mixer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index f59cad39..aeaf12c4 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -700,7 +700,7 @@ void pa_alsa_path_set_free(pa_alsa_path_set *ps) {
+ }
+ 
+ static long to_alsa_dB(pa_volume_t v) {
+-    return (long) (pa_sw_volume_to_dB(v) * 100.0);
++    return lround(pa_sw_volume_to_dB(v) * 100.0);
+ }
+ 
+ static pa_volume_t from_alsa_dB(long v) {
+-- 
+2.13.6
+

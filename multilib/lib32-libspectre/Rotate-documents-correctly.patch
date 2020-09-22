@@ -1,0 +1,315 @@
+From c0b7b178d455f00b21e6317376ab49324bddb340 Mon Sep 17 00:00:00 2001
+From: Marek Kasik <mkasik@redhat.com>
+Date: Mon, 9 Jun 2014 13:26:53 +0200
+Subject: Rotate documents correctly
+
+Set correct size of rendered images when a rotation
+is requested. Use "rotate" command to rotate documents
+instead of setting of "Orientation". Adjust offsets
+accordingly. Don't execute "setpagedevice" when rendering
+to "display" device.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=76450
+
+diff --git a/libspectre/spectre-device.c b/libspectre/spectre-device.c
+index a527d86..8fb7f93 100644
+--- a/libspectre/spectre-device.c
++++ b/libspectre/spectre-device.c
+@@ -181,10 +181,12 @@ spectre_device_render (SpectreDevice        *device,
+ 	char      *fmt;
+ 	char      *text_alpha, *graph_alpha;
+ 	char      *size = NULL;
+-	char      *resolution, *set;
++	char      *resolution;
+ 	char      *dsp_format, *dsp_handle;
+ 	char      *width_points = NULL;
+ 	char      *height_points = NULL;
++	int        scaled_width;
++	int        scaled_height;
+ 
+ 	gs = spectre_gs_new ();
+ 	if (!gs)
+@@ -204,8 +206,14 @@ spectre_device_render (SpectreDevice        *device,
+ 		return SPECTRE_STATUS_RENDER_ERROR;
+ 	}
+ 
+-	width = (int) ((width * rc->x_scale) + 0.5);
+-	height = (int) ((height * rc->y_scale) + 0.5);
++	if (rc->orientation == SPECTRE_ORIENTATION_PORTRAIT ||
++	    rc->orientation == SPECTRE_ORIENTATION_REVERSE_PORTRAIT) {
++		scaled_width = (int) ((width * rc->x_scale) + 0.5);
++		scaled_height = (int) ((height * rc->y_scale) + 0.5);
++	} else {
++		scaled_width = (int) ((height * rc->y_scale) + 0.5);
++		scaled_height = (int) ((width * rc->x_scale) + 0.5);
++	}
+ 
+ 	if (rc->use_platform_fonts == FALSE)
+ 		n_args++;
+@@ -224,10 +232,19 @@ spectre_device_render (SpectreDevice        *device,
+ 							   rc->text_alpha_bits);
+ 	args[arg++] = graph_alpha = _spectre_strdup_printf ("-dGraphicsAlphaBits=%d",
+ 							    rc->graphic_alpha_bits);
+-	args[arg++] = size =_spectre_strdup_printf ("-g%dx%d", width, height);
+-	args[arg++] = resolution = _spectre_strdup_printf ("-r%fx%f",
+-							   rc->x_scale * rc->x_dpi,
+-							   rc->y_scale * rc->y_dpi);
++	args[arg++] = size =_spectre_strdup_printf ("-g%dx%d", scaled_width, scaled_height);
++
++	if (rc->orientation == SPECTRE_ORIENTATION_PORTRAIT ||
++	    rc->orientation == SPECTRE_ORIENTATION_REVERSE_PORTRAIT) {
++		args[arg++] = resolution = _spectre_strdup_printf ("-r%fx%f",
++								   rc->x_scale * rc->x_dpi,
++								   rc->y_scale * rc->y_dpi);
++	} else {
++		args[arg++] = resolution = _spectre_strdup_printf ("-r%fx%f",
++								   rc->y_scale * rc->y_dpi,
++								   rc->x_scale * rc->x_dpi);
++	}
++
+ 	args[arg++] = dsp_format = _spectre_strdup_printf ("-dDisplayFormat=%d",
+ 							   DISPLAY_COLORS_RGB |
+ 							   DISPLAY_DEPTH_8 |
+@@ -254,10 +271,18 @@ spectre_device_render (SpectreDevice        *device,
+ 		args[arg++] = "-dNOPLATFONTS";
+ 
+ 	if (rc->width != -1 && rc->height != -1) {
+-		args[arg++] = width_points = _spectre_strdup_printf ("-dDEVICEWIDTHPOINTS=%d",
+-								     rc->width);
+-		args[arg++] = height_points = _spectre_strdup_printf ("-dDEVICEHEIGHTPOINTS=%d",
+-								      rc->height);
++		if (rc->orientation == SPECTRE_ORIENTATION_PORTRAIT ||
++		    rc->orientation == SPECTRE_ORIENTATION_REVERSE_PORTRAIT) {
++			args[arg++] = width_points = _spectre_strdup_printf ("-dDEVICEWIDTHPOINTS=%d",
++									     rc->width);
++			args[arg++] = height_points = _spectre_strdup_printf ("-dDEVICEHEIGHTPOINTS=%d",
++									      rc->height);
++		} else {
++			args[arg++] = width_points = _spectre_strdup_printf ("-dDEVICEWIDTHPOINTS=%d",
++									     rc->height);
++			args[arg++] = height_points = _spectre_strdup_printf ("-dDEVICEHEIGHTPOINTS=%d",
++									      rc->width);
++		}
+ 		args[arg++] = "-dFIXEDMEDIA";
+ 	}
+ 
+@@ -276,16 +301,7 @@ spectre_device_render (SpectreDevice        *device,
+ 		return SPECTRE_STATUS_RENDER_ERROR;
+ 	}
+ 
+-	set = _spectre_strdup_printf ("<< /Orientation %d >> setpagedevice .locksafe",
+-				      rc->orientation);
+-	if (!spectre_gs_send_string (gs, set)) {
+-		free (set);
+-		spectre_gs_free (gs);
+-		return SPECTRE_STATUS_RENDER_ERROR;
+-	}
+-	free (set);
+-
+-	if (!spectre_gs_send_page (gs, device->doc, page, x, y)) {
++	if (!spectre_gs_send_page (gs, device->doc, page, x, y, width, height, spectre_render_context_get_rotation (rc))) {
+ 		spectre_gs_free (gs);
+ 		return SPECTRE_STATUS_RENDER_ERROR;
+ 	}
+diff --git a/libspectre/spectre-exporter-pdf.c b/libspectre/spectre-exporter-pdf.c
+index 17a4900..dcf1fa2 100644
+--- a/libspectre/spectre-exporter-pdf.c
++++ b/libspectre/spectre-exporter-pdf.c
+@@ -66,6 +66,7 @@ spectre_exporter_pdf_begin (SpectreExporter *exporter,
+ 	if (!spectre_gs_process (exporter->gs,
+ 				 doc->filename,
+ 				 0, 0,
++				 0,
+ 				 doc->beginprolog,
+ 				 doc->endprolog)) {
+ 		spectre_gs_free (exporter->gs);
+@@ -77,6 +78,7 @@ spectre_exporter_pdf_begin (SpectreExporter *exporter,
+ 	if (!spectre_gs_process (exporter->gs,
+ 				 doc->filename,
+ 				 0, 0,
++				 0,
+ 				 doc->beginsetup,
+ 				 doc->endsetup)) {
+ 		spectre_gs_free (exporter->gs);
+@@ -100,6 +102,7 @@ spectre_exporter_pdf_do_page (SpectreExporter *exporter,
+ 	if (!spectre_gs_process (exporter->gs,
+ 				 doc->filename,
+ 				 0, 0,
++				 0,
+ 				 doc->pages[page_index].begin,
+ 				 doc->pages[page_index].end)) {
+ 		spectre_gs_free (exporter->gs);
+@@ -123,6 +126,7 @@ spectre_exporter_pdf_end (SpectreExporter *exporter)
+ 	ret = spectre_gs_process (exporter->gs,
+ 				  doc->filename,
+ 				  0, 0,
++				  0,
+ 				  doc->begintrailer,
+ 				  doc->endtrailer);
+ 	spectre_gs_free (exporter->gs);
+diff --git a/libspectre/spectre-gs.c b/libspectre/spectre-gs.c
+index 93444a4..adbc7ef 100644
+--- a/libspectre/spectre-gs.c
++++ b/libspectre/spectre-gs.c
+@@ -79,6 +79,7 @@ spectre_gs_process (SpectreGS  *gs,
+ 		    const char *filename,
+ 		    int         x,
+ 		    int         y,
++		    int         rotation,
+ 		    long        begin,
+ 		    long        end)
+ {
+@@ -117,6 +118,20 @@ spectre_gs_process (SpectreGS  *gs,
+ 		}
+ 	}
+ 
++	if (rotation != 0) {
++		char *set;
++
++		set = _spectre_strdup_printf ("%d rotate", rotation);
++		error = gsapi_run_string_continue (ghostscript_instance, set, strlen (set),
++						   0, &exit_code);
++		error = error == e_NeedInput ? 0 : error;
++		free (set);
++		if (error != e_NeedInput && critic_error_code (error)) {
++			fclose (fd);
++			return FALSE;
++		}
++	}
++
+ 	while (left > 0 && !critic_error_code (error)) {
+ 		size_t to_read = BUFFER_SIZE;
+ 		
+@@ -206,17 +221,21 @@ spectre_gs_send_string (SpectreGS  *gs,
+ }
+ 
+ int
+-spectre_gs_send_page (SpectreGS       *gs,
+-		      struct document *doc,
+-		      unsigned int     page_index,
+-		      int              x,
+-		      int              y)
++spectre_gs_send_page (SpectreGS          *gs,
++		      struct document    *doc,
++		      unsigned int        page_index,
++		      int                 x,
++		      int                 y,
++		      int                 crop_width,
++		      int                 crop_height,
++		      int                 rotation)
+ {
+ 	int xoffset = 0, yoffset = 0;
+ 	int page_urx, page_ury, page_llx, page_lly;
+ 	int bbox_urx, bbox_ury, bbox_llx, bbox_lly;
+ 	int doc_xoffset = 0, doc_yoffset = 0;
+ 	int page_xoffset = 0, page_yoffset = 0;
++	int tmp_xoffset, tmp_yoffset;
+ 
+ 	if (psgetpagebbox (doc, page_index, &bbox_urx, &bbox_ury, &bbox_llx, &bbox_lly)) {
+ 		psgetpagebox (doc, page_index,
+@@ -230,18 +249,42 @@ spectre_gs_send_page (SpectreGS       *gs,
+ 		}
+ 	}
+ 
++	switch (rotation) {
++		default:
++			tmp_xoffset = xoffset + x;
++			tmp_yoffset = yoffset + y;
++			break;
++		case 90:
++			tmp_xoffset = - (yoffset + y + crop_height);
++			tmp_yoffset = xoffset + x;
++			break;
++		case 180:
++			tmp_xoffset = - (xoffset + x + crop_width);
++			tmp_yoffset = - (yoffset + y + crop_height);
++			break;
++		case 270:
++			tmp_xoffset = yoffset + y;
++			tmp_yoffset = - (xoffset + x + crop_width);
++			break;
++	}
++
+ 	if (doc->numpages > 0) {
+-		page_xoffset = xoffset + x;
+-		page_yoffset = yoffset + y;
++		page_xoffset = tmp_xoffset;
++		page_yoffset = tmp_yoffset;
+ 	} else {
+-		doc_xoffset = xoffset + x;
+-		doc_yoffset = yoffset + y;
++		doc_xoffset = tmp_xoffset;
++		doc_yoffset = tmp_yoffset;
+ 	}
+ 	
++
++	if (!spectre_gs_send_string (gs, "/setpagedevice { pop } bind def"))
++		return FALSE;
++
+ 	if (!spectre_gs_process (gs,
+ 				 doc->filename,
+ 				 doc_xoffset,
+ 				 doc_yoffset,
++				 0,
+ 				 doc->beginprolog,
+ 				 doc->endprolog))
+ 		return FALSE;
+@@ -249,6 +292,7 @@ spectre_gs_send_page (SpectreGS       *gs,
+ 	if (!spectre_gs_process (gs,
+ 				 doc->filename,
+ 				 0, 0,
++				 0,
+ 				 doc->beginsetup,
+ 				 doc->endsetup))
+ 		return FALSE;
+@@ -264,6 +308,7 @@ spectre_gs_send_page (SpectreGS       *gs,
+ 							 doc->filename,
+ 							 page_xoffset,
+ 							 page_yoffset,
++							 rotation,
+ 							 doc->pages[i].begin,
+ 							 doc->pages[i].end))
+ 					return FALSE;
+@@ -274,6 +319,7 @@ spectre_gs_send_page (SpectreGS       *gs,
+ 					 doc->filename,
+ 					 page_xoffset,
+ 					 page_yoffset,
++					 rotation,
+ 					 doc->pages[page_index].begin,
+ 					 doc->pages[page_index].end))
+ 			return FALSE;
+@@ -282,6 +328,7 @@ spectre_gs_send_page (SpectreGS       *gs,
+ 	if (!spectre_gs_process (gs,
+ 				 doc->filename,
+ 				 0, 0,
++				 0,
+ 				 doc->begintrailer,
+ 				 doc->endtrailer))
+ 		return FALSE;
+diff --git a/libspectre/spectre-gs.h b/libspectre/spectre-gs.h
+index b673ce8..947bbd5 100644
+--- a/libspectre/spectre-gs.h
++++ b/libspectre/spectre-gs.h
+@@ -46,6 +46,7 @@ int        spectre_gs_process              (SpectreGS           *gs,
+ 					    const char          *filename,
+ 					    int                  x,
+ 					    int                  y,
++					    int                  rotation,
+ 					    long                 begin,
+ 					    long                 end);
+ int        spectre_gs_send_string          (SpectreGS           *gs,
+@@ -54,7 +55,10 @@ int        spectre_gs_send_page            (SpectreGS           *gs,
+ 					    struct document     *doc,
+ 					    unsigned int         page_index,
+ 					    int                  x,
+-					    int                  y);
++					    int                  y,
++					    int                  crop_width,
++					    int                  crop_height,
++					    int                  rotation);
+ void       spectre_gs_cleanup              (SpectreGS           *gs,
+ 					    SpectreGSCleanupFlag flag);
+ void       spectre_gs_free                 (SpectreGS           *gs);
+-- 
+cgit v0.10.2
+

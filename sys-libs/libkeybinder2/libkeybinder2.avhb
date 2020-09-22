@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=('libkeybinder2')
+_realname=keybinder
+pkgver=0.3.1
+pkgrel=1
+pkgdesc='Library for registering global keyboard shortcuts'
+arch=('x86_64')
+groups=('sys-libs')
+url='https://github.com/kupferlauncher/keybinder'
+license=('GPL')
+depends=('gtk2')
+makedepends=('gobject-introspection')
+source=(https://github.com/kupferlauncher/$_realname/releases/download/v$pkgver/$_realname-$pkgver.tar.gz)
+
+build() {
+  cd $_realname-$pkgver
+  ./configure --prefix=/usr --disable-python --disable-lua
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $_realname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

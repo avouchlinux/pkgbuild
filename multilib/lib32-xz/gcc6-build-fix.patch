@@ -1,0 +1,52 @@
+--- src/xz/file_io.c	2016-04-29 16:49:16.279376851 +0000
++++ ../file_io.c	2016-04-29 16:48:46.886043000 +0000
+@@ -1018,7 +1018,25 @@
+ 			}
+ 
+ #ifndef TUKLIB_DOSLIKE
+-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
++			if (errno == EAGAIN) {
++				const io_wait_ret ret = io_wait(pair,
++						mytime_get_flush_timeout(),
++						true);
++				switch (ret) {
++				case IO_WAIT_MORE:
++					continue;
++
++				case IO_WAIT_ERROR:
++					return SIZE_MAX;
++
++				case IO_WAIT_TIMEOUT:
++					return size - left;
++
++				default:
++					message_bug();
++				}
++			}
++			else if (errno == EWOULDBLOCK) {
+ 				const io_wait_ret ret = io_wait(pair,
+ 						mytime_get_flush_timeout(),
+ 						true);
+@@ -1106,7 +1124,13 @@
+ 			}
+ 
+ #ifndef TUKLIB_DOSLIKE
+-			if (errno == EAGAIN || errno == EWOULDBLOCK) {
++			if (errno == EAGAIN) {
++				if (io_wait(pair, -1, false) == IO_WAIT_MORE)
++					continue;
++
++				return true;
++			}
++			else if (errno == EWOULDBLOCK) {
+ 				if (io_wait(pair, -1, false) == IO_WAIT_MORE)
+ 					continue;
+ 
+@@ -1114,6 +1138,7 @@
+ 			}
+ #endif
+ 
++
+ 			// Handle broken pipe specially. gzip and bzip2
+ 			// don't print anything on SIGPIPE. In addition,
+ 			// gzip --quiet uses exit status 2 (warning) on

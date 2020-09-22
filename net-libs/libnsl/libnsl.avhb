@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnsl
+pkgver=1.2.0
+pkgrel=1
+pkgdesc='Public client interface library for NIS(YP) and NIS+'
+arch=('x86_64')
+groups=('net-libs')
+url='https://github.com/thkukuk/libnsl'
+license=('LGPL2.1')
+depends=(libtirpc)
+source=($url/archive/v$pkgver.tar.gz)
+
+prepare() {
+  cd $pkgname-$pkgver
+  ./autogen.sh
+  autoreconf -vif
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

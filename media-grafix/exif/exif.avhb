@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=exif
+pkgver=0.6.21
+pkgrel=1
+pkgdesc="A small command-line utility to show EXIF information hidden in JPEG files."
+arch=('x86_64')
+groups=('media-grafix')
+license=('LGPL')
+url="http://sourceforge.net/projects/libexif"
+depends=('libexif' 'popt')
+source=(http://downloads.sf.net/sourceforge/libexif/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"  
+  ./configure --prefix=/usr  
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  
+  make DESTDIR="${pkgdir}" install
+}

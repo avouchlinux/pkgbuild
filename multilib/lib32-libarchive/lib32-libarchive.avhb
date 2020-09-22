@@ -1,0 +1,51 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libarchive
+pkgbase=libarchive
+pkgver=3.4.2
+pkgrel=1
+pkgdesc="library that can create and read several streaming archive formats"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://libarchive.org/"
+license=('BSD')
+depends=('acl' 'attr' 'bzip2' 'expat' 'lzo2' 'openssl' 'xz' 'zlib')
+options=('strip' 'debug' 'libtool')
+provides=('libarchive.so')
+source=("http://libarchive.org/downloads/$pkgname-$pkgver.tar.gz"
+        '0001-mtree-fix-line-filename-length-calculation.patch'
+        https://github.com/libarchive/libarchive/commit/22531545514043e04633e1c015c7540b9de9dbe4.patch
+        'libarchive-3.1.2-acl.patch')
+md5sums=('efad5a503f66329bb9d2f4308b5de98a'
+         'fda89c145bbcd793a96b06b463ef6a72'
+         '6a63086b1a2e540d74ca6dc240dbd021'
+         'a5c995661c62429ceff2c23ea322393b')
+
+build() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr --libdir=/usr/lib32 \
+        --without-xml2 \
+        --without-nettle \
+        --disable-static
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

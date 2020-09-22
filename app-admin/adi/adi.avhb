@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=adi
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Avouch Linux distribution installer written in QT"
+arch=('x86_64')
+groups=('sys-apps')
+url="http://www.avouch.org/projects/adi/"
+license=('GPL')
+depends=('qt5-base' 'polkit')
+install=adi.install
+source=("ftp://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+md5sums=('d44b5dddebd8a7a7309aea6c36fda117')
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    qmake-qt5
+    make
+}
+
+package() {
+
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    install -D -m755 adi ${pkgdir}/usr/bin/adi
+
+    for i in findpartitions postdoc livestart adiscript firststart; do
+        install -m 755 scripts/$i "$pkgdir/usr/bin/"
+    done
+
+    # Install policy file
+    install -Dm644 "data/org.avouch.pkexec.adi.policy" \
+        "${pkgdir}/usr/share/polkit-1/actions/org.avouch.pkexec.adi.policy"
+
+    install -Dm644 data/Installer.desktop \
+        "$pkgdir/usr/share/applications/Installer.desktop"
+
+    chmod 0755 "$pkgdir/usr/share/applications/Installer.desktop"
+
+    install -Dm644 data/avouch-first-start.desktop \
+        "$pkgdir/etc/xdg/autostart/avouch-first-start.desktop"
+
+    # license
+    install -dm755 ${pkgdir}/usr/share/licenses/${pkgname}
+    ln -s /usr/share/licenses/gnu/gpl-2.0.txt \
+        ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

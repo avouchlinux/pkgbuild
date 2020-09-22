@@ -1,0 +1,94 @@
+From 80fb9db6598440d3af6bdcbcd4f6788f7e660bbe Mon Sep 17 00:00:00 2001
+From: Chris Leech <cleech@redhat.com>
+Date: Wed, 17 Jun 2015 10:40:34 -0700
+Subject: [PATCH] fix build warnings
+
+---
+ include/lldp_8021qaz.h | 6 ------
+ lldp/agent.c           | 5 +++++
+ lldp/agent.h           | 6 +++---
+ lldp_util.c            | 4 ++--
+ 4 files changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/include/lldp_8021qaz.h b/include/lldp_8021qaz.h
+index 55353b8..09dee20 100644
+--- a/include/lldp_8021qaz.h
++++ b/include/lldp_8021qaz.h
+@@ -218,9 +218,6 @@ int ieee8021qaz_mod_app(struct app_tlv_head *head, int peer,
+ 			u8 prio, u8 sel, u16 proto, u32 ops);
+ int ieee8021qaz_app_sethw(char *ifname, struct app_tlv_head *head);
+ 
+-inline int get_prio_map(u32 prio_map, int tc);
+-inline void set_prio_map(u32 *prio_map, u8 prio, int tc);
+-
+ struct ieee8021qaz_tlvs *ieee8021qaz_data(const char *);
+ 
+ int ieee8021qaz_tlvs_rxed(const char *ifname);
+@@ -234,9 +231,6 @@ int ieee8021qaz_rchange(struct port *port, struct lldp_agent *,
+ void ieee8021qaz_ifup(char *ifname, struct lldp_agent *);
+ void ieee8021qaz_ifdown(char *ifname, struct lldp_agent *);
+ u8 ieee8021qaz_mibDeleteObject(struct port *port, struct lldp_agent *);
+-inline int ieee8021qaz_clif_cmd(void *data, struct sockaddr_un *from,
+-				socklen_t fromlen, char *ibuf, int ilen,
+-				char *rbuf);
+ int ieee8021qaz_check_operstate(void);
+ int get_dcbx_hw(const char *ifname, __u8 *dcbx);
+ 
+diff --git a/lldp/agent.c b/lldp/agent.c
+index 73ab054..333929a 100644
+--- a/lldp/agent.c
++++ b/lldp/agent.c
+@@ -36,6 +36,11 @@
+ #include "lldp_mand_clif.h"
+ #include "lldp/agent.h"
+ 
++/* IEEE 802.1AB-2009 - Table 7-1: group MAC addresses used by LLDP */
++const u8 nearest_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x0e};
++const u8 nearest_nontpmr_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x03};
++const u8 nearest_customer_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x00};
++
+ static const u8 * agent_groupmacs[AGENT_MAX] = {
+ 	nearest_bridge,
+ 	nearest_nontpmr_bridge,
+diff --git a/lldp/agent.h b/lldp/agent.h
+index a54f72f..90da3e0 100644
+--- a/lldp/agent.h
++++ b/lldp/agent.h
+@@ -48,9 +48,9 @@ enum agent_type {
+ };
+ 
+ /* IEEE 802.1AB-2009 - Table 7-1: group MAC addresses used by LLDP */
+-static const u8 nearest_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x0e};
+-static const u8 nearest_nontpmr_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x03};
+-static const u8 nearest_customer_bridge[ETH_ALEN] = {0x01,0x80,0xc2,0x00,0x00,0x00};
++extern const u8 nearest_bridge[ETH_ALEN];
++extern const u8 nearest_nontpmr_bridge[ETH_ALEN];
++extern const u8 nearest_customer_bridge[ETH_ALEN];
+ 
+ struct agenttimers {
+ /* Tx */
+diff --git a/lldp_util.c b/lldp_util.c
+index 62f0af8..f12d46b 100644
+--- a/lldp_util.c
++++ b/lldp_util.c
+@@ -1197,7 +1197,7 @@ int check_link_status(const char *ifname)
+ int get_arg_val_list(char *ibuf, int ilen, int *ioff,
+ 			    char **args, char **argvals)
+ {
+-	u8 arglen;
++	u8 arglen = 0;
+ 	u16 argvalue_len;
+ 	int *arglens = NULL;
+ 	int *argvallens = NULL;
+@@ -1265,7 +1265,7 @@ int get_arg_val_list(char *ibuf, int ilen, int *ioff,
+ 
+ int get_arg_list(char *ibuf, int ilen, int *ioff, char **args)
+ {
+-	u8 arglen;
++	u8 arglen = 0;
+ 	int *arglens = NULL;
+ 	int *p;
+ 	int numargs;
+-- 
+2.5.0
+

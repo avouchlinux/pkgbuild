@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxft
+_realname=libXft
+pkgver=2.3.3
+pkgrel=1
+pkgdesc="FreeType-based font drawing library for X"
+arch=('x86_64')
+groups=('x11-libs')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('fontconfig' 'libxrender')
+makedepends=('pkgconfig')
+source=("${url}/releases/individual/lib/libXft-${pkgver}.tar.bz2"
+        freetype_header.patch)
+sha256sums=('7fce32b92dcb7b2869bed567af2abc7bbad0d5d6fcf471b8a3e137964a31bbbd'
+            '991c91998e61e83061c6c08218a2e6ac5643f16183750f73ee74f29fdd440be9')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

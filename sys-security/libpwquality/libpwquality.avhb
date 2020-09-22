@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libpwquality
+pkgver=1.4.2
+pkgrel=1
+pkgdesc="Library for password quality checking and generating random passwords"
+arch=('x86_64')
+groups=('sys-security')
+url="https://github.com/libpwquality/libpwquality"
+license=('GPL')
+depends=('cracklib' 'pam')
+optdepends=('python: Python bindings')
+makedepends=('python' git)
+backup=('etc/security/pwquality.conf')
+source=("https://github.com/libpwquality/libpwquality/releases/download/libpwquality-$pkgver/libpwquality-$pkgver.tar.bz2")
+md5sums=('SKIP')
+
+build() {
+	cd $pkgname-$pkgver
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --with-python-rev=2.7 \
+        --with-python-binary=python2
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+    install -m755 -d "$pkgdir"/etc/security/pwquality.conf.d
+}

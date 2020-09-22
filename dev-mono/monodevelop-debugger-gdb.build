@@ -1,0 +1,29 @@
+# Maintainer: Daniel Isenmann <daniel@archlinux.org>
+
+pkgname=monodevelop-debugger-gdb
+pkgver=2.8.6.5
+pkgrel=1
+pkgdesc="Mono Debugger support"
+arch=('i686' 'x86_64')
+url="http://monodevelop.com"
+license=('GPL')
+depends=('monodevelop>=2.8.6.5' 'gdb')
+makedepends=('mono')
+source=(http://download.mono-project.com/sources/$pkgname/$pkgname-$pkgver.tar.bz2)
+md5sums=('352f387e0563dba2617f92efd71d0fb6')
+
+build() {
+  export MONO_SHARED_DIR="${srcdir}/.wabi"
+  mkdir -p "${MONO_SHARED_DIR}"
+  
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure --prefix=/usr
+  make || return 1
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}
+

@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-dateutil
+_realname=python-dateutil
+pkgver=2.8.1
+pkgrel=1
+pkgdesc="Provides powerful extensions to the standard datetime module"
+arch=('any')
+groups=('dev-python3')
+license=('BSD' 'Apache')
+url="https://github.com/dateutil/dateutil"
+depends=('python3-six')
+makedepends=('python3-setuptools' 'python3-six')
+checkdepends=('python3-pytest' 'python3-freezegun' 'python3-hypothesis')
+source=("https://github.com/dateutil/dateutil/releases/download/$pkgver/python-dateutil-$pkgver.tar.gz")
+validpgpkeys=('6B49ACBADCF6BD1CA20667ABCD54FCE3D964BEFB') # Paul Ganssle <paul@ganssle.io>
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

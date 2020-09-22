@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=librsvg
+pkgver=2.50.0
+pkgrel=1
+epoch=2
+pkgdesc="SVG rendering library"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://wiki.gnome.org/Projects/LibRsvg"
+license=(LGPL)
+depends=(gdk-pixbuf2 pango libcroco)
+makedepends=(gobject-introspection vala gtk-doc git rust)
+source=(#"https://gitlab.gnome.org/GNOME/librsvg/-/archive/$pkgver/librsvg-$pkgver.tar.bz2"
+        https://ftp.gnome.org/pub/GNOME/sources/librsvg/${pkgver%??}/librsvg-$pkgver.tar.xz)
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Fix build with gtk-doc 1.30
+  sed -i '/tree_index/d' doc/rsvg-docs.xml
+
+  # NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static --enable-vala --enable-gtk-doc
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' libtool
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  # Reftests are probably broken
+  # e.g. 91-nonzero-translation-ref.png's background is only 95% transparent,
+  # while 91-nonzero-translation-out.png is 100% transparent
+  #make check || :
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

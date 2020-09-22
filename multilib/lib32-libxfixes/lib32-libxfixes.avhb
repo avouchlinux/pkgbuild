@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxfixes
+_realname=libXfixes
+pkgver=5.0.3
+pkgrel=1
+pkgdesc="X11 miscellaneous 'fixes' extension library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('lib32-libx11' $_pkgbasename)
+makedepends=('pkg-config' gcc-multilib )
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXfixes-${pkgver}.tar.bz2)
+sha256sums=('63bec085084fa3caaee5180490dd871f1eb2020ba9e9b39a30f93693ffc34767')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

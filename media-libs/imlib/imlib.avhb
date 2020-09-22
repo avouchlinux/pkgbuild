@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=imlib
+pkgver=1.9.15
+pkgrel=1
+pkgdesc="General image handling library for X11 and Gtk"
+arch=('x86_64')
+groups=('media-libs')
+url="http://freshmeat.net/projects/imlib/"
+license=('GPL')
+depends=('giflib' 'libpng' 'libtiff' 'libxext')
+makedepends=('libxt')
+source=(https://ftp.gnome.org/pub/GNOME/sources/imlib/1.9/${pkgname}-${pkgver}.tar.bz2
+        debian-bug448360.patch CAN-2004-1026.patch aclocal-fixes.patch 
+        imlib-1.9.15-libpng15.patch imlib-giflib51.patch imlib-gtk.patch)
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -p1 -i "${srcdir}/debian-bug448360.patch"
+  patch -p1 -i "${srcdir}/CAN-2004-1026.patch"
+  patch -p0 -i "${srcdir}/aclocal-fixes.patch"
+  patch -p0 -i "${srcdir}/imlib-1.9.15-libpng15.patch"
+  patch -p1 -i "${srcdir}/imlib-giflib51.patch"
+  patch -p1 -i "${srcdir}/imlib-gtk.patch"
+  sed '/AC_PATH_XTRA/d' -i configure.in
+  mv configure.in configure.ac
+  libtoolize --force
+  cp /usr/bin/libtool .
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  autoreconf --force --install
+  ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-shm --disable-static
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

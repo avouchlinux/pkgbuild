@@ -1,0 +1,59 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=rhino
+pkgname=('java-rhino' 'rhino' 'rhino-javadoc')
+pkgver=1.7.12
+_pkgver=${pkgver//\./_}
+pkgrel=1
+arch=('any')
+groups=('dev-java')
+url="https://www.mozilla.org/rhino/"
+license=('MPL')
+source=(https://github.com/mozilla/${pkgbase}/releases/download/Rhino${_pkgver}_Release/${pkgbase}-${pkgver}.zip
+        https://github.com/mozilla/${pkgbase}/archive/Rhino${_pkgver}_Release.tar.gz
+        rhino
+        rhino-debugger
+        rhino-debugger.1
+        rhino-idswitch
+        rhino-jsc
+        rhino-jsc.1)
+
+prepare(){
+	bsdtar -xf $srcarchivedir/${pkgbase}-Rhino${_pkgver}_Release.tar.gz
+}
+
+package_java-rhino() {
+  pkgdesc="Open-source implementation of JavaScript written entirely in Java - JAR"
+  depends=('java-runtime-headless')
+
+  install -Dm644 \
+    ${pkgbase}${pkgver}/lib/${pkgbase}-${pkgver}.jar \
+    ${pkgdir}/usr/share/java/js-${pkgver}.jar
+  ln -s js-${pkgver}.jar ${pkgdir}/usr/share/java/js.jar
+}
+
+package_rhino() {
+  pkgdesc="Open-source implementation of JavaScript written entirely in Java"
+  depends=('java-rhino' 'java-jline')
+
+  install -dm755 ${pkgdir}/usr/bin
+  install -m755 \
+    rhino rhino-debugger rhino-jsc rhino-idswitch \
+    ${pkgdir}/usr/bin/
+  install -dm755 ${pkgdir}/usr/share/man/man1
+  install -m755 \
+    ${pkgbase}-Rhino${_pkgver}_Release/man/rhino.1 \
+    rhino-debugger.1 \
+    rhino-jsc.1 \
+    ${pkgdir}/usr/share/man/man1/
+}
+
+package_rhino-javadoc() {
+  pkgdesc="Open-source implementation of JavaScript written entirely in Java - Javadoc"
+
+  install -m755 -d ${pkgdir}/usr/share/${pkgbase}
+  cp -r ${pkgbase}${pkgver}/docs ${pkgdir}/usr/share/${pkgbase}
+}

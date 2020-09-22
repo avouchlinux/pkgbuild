@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-batik
+_tarname=batik
+pkgver=1.12
+pkgrel=1
+pkgdesc='SVG library for Java.'
+arch=('any')
+groups=('dev-java')
+url='https://xmlgraphics.apache.org/batik/'
+license=('APACHE')
+depends=('java-runtime' 'java-commons-io' 'java-commons-logging' 'java-xmlgraphics-commons')
+makedepends=('java-environment' 'apache-ant' 'unzip')
+source=("https://www.apache.org/dist/xmlgraphics/batik/source/batik-src-$pkgver.tar.gz"{,.asc})
+validpgpkeys=('9D5F9D9B3E21B585E8F4551082036989D56B5F17'  # Luis Bernardo
+              '5C9A30FF22B2C02F30261C305B93F1DF7CDB6DEA') # Simon Steiner
+
+build() {
+  cd batik-$pkgver
+
+  ant all-jar
+}
+
+package() {
+  install -d "$pkgdir"/usr/share/java/batik
+  install -m 644 "$srcdir"/batik-$pkgver/batik-$pkgver/lib/batik-all-$pkgver.jar "$pkgdir"/usr/share/java/batik/batik-all-$pkgver.jar
+
+  ln -s batik-all-$pkgver.jar "$pkgdir"/usr/share/java/batik/batik-all.jar
+
+  cp --no-preserve=ownership "$srcdir/batik-$pkgver/lib"/*.jar "$pkgdir"/usr/share/java/batik/
+}

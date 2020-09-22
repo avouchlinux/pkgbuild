@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-doc-utils
+pkgver=0.20.10+20+gb2b5e40
+pkgrel=1
+pkgdesc="Documentation utilities for Gnome"
+arch=('any')
+groups=('gnome-base')
+license=('GPL' 'LGPL')
+depends=('libxslt' 'python2' 'docbook-xml' 'rarian')
+makedepends=('intltool' gnome-common git)
+url="https://www.gnome.org"
+#source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+source=("https://gitlab.gnome.org/GNOME/gnome-doc-utils.git")
+
+# getsrc() {
+#     git clone $source
+# }
+
+# pkgver() {
+#     cd $pkgname
+#     git describe --tags | sed 's/-/+/g'
+# }
+
+prepare() {
+    cd $pkgname
+    rm -f m4/glib-gettext.m4
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd ${srcdir}/${pkgname}
+	PYTHON=/usr/bin/python2 ./configure --prefix=/usr \
+	--sysconfdir=/etc --mandir=/usr/share/man \
+	--localstatedir=/var --disable-scrollkeeper
+	make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}"
+    make DESTDIR="${pkgdir}" install
+}

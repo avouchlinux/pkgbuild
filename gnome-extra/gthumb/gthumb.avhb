@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gthumb
+pkgver=3.10.1
+pkgrel=1
+pkgdesc="Image browser and viewer for the GNOME Desktop"
+url="https://wiki.gnome.org/Apps/gthumb"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(dconf librsvg clutter-gtk gst-plugins-base-libs gsettings-desktop-schemas libwebp
+         libsecret libsoup webkit2gtk json-glib gtk3-print-backends)
+makedepends=(libchamplain exiv2 brasero libraw liboauth docbook-xsl yelp-tools meson git)
+optdepends=('libraw: read RAW files'
+            'exiv2: metadata support'
+            'libchamplain: map viewer'
+            'brasero: burn discs'
+            'liboauth: web albums')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+  avouch-meson ${pkgname}-${pkgver}  build -D libchamplain=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

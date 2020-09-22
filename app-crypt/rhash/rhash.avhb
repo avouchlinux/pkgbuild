@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rhash
+_realname=RHash
+pkgver=1.3.9
+pkgrel=1
+pkgdesc='Utility for verifying hash sums of files'
+arch=('x86_64')
+groups=('app-crypt')
+url='http://rhash.anz.ru/?l=en'
+license=('custom' 'MIT')
+depends=('glibc')
+backup=('etc/rhashrc')
+source=(#"http://downloads.sourceforge.net/rhash/rhash-$pkgver-src.tar.gz"
+        "https://github.com/rhash/RHash/archive/v$pkgver.tar.gz")
+
+build() {
+  cd RHash-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS"
+  make
+}
+
+check() {
+  cd RHash-$pkgver
+  make test test-lib
+}
+
+package() {
+  cd RHash-$pkgver
+
+  # program
+  make DESTDIR="$pkgdir" install
+
+  # library, since the makefiles are still broken
+  make -C librhash DESTDIR="$pkgdir" install-lib-headers install-lib-shared install-so-link
+
+  # license
+  install -Dm644 COPYING "$pkgdir"/usr/share/licenses/rhash/LICENSE
+}

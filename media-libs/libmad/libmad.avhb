@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmad
+pkgver=0.15.1b
+pkgrel=1
+pkgdesc="A high-quality MPEG audio decoder"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.underbit.com/products/mad/"
+license=('GPL')
+depends=('glibc')
+source=(http://downloads.sourceforge.net/sourceforge/mad/${pkgname}-${pkgver}.tar.gz{,.sign}
+        libmad.patch amd64-64bit.diff frame_length.diff optimize.diff)
+sha1sums=()
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	patch -Np1 -i ../libmad-0.15.1b-fixes-1.patch
+
+	sed "s@AM_CONFIG_HEADER@AC_CONFIG_HEADERS@g" -i configure.ac
+	touch NEWS AUTHORS ChangeLog
+
+	#CFLAGS="$CFLAGS -ftree-vectorize -ftree-vectorizer-verbose=1"
+	#autoreconf -fi
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

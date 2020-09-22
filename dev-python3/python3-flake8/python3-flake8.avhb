@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-flake8
+_realname=flake8
+pkgver=3.7.9
+pkgrel=1
+epoch=1
+pkgdesc="The modular source code checker: pep8, pyflakes and co"
+arch=('any')
+groups=('dev-python3')
+url="http://flake8.pycqa.org"
+license=('MIT')
+makedepends=('python3-setuptools' 'python3-pyflakes' 'python3-pycodestyle' 'python3-mccabe' 'python3-pytest-runner')
+checkdepends=('python3-mock')
+source=("https://github.com/PyCQA/flake8/archive/$pkgver.tar.gz")
+
+prepare() {
+  sed -i -e 's/, *< *[0-9=.]*//' $_realname-$pkgver/setup.py
+}
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

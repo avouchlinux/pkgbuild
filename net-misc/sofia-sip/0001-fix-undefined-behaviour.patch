@@ -1,0 +1,51 @@
+From 9a12b2f75cd3b9e5d65a5c1adecc9af8f0afb3dc Mon Sep 17 00:00:00 2001
+From: Radist Morse <>
+Date: Thu, 5 Dec 2013 20:05:52 +0000
+Subject: [PATCH] fix undefined behaviour
+
+There is a hacky loop through the members of the struct, which won't
+work if the compiler inserts a padding between them.
+---
+ libsofia-sip-ua/msg/msg_parser.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/libsofia-sip-ua/msg/msg_parser.c b/libsofia-sip-ua/msg/msg_parser.c
+index 75954f8..c0bccab 100644
+--- a/libsofia-sip-ua/msg/msg_parser.c
++++ b/libsofia-sip-ua/msg/msg_parser.c
+@@ -2468,8 +2468,6 @@ int msg_header_prepend(msg_t *msg,
+ msg_header_t **
+ msg_hclass_offset(msg_mclass_t const *mc, msg_pub_t const *mo, msg_hclass_t *hc)
+ {
+-  int i;
+-
+   assert(mc && hc);
+ 
+   if (mc == NULL || hc == NULL)
+@@ -2484,9 +2482,20 @@ msg_hclass_offset(msg_mclass_t const *mc, msg_pub_t const *mo, msg_hclass_t *hc)
+   }
+   else
+     /* Header has no name. */
+-    for (i = 0; i <= 6; i++)
+-      if (hc->hc_hash == mc->mc_request[i].hr_class->hc_hash)
+-	return (msg_header_t **)((char *)mo + mc->mc_request[i].hr_offset);
++    if      (hc->hc_hash == mc->mc_request[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_request[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_status[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_status[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_separator[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_separator[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_payload[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_payload[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_unknown[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_unknown[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_error[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_error[0].hr_offset);
++    else if (hc->hc_hash == mc->mc_multipart[0].hr_class->hc_hash)
++       return (msg_header_t **)((char *)mo + mc->mc_multipart[0].hr_offset);
+ 
+   return NULL;
+ }
+-- 
+1.8.5.1
+

@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pavucontrol
+pkgver=4.0
+pkgrel=1
+pkgdesc="PulseAudio Volume Control"
+arch=(x86_64)
+groups=(media-sound)
+url="http://freedesktop.org/software/pulseaudio/pavucontrol/"
+license=(GPL)
+depends=(libcanberra-pulse gtkmm3 libsigc++)
+makedepends=(intltool lynx git)
+optdepends=("pulseaudio: Audio backend")
+source=("http://freedesktop.org/software/pulseaudio/$pkgname/$pkgname-$pkgver.tar.gz")
+
+prepare() {
+    cd $pkgname-$pkgver
+    NOCONFIGURE=1 ./bootstrap.sh
+}
+
+build() {
+    cd $pkgname-$pkgver
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+}

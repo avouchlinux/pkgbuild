@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=open-isns
+pkgver=0.100
+pkgrel=1
+pkgdesc='iSNS server and client for Linux'
+arch=('x86_64')
+groups=('sys-block')
+depends=('openssl')
+url='https://github.com/gonzoleeman/open-isns'
+license=('GPL')
+source=("https://github.com/gonzoleeman/${pkgname}/archive/v${pkgver}.tar.gz")
+
+prepare() {
+	cd "$srcdir"/${pkgname}-${pkgver}
+
+	sed -i 's/-Werror//' configure.ac
+	autoreconf -fi
+}
+
+build() {
+	cd "$srcdir"/${pkgname}-${pkgver}
+
+	./configure --prefix=/usr --bindir=/usr/bin --sbindir=/usr/bin --enable-shared
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$srcdir"/${pkgname}-${pkgver}
+
+	make DESTDIR="${pkgdir}" install install_lib install_hdrs
+}

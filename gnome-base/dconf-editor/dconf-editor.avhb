@@ -1,0 +1,25 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dconf-editor
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="dconf-editor."
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/dconf"
+license=(GPL3)
+depends=(gtk3 dconf)
+makedepends=(vala meson appstream-glib git)
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

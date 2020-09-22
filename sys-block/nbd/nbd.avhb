@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nbd
+pkgver=3.20
+pkgrel=1
+pkgdesc="tools for network block devices, allowing you to use remote block devices over TCP/IP"
+arch=('x86_64')
+groups=('sys-block')
+url="http://nbd.sourceforge.net"
+license=('GPL')
+source=("https://downloads.sourceforge.net/projects/$pkgname/$pkgname-$pkgver.tar.xz"
+        '0001-server_trim_whitespace.patch'
+        'config'
+        'nbd.service'
+        'sysusers_nbd.conf')
+backup=('etc/nbd-server/config')
+depends=('glib2')
+install=nbd.install
+
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -Np1 < ../0001-server_trim_whitespace.patch
+}
+
+build() {
+	 cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --enable-syslog --sbindir=/usr/bin
+	make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+  install -D -m0644 systemd/nbd@.service "${pkgdir}"/usr/lib/systemd/system/nbd@.service
+
+  install -D -m0644 "${srcdir}"/config "${pkgdir}"/etc/nbd-server/config
+  install -D -m0644 "${srcdir}"/nbd.service "${pkgdir}"/usr/lib/systemd/system/nbd.service
+  install -D -m0644 "${srcdir}"/sysusers_nbd.conf "${pkgdir}"/usr/lib/sysusers.d/nbd.conf
+
+  install -D -m0644 doc/README "${pkgdir}"/usr/share/doc/nbd/README
+}

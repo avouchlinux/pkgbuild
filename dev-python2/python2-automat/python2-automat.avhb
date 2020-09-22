@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-automat
+_realname=automat
+pkgver=20.2.0
+pkgrel=1
+arch=('any')
+groups=('dev-python2')
+license=('MIT')
+pkgdesc="Self-service finite-state machines for the programmer on the go."
+url="https://github.com/glyph/automat"
+depends=('python-attrs' 'python-setuptools')
+makedepends=('python2-setuptools-scm' 'python2-m2r' 'python2-attrs')
+checkdepends=('python2-pytest-runner' 'python2-pytest-benchmark')
+source=("https://github.com/glyph/automat/archive/v$pkgver.tar.gz")
+
+# Set version for setuptools_scm
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+  mv "$pkgdir"/usr/bin/automat-visualize{,2}
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

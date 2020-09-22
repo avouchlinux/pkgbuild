@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmms
+pkgver=0.6.4
+pkgrel=1
+pkgdesc="MMS stream protocol library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://sourceforge.net/projects/libmms/"
+license=(LGPL)
+depends=('glib2')
+source=(http://download.sourceforge.net/libmms/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING.LIB "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pambase
+pkgver=20200912
+pkgrel=1
+pkgdesc="Base PAM configuration for services"
+arch=('any')
+groups=('sys-security')
+url="http://www.archlinux.org"
+license=('GPL')
+groups=(security)
+repo=(core)
+source=('system-auth'
+        'system-local-login'
+        'system-login'
+        'system-remote-login'
+        'system-services'
+        'other')
+backup=('etc/pam.d/system-auth'
+        'etc/pam.d/system-local-login'
+        'etc/pam.d/system-login'
+        'etc/pam.d/system-remote-login'
+        'etc/pam.d/system-services'
+        'etc/pam.d/other')
+
+package() {
+
+cd ${srcdir}
+install -dm755 "$pkgdir/etc/pam.d"
+install -m644 -t "$pkgdir/etc/pam.d" "${source[@]}"
+
+}
+

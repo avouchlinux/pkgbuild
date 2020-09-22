@@ -1,0 +1,64 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=usbguard
+pkgver=0.7.8
+pkgrel=1
+pkgdesc='Software framework for implementing USB device authorization policies'
+url='https://github.com/dkopecek/usbguard'
+arch=('x86_64')
+groups=('sys-auth')
+license=('GPL2')
+depends=('glibc' 'libqb' 'libqb.so' 'libsodium' 'libcap-ng' 'protobuf' 'polkit' 'dbus-glib'
+         'audit' 'libaudit.so' 'libseccomp' 'libseccomp.so')
+makedepends=('catch2' 'pegtl' 'libxslt' 'asciidoc' 'systemd')
+provides=('libusbguard.so')
+backup=(etc/usbguard/usbguard-daemon.conf
+        etc/usbguard/rules.conf)
+source=(https://github.com/dkopecek/usbguard/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz{,.sig}
+        make-explicitly-treat-pthread-as-first-level-depende.patch)
+validpgpkeys=('FD9B3F9DCEBB5537A8FAF5213B0C109510712034') # Daniel Kopeček <dnk1618@gmail.com>
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  sed 's|/usr/include/catch|/usr/include/catch2|g' -i configure.ac
+  autoreconf -fiv
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --sys=/etc \
+    --sbindir=/usr/bin \
+    --libdir=/usr/lib \
+    --enable-systemd \
+    --without-bundled-catch \
+    --without-bundled-pegtl \
+    --with-dbus \
+    --with-polkit \
+    --with-crypto-library=sodium
+  make
+  touch rules.conf
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make INSTALL='install -p' DESTDIR="${pkgdir}" install
+
+  chmod 750 "${pkgdir}/etc/usbguard"
+  install -Dpm 600 usbguard-daemon.conf rules.conf -t "${pkgdir}/etc/usbguard"
+
+  # completion
+  install -Dpm 644 scripts/bash_completion/usbguard -t "${pkgdir}/usr/share/bash-completion/completions"
+  install -Dpm 644 scripts/usbguard-zsh-completion "${pkgdir}/usr/share/zsh/site-functions/_usbguard"
+}

@@ -1,0 +1,65 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=openjade
+pkgver=1.3.2
+pkgrel=1
+pkgdesc="James Clark's DSSSL Engine"
+url='http://www.jclark.com/jade/'
+arch=('x86_64')
+groups=('app-text')
+license=('custom')
+depends=('gcc-libs')
+replaces=('openjade')
+options=('!makeflags')
+source=("ftp://ftp.jclark.com/pub/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        "http://ftp.debian.org/debian/pool/main/j/jade/jade_${pkgver}-${_debpatch}.diff.gz")
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    #fix build on ppc64
+    patch -Np1 -i "${srcdir}"/openjade-ppc64.patch
+    #do not link against -lnsl
+    patch -Np1 -i "${srcdir}"/openjade-1.3.1-nsl.patch
+    #Fix dependent libs for libogrove (bug #198232).
+    patch -Np1 -i "${srcdir}"/openjade-deplibs.patch
+    #do not require OpenSP libosp.la file for build(#485114)
+    patch -Np1 -i "${srcdir}"/openjade-nola.patch
+    #upstream bug tracker fix for build with gcc46
+    patch -Np1 -i "${srcdir}"/openjade-1.3.2-gcc46.patch
+    #use Getopt:Std to prevent build failure
+    patch -Np1 -i "${srcdir}"/openjade-getoptperl.patch
+
+}
+
+build() {
+
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --mandir=/usr/share/man \
+        --enable-http \
+        --disable-static  \
+        --enable-default-catalog=/etc/sgml/catalog \
+        --enable-default-search-path=/usr/share/sgml \
+        --datadir=/usr/share/sgml/${pkgname}-${pkgver}
+    make ${MAKEFLAGS}
+
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+    ln -s openjade "$pkgdir"/usr/bin/jade
+
+    install -d "${pkgdir}"/etc/sgml
+
+    install -d "${pkgdir}"/usr/share/sgml/${pkgname}-${pkgver}/
+    cp dsssl/catalog "$pkgdir"/usr/share/sgml/${pkgname}-${pkgver}/
+    cp dsssl/{dsssl,style-sheet,fot}.dtd "$pkgdir"/usr/share/sgml/${pkgname}-${pkgver}/
+    # license
+    install -Dm644 COPYING "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+

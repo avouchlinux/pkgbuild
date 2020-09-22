@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=polkit
+pkgver=0.117
+pkgrel=1
+pkgdesc="Application development toolkit for controlling system-wide privileges"
+arch=('x86_64')
+groups=('sys-auth')
+license=(LGPL)
+url="https://www.freedesktop.org/wiki/Software/polkit/"
+depends=(glib2 pam expat systemd js68)
+makedepends=(intltool gtk-doc gobject-introspection git autoconf-archive)
+source=("https://gitlab.freedesktop.org/polkit/polkit/-/archive/$pkgver/polkit-$pkgver.tar.bz2")
+
+prepare(){
+  cd $pkgname-$pkgver
+  NOCONFIGURE=1 ./autogen.sh
+}
+build() {
+	cd $pkgname-$pkgver
+
+  ./configure --prefix=/usr --sysconfdir=/etc \
+    --localstatedir=/var --libexecdir=/usr/lib/polkit-1 \
+    --enable-libsystemd-login=yes --disable-static \
+    --enable-gtk-doc --with-os-type=redhat
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make ${MAKEFLAGS}
+}
+
+check() {
+	cd $pkgname-$pkgver
+	#make -k check || :
+}
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="$pkgdir" install
+	
+	install -d -o root -g 70 -m 750 "$pkgdir"/{etc,usr/share}/polkit-1/rules.d
+	
+install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf" <<END
+u polkitd 70 "PolicyKit daemon"
+m polkitd proc
+END
+}
+

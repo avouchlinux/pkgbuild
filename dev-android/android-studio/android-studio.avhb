@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=android-studio
+_realname=android-studio-ide
+pkgver=4.0
+pkgrel=1
+_build=193.6514223
+pkgdesc="The official Android IDE (Stable branch)"
+arch=('x86_64')
+groups=('dev-android')
+url="http://tools.android.com/"
+license=('APACHE')
+makedepends=('unzip')
+depends=('alsa-lib' 'freetype2' 'libxrender' 'libxtst')
+optdepends=('gtk2: GTK+ look and feel'
+            'libgl: emulator support')
+options=('!strip')
+source=("https://dl.google.com/dl/android/studio/ide-zips/$pkgver/android-studio-ide-$_build-linux.zip"
+        "$pkgname.desktop")
+
+if [ "$CARCH" = "i686" ]; then
+    depends+=('java-environment')
+fi
+
+package() {
+  cd $srcdir/$pkgname
+
+  # Install the application
+  install -d $pkgdir/{opt/$pkgname,usr/bin}
+  cp -a bin lib jre plugins license LICENSE.txt build.txt product-info.json $pkgdir/opt/$pkgname
+  ln -s /opt/android-studio/bin/studio.sh $pkgdir/usr/bin/$pkgname
+
+  # Copy licenses
+  install -Dm644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.txt"
+  install -Dm644 $srcdir/license.html "${pkgdir}/usr/share/licenses/${pkgname}/license.html"
+
+  # Add the icon and desktop file
+  install -Dm644 bin/studio.png $pkgdir/usr/share/pixmaps/$pkgname.png
+  install -Dm644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/$pkgname.desktop
+
+  chmod -R ugo+rX $pkgdir/opt
+}

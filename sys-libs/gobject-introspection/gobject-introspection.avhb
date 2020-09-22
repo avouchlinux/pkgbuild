@@ -1,0 +1,53 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gobject-introspection
+pkgname=('gobject-introspection' 'gobject-introspection-runtime')
+pkgdesc="Introspection system for GObject-based libraries"
+pkgver=1.66.0
+pkgrel=1
+arch=('x86_64')
+groups=('sys-libs')
+url="https://wiki.gnome.org/Projects/GObjectIntrospection"
+license=(LGPL GPL)
+depends=(python3-mako python3-markdown)
+makedepends=(cairo gtk-doc python3-sphinx meson)
+options=(!emptydirs)
+_glibver=2.66.0
+source=("https://gitlab.gnome.org/GNOME/$realname/-/archive/$pkgver/$realname-$pkgver.tar.bz2"
+        "https://gitlab.gnome.org/GNOME/glib/-/archive/$_glibver/glib-$_glibver.tar.bz2")
+
+
+prepare() {
+    bsdtar -xf $srcarchivedir/glib-$_glibver.tar.xz
+}
+
+build() {
+  export CFLAGS="$CFLAGS -DG_DISABLE_CAST_CHECKS" # https://gitlab.gnome.org/GNOME/glib/issues/1833
+  avouch-meson $pkgbase-$pkgver build \
+    -D gtk_doc=true \
+    -D glib_src_dir="$srcdir/glib-$_glibver"
+  ninja -C build
+}
+
+package_gobject-introspection() {
+  depends+=("gobject-introspection-runtime=$pkgver-$pkgrel")
+
+  DESTDIR="$pkgdir" meson install -C build
+
+  python -m compileall -d /usr/lib/$pkgbase "$pkgdir/usr/lib/$pkgbase"
+  python -O -m compileall -d /usr/lib/$pkgbase "$pkgdir/usr/lib/$pkgbase"
+
+### Split runtime
+  mkdir -p "$srcdir/runtime/lib"
+  mv "$pkgdir"/usr/lib/{lib*,girepository-*} "$srcdir/runtime/lib"
+}
+
+package_gobject-introspection-runtime() {
+  pkgdesc+=" (runtime library)"
+  depends=(glib2)
+
+  mv "$srcdir/runtime" "$pkgdir/usr"
+}

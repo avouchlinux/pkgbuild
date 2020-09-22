@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libalkimia
+_realname=alkimia
+pkgver=8.0.3
+pkgrel=1
+pkgdesc="A library with common classes and functionality used by finance applications for the KDE SC"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://community.kde.org/Alkimia/libalkimia"
+license=('LGPL')
+depends=('qt5-base')
+makedepends=('cmake' 'doxygen' 'extra-cmake-modules')
+source=(https://ftp.acc.umu.se/mirror/kde.org/ftp/stable/alkimia/$pkgver/alkimia-$pkgver.tar.xz{,.sig})
+validpgpkeys=('D69A745A55331F44F404D8258D4DE062AA2EB01C') #Thomas Baumgart <thb@net-bembel.de>
+
+build() {
+  cmake -S $_realname-${pkgver} -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DSHARE_INSTALL_DIR=/usr/share
+    -Wno-dev
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

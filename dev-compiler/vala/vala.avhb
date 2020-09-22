@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vala
+pkgver=0.50.0
+pkgrel=1
+pkgdesc="Compiler for the GObject type system"
+arch=('x86_64')
+groups=('dev-compiler')
+url="https://wiki.gnome.org/Projects/Vala"
+license=(LGPL)
+depends=(glib2 gtk-doc graphviz ttf-font pkg-config gcc)
+makedepends=(libxslt vala git help2man autoconf-archive)
+checkdepends=(dbus libx11 gobject-introspection)
+provides=(valadoc libvala-${pkgver%.*}.so libvaladoc-${pkgver%.*}.so)
+conflicts=(valadoc)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    #make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=setconf
+pkgver=0.7.6
+pkgrel=1
+pkgdesc='Utility for easily changing settings in configuration files'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://setconf.roboticoverlords.org/'
+license=(GPL2)
+depends=(python)
+source=("https://setconf.roboticoverlords.org/$pkgname-$pkgver.tar.xz"{,.asc})
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  install -Dm755 "$pkgname.py" "$pkgdir/usr/bin/$pkgname"
+  install -Dm644 "$pkgname.1.gz" "$pkgdir/usr/share/man/man1/$pkgname.1.gz"
+}

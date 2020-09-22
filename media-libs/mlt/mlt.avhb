@@ -1,0 +1,71 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=mlt
+pkgname=(mlt python-mlt)
+pkgver=6.20.0
+pkgrel=1
+pkgdesc="An open source multimedia framework"
+arch=('x86_64')
+groups=('media-libs')
+url="https://www.mltframework.org"
+license=(GPL)
+makedepends=(ladspa frei0r-plugins libdv sdl_image libsamplerate sox ffmpeg vid.stab qt5-svg
+             jack libexif python swig movit eigen opencv libebur128 gtk2)
+source=("https://github.com/mltframework/mlt/archive/v$pkgver.tar.gz")
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../mlt-opencv4.patch # Fix build with openCV 4
+  sed -e 's|python{}.{}|python{}.{}m|' -i src/swig/python/build # Fix Python 3 include dir
+}
+
+build() {
+  cd mlt-$pkgver
+
+  ./configure --prefix=/usr \
+    --avformat-swscale \
+    --enable-gpl \
+    --enable-gpl3 \
+    --enable-opencv
+  make ${MAKEFLAGS}
+
+  # python bindings
+  cd src/swig/python
+  ./build
+}
+
+package_mlt() {
+  depends=(libebur128)
+  optdepends=('sdl_image: SDL1 plugin'
+        'sdl2: SDL2 plugin'
+        'libsamplerate: libavresample plugin'
+        'sox: SOX (Audio Swiss Army Knife) plugin'
+        'ffmpeg: ffmpeg plugin'
+        'vid.stab: video stabilize plugin'
+        'gtk2: Gtk plugin'
+        'qt5-svg: Qt5 plugins'
+        'jack: JACK sound output plugin'
+        'ladspa: LADSPA plugins'
+        'libexif: auto rotate plugin'
+        'frei0r-plugins: for additional effects'
+        'movit: opengl plugin'
+        'opencv: openCV plugin')
+
+  cd mlt-$pkgver
+  make DESTDIR="$pkgdir" install
+}
+
+package_python-mlt() {
+  depends=(python mlt)
+  conflicts=(mlt-python-bindings)
+  provides=(mlt-python-bindings)
+  replaces=(mlt-python-bindings)
+
+  _pythonpath=`python -c "from sysconfig import get_path; print(get_path('platlib'))"`
+  cd "$srcdir/mlt-$pkgver/src/swig/python"
+  mkdir -p "$pkgdir/$_pythonpath"
+  install -m755 mlt.py "$pkgdir/$_pythonpath"
+  install -m755 _mlt.so "$pkgdir/$_pythonpath"
+}

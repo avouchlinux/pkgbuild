@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libgudev
+_realname=libgudev
+pkgver=233
+pkgrel=1
+pkgdesc='GObject bindings for libudev'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='https://wiki.gnome.org/Projects/libgudev'
+license=('LGPL2.1')
+depends=('lib32-glib2' 'lib32-systemd' 'libgudev')
+makedepends=('gcc-multilib' 'python')
+source=("https://download.gnome.org/sources/libgudev/${pkgver}/libgudev-${pkgver}.tar.xz")
+sha256sums=('ee4cb2b9c573cdf354f6ed744f01b111d4b5bed3503ffa956cefff50489c7860')
+
+build() {
+  cd libgudev-${pkgver}
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  ./configure \
+    --prefix='/usr' \
+    --libdir='/usr/lib32' \
+    --localstatedir='/var' \
+    --sysconfdir='/etc' \
+    --disable-introspection \
+    --disable-umockdev
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd libgudev-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+  rm -rf ${pkgdir}/usr/{include,share}
+}
+

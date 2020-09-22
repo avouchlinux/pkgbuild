@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gingerblue
+pkgver=0.3.0
+pkgrel=1
+pkgdesc="Free Music Software for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+url="http://live.gnome.org/dconf"
+license=('LGPL2.1')
+depends=('glib2')
+makedepends=('vala' 'gtk3' 'intltool')
+optdepends=('gtk3: for dconf-editor')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr --disable-static
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-themes-extra
+pkgver=3.28
+pkgrel=1
+pkgdesc="Extra Themes for GNOME Applications"
+url="https://gitlab.gnome.org/GNOME/gnome-themes-extra"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL2.1)
+depends=(cantarell-fonts)
+makedepends=(intltool gtk2 gtk3 git)
+optdepends=('gtk-engines: HighContrast GTK2 theme')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+  cd $pkgname-$pkgver
+  mkdir m4
+  intltoolize
+  autoreconf -fvi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

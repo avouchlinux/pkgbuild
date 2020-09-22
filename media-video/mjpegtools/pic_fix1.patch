@@ -1,0 +1,13 @@
+--- y4mdenoise/Makefile.am	2012-04-01 08:43:55.000000000 +0000
++++ ../Makefile.am	2018-02-04 23:18:08.298760623 +0000
+@@ -4,8 +4,8 @@
+ 
+ EXTRA_DIST = implementation.html
+ 
+-AM_CFLAGS = -DNDEBUG -finline-functions @PROGRAM_NOPIC@
+-AM_CXXFLAGS = -DNDEBUG -finline-functions @PROGRAM_NOPIC@
++AM_CFLAGS = -DNDEBUG -finline-functions
++AM_CXXFLAGS = -DNDEBUG -finline-functions
+ 
+ INCLUDES =  -I$(top_srcdir) -I$(top_srcdir)/utils
+ 

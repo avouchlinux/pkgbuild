@@ -1,0 +1,71 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=vigra
+pkgname=('vigra' 'vigra-doc')
+pkgver=1.11.1
+pkgrel=1
+arch=('x86_64')
+groups=('media-libs')
+url="https://ukoethe.github.io/vigra/"
+license=(custom:MIT)
+makedepends=(# runtime deps
+             libpng libtiff openexr gcc-libs sh hdf5 fftw
+             # additional makedeps
+             cmake boost python-numpy)
+checkdepends=(python-nose)
+source=("https://github.com/ukoethe/vigra/releases/download/Version-${pkgver//./-}/vigra-${pkgver}-src.tar.gz"
+        fix-incorrect-template-parameter-type.patch py3.7.diff)
+
+prepare() {
+  mkdir -p build
+  cd ${pkgbase}-${pkgver}
+  # https://github.com/ukoethe/vigra/issues/414
+  patch -Np1 -i ../fix-incorrect-template-parameter-type.patch
+  # python 3.8 compat
+  patch -Np1 -i ../py3.8.diff
+}
+
+build() {
+	cmake -S ${pkgbase}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DPYTHON_EXECUTABLE=/usr/bin/python \
+		-DWITH_OPENEXR=true \
+		-DWITH_VIGRANUMPY=1 \
+		-DDOCINSTALL=share/doc \
+		-DCMAKE_C_FLAGS="-DH5_USE_110_API" \
+		-DCMAKE_CXX_FLAGS="-DH5_USE_110_API"
+	ninja -C build
+}
+
+#check() {
+#  cd "${srcdir}"/${pkgname}-${pkgver}
+#  make -j1 -k check #|| /bin/true # i686 fails
+#}
+
+package_vigra() {
+  pkgdesc="Computer vision library"
+  depends=('libpng' 'libtiff' 'openexr' 'gcc-libs' 'sh' 'hdf5' 'fftw')
+  optdepends=('python2: for python bindings'
+              'boost-libs: for python bindings')
+
+	DESTDIR="${pkgdir}" ninja -C build install
+	# license
+	install -D -m644 LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+	  
+	# remove doc
+	rm -rf "${pkgdir}"/usr/share/doc
+}
+
+package_vigra-doc() {
+  pkgdesc="Computer vision library - documentation and examples"
+  #depends=('vigra')
+  #arch=('any')
+	DESTDIR="${pkgdir}" ninja -C build install
+	# cleanup
+	rm -rf "${pkgdir}"/usr/{bin,include,lib}
+
+	# license
+	install -D -m644 LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

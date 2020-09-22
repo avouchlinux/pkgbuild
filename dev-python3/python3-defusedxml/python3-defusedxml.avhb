@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-defusedxml
+_realname=defusedxml
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="XML bomb protection for Python stdlib modules"
+arch=('any')
+groups=('dev-python3')
+url='https://bitbucket.org/tiran/defusedxml'
+license=('Python')
+depends=('python')
+makedepends=('python3-setuptools')
+source=("https://pypi.io/packages/source/d/defusedxml/defusedxml-$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

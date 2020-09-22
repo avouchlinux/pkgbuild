@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-i128
+pkgver=1.4.0
+pkgrel=1
+pkgdesc="X.org Number 9 I128 video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2 git-fix.diff)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

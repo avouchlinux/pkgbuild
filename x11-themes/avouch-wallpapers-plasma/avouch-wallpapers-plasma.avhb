@@ -1,0 +1,22 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avouch-wallpapers-plasma
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Default wallpapers for Avouch Linux"
+arch=('any')
+groups=('x11-themes')
+url="https://avouch.org"
+license=('GPL')
+depends=()
+makedepends=()
+source=(https://avouch.org)
+sha256sums=()
+
+package() {
+  mkdir -p $pkgdir/usr/share/wallpapers/
+  cp -r $pkgname-$pkgver/Avouch $pkgdir/usr/share/wallpapers/
+}

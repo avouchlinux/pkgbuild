@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=aspell
+pkgver=0.60.8
+_pkgmajorver=0.60
+pkgrel=1
+pkgdesc="A spell checker designed to eventually replace Ispell"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://aspell.net/"
+license=('LGPL')
+depends=('gcc-libs' 'ncurses')
+optdepends=('perl: to import old dictionaries')
+source=("https://github.com/GNUAspell/aspell/archive/rel-$_pkgver.tar.gz")
+
+build() {
+	cd $pkgname-$pkgver
+	./configure --prefix=/usr --sysconfdir=/etc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="${pkgdir}" install
+	ln -s ${pkgname}-${_pkgmajorver} "${pkgdir}/usr/lib/${pkgname}"
+}

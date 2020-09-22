@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=visual-studio-code
+_realname=code-stable
+pkgver=1.43.2
+pkgrel=1
+pkgdesc="Visual Studio Code: Editor for building and debugging modern web and cloud applications (official binary version)"
+arch=('x86_64')
+groups=('dev-ide')
+url="https://code.visualstudio.com/"
+license=('custom: commercial')
+depends=(fontconfig libxtst gtk3 python cairo alsa-lib nss gcc-libs libnotify libxss gconf 'glibc>=2.28-4')
+optdepends=('gvfs: Needed for move to trash functionality' 'libdbusmenu-glib: Needed for KDE global menu')
+source_x86_64=(https://update.code.visualstudio.com/$pkgver/linux-x64/stable
+               ${_realname}.desktop
+               )
+package() {
+  _pkg=VSCode-linux-x64
+
+  install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -d "${pkgdir}/opt/${pkgname}"
+  install -d "${pkgdir}/usr/bin"
+  install -d "${pkgdir}/usr/share/applications"
+  install -d "${pkgdir}/usr/share/icons" 
+
+  install -m644 "${srcdir}/${_pkg}//resources/app/LICENSE.rtf" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -m644 "${srcdir}/${_pkg}/resources/app/resources/linux/code.png" "${pkgdir}/usr/share/icons/${pkgname}.png"
+  install -m644 "${srcdir}/${pkgname}.desktop" "${pkgdir}/usr/share/applications/${pkgname}.desktop"
+  install -m644 "${srcdir}/${pkgname}-url-handler.desktop" "${pkgdir}/usr/share/applications/${_pkgname}-url-handler.desktop"
+
+  cp -r "${srcdir}/${_pkg}/"* "${pkgdir}/opt/${pkgname}" -R
+  ln -s /opt/${pkgname}/bin/code "${pkgdir}"/usr/bin/code
+
+  # XFCE bug workaround
+  # see https://aur.archlinux.org/packages/visual-studio-code-bin/#comment-692211
+  mkdir -p "${pkgdir}/usr/share/icons/hicolor/512x512/apps"
+  install -m644 "${srcdir}/code.png" "${pkgdir}/usr/share/icons/hicolor/512x512/apps/visual-studio-code.png"
+}

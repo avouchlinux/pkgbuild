@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=check
+pkgver=0.14.0
+pkgrel=1
+pkgdesc="A unit testing framework for C"
+url="https://libcheck.github.io/check/"
+arch=('x86_64')
+groups=('sys-devel')
+license=(LGPL)
+depends=(awk)
+makedepends=(git)
+
+source=("https://github.com/libcheck/check/releases/download/$pkgver/check-$pkgver.tar.gz")
+md5sums=('SKIP')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# Extremely long
+	# make -k check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	
+	# svn log file is too big
+	rm "$pkgdir"/usr/share/doc/check/*ChangeLog*
+}

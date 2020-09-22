@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-color-manager
+pkgver=3.36.0
+pkgrel=1
+pkgdesc="GNOME Color Profile Tools"
+url="https://gitlab.gnome.org/GNOME/gnome-color-manager"
+arch=(x86_64)
+groups=('gnome-base')
+license=(GPL2)
+depends=(libcanberra vte3 exiv2 shared-color-targets colord-gtk libexif)
+makedepends=(yelp-tools git appstream-glib meson docbook-utils docbook-sgml perl-sgmls)
+checkdepends=(xorg-server-xvfb)
+optdepends=('argyllcms: color calibration')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+
+prepare() {
+    cd ${pkgname}-${pkgver}
+    # do not build man pages as build breaks
+    sed -i "/subdir('man')/d" meson.build
+}
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build 
+    ninja -C build
+}
+
+check() {
+    xvfb-run meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

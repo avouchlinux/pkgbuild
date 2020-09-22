@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libx11
+_realname=libX11
+pkgver=1.6.9
+pkgrel=1
+pkgdesc="X11 client-side library"
+arch=('x86_64')
+groups=('x11-libs')
+url="http://xorg.freedesktop.org/"
+depends=('libxcb' 'xproto' 'kbproto')
+makedepends=('xorg-util-macros' 'xextproto' 'xtrans' 'inputproto')
+license=('custom')
+source=(${url}/releases/individual/lib/libX11-${pkgver}.tar.bz2)
+
+build() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    ./configure --prefix=/usr --disable-static --disable-xf86bigfont
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
+

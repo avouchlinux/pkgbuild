@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgbasename=libnl
+pkgname=lib32-$_pkgbasename
+pkgver=3.5.0
+pkgrel=1
+pkgdesc="Library for applications dealing with netlink sockets"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.infradead.org/~tgr/libnl/"
+license=(GPL)
+depends=(glibc)
+backup=(etc/libnl/classid etc/libnl/pktloc)
+source=(https://github.com/thom311/libnl/releases/download/libnl${pkgver//./_}/${pkgname}-${pkgver}.tar.gz{,.sig})
+sha256sums=('4bbbf92b3c78a90f423cf96260bf419a28b75db8cced47051217a56795f58ec6'
+            'SKIP')
+validpgpkeys=('49EA7C670E0850E7419514F629C2366E4DFC5728') # Thomas Haller
+
+build() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--sysconfdir=/etc \
+		--sbindir=/usr/bin \
+		--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

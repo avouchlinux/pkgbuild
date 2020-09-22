@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-builder
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="An IDE for writing GNOME-based software"
+url="https://wiki.gnome.org/Apps/Builder"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL3)
+depends=(gtksourceview4 devhelp libgit2-glib gjs python-gobject clang desktop-file-utils ctags
+         libpeas vte3 vala python-jedi autoconf-archive sysprof flatpak-builder gspell libdazzle
+         template-glib jsonrpc-glib python-sphinx webkit2gtk glade python-lxml meson)
+makedepends=(llvm gobject-introspection gtk-doc yelp-tools appstream-glib git mm-common
+             python-sphinx_rtd_theme)
+checkdepends=(xorg-server-xvfb)
+optdepends=('gnome-code-assistance: Legacy assistance services')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

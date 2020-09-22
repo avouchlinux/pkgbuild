@@ -1,0 +1,14 @@
+diff --git a/Modules/GNUInstallDirs.cmake b/Modules/GNUInstallDirs.cmake
+index 4db4e18fd098faa93ce0067bf9ad2a77ac37fa75..f95e6e2c54f88a5c9832949b230ce7716c3281c2 100644
+--- a/Modules/GNUInstallDirs.cmake
++++ b/Modules/GNUInstallDirs.cmake
+@@ -222,7 +222,8 @@ if(NOT DEFINED CMAKE_INSTALL_LIBDIR OR (_libdir_set
+     # updated to the new default, unless the user explicitly changed it.
+   endif()
+   if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|kFreeBSD|GNU)$"
+-      AND NOT CMAKE_CROSSCOMPILING)
++      AND NOT CMAKE_CROSSCOMPILING
++      AND NOT EXISTS "/etc/avouch-release")
+     if (EXISTS "/etc/debian_version") # is this a debian system ?
+       if(CMAKE_LIBRARY_ARCHITECTURE)
+         if("${CMAKE_INSTALL_PREFIX}" MATCHES "^/usr/?$")

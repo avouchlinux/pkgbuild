@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lasem
+pkgver=0.4.4
+pkgrel=1
+pkgdesc="SVG and Mathml rendering library"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Projects/Lasem"
+license=('LGPL')
+depends=('gtk3')
+makedepends=('intltool' 'python')
+options=('!libtool')
+source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:3}/$pkgname-$pkgver.tar.xz
+        CVE-2013-7447.patch)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i ../CVE-2013-7447.patch
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+      --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+  mv "$pkgdir/usr/doc" "$pkgdir/usr/share/doc"
+}

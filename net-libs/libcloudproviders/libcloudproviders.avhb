@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcloudproviders
+pkgver=0.3.0
+pkgrel=1
+pkgdesc="DBus API that allows cloud storage sync clients to expose their services."
+arch=('x86_64')
+groups=('net-libs')
+url="https://gitlab.gnome.org/World/libcloudproviders"
+license=('LGPL')
+depends=(glib2 gobject-introspection vala)
+makedepends=(git meson ninja gobject-introspection vala)
+provides=("$pkgname=$pkgver")
+provides+=("dbus-org.freedesktop.CloudProviderManager.service")
+source=("https://gitlab.gnome.org/World/libcloudproviders/uploads/e97a550ebbf85e753c4df5692a86b39d/libcloudproviders-0.3.0.tar.xz")
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

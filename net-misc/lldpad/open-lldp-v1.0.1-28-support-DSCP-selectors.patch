@@ -1,0 +1,39 @@
+From c8e438d610bc8af109c19479ee0f568b271d4030 Mon Sep 17 00:00:00 2001
+From: Petr Machata <petrm@mellanox.com>
+Date: Mon, 9 Jul 2018 21:43:41 +0300
+Subject: [PATCH] lldpad: Support DSCP selectors in APP TLV's
+
+The P802.1Qcd/D2.1 standard draft introduces a new APP TLV: DSCP, with
+selector value of 5. Don't reject APP TLV's with selector 5, and
+sanitize the PID value to not be out of bounds for DSCP.
+
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+---
+ lldp_8021qaz_cmds.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/lldp_8021qaz_cmds.c b/lldp_8021qaz_cmds.c
+index 8cb225e..e017e2a 100644
+--- a/lldp_8021qaz_cmds.c
++++ b/lldp_8021qaz_cmds.c
+@@ -1290,7 +1290,7 @@ static int _set_arg_app(struct cmd *cmd, char *args, char *arg_value,
+ 			obuf_len - strlen(obuf) - 2);
+ 		goto err;
+ 	}
+-	if (sel < 1 || sel > 4) {
++	if (sel < 1 || sel > 5) {
+ 		strncat(obuf, ": selector out of range",
+ 			obuf_len - strlen(obuf) - 2);
+ 		goto err;
+@@ -1305,6 +1305,11 @@ static int _set_arg_app(struct cmd *cmd, char *args, char *arg_value,
+ 			obuf_len - strlen(obuf) - 2);
+ 		goto err;
+ 	}
++	if (sel == 5 && pid > 63) {
++		strncat(obuf, ": DSCP > 63",
++			obuf_len - strlen(obuf) - 2);
++		goto err;
++	}
+ 
+ 	free(parse);
+ 

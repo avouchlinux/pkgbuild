@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=giflib
+pkgver=5.2.1
+pkgrel=1
+pkgdesc="A library for reading and writing gif images"
+url="http://sourceforge.net/projects/giflib/"
+arch=('x86_64')
+groups=('media-libs')
+license=('MIT')
+depends=('glibc')
+makedepends=('xmlto' 'docbook-xml' 'docbook-xsl')
+source=(http://downloads.sourceforge.net/sourceforge/giflib/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver} 
+	make PREFIX=/usr DESTDIR="${pkgdir}" install
+}

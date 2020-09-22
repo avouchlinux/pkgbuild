@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=appstream-glib
+pkgver=0.7.17
+pkgrel=1
+pkgdesc="Provides GObjects and helper methods to make it easy to read and write AppStream metadata."
+arch=('x86_64')
+groups=('dev-libs')
+url="http://people.freedesktop.org/~hughsient/appstream-glib/"
+license=('LGPL')
+depends=('glib2' 'libsoup' 'gdk-pixbuf2' 'libarchive' 'gtk3' 'libyaml')
+makedepends=('intltool')
+source=(http://people.freedesktop.org/~hughsient/appstream-glib/releases/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+	mkdir build
+}
+
+build() {
+    cd "${srcdir}/build"
+    avouch-meson ../${pkgname}-${pkgver} \
+        -Dalpm=false \
+        -Dgtk-doc=true \
+        -Drpm=false
+    ninja
+}
+
+check() {
+    cd "${srcdir}/build"
+    meson test
+}
+
+package() {
+    cd "${srcdir}/build"
+    DESTDIR="$pkgdir" ninja install
+}
+

@@ -1,0 +1,117 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=util-linux
+pkgname=(util-linux libutil-linux)
+_pkgmajor=2.36
+pkgver=${_pkgmajor}
+pkgrel=1
+pkgdesc="Miscellaneous system utilities for Linux"
+url='https://github.com/karelzak/util-linux'
+arch=('x86_64')
+groups=('sys-base')
+makedepends=('systemd' 'python' 'libcap-ng')
+license=('GPL2')
+options=('strip' 'debug')
+validpgpkeys=('B0C64D14301CC6EFAEDF60E4E4B71D5EEC39C284')  # Karel Zak
+source=("https://www.kernel.org/pub/linux/utils/util-linux/v$_pkgmajor/$pkgbase-$pkgver.tar."{xz,sign}
+        pam-{login,common,runuser,su}
+        'util-linux.sysusers'
+        '60-rfkill.rules'
+        'rfkill-unblock_.service'
+        'rfkill-block_.service')
+
+build() {
+  cd "$pkgbase-$pkgver"
+
+  ./configure \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --bindir=/usr/bin \
+    --sbindir=/usr/bin \
+    --localstatedir=/var \
+    --enable-usrdir-path \
+    --enable-fs-paths-default=/usr/bin:/usr/local/bin \
+    --enable-raw \
+    --enable-vipw \
+    --enable-newgrp \
+    --enable-chfn-chsh \
+    --enable-write \
+    --enable-mesg \
+    --with-python=3 \
+    --without-ncursesw
+
+  # Configure screipt wrongly append hadend flags
+  # temprary fix to correct hardening flags
+  # with out correction build fails as
+  # gcc: error: relro: No such file or directory
+  sed -i 's/relro/-z relro/g' Makefile
+  sed -i 's/-z -z relro/-z relro/g' Makefile
+
+  make ${MAKEFLAGS}
+}
+
+package_util-linux() {
+  conflicts=('rfkill')
+  provides=('rfkill')
+  replaces=('rfkill')
+  depends=('pam' 'shadow' 'coreutils' 'systemd-libs' 'libcap-ng' 'libutil-linux')
+  optdepends=('python: python bindings to libmount'
+              'words: default dictionary for look')
+  groups=('base' 'base-devel')
+  backup=(etc/pam.d/chfn
+          etc/pam.d/chsh
+          etc/pam.d/login
+          etc/pam.d/runuser
+          etc/pam.d/runuser-l
+          etc/pam.d/su
+          etc/pam.d/su-l)
+
+  cd "$pkgbase-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+
+  # setuid chfn and chsh
+  chmod 4755 "$pkgdir"/usr/bin/{newgrp,ch{sh,fn}}
+
+  # install PAM files for login-utils
+  install -Dm644 "$srcdir/pam-common" "$pkgdir/etc/pam.d/chfn"
+  install -m644 "$srcdir/pam-common" "$pkgdir/etc/pam.d/chsh"
+  install -m644 "$srcdir/pam-login" "$pkgdir/etc/pam.d/login"
+  install -m644 "$srcdir/pam-runuser" "$pkgdir/etc/pam.d/runuser"
+  install -m644 "$srcdir/pam-runuser" "$pkgdir/etc/pam.d/runuser-l"
+  install -m644 "$srcdir/pam-su" "$pkgdir/etc/pam.d/su"
+  install -m644 "$srcdir/pam-su" "$pkgdir/etc/pam.d/su-l"
+
+  # TODO(dreisner): offer this upstream?
+  sed -i '/ListenStream/ aRuntimeDirectory=uuidd' "$pkgdir/usr/lib/systemd/system/uuidd.socket"
+
+  # move sbin to bin
+  cd "$pkgdir"
+  mv usr/sbin/* usr/bin
+  rmdir usr/sbin
+
+  ### runtime libs are shipped as part of libutil-linux
+  rm "$pkgdir"/usr/lib/lib*.{a,so}*
+
+  ### install systemd-sysusers
+  install -Dm644 "$srcdir/util-linux.sysusers" \
+    "$pkgdir/usr/lib/sysusers.d/util-linux.conf"
+
+  install -Dm644 "$srcdir/60-rfkill.rules" \
+    "$pkgdir/usr/lib/udev/rules.d/60-rfkill.rules"
+
+  install -Dm644 "$srcdir/rfkill-unblock_.service" \
+    "$pkgdir/usr/lib/systemd/system/rfkill-unblock@.service"
+  install -Dm644 "$srcdir/rfkill-block_.service" \
+    "$pkgdir/usr/lib/systemd/system/rfkill-block@.service"
+}
+
+package_libutil-linux() {
+  pkgdesc="util-linux runtime libraries"
+  provides=('libblkid.so' 'libfdisk.so' 'libmount.so' 'libsmartcols.so' 'libuuid.so')
+
+  make -C "$pkgbase-$pkgver" DESTDIR="$pkgdir" install-usrlib_execLTLIBRARIES
+}

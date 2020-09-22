@@ -1,0 +1,49 @@
+From 0e295e5a926496f5a5d46ea4feb1b285b084f5e0 Mon Sep 17 00:00:00 2001
+From: Christophe Giboudeaux <christophe@krop.fr>
+Date: Mon, 11 Nov 2019 10:31:49 +0100
+Subject: Check if clazy should be linked to clang-cpp
+
+Summary:
+According to [1], clang can now provide a single shared library instead of split
+ones.
+
+We have to check if this library exists and link to it if available.
+
+[1] https://releases.llvm.org/9.0.0/tools/clang/docs/ReleaseNotes.html#build-system-changes
+
+Reviewers: smartins, kde-buildsystem
+
+Reviewed By: smartins
+
+Differential Revision: https://phabricator.kde.org/D25163
+---
+ CMakeLists.txt | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+(limited to 'CMakeLists.txt')
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b7301ed..ce1f887 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -125,9 +125,14 @@ macro(link_to_llvm name is_standalone)
+   if(WIN32)
+     target_link_libraries(${name} version.lib)
+   endif()
+-    target_link_libraries(${name} clangTooling)
+-    target_link_libraries(${name} clangToolingCore)
+-    target_link_libraries(${name} ${clang_tooling_refactoring_lib})
++    # clang >= 9.0 can provide a single shared library instead of split ones
++    if(CLANG_CLANG-CPP_LIB)
++        target_link_libraries(${name} clang-cpp)
++    else()
++        target_link_libraries(${name} clangTooling)
++        target_link_libraries(${name} clangToolingCore)
++        target_link_libraries(${name} ${clang_tooling_refactoring_lib})
++    endif()
+ endmacro()
+ 
+ macro(add_clang_plugin name)
+-- 
+cgit v1.1
+

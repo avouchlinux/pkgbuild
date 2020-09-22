@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=clutter-gtk
+pkgver=1.8.4
+pkgrel=1
+pkgdesc="GTK clutter widget"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://gitlab.gnome.org/GNOME/clutter-gtk"
+license=(LGPL)
+depends=(clutter)
+makedepends=(gobject-introspection gtk-doc git meson)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build -Denable_docs=true
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

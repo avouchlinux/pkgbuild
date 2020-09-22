@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmikmod
+pkgver=3.3.11.1
+pkgrel=1
+pkgdesc="A portable sound library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://mikmod.sourceforge.net"
+license=(GPL LGPL)
+depends=(libpulse sh)
+makedepends=(alsa-lib)
+install=$pkgname.install
+source=(http://downloads.sourceforge.net/mikmod/$pkgname-$pkgver.tar.gz)
+
+prepare() {
+	mkdir build
+}
+
+build() {
+	cd build
+	../$pkgname-$pkgver/configure --prefix=/usr --disable-static
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make
+}
+
+package() {
+	cd build
+	make DESTDIR="$pkgdir" install
+}

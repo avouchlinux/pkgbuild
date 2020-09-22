@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nasm
+pkgver=2.14.02
+pkgrel=1
+pkgdesc="An 80x86 assembler designed for portability and modularity"
+arch=('x86_64')
+groups=('dev-compiler')
+url="http://www.nasm.us"
+license=('BSD')
+depends=('glibc')
+makedepends=('perl-font-ttf' 'perl-sort-versions' 'fontconfig' 'adobe-source-sans-pro-fonts' 'ttf-liberation' 'ghostscript')
+source=(http://www.nasm.us/pub/nasm/releasebuilds/${pkgver}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+    make ${MAKEFLAGS} -C doc
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install install_rdf
+  install -Dm 644 LICENSE -t "${pkgdir}"/usr/share/licenses/nasm
+}

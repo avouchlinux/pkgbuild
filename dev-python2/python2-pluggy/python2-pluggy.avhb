@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pluggy
+_realname=pluggy
+pkgver=0.13.1
+pkgrel=1
+pkgdesc="Plugin and hook calling mechanisms for python"
+arch=('any')
+groups=('dev-python2')
+url="https://www.pluggypayments.com/docs/python"
+license=('MIT')
+depends=('python2')
+makedepends=('python2-setuptools-scm' 'python2-importlib-metadata')
+checkdepends=('python2-pytest-runner')
+source=("https://pypi.io/packages/source/p/pluggy/pluggy-$pkgver.zip")
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-util-macros
+_realname=util-macros
+pkgver=1.19.2
+pkgrel=1
+pkgdesc="X.Org Autotools macros"
+arch=(any)
+groups=('x11-misc')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+source=(${url}/releases/individual/util/util-macros-${pkgver}.tar.bz2)
+
+build() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+
+    install -m755 -d "${pkgdir}/usr/lib"
+    mv "${pkgdir}/usr/share/pkgconfig" "${pkgdir}/usr/lib/"
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

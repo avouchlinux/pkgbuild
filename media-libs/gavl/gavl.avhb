@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gavl
+pkgver=1.4.0
+pkgrel=1
+pkgdesc='A low level library, upon which multimedia APIs can be built.'
+arch=('x86_64')
+groups=('media-libs')
+url='http://gmerlin.sourceforge.net/'
+license=('GPL')
+depends=('glibc')
+source=("http://downloads.sourceforge.net/sourceforge/gmerlin/$pkgname-$pkgver.tar.gz")
+
+prepare(){
+  cd "$srcdir/$pkgname-$pkgver"
+  patch -Np1 -i ../gavl-1.1.1-system_libgdither.patch
+
+  #Disable buildtime cpu detection
+  sed -i -i 's/LQT_TRY_CFLAGS/dnl LQT_TRY_CFLAGS/g' configure.ac
+  sed -i -i 's/LQT_OPT_CFLAGS/dnl LQT_OPT_CFLAGS/g' configure.ac
+
+  #Regenerate build tool
+  sh autogen.sh
+
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr --disable-static --disable-cpu-clip --enable-libgdither
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

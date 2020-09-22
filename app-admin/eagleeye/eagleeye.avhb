@@ -1,0 +1,54 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=eagleeye
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Avouch Linux package installer"
+arch=('x86_64')
+groups=('sys-apps')
+url="http://www.avouch.org/projects/eagleeye/"
+license=('GPL')
+depends=('QT5')
+replaces=('')
+conflicts=('')
+install=eagleeye.install
+source=("ftp://ftp.avouch.org/eagleeye/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}"/${pkgname}-${pkgver}
+	qmake-qt5
+	make
+}
+
+package() {
+	cd "${srcdir}"/${pkgname}-${pkgver}
+	install -D -m755 EagleEye ${pkgdir}/usr/bin/EagleEye
+
+	for i in ee eescript; do
+		  install -m 755 scripts/$i "$pkgdir/usr/bin/"
+	done
+
+	install -Dm644 "data/ee.conf" \
+	"$pkgdir/etc/ee.conf"
+	
+	install -Dm644 "data/eagleeye.desktop" \
+	"$pkgdir/usr/share/applications/eagleeye.desktop"
+
+	install -Dm644 "data/eagleeye.xml" \
+	"$pkgdir/usr/share/mime/packages/eagleeye.xml"
+	
+    #install -dm755 "${pkgdir}/usr/share/ee"
+    #install -m 755 share/config-i686.guess "$pkgdir/usr/share/ee/"
+    #install -m 755 share/config-x86_64.guess "$pkgdir/usr/share/ee/"
+
+	# Install policy file
+	#install -Dm644 "data/org.avouch.pkexec.eagleeye.policy" \
+	#"${pkgdir}/usr/share/polkit-1/actions/org.avouch.pkexec.eagleeye.policy"
+
+	# license
+	install -d ${pkgdir}/usr/share/licenses/${pkgname}
+	ln -sf /usr/share/licenses/gnu/gpl-2.0.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

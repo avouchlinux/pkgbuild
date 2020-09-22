@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=json-glib
+pkgver=1.6.0
+pkgrel=1
+pkgdesc="JSON library built on GLib"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://wiki.gnome.org/Projects/JsonGlib"
+license=(GPL)
+depends=(glib2)
+makedepends=(gobject-introspection git gtk-doc meson)
+source=("https://gitlab.gnome.org/GNOME/json-glib/-/archive/$pkgver/json-glib-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+    avouch-meson $pkgname-$pkgver build -D docs=true -D man=true
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+    rm -r "$pkgdir"/usr/{lib,share}/installed-tests
+}

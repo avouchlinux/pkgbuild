@@ -1,0 +1,108 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=isdn4k-utils
+pkgver=3.27
+pkgrel=1
+pkgdesc="User space administration programs and tools for ISDN"
+arch=('x86_64')
+groups=('net-misc')
+url="http://www.isdn4linux.de/"
+license=('GPL')
+makedepends=('git')
+depends=('ncurses' 'sh') 
+backup=(etc/isdn/{callerid.conf,isdn.conf,rate.conf,isdnlog.isdnctrl0.options})
+options=('!makeflags')
+source=(isdn4k-utils::git+git://git.misdn.eu/isdn4k-utils.git#tag=v${pkgver}
+        config
+        va_list.patch)
+replaces=('capi4k-utils')
+
+getsrc(){
+	cd ${srcdir}
+	git clone git://git.misdn.eu/isdn4k-utils.git	
+}
+
+pkgver() {	
+	cd ${srcdir}/${pkgname}
+	git describe --long | sed 's/-/+/g'
+}
+
+prepare() {
+
+	cd $srcdir/$pkgname
+	patch -Np0 -i ../isdn4k-utils-3.25-build.patch
+	patch -Np1 -i $srcdir/gnu89-inline.patch
+	patch -Np1 -i ../va_list.patch
+	patch -Np1 -i ../isdn4k-fix-Werror-format-security-ftbfs.patch
+	patch -Np1 -i ../isdn4k-utils-autoconf25x.patch
+	patch -Np1 -i ../isdn4k-utils-autoconf-2.6.4-quoting.patch
+	patch -Np1 -i ../isdn4k-utils-capiinit.patch
+	patch -Np1 -i ../isdn4k-utils-CVS-2005-03-09-xmon.patch
+	patch -Np1 -i ../isdn4k-utils-CVS-2009-10-20-lib64.patch
+	patch -Np1 -i ../isdn4k-utils-CVS-2010-05-01-patched-vboxgetty-config.patch
+	patch -Np1 -i ../isdn4k-utils-man.patch
+	patch -Np1 -i ../isdn4k-utils-mkzonedb.patch
+	patch -Np1 -i ../isdn4k-utils-sh-linux.patch
+	patch -Np1 -i ../isdn4k-utils-statfs.patch
+	patch -Np1 -i ../isdn4k-utils-true.patch
+	patch -Np1 -i ../isdn-manpages.patch
+	patch -Np1 -i ../isdn-nofirmware.patch
+	patch -Np1 -i ../vbox-tcl-8.6.patch
+	patch -Np1 -i ../isdn4k-utils-3.27_20151118-perl-wld-modul.patch
+
+	# autoreconf for new autofoo
+	for i in */configure; do
+		cd `dirname $i`
+		autoreconf --force --install
+		cd ..
+	done
+
+
+	cp ../config ./.config
+	cd capiinfo
+	aclocal
+	automake --add-missing
+	autoreconf
+
+	cd $srcdir/$pkgname
+	cd capifax
+	aclocal 
+	automake --add-missing
+	autoreconf
+
+	cd $srcdir/$pkgname
+	make subconfig
+
+}
+
+build() {
+	cd $srcdir/$pkgname
+	CPPFLAGS="$CPPFLAGS -O2"
+	CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE"
+
+	make
+}
+
+package() {
+	cd $srcdir/$pkgname
+	install -dm755 $pkgdir/usr/bin
+	make DESTDIR=$pkgdir install
+	chmod 755 $pkgdir/usr/bin/*
+
+	# install isdn startup script
+	install -m0755 $srcdir/isdn.init $pkgdir/usr/lib/isdn/isdn
+	install -m0755 -d $pkgdir/usr/lib/systemd/system
+	install -m0644 $srcdir/isdn.service $pkgdir/usr/lib/systemd/system/isdn.service
+	install -m0644 $srcdir/capi.service $pkgdir/usr/lib/systemd/system/capi.service
+
+	# usr move
+	mv $pkgdir/sbin/* $pkgdir/usr/bin
+	mv $pkgdir/usr/sbin/* $pkgdir/usr/bin
+
+	rm -r $pkgdir/sbin $pkgdir/usr/sbin
+
+	# license
+	install -D -m644 gpl-2.0.txt ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

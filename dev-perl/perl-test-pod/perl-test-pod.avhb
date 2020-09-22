@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-test-pod
+_realname=Test-Pod
+pkgver=1.52
+pkgrel=1
+pkgdesc="Check for POD errors in files"
+arch=('any')
+url="http://search.cpan.org/dist/Test-Pod/"
+license=('GPL' 'PerlArtistic')
+depends=('perl')
+options=('!emptydirs')
+source=(http://search.cpan.org/CPAN/authors/id/E/ET/ETHER/Test-Pod-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

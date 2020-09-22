@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=texlive-tlpdb
+pkgver=20200406
+pkgrel=1
+_realname="texlive-$pkgver-tlpdb-full"
+pkgdesc='tlpdb database of the packages within texlive'
+arch=('x86_64')
+groups=('dev-texlive')
+url='http://tug.org/texlive/'
+license=('GPL')
+makedepends=('texlive')
+source=(#"https://github.com/TeX-Live/texlive-source/archive/build-$_pkgver.tar.gz"
+         ftp://tug.org/texlive/historic/2020/texlive-$pkgver-tlpdb-full.tar.gz)
+
+package() {
+   cd $_realname
+   mkdir -pv $pkgdir/usr/share/texmf-dist/tlpkg
+   install -v -m644 texlive.tlpdb texlive.tlpdb.md5 texlive.tlpdb.sha512 texlive.tlpdb.sha512.asc $pkgdir/usr/share/texmf-dist/tlpkg/
+}

@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-coverage
+_realname=coverage
+pkgver=5.0.4
+pkgrel=1
+pkgdesc="A tool for measuring code coverage of Python programs"
+arch=('x86_64')
+groups=('dev-python2')
+url="http://nedbatchelder.com/code/coverage/"
+license=('Apache')
+depends=('python2')
+makedepends=('python2-setuptools')
+checkdepends=('python2-mock' 'python2-pytest-xdist' 'python2-pycontracts' 'python2-greenlet'
+              'python2-virtualenv' 'python2-pyenchant' 'python2-pylint' 'python2-unittest-mixins'
+              'python2-flaky')
+source=("https://bitbucket.org/ned/coveragepy/get/coverage-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+
+  mv "$pkgdir/usr/bin/coverage" "$pkgdir/usr/bin/coverage2"
+
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

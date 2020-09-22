@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=spirv-tools
+_realname=SPIRV-Tools
+pkgver=2020.2
+pkgrel=1
+pkgdesc="API and commands for processing SPIR-V modules"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://www.khronos.org/vulkan/"
+license=('custom')
+depends=(gcc-libs)
+makedepends=(cmake python git)
+source=("https://github.com/KhronosGroup/$_realname/archive/v$pkgver.tar.gz"
+        "https://github.com/KhronosGroup/SPIRV-Headers/archive/1.5.1.corrected.tar.gz")
+
+_spirv_headers="SPIRV-Headers-1.5.1.corrected"
+
+prepare() {
+    mkdir build
+    bsdtar -xf $srcarchivedir/$_spirv_headers-git20200413.tar.xz
+}
+
+build() {
+  cmake -S $_realname-$pkgver -B build -G Ninja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DSPIRV_WERROR=Off \
+      -DBUILD_SHARED_LIBS=ON \
+      -DSPIRV-Headers_SOURCE_DIR=${srcdir}/SPIRV-Headers
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+
+  install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 $_realname-$pkgver/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/"
+}

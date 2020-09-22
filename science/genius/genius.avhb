@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=genius
+pkgver=1.0.25
+pkgrel=1
+pkgdesc="Advanced calculator including a mathematical programming language"
+arch=('x86_64')
+groups=('science')
+license=('GPL')
+url="http://www.jirka.org/genius.html"
+url="https://www.jirka.org/genius.html"
+depends=('mpfr' 'glib2' 'hicolor-icon-theme' 'gtk3' 'amtk' 'vte3' 'gtksourceview4')
+makedepends=('intltool' 'gtk-update-icon-cache' 'python')
+options=('!makeflags')
+source=(https://download.gnome.org/sources/genius/1.0/${pkgname}-${pkgver}.tar.xz)
+
+prepare() {
+    cd $pkgname-$pkgver
+    patch -Np1 -i ../genius-1.0.24-no_scrollkeeper.patch
+	patch -Np1 -i ../genius-1.0.25-vte-conf-fixes.patch
+
+    autoreconf -fi
+}
+
+build() {
+    cd $pkgname-$pkgver
+    # configure does not detect cflags correctly temp hack
+    export CFLAGS="$CFLAGS -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/atk-1.0"
+    ./configure --prefix=/usr --sysconfdir=/etc \
+        --libexecdir=/usr/lib/genius \
+        --localstatedir=/var --disable-static \
+        --disable-update-mimedb --disable-gnome
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="${pkgdir}" install
+}

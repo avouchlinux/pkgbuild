@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libquicktime
+pkgver=1.2.4
+pkgrel=1
+pkgdesc="A library for reading and writing quicktime files"
+arch=('x86_64')
+groups=('media-libs')
+license=('GPL')
+url="http://libquicktime.sourceforge.net/"
+depends=('alsa-lib' 'faac' 'faad2' 'gtk2' 'lame' 'libjpeg-turbo' 'libxaw'
+         'libxv' 'schroedinger'
+         'libavcodec.so' 'libswscale.so' 'libvorbisenc.so' 'libvorbisfile.so'
+         'libvorbis.so' 'libx264.so')
+makedepends=('mesa-libgl')
+source=("https://downloads.sourceforge.net/sourceforge/$pkgname/$pkgname-$pkgver.tar.gz"
+		CVE-2016-2399.patch
+        libquicktime-1.2.4-ffmpeg2.patch
+		libquicktime-1.2.4-ffmpeg29.patch
+		libquicktime-1.2.4-ffmpeg4.patch)
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    # apply patches from gentoo https://gitweb.gentoo.org/repo/gentoo.git/tree/media-libs/libquicktime/files
+    patch -p1 -i "$srcdir/CVE-2016-2399.patch"
+    patch -p1 -i "$srcdir/libquicktime-1.2.4-ffmpeg2.patch"
+    patch -p1 -i "$srcdir/libquicktime-1.2.4-ffmpeg29.patch"
+    patch -p1 -i "$srcdir/libquicktime-1.2.4-ffmpeg4.patch"
+    for FILE in lqt_ffmpeg.c video.c audio.c ; do
+        sed -i -e "s:CODEC_ID_:AV_&:g" "plugins/ffmpeg/${FILE}"
+    done
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --enable-gpl \
+        --with-ffmpeg \
+        --with-x264 \
+        --without-doxygen
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=parole
+pkgver=1.0.5
+pkgrel=1
+pkgdesc="A modern media player based on the GStreamer framework"
+arch=('x86_64')
+groups=('xfce4-goodies')
+url="https://docs.xfce.org/apps/parole/start"
+license=('GPL')
+depends=('gst-plugins-base' 'gst-plugins-good' 'libnotify' 'libxfce4ui'
+         'dbus-glib')
+makedepends=('intltool' 'python')
+optdepends=('gst-libav: Extra media codecs'
+	    'gst-plugins-bad: Extra media codecs'
+	    'gst-plugins-ugly: Extra media codecs')
+source=(http://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}	
+	./configure --prefix=/usr
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

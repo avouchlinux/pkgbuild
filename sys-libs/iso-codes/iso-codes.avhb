@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iso-codes
+pkgver=4.4
+pkgrel=1
+pkgdesc="Lists of the country, language, and currency names"
+arch=('any')
+groups=('sys-libs')
+url="https://salsa.debian.org/iso-codes-team/iso-codes"
+license=('LGPL')
+makedepends=('python' git)
+source=("https://salsa.debian.org/iso-codes-team/iso-codes/-/archive/iso-codes-$pkgver/iso-codes-iso-codes-$pkgver.tar.bz2")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" pkgconfigdir=/usr/lib/pkgconfig install
+	# license
+	install -D -m644 LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+

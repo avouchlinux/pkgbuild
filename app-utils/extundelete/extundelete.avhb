@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=extundelete
+pkgver=0.2.4
+pkgrel=4
+pkgdesc="Utility for recovering deleted files from ext2, ext3 or ext4 partitions by parsing the journal"
+arch=('x86_64')
+groups=('app-utils')
+url="http://extundelete.sourceforge.net"
+license=('GPL')
+depends=('e2fsprogs')
+changelog=$pkgname.changelog
+source=(https://downloads.sourceforge.net/project/$pkgname/$pkgname/$pkgver/$pkgname-$pkgver.tar.bz2
+        extundelete-e2fsprogs-1.44.1.patch)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../extundelete-e2fsprogs-1.44.1.patch # Fix build with e2fsprogs 1.44.1
+}
+
+build() {
+  cd ${srcdir}/$pkgname-$pkgver
+
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd ${srcdir}/$pkgname-$pkgver
+
+  make DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xinput
+_realname=xinput
+pkgver=1.6.3
+pkgrel=1
+pkgdesc="Small commandline tool to configure devices"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libx11' 'libxi>=1.5.99.2' 'xorg-xrandr' 'libxinerama')
+makedepends=('xorg-util-macros' 'inputproto' 'libxfixes')
+source=(http://xorg.freedesktop.org/archive/individual/app/xinput-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

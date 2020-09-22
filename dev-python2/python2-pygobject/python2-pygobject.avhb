@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pygobject
+_realname=pygobject
+pkgver=3.36.0
+pkgrel=1
+arch=('x86_64')
+groups=('dev-python2')
+url="https://live.gnome.org/PyGObject"
+license=(LGPL)
+depends=('python2-pygobject' 'python2')
+depends=(gobject-introspection-runtime)
+makedepends=(python2-cairo gobject-introspection meson)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgbase/${pkgver:0:4}/$pkgbase-$pkgver.tar.xz)
+
+build() {
+  avouch-meson ${_realname}-${pkgver} build -D python=/usr/bin/python2
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  python2 -m compileall "$pkgdir/usr/lib"
+
+  ### Remove -devel included in python3-pygobject
+  rm -r "$pkgdir"/usr/{include,lib/pkgconfig}
+}

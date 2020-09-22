@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsoup
+pkgver=2.72.0
+pkgrel=1
+pkgdesc="GNOME HTTP Library"
+arch=('x86_64')
+groups=('net-libs')
+url="https://wiki.gnome.org/Projects/libsoup"
+arch=(x86_64)
+license=(LGPL)
+depends=(glib2 libxml2 glib-networking sqlite krb5 libpsl)
+makedepends=(gobject-introspection python vala git gtk-doc meson)
+checkdepends=(apache php-apache)
+source=("https://gitlab.gnome.org/GNOME/libsoup/-/archive/$pkgver/libsoup-$pkgver.tar.bz2")
+
+prepare() {
+    cd  $pkgname-$pkgver
+}
+
+build() {
+    avouch-meson $pkgname-$pkgver build -D gtk_doc=true
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

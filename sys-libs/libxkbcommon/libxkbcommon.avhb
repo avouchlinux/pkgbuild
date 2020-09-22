@@ -1,0 +1,70 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libxkbcommon
+pkgname=(libxkbcommon libxkbcommon-doc libxkbcommon-x11)
+pkgver=0.10.0
+pkgrel=1
+pkgdesc="Keymap handling library for toolkits and window systems"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://xkbcommon.org/"
+license=(custom)
+depends=(xkeyboard-config glibc)
+checkdepends=(xorg-server-xvfb libgl)
+makedepends=(libxcb doxygen git graphviz wayland wayland-protocols meson)
+source=("https://github.com/xkbcommon/libxkbcommon/archive/xkbcommon-$pkgver.tar.gz")
+
+prepare() {
+  cd $pkgbase-xkbcommon-$pkgver
+
+  printf '%s\n' >>doc/Doxyfile.in \
+    HAVE_DOT=yes DOT_IMAGE_FORMAT=svg INTERACTIVE_SVG=yes
+}
+
+build() {
+  avouch-meson $pkgbase-xkbcommon-$pkgver build
+  ninja -C build
+}
+
+check() {
+  xvfb-run -a meson test -C build
+}
+
+package_libxkbcommon() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase/LICENSE
+
+### Split libxkbcommon-doc
+
+  mkdir -p "$srcdir"/doc/usr/share
+  mv "$pkgdir"/usr/share/doc "$srcdir/doc/usr/share"
+
+### Split libxkbcommon-x11
+
+  mkdir -p "$srcdir"/x11/usr/{include/xkbcommon,lib/pkgconfig}
+  mv "$pkgdir"/usr/lib/*x11* "$srcdir/x11/usr/lib"
+  mv "$pkgdir"/usr/lib/pkgconfig/*x11* "$srcdir/x11/usr/lib/pkgconfig"
+  mv "$pkgdir"/usr/include/xkbcommon/*x11* "$srcdir/x11/usr/include/xkbcommon"
+}
+
+package_libxkbcommon-doc() {
+  pkgdesc="API documentation for libxkbcommon"
+  depends=(libxkbcommon)
+
+  mv doc/* "$pkgdir"
+
+  install -d "$pkgdir/usr/share/licenses"
+  ln -s libxkbcommon "$pkgdir/usr/share/licenses/$pkgname"
+}
+
+package_libxkbcommon-x11() {
+  pkgdesc="Keyboard handling library using XKB data for X11 XCB clients"
+  depends=(libxkbcommon libxcb)
+
+  mv x11/* "$pkgdir"
+
+  install -d "$pkgdir/usr/share/licenses"
+  ln -s libxkbcommon "$pkgdir/usr/share/licenses/$pkgname"
+}

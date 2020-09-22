@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=android-udev
+pkgver=20200410
+pkgrel=1
+pkgdesc='Udev rules to connect Android devices to your linux box'
+arch=('any')
+groups=('dev-android')
+url='https://github.com/M0Rf30/android-udev-rules'
+license=(GPL3)
+depends=(udev libmtp)
+source=(https://github.com/M0Rf30/android-udev-rules/archive/$pkgver.zip)
+
+package() {
+  cd android-udev-rules-$pkgver
+  install -Dm 644 51-android.rules "$pkgdir"/usr/lib/udev/rules.d/51-android.rules
+  install -Dm 644 android-udev.conf "$pkgdir"/usr/lib/sysusers.d/android-udev.conf
+}
+

@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kbibtex
+epoch=1
+pkgver=0.9.1
+pkgrel=1
+pkgdesc="A BibTeX editor for KDE"
+arch=('x86_64')
+groups=('kde-apps')
+url='https://userbase.kde.org/KBibTeX'
+license=(GPL)
+depends=(poppler-qt5 qt5-webengine qt5-xmlpatterns qoauth ktexteditor)
+optdepends=('okular: Document preview')
+makedepends=(extra-cmake-modules kdoctools)
+source=("https://download.kde.org/stable/KBibTeX/$pkgver/$pkgname-$pkgver.tar.xz"{,.asc})
+validpgpkeys=('1808CB466328F4380685A3B1A264FD738D861F41') # Thomas Fischer <fischer@unix-ag.uni-kl.de>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+
+  make DESTDIR="$pkgdir" install
+}

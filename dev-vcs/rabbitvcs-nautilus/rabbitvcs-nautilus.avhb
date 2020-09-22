@@ -1,0 +1,24 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rabbitvcs-nautilus
+_realname=rabbitvcs
+pkgver=0.18
+pkgrel=1
+pkgdesc="Nautilus front-end for RabbitVCS"
+arch=('any')
+groups=('dev-vcs')
+url="https://github.com/rabbitvcs/rabbitvcs"
+install=$pkgname.install
+depends=('nautilus>=3.0.0' 'python3-nautilus' 'python3-dbus' "rabbitvcs>=$pkgver")
+license=('GPL')
+source=("https://github.com/rabbitvcs/rabbitvcs/archive/v$pkgver.tar.gz")
+
+package(){
+  if [ "$_gitcommit" != "" ]; then
+    mv "$srcdir/rabbitvcs-$_gitcommit" "$srcdir/rabbitvcs-$pkgver"
+  fi
+	install -D "$srcdir/rabbitvcs-$pkgver/clients/nautilus/RabbitVCS.py" "$pkgdir/usr/share/nautilus-python/extensions/RabbitVCS.py"
+}

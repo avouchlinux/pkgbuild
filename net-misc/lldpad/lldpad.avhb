@@ -1,0 +1,93 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lldpad
+pkgver=1.0.1
+pkgrel=1
+pkgdesc='Link Layer Discovery Protocol (LLDP) Agent with Data Center Bridging (DCB) for Intel(R) Network Connections'
+arch=('x86_64')
+groups=('net-misc')
+url='http://www.open-lldp.org/'
+depends=('libnl1' 'libconfig')
+optdepends=('bash-completion: command completion in bash')
+license=('GPL')
+validpgpkeys=('3BD16778540AE9BA587760BB7969EDCB5CFA09CB') # John Fastabend
+source=("http://ftp-osl.osuosl.org/pub/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	patch -Np1 < ../uninitialized_variable_error.patch
+	patch -Np0 -i ../bash_completion_dir.patch
+	patch -Np0 -i ../fortify-source.patch
+
+	sed -i -e '/AM_CFLAGS/ s/-Werror //' Makefile.am || die
+	sed -i -e 's/^AM_INIT_AUTOMAKE(\[/AM_INIT_AUTOMAKE(\[subdir-objects /' configure.ac || die
+
+	# patches from koji fedora
+	patch -Np1 < ../open-lldp-v1.0.1-1-VDP-vdp22_cmds-retrieve-vsi-paramenter-data.patch
+	patch -Np1 < ../open-lldp-v1.0.1-2-VDP-vdptool-first-version.patch
+	patch -Np1 < ../open-lldp-v1.0.1-3-VDP-vdptool-test-cases-Some-test-cases-to-test-the-n.patch
+	patch -Np1 < ../open-lldp-v1.0.1-4-VDP-Changes-to-make-the-interface-to-VDP22-in-lldpad.patch
+	patch -Np1 < ../open-lldp-v1.0.1-5-VDP-Support-for-get-tlv-in-vdptool-and-VDP22.patch
+	patch -Np1 < ../open-lldp-v1.0.1-6-VDP-Support-in-VDP22-for-correct-error-code-status-t.patch
+	patch -Np1 < ../open-lldp-v1.0.1-7-VDP-Support-for-OUI-infrastructure-in-VDP22.patch
+	patch -Np1 < ../open-lldp-v1.0.1-8-VDP-Support-for-OUI-infrastructure-in-vdptool.patch
+	patch -Np1 < ../open-lldp-v1.0.1-9-VDP-Support-for-OUI-infrastructure-in-vdp22.patch
+	patch -Np1 < ../open-lldp-v1.0.1-10-VDP-Support-for-OUI-infrastructure-in-vdp22.patch
+	patch -Np1 < ../open-lldp-v1.0.1-11-VDP-Support-for-Cisco-specific-OUI-extensions-to-VDP.patch
+	patch -Np1 < ../open-lldp-v1.0.1-12-VDP22-Fix-the-ack-timeout-handler-to-set-the-right-t.patch
+	patch -Np1 < ../open-lldp-v1.0.1-13-VDP-Changes-in-OUI-infra-for-get-tlv.patch
+	patch -Np1 < ../open-lldp-v1.0.1-14-VDP-Changes-in-Cisco-OUI-handlers-to-support-get-tlv.patch
+	patch -Np1 < ../open-lldp-v1.0.1-15-VDP-Add-vdptool-man-page-to-Makefile.patch
+	patch -Np1 < ../open-lldp-v1.0.1-16-VDP-Fixed-DBG-print-compile-errors-in-32-bit-systems.patch
+	# build fails with these patches
+	# patch -Np1 < ../open-lldp-v1.0.1-17-lldp-automake-fixes-for-dist-distcheck.patch
+	# patch -Np1 < ../open-lldp-v1.0.1-18-enabled-test-tool-building-for-distcheck.patch
+	patch -Np1 < ../open-lldp-v1.0.1-19-nltest-build-error.patch
+	patch -Np1 < ../open-lldp-v1.0.1-20-lldp-automake-fix-drop-prefix-on-vdptool_LDADD.patch
+	patch -Np1 < ../open-lldp-v1.0.1-21-lldpad-Fix-DCBX-event-generation-from-lldpad.patch
+	patch -Np1 < ../open-lldp-v1.0.1-22-vdp-Fixed-the-memory-leak-for-modify-VSI-support-for.patch	
+	patch -Np1 < ../open-lldp-v1.0.1-23-lldp-make-TTL-TLV-configurable.patch
+	# build fails with this patch
+	#patch -Np1 < ../open-lldp-v1.0.1-24-switch-from-sysv-to-posix-shared-memory-apis.patch	
+	patch -Np1 < ../open-lldp-v1.0.1-25-l2_linux_packet-correctly-process-return-value-of-ge.patch
+	patch -Np1 < ../open-lldp-v1.0.1-26-lldpad-system-capability-incorrect-advertised-as-sta.patch
+	#patch -Np1 < ../open-lldp-v1.0.1-27-fix-build-warnings.patch
+
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1618377
+	# https://github.com/intel/openlldp/pull/9
+	patch -Np1 < ../open-lldp-v1.0.1-28-support-DSCP-selectors.patch
+
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1614932
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1614896 (CVE-2018-10932)
+	# https://github.com/intel/openlldp/pull/7
+	patch -Np1 < ../open-lldp-v1.0.1-29-basman_clif-print-the-OID-properly.patch
+
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1752207
+	# https://github.com/intel/openlldp/pull/31
+	patch -Np1 < ../open-lldp-v1.0.1-30-lldpad-Do-not-enable-port-if-already-enabled.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}/"
+	export CFLAGS="$CFLAGS -fcommon -Wno-error" 
+	./bootstrap.sh
+	./configure --prefix=/usr \
+		--sbindir=/usr/bin \
+		--sysconfdir=/etc \
+		--disable-static
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}/"
+	make DESTDIR="${pkgdir}" install
+
+	mv pkg/etc/bash_completion.d 
+
+	#install -D -m0644 lldpad.service "${pkgdir}/usr/lib/systemd/system/lldpad.service"
+	rm -rf "${pkgdir}/etc/init.d/"
+}
+

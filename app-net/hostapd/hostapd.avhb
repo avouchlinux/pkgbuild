@@ -1,0 +1,59 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=hostapd
+pkgver=2.9
+pkgrel=1
+pkgdesc="IEEE 802.11 AP, IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator"
+arch=('x86_64')
+groups=('app-net')
+url="http://w1.fi/hostapd/"
+license=('custom')
+depends=('openssl' 'libnl')
+install=hostapd.install
+options=(emptydirs)
+validpgpkeys=('EC4AA0A991A5F2464582D52D2B6EF432EFC895FA')
+source=(https://w1.fi/releases/$pkgname-$pkgver.tar.gz{,.asc}
+	config
+	hostapd.service)
+
+prepare() {
+  cd $pkgname-$pkgver
+}
+
+build() {
+  cd $pkgname-$pkgver/hostapd
+  cp ../../config .config
+  sed -i 's#/etc/hostapd#/etc/hostapd/hostapd#' hostapd.conf
+  export CFLAGS="$CFLAGS $(pkg-config --cflags libnl-3.0)"
+  make
+}
+
+package() {
+  # Systemd unit
+  install -Dm644 hostapd.service "$pkgdir/usr/lib/systemd/system/hostapd.service"
+
+  cd $pkgname-$pkgver
+
+  # License
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+
+  cd hostapd
+
+  # Binaries
+  install -d "$pkgdir/usr/bin"
+  install -t "$pkgdir/usr/bin" hostapd hostapd_cli
+
+  # Configuration
+  install -d "$pkgdir/etc/hostapd"
+  install -d "$pkgdir/usr/share/doc/hostapd"
+  install -m644 -t "$pkgdir/usr/share/doc/hostapd" \
+    hostapd.{accept,conf,deny,eap_user,radius_clients,sim_db,vlan,wpa_psk} \
+    wired.conf hlr_auc_gw.milenage_db
+
+  # Man pages
+  install -Dm644 hostapd.8 "$pkgdir/usr/share/man/man8/hostapd.8"
+  install -Dm644 hostapd_cli.1 "$pkgdir/usr/share/man/man1/hostapd_cli.1"
+}

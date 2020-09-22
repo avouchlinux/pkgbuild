@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxpm
+_realname=libXpm
+pkgver=3.5.13
+pkgrel=1
+pkgdesc="X11 pixmap library"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('libxt' 'libxext')
+makedepends=('xorg-util-macros')
+source=("${url}/releases/individual/lib/libXpm-${pkgver}.tar.bz2")
+sha256sums=('c5bdafa51d1ae30086fac01ab83be8d47fe117b238d3437f8e965434090e041c')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

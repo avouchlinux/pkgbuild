@@ -1,0 +1,45 @@
+From 7c395b0e21806b946fe944a27fc273407f357ea1 Mon Sep 17 00:00:00 2001
+From: Michael Brown <mcb30@ipxe.org>
+Date: Wed, 14 Jun 2017 12:33:16 +0100
+Subject: [PATCH] [build] Use -no-pie on newer versions of gcc
+
+Some distributions patch gcc to generate position independent
+executables by default.  We currently include a workaround to check
+for this and to add -fno-PIE -nopie to CFLAGS if required.
+
+Newer patched versions of gcc require -fno-PIE -no-pie instead.  Check
+for both variants.
+
+Reported-by: Nathan Rennie-Waldock <nathan.renniewaldock@gmail.com>
+Originally-fixed-by: Markos Chandras <mchandras@suse.de>
+Signed-off-by: Michael Brown <mcb30@ipxe.org>
+---
+ src/arch/i386/Makefile |   11 ++++++++---
+ 1 files changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/src/arch/i386/Makefile b/src/arch/i386/Makefile
+index fe3adc9..b7c2792 100644
+--- a/src/arch/i386/Makefile
++++ b/src/arch/i386/Makefile
+@@ -74,10 +74,15 @@ CFLAGS			+= -Ui386
+ # recognise an option that starts with "no", so we have to test for
+ # output on stderr instead of checking the exit status.
+ #
++# Current versions of gcc require -no-pie; older versions require
++# -nopie.  We therefore test for both.
++#
+ ifeq ($(CCTYPE),gcc)
+-PIE_TEST = [ -z "`$(CC) -fno-PIE -nopie -x c -c /dev/null -o /dev/null 2>&1`" ]
+-PIE_FLAGS := $(shell $(PIE_TEST) && $(ECHO) '-fno-PIE -nopie')
+-WORKAROUND_CFLAGS += $(PIE_FLAGS)
++PIE_TEST = [ -z "`$(CC) -fno-PIE -no-pie -x c -c /dev/null -o /dev/null 2>&1`" ]
++PIE_FLAGS := $(shell $(PIE_TEST) && $(ECHO) '-fno-PIE -no-pie')
++PIE_TEST2 = [ -z "`$(CC) -fno-PIE -nopie -x c -c /dev/null -o /dev/null 2>&1`" ]
++PIE_FLAGS2 := $(shell $(PIE_TEST2) && $(ECHO) '-fno-PIE -nopie')
++WORKAROUND_CFLAGS += $(PIE_FLAGS) $(PIE_FLAGS2)
+ endif
+ 
+ # i386-specific directories containing source files
+-- 
+1.7.9
+

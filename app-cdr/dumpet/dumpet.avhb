@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dumpet
+pkgver=2.1
+pkgrel=1
+pkgdesc="A tool for debugging El Torito boot images."
+arch=('x86_64')
+groups=('app-cdr')
+url="https://fedorahosted.org/dumpet/"
+license=('GPL2')
+install=
+changelog=
+source=("https://web.archive.org/web/20150804212958/https://fedorahosted.org/releases/d/u/dumpet/${pkgname}-${pkgver}.tar.bz2"
+	"${pkgname}-${pkgver}.tar.bz2.sig")
+# Bug reports can be filed at https://bugs.square-r00t.net/index.php?project=3
+# News updates for packages can be followed at https://devblog.square-r00t.net
+validpgpkeys=('748231EBCBD808A14F5E85D28C004C2F93481F6B')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}/" install
+}

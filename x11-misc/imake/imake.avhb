@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=imake
+pkgver=1.0.8
+pkgrel=1
+pkgdesc="X.Org imake program and related utilities"
+arch=('x86_64')
+groups=('x11-misc')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('glibc')
+makedepends=('pkgconfig' 'xproto' 'perl' 'xorg-util-macros' 'xorg-font-util')
+optdepends=('perl: for mkhtmlindex')
+source=(http://xorg.freedesktop.org/releases/individual/util/imake-${pkgver}.tar.bz2)
+
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

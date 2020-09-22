@@ -1,0 +1,1077 @@
+diff -up openchange-openchange-2.3-VULCAN/configure.ac.samba44 openchange-openchange-2.3-VULCAN/configure.ac
+--- openchange-openchange-2.3-VULCAN/configure.ac.samba44	2016-02-09 11:51:31.089982153 +0100
++++ openchange-openchange-2.3-VULCAN/configure.ac	2016-02-09 12:04:55.985948047 +0100
+@@ -657,10 +657,11 @@ AC_CHECK_LIB([popt], [poptFreeContext],
+ 	       enable_libpopt="no"
+              ])
+ 
++mapitest=0
+ if test x"$enable_libpopt" = x"yes"; then
+    	if test x"$enable_libmapiadmin" = x"yes"; then
+ 	   openchangepfadmin=1
+-	   mapitest=1
++	   mapitest=0
+ 	fi
+ 
+ 	if test x"$enable_libocpf" = x"yes"; then
+@@ -692,7 +693,7 @@ OC_RULE_ADD(mapipropsdump, TOOLS)
+ OC_RULE_ADD(exchange2ical, TOOLS)
+ #OC_RULE_ADD(rpcextract, TOOLS)
+ OC_RULE_ADD(openchangepfadmin, TOOLS)
+-OC_RULE_ADD(mapitest, TOOLS)
++#OC_RULE_ADD(mapitest, TOOLS)
+ OC_RULE_ADD(mapiprofile, TOOLS)
+ OC_RULE_ADD(openchangemapidump, TOOLS)
+ OC_RULE_ADD(schemaIDGUID, TOOLS)
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.samba44 openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.samba44	2016-02-09 11:46:45.211994266 +0100
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c	2016-02-09 12:04:07.330950109 +0100
+@@ -22,6 +22,37 @@
+ #include "libexchange2ical/libexchange2ical.h"
+ #include <ldb.h>
+ 
++static void openchange_all_string_sub(char *s,const char *pattern,const char *insert, size_t len)
++{
++	char *p;
++	ssize_t ls,lp,li;
++
++	if (!insert || !pattern || !s)
++		return;
++
++	ls = (ssize_t)strlen(s);
++	lp = (ssize_t)strlen(pattern);
++	li = (ssize_t)strlen(insert);
++
++	if (!*pattern)
++		return;
++
++	if (len == 0)
++		len = ls + 1; /* len is number of *bytes* */
++
++	while (lp <= ls && (p = strstr_m(s,pattern))) {
++		if (ls + (li-lp) >= len) {
++			break;
++		}
++		if (li != lp) {
++			memmove(p+li,p+lp,strlen(p+lp)+1);
++		}
++		memcpy(p, insert, li);
++		s = p + li;
++		ls += (li-lp);
++	}
++}
++
+ struct RRULE_byday {
+ 	uint16_t	DayOfWeek;
+ 	const char	*DayName;
+@@ -1019,7 +1050,7 @@ void ical_property_RESOURCES(struct exch
+ 	if (!exchange2ical->NonSendableBcc) return;
+ 	
+ 	NonSendableBcc = talloc_strdup(exchange2ical->mem_ctx, exchange2ical->NonSendableBcc);
+-	all_string_sub(NonSendableBcc, ";", ",", 0);
++	openchange_all_string_sub(NonSendableBcc, ";", ",", 0);
+ 	prop = icalproperty_new_resources(NonSendableBcc);
+ 	icalcomponent_add_property(exchange2ical->vevent, prop);
+ 	talloc_free(NonSendableBcc);
+diff -up openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c.samba44 openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c
+--- openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c.samba44	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c	2016-02-08 22:19:17.750956440 +0100
+@@ -24,19 +24,251 @@
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
++#include <ldb.h>
++
+ #include "libmapiadmin/libmapiadmin.h"
+ 
+ #include <param.h>
+ #include <credentials.h>
++#include <ctype.h>
+ #include <ldb_errors.h>
+ #include <ldb_wrap.h>
+-#include <ldap_ndr.h>
+ 
+ #include <gen_ndr/ndr_samr.h>
+ #include <gen_ndr/ndr_samr_c.h>
+ 
+ #include <time.h>
+ 
++static ssize_t openchange_sys_read(int fd, void *buf, size_t count)
++{
++	ssize_t ret;
++
++	do {
++		ret = read(fd, buf, count);
++	} while (ret == -1 && (errno == EINTR || errno == EAGAIN ||
++			       errno == EWOULDBLOCK));
++
++	return ret;
++}
++
++static ssize_t openchange_read_data(int fd, void *buffer, size_t n)
++{
++	ssize_t nread;
++
++	nread = 0;
++
++	while (nread < n) {
++		ssize_t ret;
++		ret = openchange_sys_read(fd, ((char *)buffer) + nread, n - nread);
++		if (ret <= 0) {
++			return ret;
++		}
++		nread += ret;
++	}
++
++	return nread;
++}
++
++static int openchange_urand_fd = -1;
++static void openchange_open_urandom(void)
++{
++	if (openchange_urand_fd != -1) {
++		return;
++	}
++	openchange_urand_fd = open( "/dev/urandom", O_RDONLY,0);
++	if (openchange_urand_fd == -1) {
++		abort();
++	}
++}
++
++static void openchange_generate_random_buffer(uint8_t *out, int len)
++{
++	ssize_t rw_ret;
++
++	openchange_open_urandom();
++
++	rw_ret = openchange_read_data(openchange_urand_fd, out, len);
++	if (rw_ret != len) {
++		abort();
++	}
++}
++
++static enum ndr_err_code openchange_ndr_push_dom_sid(struct ndr_push *ndr, int ndr_flags, const struct dom_sid *r)
++{
++	uint32_t cntr_sub_auths_0;
++	if (ndr_flags & NDR_SCALARS) {
++		NDR_CHECK(ndr_push_align(ndr, 4));
++		NDR_CHECK(ndr_push_uint8(ndr, NDR_SCALARS, r->sid_rev_num));
++		NDR_CHECK(ndr_push_int8(ndr, NDR_SCALARS, r->num_auths));
++		NDR_CHECK(ndr_push_array_uint8(ndr, NDR_SCALARS, r->id_auth, 6));
++		if (r->num_auths < 0 || r->num_auths > ARRAY_SIZE(r->sub_auths)) {
++			return ndr_push_error(ndr, NDR_ERR_RANGE, "value out of range");
++		}
++		for (cntr_sub_auths_0 = 0; cntr_sub_auths_0 < r->num_auths; cntr_sub_auths_0++) {
++			NDR_CHECK(ndr_push_uint32(ndr, NDR_SCALARS, r->sub_auths[cntr_sub_auths_0]));
++		}
++	}
++	return NDR_ERR_SUCCESS;
++}
++
++static char *openchange_ldap_encode_ndr_dom_sid(TALLOC_CTX *mem_ctx, const struct dom_sid *sid)
++{
++#undef ldb_val
++	DATA_BLOB blob;
++	struct ldb_val val;
++	enum ndr_err_code ndr_err;
++	char *ret;
++	ndr_err = ndr_push_struct_blob(&blob, mem_ctx, sid,
++				       (ndr_push_flags_fn_t)openchange_ndr_push_dom_sid);
++	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {
++		return NULL;
++	}
++	val.data = blob.data;
++	val.length = blob.length;
++	ret = ldb_binary_encode(mem_ctx, val);
++	data_blob_free(&blob);
++	return ret;
++}
++
++static bool openchange_check_password_quality(const char *pwd)
++{
++	size_t ofs = 0;
++	size_t num_chars = 0;
++	size_t num_digits = 0;
++	size_t num_upper = 0;
++	size_t num_lower = 0;
++	size_t num_nonalpha = 0;
++	size_t num_unicode = 0;
++	size_t num_categories = 0;
++
++	if (pwd == NULL) {
++		return false;
++	}
++
++	while (true) {
++		const char *s = &pwd[ofs];
++		size_t len = 0;
++		codepoint_t c;
++
++		c = next_codepoint(s, &len);
++		if (c == INVALID_CODEPOINT) {
++			return false;
++		} else if (c == 0) {
++			break;
++		}
++		ofs += len;
++		num_chars += 1;
++
++		if (len == 1) {
++			const char *na = "~!@#$%^&*_-+=`|\\(){}[]:;\"'<>,.?/";
++
++			if (isdigit(c)) {
++				num_digits += 1;
++				continue;
++			}
++
++			if (isupper(c)) {
++				num_upper += 1;
++				continue;
++			}
++
++			if (islower(c)) {
++				num_lower += 1;
++				continue;
++			}
++
++			if (strchr(na, c)) {
++				num_nonalpha += 1;
++				continue;
++			}
++
++			/*
++			 * the rest does not belong to
++			 * a category.
++			 */
++			continue;
++		}
++
++		if (isupper_m(c)) {
++			num_upper += 1;
++			continue;
++		}
++
++		if (islower_m(c)) {
++			num_lower += 1;
++			continue;
++		}
++
++		/*
++		 * Note: for now do not check if the unicode category is
++		 *       alphabetic character
++		 *
++		 * We would have to import the details from
++		 * ftp://ftp.unicode.org/Public/6.3.0/ucd/UnicodeData-6.3.0d1.txt
++		 */
++		num_unicode += 1;
++		continue;
++	}
++
++	if (num_digits > 0) {
++		num_categories += 1;
++	}
++	if (num_upper > 0) {
++		num_categories += 1;
++	}
++	if (num_lower > 0) {
++		num_categories += 1;
++	}
++	if (num_nonalpha > 0) {
++		num_categories += 1;
++	}
++	if (num_unicode > 0) {
++		num_categories += 1;
++	}
++
++	if (num_categories >= 3) {
++		return true;
++	}
++
++	return false;
++}
++
++static char *openchange_generate_random_str_list(TALLOC_CTX *mem_ctx, size_t len, const char *list)
++{
++	size_t i;
++	size_t list_len = strlen(list);
++
++	char *retstr = talloc_array(mem_ctx, char, len + 1);
++	if (!retstr) return NULL;
++
++	openchange_generate_random_buffer((uint8_t *)retstr, len);
++	for (i = 0; i < len; i++) {
++		retstr[i] = list[retstr[i] % list_len];
++	}
++	retstr[i] = '\0';
++
++	return retstr;
++}
++
++static char *openchange_generate_random_str(TALLOC_CTX *mem_ctx, size_t len)
++{
++	char *retstr;
++	const char *c_list = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+_-#.,";
++
++again:
++	retstr = openchange_generate_random_str_list(mem_ctx, len, c_list);
++	if (!retstr) return NULL;
++
++	/* we need to make sure the random string passes basic quality tests
++	   or it might be rejected by windows as a password */
++	if (len >= 7 && !openchange_check_password_quality(retstr)) {
++		talloc_free(retstr);
++		goto again;
++	}
++
++	return retstr;
++}
++
+ /**
+ 	\file
+ 	User management functions for mapiadmin
+@@ -232,10 +464,10 @@ _PUBLIC_ enum MAPISTATUS mapiadmin_user_
+ 	/* Search the user_dn */
+ 	account_dn = samdb_search_dn(remote_ldb, mem_ctx, NULL, 
+ 				     "(&(objectSid=%s)(objectClass=user))", 
+-				     ldap_encode_ndr_dom_sid(mem_ctx, dom_sid));
++				     openchange_ldap_encode_ndr_dom_sid(mem_ctx, dom_sid));
+ 
+ 	ret = ldb_search(remote_ldb, mem_ctx, &res, account_dn, LDB_SCOPE_SUBTREE, dom_attrs, "(objectSid=%s)",
+-			 ldap_encode_ndr_dom_sid(mem_ctx, dom_sid));
++			 openchange_ldap_encode_ndr_dom_sid(mem_ctx, dom_sid));
+ 	MAPI_RETVAL_IF(ret != LDB_SUCCESS, MAPI_E_NOT_FOUND, mem_ctx);
+ 	MAPI_RETVAL_IF(res->count != 1, MAPI_E_NOT_FOUND, mem_ctx);
+ 
+@@ -422,7 +654,7 @@ again:
+ 	}
+ 
+ 	if (!mapiadmin_ctx->password) {
+-		mapiadmin_ctx->password = generate_random_str(mapiadmin_ctx->user_ctx, MAX(8, policy_min_pw_len));
++		mapiadmin_ctx->password = openchange_generate_random_str(mapiadmin_ctx->user_ctx, MAX(8, policy_min_pw_len));
+ 	}
+ 
+ 	OC_DEBUG(3, "Setting account password '%s'", mapiadmin_ctx->password);
+diff -up openchange-openchange-2.3-VULCAN/libmapi/mapidump.c.samba44 openchange-openchange-2.3-VULCAN/libmapi/mapidump.c
+--- openchange-openchange-2.3-VULCAN/libmapi/mapidump.c.samba44	2016-02-09 11:03:18.565104717 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/mapidump.c	2016-02-09 11:03:29.508104254 +0100
+@@ -119,7 +119,7 @@ _PUBLIC_ void mapidump_SPropValue(struct
+ 		data = get_SPropValue_data(&lpProp);
+ 		if (data) {
+ 			printf("%s%s:\n", sep?sep:"", proptag);
+-			dump_data(0, ((const struct Binary_r *)data)->lpb, ((const struct Binary_r *)data)->cb);
++			oc_dump_data(0, ((const struct Binary_r *)data)->lpb, ((const struct Binary_r *)data)->cb);
+ 		} else {
+ 			printf("%s%s: (NULL)\n", sep?sep:"", proptag);
+ 		}
+@@ -153,7 +153,7 @@ _PUBLIC_ void mapidump_SPropValue(struct
+ 		printf("%s%s: ARRAY(%d)\n", sep?sep:"", proptag, BinaryArray_r->cValues);
+ 		for (i = 0; i < BinaryArray_r->cValues; i++) {
+ 			printf("\tPT_MV_BINARY [%d]:\n", i);
+-			dump_data(0, BinaryArray_r->lpbin[i].lpb, BinaryArray_r->lpbin[i].cb);
++			oc_dump_data(0, BinaryArray_r->lpbin[i].lpb, BinaryArray_r->lpbin[i].cb);
+ 		}
+ 		break;
+ 	default:
+diff -up openchange-openchange-2.3-VULCAN/libmapi/mapi_object.c.samba44 openchange-openchange-2.3-VULCAN/libmapi/mapi_object.c
+--- openchange-openchange-2.3-VULCAN/libmapi/mapi_object.c.samba44	2016-02-09 11:02:57.062105628 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/mapi_object.c	2016-02-09 11:03:01.012105461 +0100
+@@ -412,7 +412,7 @@ _PUBLIC_ enum MAPISTATUS mapi_object_boo
+ 	while (bookmark) {
+ 		OC_DEBUG(0, "mapi_object_bookmark {");
+ 		OC_DEBUG(0, ".index == %u", bookmark->index);
+-		dump_data(0, bookmark->bin.lpb, bookmark->bin.cb);
++		oc_dump_data(0, bookmark->bin.lpb, bookmark->bin.cb);
+ 		OC_DEBUG(0, "};");
+ 
+ 		bookmark = bookmark->next;
+diff -up openchange-openchange-2.3-VULCAN/libmapi/oc_log.c.samba44 openchange-openchange-2.3-VULCAN/libmapi/oc_log.c
+--- openchange-openchange-2.3-VULCAN/libmapi/oc_log.c.samba44	2016-02-09 10:49:20.292140237 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/oc_log.c	2016-02-09 11:30:13.912036271 +0100
+@@ -21,6 +21,12 @@
+ 
+ #include "libmapi/libmapi.h"
+ #include <stdio.h>
++#include <stdlib.h>
++#include <ctype.h>
++
++#ifndef MIN
++#define MIN(a,b) ((a)<(b)?(a):(b))
++#endif
+ 
+ int _oc_log_samba_level = 0;
+ 
+@@ -84,3 +90,119 @@ void oc_log_init_server(const char *prog
+ {
+ 	setup_logging(progname, DEBUG_FILE);
+ }
++
++void oc_panic(const char *why)
++{
++	if (why) {
++		fprintf(stderr, "PANIC: %s\n", why);
++		fflush(stderr);
++	}
++
++	abort();
++}
++static void oc_debugadd_cb(const char *buf, void *private_data)
++{
++	int *plevel = (int *)private_data;
++	if (plevel && *plevel <= _oc_log_samba_level) {
++		printf ("%s", buf);
++	}
++}
++
++static void oc_print_asc_cb(const uint8_t *buf, int len,
++			    void (*cb)(const char *buf, void *private_data),
++			    void *private_data)
++{
++	int i;
++	char s[2];
++	s[1] = 0;
++
++	for (i=0; i<len; i++) {
++		s[0] = isprint(buf[i]) ? buf[i] : '.';
++		cb(s, private_data);
++	}
++}
++
++static void oc_dump_data_cb(const uint8_t *buf, int len,
++			    bool omit_zero_bytes,
++			    void (*cb)(const char *buf, void *private_data),
++			    void *private_data)
++{
++	int i=0;
++	static const uint8_t empty[16] = { 0, };
++	bool skipped = false;
++	char tmp[16];
++
++	if (len<=0) return;
++
++	for (i=0;i<len;) {
++
++		if (i%16 == 0) {
++			if ((omit_zero_bytes == true) &&
++			    (i > 0) &&
++			    (len > i+16) &&
++			    (memcmp(&buf[i], &empty, 16) == 0))
++			{
++				i +=16;
++				continue;
++			}
++
++			if (i<len)  {
++				snprintf(tmp, sizeof(tmp), "[%04X] ", i);
++				cb(tmp, private_data);
++			}
++		}
++
++		snprintf(tmp, sizeof(tmp), "%02X ", (int)buf[i]);
++		cb(tmp, private_data);
++		i++;
++		if (i%8 == 0) {
++			cb("  ", private_data);
++		}
++		if (i%16 == 0) {
++
++			oc_print_asc_cb(&buf[i-16], 8, cb, private_data);
++			cb(" ", private_data);
++			oc_print_asc_cb(&buf[i-8], 8, cb, private_data);
++			cb("\n", private_data);
++
++			if ((omit_zero_bytes == true) &&
++			    (len > i+16) &&
++			    (memcmp(&buf[i], &empty, 16) == 0)) {
++				if (!skipped) {
++					cb("skipping zero buffer bytes\n",
++					   private_data);
++					skipped = true;
++				}
++			}
++		}
++	}
++
++	if (i%16) {
++		int n;
++		n = 16 - (i%16);
++		cb("  ", private_data);
++		if (n>8) {
++			cb(" ", private_data);
++		}
++		while (n--) {
++			cb("   ", private_data);
++		}
++		n = MIN(8,i%16);
++		oc_print_asc_cb(&buf[i-(i%16)], n, cb, private_data);
++		cb(" ", private_data);
++		n = (i%16) - n;
++		if (n>0) {
++			oc_print_asc_cb(&buf[i-n], n, cb, private_data);
++		}
++		cb("\n", private_data);
++	}
++
++}
++
++void oc_dump_data(int level, const uint8_t *buf,int len)
++{
++	if (_oc_log_samba_level < level || !buf || !len)
++		return;
++
++	oc_dump_data_cb(buf, len, false, oc_debugadd_cb, &level);
++}
+diff -up openchange-openchange-2.3-VULCAN/libmapi/oc_log.h.samba44 openchange-openchange-2.3-VULCAN/libmapi/oc_log.h
+--- openchange-openchange-2.3-VULCAN/libmapi/oc_log.h.samba44	2016-02-09 10:49:16.132140414 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/oc_log.h	2016-02-09 10:51:57.121133592 +0100
+@@ -79,4 +79,7 @@ void oc_log_init_server(const char *prog
+ 
+ extern int _oc_log_samba_level; /* Private, do not change it other than by SetMAPIDebugLevel() */
+ 
++void oc_panic(const char *why);
++void oc_dump_data(int level, const uint8_t *buf,int len);
++
+ #endif /* _OC_LOG_H_ */
+diff -up openchange-openchange-2.3-VULCAN/libmapi/property.c.samba44 openchange-openchange-2.3-VULCAN/libmapi/property.c
+--- openchange-openchange-2.3-VULCAN/libmapi/property.c.samba44	2016-02-09 10:46:51.040146561 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/property.c	2016-02-09 10:48:47.626141621 +0100
+@@ -777,7 +777,7 @@ _PUBLIC_ void mapi_copy_spropvalues(TALL
+ 				// TODO: Replace this with OC_PANIC() macro when it gets visible in libmapi too
+ 				OC_DEBUG(0, "Unexpected multi-value property type: %s.",
+ 						get_proptag_name(source_value->ulPropTag));
+-				smb_panic("Unexpected multi-value property type while copying 'struct SPropValue'");
++				oc_panic("Unexpected multi-value property type while copying 'struct SPropValue'");
+ 			}
+ 		}
+ 	}
+diff -up openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c.samba44 openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c
+--- openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c.samba44	2016-02-09 11:09:43.147088421 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c	2016-02-09 11:31:47.664032298 +0100
+@@ -90,6 +90,213 @@ static void add_interface(TALLOC_CTX *me
+ 	OC_DEBUG(2, "added interface ip=%s nmask=%s", iface->ip_s, iface->nmask_s);
+ }
+ 
++enum oc_protocol_types {
++	PROTOCOL_DEFAULT=-1,
++	PROTOCOL_NONE=0,
++	PROTOCOL_CORE,
++	PROTOCOL_COREPLUS,
++	PROTOCOL_LANMAN1,
++	PROTOCOL_LANMAN2,
++	PROTOCOL_NT1,
++	PROTOCOL_SMB2_02,
++	PROTOCOL_SMB2_10,
++	PROTOCOL_SMB2_22,
++	PROTOCOL_SMB2_24,
++	PROTOCOL_SMB3_00,
++	PROTOCOL_SMB3_02,
++	PROTOCOL_SMB3_10,
++	PROTOCOL_SMB3_11
++};
++
++static int openchange_null_match(const char *p)
++{
++	for (;*p;p++) {
++		if (*p != '*' &&
++		    *p != '<' &&
++		    *p != '"' &&
++		    *p != '>') return -1;
++	}
++	return 0;
++}
++
++/*
++  the max_n structure is purely for efficiency, it doesn't contribute
++  to the matching algorithm except by ensuring that the algorithm does
++  not grow exponentially
++*/
++struct max_n {
++	const char *predot;
++	const char *postdot;
++};
++
++
++/*
++  p and n are the pattern and string being matched. The max_n array is
++  an optimisation only. The ldot pointer is NULL if the string does
++  not contain a '.', otherwise it points at the last dot in 'n'.
++*/
++static int openchange_ms_fnmatch_core(const char *p, const char *n, 
++				      struct max_n *max_n, const char *ldot)
++{
++	codepoint_t c, c2;
++	int i;
++	size_t size, size_n;
++
++	while ((c = next_codepoint(p, &size))) {
++		p += size;
++
++		switch (c) {
++		case '*':
++			/* a '*' matches zero or more characters of any type */
++			if (max_n->predot && max_n->predot <= n) {
++				return openchange_null_match(p);
++			}
++			for (i=0; n[i]; i += size_n) {
++				next_codepoint(n+i, &size_n);
++				if (openchange_ms_fnmatch_core(p, n+i, max_n+1, ldot) == 0) {
++					return 0;
++				}
++			}
++			if (!max_n->predot || max_n->predot > n) max_n->predot = n;
++			return openchange_null_match(p);
++
++		case '<':
++			/* a '<' matches zero or more characters of
++			   any type, but stops matching at the last
++			   '.' in the string. */
++			if (max_n->predot && max_n->predot <= n) {
++				return openchange_null_match(p);
++			}
++			if (max_n->postdot && max_n->postdot <= n && n <= ldot) {
++				return -1;
++			}
++			for (i=0; n[i]; i += size_n) {
++				next_codepoint(n+i, &size_n);
++				if (openchange_ms_fnmatch_core(p, n+i, max_n+1, ldot) == 0) return 0;
++				if (n+i == ldot) {
++					if (openchange_ms_fnmatch_core(p, n+i+size_n, max_n+1, ldot) == 0) return 0;
++					if (!max_n->postdot || max_n->postdot > n) max_n->postdot = n;
++					return -1;
++				}
++			}
++			if (!max_n->predot || max_n->predot > n) max_n->predot = n;
++			return openchange_null_match(p);
++
++		case '?':
++			/* a '?' matches any single character */
++			if (! *n) {
++				return -1;
++			}
++			next_codepoint(n, &size_n);
++			n += size_n;
++			break;
++
++		case '>':
++			/* a '?' matches any single character, but
++			   treats '.' specially */
++			if (n[0] == '.') {
++				if (! n[1] && openchange_null_match(p) == 0) {
++					return 0;
++				}
++				break;
++			}
++			if (! *n) return openchange_null_match(p);
++			next_codepoint(n, &size_n);
++			n += size_n;
++			break;
++
++		case '"':
++			/* a bit like a soft '.' */
++			if (*n == 0 && openchange_null_match(p) == 0) {
++				return 0;
++			}
++			if (*n != '.') return -1;
++			next_codepoint(n, &size_n);
++			n += size_n;
++			break;
++
++		default:
++			c2 = next_codepoint(n, &size_n);
++			if (c != c2 && codepoint_cmpi(c, c2) != 0) {
++				return -1;
++			}
++			n += size_n;
++			break;
++		}
++	}
++	
++	if (! *n) {
++		return 0;
++	}
++	
++	return -1;
++}
++
++static int openchange_ms_fnmatch_protocol(const char *pattern, const char *string, int protocol)
++{
++	int ret, count, i;
++	struct max_n *max_n = NULL;
++
++	if (strcmp(string, "..") == 0) {
++		string = ".";
++	}
++
++	if (strpbrk(pattern, "<>*?\"") == NULL) {
++		/* this is not just an optimisation - it is essential
++		   for LANMAN1 correctness */
++		return strcasecmp_m(pattern, string);
++	}
++
++	if (protocol <= PROTOCOL_LANMAN2) {
++		char *p = talloc_strdup(NULL, pattern);
++		if (p == NULL) {
++			return -1;
++		}
++		/*
++		  for older negotiated protocols it is possible to
++		  translate the pattern to produce a "new style"
++		  pattern that exactly matches w2k behaviour
++		*/
++		for (i=0;p[i];i++) {
++			if (p[i] == '?') {
++				p[i] = '>';
++			} else if (p[i] == '.' && 
++				   (p[i+1] == '?' || 
++				    p[i+1] == '*' ||
++				    p[i+1] == 0)) {
++				p[i] = '"';
++			} else if (p[i] == '*' && 
++				   p[i+1] == '.') {
++				p[i] = '<';
++			}
++		}
++		ret = openchange_ms_fnmatch_protocol(p, string, PROTOCOL_NT1);
++		talloc_free(p);
++		return ret;
++	}
++
++	for (count=i=0;pattern[i];i++) {
++		if (pattern[i] == '*' || pattern[i] == '<') count++;
++	}
++
++	max_n = talloc_zero_array(NULL, struct max_n, count);
++	if (max_n == NULL) {
++		return -1;
++	}
++
++	ret = openchange_ms_fnmatch_core(pattern, string, max_n, strrchr(string, '.'));
++
++	talloc_free(max_n);
++
++	return ret;
++}
++
++
++/** a generic fnmatch function - uses for non-CIFS pattern matching */
++static int openchange_gen_fnmatch(const char *pattern, const char *string)
++{
++	return openchange_ms_fnmatch_protocol(pattern, string, PROTOCOL_NT1);
++}
+ 
+ 
+ /**
+@@ -119,7 +326,7 @@ static void interpret_interface(TALLOC_C
+ 	
+ 	/* first check if it is an interface name */
+ 	for (i=0;i<total_probed;i++) {
+-		if (gen_fnmatch(token, probed_ifaces[i].name) == 0) {
++		if (openchange_gen_fnmatch(token, probed_ifaces[i].name) == 0) {
+ 			add_interface(mem_ctx, probed_ifaces[i].ip,
+ 				      probed_ifaces[i].netmask,
+ 				      local_interfaces);
+diff -up openchange-openchange-2.3-VULCAN/mapiproxy/servers/default/emsmdb/emsmdbp.c.samba44 openchange-openchange-2.3-VULCAN/mapiproxy/servers/default/emsmdb/emsmdbp.c
+--- openchange-openchange-2.3-VULCAN/mapiproxy/servers/default/emsmdb/emsmdbp.c.samba44	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/mapiproxy/servers/default/emsmdb/emsmdbp.c	2016-02-08 17:43:52.578645298 +0100
+@@ -31,8 +31,6 @@
+ #include "mapiproxy/libmapiserver/libmapiserver.h"
+ #include "mapiproxy/libmapiproxy/fault_util.h"
+ 
+-#include <ldap_ndr.h>
+-
+ /* Expose samdb_connect prototype */
+ struct ldb_context *samdb_connect(TALLOC_CTX *, struct tevent_context *,
+ 				  struct loadparm_context *,
+diff -up openchange-openchange-2.3-VULCAN/ndr_mapi.c.samba44 openchange-openchange-2.3-VULCAN/ndr_mapi.c
+--- openchange-openchange-2.3-VULCAN/ndr_mapi.c.samba44	2016-02-09 11:04:30.054101688 +0100
++++ openchange-openchange-2.3-VULCAN/ndr_mapi.c	2016-02-09 11:04:49.763100853 +0100
+@@ -1616,7 +1616,7 @@ _PUBLIC_ void ndr_print_EcDoRpcExt(struc
+ 				if (ndr_pull_mapi2k7_request(ndr_pull, NDR_SCALARS|NDR_BUFFERS, mapi_request) == NDR_ERR_SUCCESS) {
+ 					ndr_print_mapi2k7_request(ndr, "mapi_request", (const struct mapi2k7_request *)mapi_request);
+ 				} else {
+-					dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
++					oc_dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
+ 					talloc_free(mapi_request);
+ 					break;
+ 				}
+@@ -1662,7 +1662,7 @@ _PUBLIC_ void ndr_print_EcDoRpcExt(struc
+ 				if (ndr_pull_mapi2k7_response(ndr_pull, NDR_SCALARS|NDR_BUFFERS, mapi_response) == NDR_ERR_SUCCESS) {
+ 					ndr_print_mapi2k7_response(ndr, "mapi_response", (const struct mapi2k7_response *)mapi_response);
+ 				} else {
+-					dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
++					oc_dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
+ 					talloc_free(mapi_response);
+ 					break;
+ 				}
+@@ -1735,7 +1735,7 @@ _PUBLIC_ void ndr_print_EcDoRpcExt2(stru
+ 				if (ndr_pull_mapi2k7_request(ndr_pull, NDR_SCALARS|NDR_BUFFERS, mapi_request) == NDR_ERR_SUCCESS) {
+ 					ndr_print_mapi2k7_request(ndr, "mapi_request", (const struct mapi2k7_request *)mapi_request);
+ 				} else {
+-					dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
++					oc_dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
+ 					talloc_free(mapi_request);
+ 					return;
+ 				}
+@@ -1786,7 +1786,7 @@ _PUBLIC_ void ndr_print_EcDoRpcExt2(stru
+ 				if (ndr_pull_mapi2k7_response(ndr_pull, NDR_SCALARS|NDR_BUFFERS, mapi_response) == NDR_ERR_SUCCESS) {
+ 					ndr_print_mapi2k7_response(ndr, "mapi_response", (const struct mapi2k7_response *)mapi_response);
+ 				} else {
+-					dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
++					oc_dump_data(0, ndr_pull->data + ndr_pull->offset, ndr_pull->data_size - ndr_pull->offset);
+ 					talloc_free(mapi_response);
+ 					break;
+ 				}
+@@ -2041,7 +2041,7 @@ _PUBLIC_ void ndr_print_SBinary_short(st
+ 		uint32_t _flags_save_STRUCT = ndr->flags;
+ 		ndr_set_flags(&ndr->flags, LIBNDR_FLAG_NOALIGN);
+ 		ndr->depth++;
+-		dump_data(0, r->lpb, r->cb);
++		oc_dump_data(0, r->lpb, r->cb);
+ 		ndr->depth--;
+ 		ndr->flags = _flags_save_STRUCT;
+ 	}
+@@ -2054,7 +2054,7 @@ _PUBLIC_ void ndr_print_Binary_r(struct
+ 		uint32_t _flags_save_STRUCT = ndr->flags;
+ 		ndr_set_flags(&ndr->flags, LIBNDR_FLAG_NOALIGN);
+ 		ndr->depth++;
+-		dump_data(0, r->lpb, r->cb);
++		oc_dump_data(0, r->lpb, r->cb);
+ 		ndr->depth--;
+ 		ndr->flags = _flags_save_STRUCT;
+ 	}
+diff -up openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c.samba44 openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c
+--- openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c.samba44	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c	2016-02-09 10:35:42.207174902 +0100
+@@ -24,6 +24,9 @@
+ #include "gen_ndr/ndr_exchange.h"
+ #include <popt.h>
+ #include <dlfcn.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
+ 
+ #define	PLUGIN		"libmapi.so"
+ #define	FUNCTION	0xB
+@@ -97,6 +100,51 @@ static const const struct ndr_interface_
+ 	return p;
+ }
+ 
++static char *openchange_fd_load(int fd, size_t *psize, size_t maxsize, TALLOC_CTX *mem_ctx)
++{
++	struct stat sbuf;
++	char *p;
++	size_t size;
++
++	if (fstat(fd, &sbuf) != 0) return NULL;
++
++	size = sbuf.st_size;
++
++	if (maxsize) {
++		size = size < maxsize ? size : maxsize;
++	}
++
++	p = (char *)talloc_size(mem_ctx, size+1);
++	if (!p) return NULL;
++
++	if (read(fd, p, size) != size) {
++		talloc_free(p);
++		return NULL;
++	}
++	p[size] = 0;
++
++	if (psize) *psize = size;
++
++	return p;
++}
++
++static char *openchange_file_load(const char *fname, size_t *size, size_t maxsize, TALLOC_CTX *mem_ctx)
++{
++	int fd;
++	char *p;
++
++	if (!fname || !*fname) return NULL;
++
++	fd = open(fname,O_RDONLY);
++	if (fd == -1) return NULL;
++
++	p = openchange_fd_load(fd, size, maxsize, mem_ctx);
++
++	close(fd);
++
++	return p;
++}
++
+ static struct SPropTagArray *process_request(TALLOC_CTX *mem_ctx,
+ 					     const struct ndr_interface_call *f,
+ 					     const char *filename,
+@@ -123,7 +171,7 @@ static struct SPropTagArray *process_req
+ 		return NULL;
+ 	}
+ 
+-	data = (uint8_t *) file_load(filename, &size, 0, mem_ctx);
++	data = (uint8_t *) openchange_file_load(filename, &size, 0, mem_ctx);
+ 	if (!data) {
+ 		perror(filename);
+ 		return NULL;
+@@ -224,7 +272,7 @@ static int process_response(TALLOC_CTX *
+ 		return -1;
+ 	}
+ 
+-	data = (uint8_t *) file_load(filename, &size, 0, mem_ctx);
++	data = (uint8_t *) openchange_file_load(filename, &size, 0, mem_ctx);
+ 	if (!data) {
+ 		perror(filename);
+ 		return -1;
+diff -up openchange-openchange-2.3-VULCAN/utils/mapitest/modules/module_lzxpress.c.samba44 openchange-openchange-2.3-VULCAN/utils/mapitest/modules/module_lzxpress.c
+--- openchange-openchange-2.3-VULCAN/utils/mapitest/modules/module_lzxpress.c.samba44	2016-02-09 11:06:00.717097846 +0100
++++ openchange-openchange-2.3-VULCAN/utils/mapitest/modules/module_lzxpress.c	2016-02-09 11:48:38.200989479 +0100
+@@ -19,11 +19,61 @@
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++
+ #include "utils/mapitest/mapitest.h"
+ #include "utils/mapitest/proto.h"
+ #include "gen_ndr/ndr_exchange.h"
++#include "libmapi/libmapi.h"
+ #include "libmapi/libmapi_private.h"
+ 
++static char *openchange_fd_load(int fd, size_t *psize, size_t maxsize, TALLOC_CTX *mem_ctx)
++{
++	struct stat sbuf;
++	char *p;
++	size_t size;
++
++	if (fstat(fd, &sbuf) != 0) return NULL;
++
++	size = sbuf.st_size;
++
++	if (maxsize) {
++		size = size < maxsize ? size : maxsize;
++	}
++
++	p = (char *)talloc_size(mem_ctx, size+1);
++	if (!p) return NULL;
++
++	if (read(fd, p, size) != size) {
++		talloc_free(p);
++		return NULL;
++	}
++	p[size] = 0;
++
++	if (psize) *psize = size;
++
++	return p;
++}
++
++static char *openchange_file_load(const char *fname, size_t *size, size_t maxsize, TALLOC_CTX *mem_ctx)
++{
++	int fd;
++	char *p;
++
++	if (!fname || !*fname) return NULL;
++
++	fd = open(fname,O_RDONLY);
++	if (fd == -1) return NULL;
++
++	p = openchange_fd_load(fd, size, maxsize, mem_ctx);
++
++	close(fd);
++
++	return p;
++}
++
+ /**
+    \file module_lzxpress.c
+ 
+@@ -51,7 +101,7 @@ _PUBLIC_ bool mapitest_lzxpress_validate
+ 	/* Step 1. Load Test File 001_Outlook_2007_in_ModifyRecipients_comp.dat */
+ 	filename = talloc_asprintf(mt->mem_ctx, "%s/001_Outlook_2007_in_ModifyRecipients_comp.dat", LZXPRESS_DATADIR);
+ /* 	filename = talloc_asprintf(mt->mem_ctx, "%s/002_Outlook_2007_in_Tables_operations_comp.dat", LZXPRESS_DATADIR); */
+-	data = (uint8_t *)file_load(filename, &size, 0, mt->mem_ctx);
++	data = (uint8_t *)openchange_file_load(filename, &size, 0, mt->mem_ctx);
+ 	if (!data) {
+ 		perror(filename);
+ 		mapitest_print_retval_fmt(mt, "lzxpress_validate", "Error while loading %s", filename);
+@@ -137,12 +187,12 @@ _PUBLIC_ bool mapitest_lzxpress_validate
+ 
+ 	mapitest_print(mt, "Compressed rgbIn by Outlook\n");
+ 	mapitest_print(mt, "==============================\n");
+-	dump_data(0, r.in.rgbIn, r.in.cbIn);
++	oc_dump_data(0, r.in.rgbIn, r.in.cbIn);
+ 	mapitest_print(mt, "==============================\n");
+ 
+ 	mapitest_print(mt, "Compressed rgbIn by OpenChange\n");
+ 	mapitest_print(mt, "==============================\n");
+-	dump_data(0, ndr_rgbIn->data, ndr_rgbIn->offset);
++	oc_dump_data(0, ndr_rgbIn->data, ndr_rgbIn->offset);
+ 	mapitest_print(mt, "==============================\n");
+ 
+ 	talloc_free(ndr_rgbIn);
+diff -up openchange-openchange-2.3-VULCAN/utils/openchangeclient.c.samba44 openchange-openchange-2.3-VULCAN/utils/openchangeclient.c
+--- openchange-openchange-2.3-VULCAN/utils/openchangeclient.c.samba44	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/utils/openchangeclient.c	2016-02-08 22:24:59.212942206 +0100
+@@ -97,6 +97,52 @@ static void init_oclient(struct oclient
+ 	oclient->ocpf_dump = NULL;
+ }
+ 
++static char **openchange_str_list_make(TALLOC_CTX *mem_ctx, const char *string, const char *sep)
++{
++	int num_elements = 0;
++	char **ret = NULL;
++
++	if (sep == NULL) {
++		sep = " \t,\n\r";
++	}
++
++	ret = talloc_array(mem_ctx, char *, 1);
++	if (ret == NULL) {
++		return NULL;
++	}
++
++	while (string && *string) {
++		size_t len = strcspn(string, sep);
++		char **ret2;
++		
++		if (len == 0) {
++			string += strspn(string, sep);
++			continue;
++		}
++
++		ret2 = talloc_realloc(mem_ctx, ret, char *,
++			num_elements+2);
++		if (ret2 == NULL) {
++			talloc_free(ret);
++			return NULL;
++		}
++		ret = ret2;
++
++		ret[num_elements] = talloc_strndup(ret, string, len);
++		if (ret[num_elements] == NULL) {
++			talloc_free(ret);
++			return NULL;
++		}
++
++		num_elements++;
++		string += len;
++	}
++
++	ret[num_elements] = NULL;
++
++	return ret;
++}
++
+ static enum MAPISTATUS openchangeclient_getdir(TALLOC_CTX *mem_ctx,
+ 					       mapi_object_t *obj_container,
+ 					       mapi_object_t *obj_child,
+@@ -115,7 +161,7 @@ static enum MAPISTATUS openchangeclient_
+ 	uint32_t		i;
+ 
+ 	/* Step 1. Extract the folder list from full path */
+-	folder = str_list_make(mem_ctx, path, "/");
++	folder = openchange_str_list_make(mem_ctx, path, "/");
+ 	mapi_object_copy(&obj_folder, obj_container);
+ 
+ 	for (i = 0; folder[i]; i++) {

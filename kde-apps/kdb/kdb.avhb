@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdb
+pkgver=3.2.0
+pkgrel=1
+pkgdesc="A database connectivity and creation framework for various database vendors"
+arch=('x86_64')
+groups=('kde-apps')
+url="http://www.kexi-project.org/"
+license=(GPL2)
+depends=(kcoreaddons)
+makedepends=(extra-cmake-modules python mariadb-libs postgresql qt5-tools doxygen qt5-doc)
+optdepends=('mariadb-libs: MySQL plugin' 'postgresql: PostgreSQL plugin')
+source=("https://download.kde.org/stable/$pkgname/src/$pkgname-$pkgver.tar.xz"{,.sig}
+         kdb-postgresql-12.patch::"https://cgit.kde.org/kdb.git/patch/src/drivers/postgresql?id=40cdaea4")
+validpgpkeys=(4866BAF713B465677A4059643C7C0E201B6524DB) # Jarosław Staniek <staniek@kde.org>
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../kdb-postgresql-12.patch # Fix build with postgresql 12
+}
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja\
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

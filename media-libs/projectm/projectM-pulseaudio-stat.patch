@@ -1,0 +1,11 @@
+diff -Naur projectM-pulseaudio-2.0.1-orig/qprojectM-pulseaudio.cpp projectM-pulseaudio-2.0.1/qprojectM-pulseaudio.cpp
+--- projectM-pulseaudio-2.0.1-orig/qprojectM-pulseaudio.cpp	2010-01-26 11:52:18.000000000 -0500
++++ projectM-pulseaudio-2.0.1/qprojectM-pulseaudio.cpp	2010-01-26 12:09:43.000000000 -0500
+@@ -68,6 +68,7 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <errno.h>
++#include <sys/stat.h>
+ 
+ //#include <pulsecore/gccmacro.h>
+ 

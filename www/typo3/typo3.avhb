@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=typo3
+pkgver=9.2.0
+pkgrel=1
+pkgdesc='an open source PHP based web content management system'
+arch=('any')
+url='https://typo3.org/'
+license=('GPL')
+depends=('php')
+optdepends=('nginx: Web server for serving Wordpress'
+            'apache: Web server for serving Wordpress'
+            'mariadb: Database server')
+options=('emptydirs')
+install="$pkgname.install"
+source=("https://typo3.azureedge.net/typo3/9.2.0/typo3_src-9.2.0.tar.gz")
+sha256sums=('a1664b259755021adbfbe5e8f7fd78a98c015e92e1f985258abed19f759822cb'
+            '68244b5bd534b21c88dc25074bf1fbc7a26d601cee69d78a467b1287f9eb2eed')
+
+package() {
+  install -d "$pkgdir/usr/share/webapps"
+  cp -r "${pkgname}_src-${pkgver}" "$pkgdir/usr/share/webapps/${pkgname}"
+}

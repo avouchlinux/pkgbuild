@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libfontenc
+_realname=libfontenc
+pkgver=1.1.4
+pkgrel=1
+pkgdesc="X11 font encoding library"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('zlib')
+makedepends=('pkgconfig' 'xproto>=7.0.18')
+source=(${url}/releases/individual/lib/${pkgname}-${pkgver}.tar.bz2)
+sha256sums=('a9a4efed3359b2e80161bb66b65038fac145137fa134e71335264cbc23b02f62')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --disable-static \
+	--with-encodingsdir=/usr/share/fonts/encodings \
+	--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}
+

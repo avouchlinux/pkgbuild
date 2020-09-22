@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tinyxml2
+pkgver=8.0.0
+pkgrel=1
+pkgdesc='Simple XML parser made for easy integration'
+url='http://www.grinninglizard.com/tinyxml2/'
+arch=('x86_64')
+groups=('app-text')
+license=('zlib')
+depends=('gcc-libs')
+makedepends=('git' 'cmake' 'ninja')
+source=("https://github.com/leethomason/tinyxml2/archive/$pkgver.tar.gz")
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  mkdir -p build
+  cd build
+  cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+    -G Ninja
+  ninja
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dm644 readme.md "$pkgdir/usr/share/licenses/$pkgname/README.md"
+}

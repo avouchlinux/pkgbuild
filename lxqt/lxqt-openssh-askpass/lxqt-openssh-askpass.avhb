@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lxqt-openssh-askpass
+pkgver=0.15.0
+pkgrel=1
+pkgdesc="LXQt askpass dialog."
+arch=("x86_64")
+groups=('lxqt')
+repo=('core')
+url="http://lxqt.org"
+license=("LGPL2.1")
+depends=("liblxqt")
+makedepends=("cmake" "qt5-tools")
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

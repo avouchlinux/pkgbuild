@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gitphp
+pkgver=2.9.1
+pkgrel=1
+pkgdesc='A web frontend for git repositories'
+arch=('any')
+url='http://www.phpmyadmin.net'
+license=('GPL')
+depends=('mariadb-clients' 'php')
+backup=(etc/webapps/phpmyadmin/config.inc.php)
+source=(https://files.phpmyadmin.net/phpMyAdmin/$pkgver/phpMyAdmin-$pkgver-all-languages.tar.xz)
+sha256sums=('f94ed0fc5df38e049746e40852135bf55b9af0fd9fcee07f175919c463ad58a5')
+
+package() {
+	_instdir="$pkgdir"/usr/share/webapps/gitphp
+	mkdir -p "$_instdir" "$pkgdir"/etc/webapps/gitphp
+	cd "$_instdir"
+
+	cp -ra "$srcdir"/gitphp-$pkgver/* .
+
+	ln -s /etc/webapps/gitphp/gitphp.conf.defaults.php "$_instdir"/config/gitphp.conf.defaults.php
+	cp "$_instdir"/config/gitphp.conf.defaults.php "$pkgdir"/etc/webapps/gitphp/gitphp.conf.defaults.php
+}

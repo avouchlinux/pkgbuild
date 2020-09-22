@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dia
+pkgver=0.97.0+2302+g550da0f6
+pkgrel=1
+pkgdesc="A GTK+ based diagram creation program"
+arch=('x86_64')
+groups=('app-grafix')
+license=('GPL')
+url="http://live.gnome.org/Dia"
+depends=('libxslt' 'gtk2')
+makedepends=('intltool' 'python2' 'docbook-xsl')
+optdepends=('python2')
+options=('docs' '!emptydirs')
+source=("ftp://ftp.gnome.org/pub/gnome/sources/${pkgname}/0.97/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+    avouch-meson ${pkgname} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libpeas
+pkgver=1.28.0
+pkgrel=1
+pkgdesc="A GObject plugins library"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/Libpeas"
+license=(GPL2)
+depends=(gtk3 gobject-introspection-runtime)
+makedepends=(gtk-doc intltool python-gobject python2-gobject glade gobject-introspection git
+             gnome-common)
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-${pkgver}.tar.xz)
+
+build() {
+    # with demoss build failed
+    avouch-meson ${pkgname}-${pkgver} build -D vapi=true -D gtk_doc=true -D demos=false
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}
+

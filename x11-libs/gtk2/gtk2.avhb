@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk2
+_realname=gtk+
+pkgver=2.24.32
+pkgrel=1
+pkgdesc="GObject-based multi-platform GUI toolkit (legacy)"
+arch=('x86_64')
+groups=('x11-libs')
+url="https://www.gtk.org/"
+depends=(atk pango libxcursor libxinerama libxrandr libxi libxcomposite libxdamage
+         shared-mime-info cairo libcups gtk-update-icon-cache librsvg desktop-file-utils)
+makedepends=(gobject-introspection python2 git gtk-doc)
+optdepends=('gnome-themes-standard: Default widget theme'
+            'adwaita-icon-theme: Default icon theme')
+license=(LGPL)
+install=gtk2.install
+source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$pkgver/gtk-$pkgver.tar.bz2"
+        gtkrc
+        xid-collision-debug.patch)
+
+prepare() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+
+    patch -Np1 -i ../xid-collision-debug.patch
+    # build fixed for docs
+    patch -Np0 -i ../build-fixes-for-docs.patch
+    
+    sed -i '1s/python$/&2/' gtk/gtk-builder-convert
+}
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --with-xinput=yes \
+        --disable-gtk-doc
+
+	# https://bugzilla.gnome.org/show_bug.cgi?id=655517
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+    install -Dm644 "$srcdir/gtkrc" "$pkgdir/usr/share/gtk-2.0/gtkrc"
+
+    #split this out to use with gtk3 too
+    rm $pkgdir/usr/bin/gtk-update-icon-cache
+}

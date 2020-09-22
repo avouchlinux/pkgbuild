@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=augeas
+pkgver=1.12.0
+pkgrel=1
+pkgdesc="A configuration editing tool that parses config files and transforms them into a tree"
+arch=('x86_64')
+groups=('app-admin')
+url="http://augeas.net"
+license=('LGPL')
+depends=('libxml2' 'gcc-libs')
+source=(http://download.augeas.net/augeas-$pkgver.tar.gz{,.sig})
+validpgpkeys=('AED6E2A185EEB379F17476D2E012D07AD0E3CC30')
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

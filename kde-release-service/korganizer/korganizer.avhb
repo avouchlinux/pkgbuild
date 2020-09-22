@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=korganizer
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Calendar and scheduling Program"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://community.kde.org/KDE_PIM"
+license=(GPL2)
+depends=(kdepim-runtime kontactinterface incidenceeditor)
+makedepends=(extra-cmake-modules kdoctools python qt5-tools kdesignerplugin boost)
+optdepends=('kdepim-addons: additional plugins')
+source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+sha256sums=('b9944d2c17a69f9cf6edec0342cd0e16d7f9b5bfba0fd33420f6892d86f03d53'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

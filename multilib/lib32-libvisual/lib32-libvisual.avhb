@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libvisual
+pkgbase=libvisual
+pkgver=0.4.0
+pkgrel=1
+pkgdesc="Abstraction library that comes between applications and audio visualisation plugins"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://sourceforge.net/projects/libvisual/"
+license=('LGPL')
+depends=('lib32-glibc' "${pkgname#*-}")
+makedepends=('gcc-multilib')
+options=('!libtool')
+source=("http://downloads.sourceforge.net/sourceforge/${pkgname#*-}/${pkgname#*-}-${pkgver}.tar.gz")
+sha256sums=('0b4dfdb87125e129567752089e3c8b54cefed601eef169d2533d8659da8dc1d7')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--libexecdir=/usr/lib32 \
+	--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}
+

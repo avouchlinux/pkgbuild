@@ -1,0 +1,106 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=openssl
+pkgver=1.1.0e
+pkgrel=1
+pkgdesc='The Open Source toolkit for Secure Sockets Layer and Transport Layer Security'
+arch=('i686' 'x86_64')
+url='https://www.openssl.org'
+license=('custom:BSD')
+depends=('perl')
+optdepends=('ca-certificates')
+backup=('etc/ssl/openssl.cnf')
+source=("https://www.openssl.org/source/${pkgname}-${_ver}.tar.gz"
+        "https://www.openssl.org/source/${pkgname}-${_ver}.tar.gz.asc"
+        'ca-dir.patch')
+md5sums=('51c42d152122e474754aea96f66928c6'
+         'SKIP'
+         '02b53865fb70faef763e262b4971aa4b')
+validpgpkeys=('8657ABB260F056B1E5190839D9C4D26D0E604491')
+
+prepare() {
+	cd "${srcdir}/openssl-OpenSSL_1_1_0e"
+
+	# remove rpath: http://bugs.archlinux.org/task/14367
+	#patch -p1 -i $srcdir/openssl-1.0.2a-no-rpath.patch
+
+	# set ca dir to /etc/ssl by default
+	patch -p0 -i $srcdir/ca-dir.patch
+
+	# change enginedir (from fedora)
+	#patch -Np1 -i $srcdir/openssl-1.0.2a-enginesdir.patch
+}
+
+build() {
+	cd "${srcdir}/openssl-OpenSSL_1_1_0e"
+
+	CARCH=`uname -m`
+	if [ "${CARCH}" == 'x86_64' ]; then
+		openssltarget='linux-x86_64'
+		optflags='enable-ec_nistp_64_gcc_128'
+		elif [ "${CARCH}" == 'i686' ]; then
+		openssltarget='linux-elf'
+		optflags=''
+	fi
+
+	# mark stack as non-executable: http://bugs.archlinux.org/task/12434
+	./Configure --prefix=/usr \
+	--openssldir=/etc/ssl \
+	--libdir=lib \
+	shared no-ssl3-method ${optflags} \
+	"${openssltarget}" \
+	"-Wa,--noexecstack ${CPPFLAGS} ${CFLAGS} ${LDFLAGS}"
+
+	make depend
+	make all
+
+	#disable installing the static libraries, use this sed:
+	#sed -i 's# libcrypto.a##;s# libssl.a##' Makefile
+}
+
+check() {
+	cd "${srcdir}/openssl-OpenSSL_1_1_0e"
+	# the test fails due to missing write permissions in /etc/ssl
+	# revert this patch for make test
+	patch -p0 -R -i $srcdir/ca-dir.patch
+	make test
+	patch -p0 -i $srcdir/ca-dir.patch
+}
+
+package() {
+	cd "${srcdir}/openssl-OpenSSL_1_1_0e"
+	make DESTDIR=$pkgdir MANDIR=/usr/share/man MANSUFFIX=ssl install_sw install_ssldirs install_man_docs
+	
+	install -D -m644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+
+	# move engine to correct directory
+	#mkdir -p $pkgdir/usr/lib/openssl
+	#mv $pkgdir/usr/lib/engines $pkgdir/usr/lib/openssl
+
+	# Install a makefile for generating keys and self-signed certs, and a script
+	# for generating them on the fly.
+	install -m644 ${srcdir}/Makefile.certificate $pkgdir/etc/ssl/certs/Makefile
+	install -m755 ${srcdir}/make-dummy-cert $pkgdir/etc/ssl/certs/make-dummy-cert
+	install -m755 ${srcdir}/renew-dummy-cert $pkgdir/etc/ssl/certs/renew-dummy-cert
+
+	# make the required directory
+	mkdir -m755 $pkgdir/etc/ssl/crl
+
+	# Pick a CA script.
+	#pushd  $pkgdir/etc/ssl/misc
+	#mv CA.sh CA
+	#popd
+
+	#mkdir -m755 $pkgdir/etc/ssl/CA
+	#mkdir -m700 $pkgdir/etc/ssl/CA/private
+	#mkdir -m755 $pkgdir/etc/ssl/CA/certs
+	#mkdir -m755 $pkgdir/etc/ssl/CA/crl
+	#mkdir -m755 $pkgdir/etc/ssl/CA/newcerts
+
+	# Ensure the openssl.cnf timestamp is identical across builds to avoid
+	# mulitlib conflicts and unnecessary renames on upgrade
+	touch -r ${srcdir}/Makefile.certificate $pkgdir/etc/ssl/openssl.cnf
+}
+

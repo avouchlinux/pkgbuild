@@ -1,0 +1,24 @@
+DATA_MOUNTPOINT=/mnt
+EFI_MOUNTPOINT=/mnt
+
+
+
+sudo mount -t vfat /dev/sdc1 ${DATA_MOUNTPOINT}
+
+sudo mount -t vfat /dev/sdb1 ${EFI_MOUNTPOINT}
+
+sudo mount -t ext4 /dev/sdb3 ${DATA_MOUNTPOINT}
+
+
+sudo mkdir -p ${DATA_MOUNTPOINT}/boot/grub
+
+sudo grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --boot-directory=${EFI_MOUNTPOINT}/boot  --recheck
+
+sudo grub-install --target=i386-pc --boot-directory=${DATA_MOUNTPOINT}/boot --recheck /dev/sdc
+
+
+sudo sed -i "s/#GRUB_DISABLE_OS_PROBER/GRUB_DISABLE_OS_PROBER/g" ${DATA_MOUNTPOINT}/etc/default/grub
+
+sudo /usr/bin/grub-mkconfig -o ${EFI_MOUNTPOINT}/grub/grub.cfg
+
+umount -l $DATA_MOUNTPOINT

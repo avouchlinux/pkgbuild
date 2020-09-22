@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libvncserver
+_realname=libvncserver-LibVNCServer
+pkgver=0.9.12
+pkgrel=1
+pkgdesc="Cross-platform C libraries that allow you to easily implement VNC server or client functionality"
+arch=('x86_64')
+groups=('net-libs')
+url="https://libvnc.github.io/"
+license=('GPL')
+depends=('libpng' 'libjpeg' 'gnutls' 'libgcrypt' 'openssl' 'libnsl')
+makedepends=('sdl2' 'cmake')
+source=("https://github.com/LibVNC/libvncserver/archive/LibVNCServer-${pkgver}.tar.gz")
+
+build() {
+  cmake -S$_realname-$pkgver -Bbuild -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

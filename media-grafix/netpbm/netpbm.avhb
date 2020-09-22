@@ -1,0 +1,68 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=netpbm
+pkgver=10.73.31
+pkgrel=1
+pkgdesc="A toolkit for manipulation of graphic images"
+arch=('x86_64')
+groups=('media-grafix')
+license=('custom' 'BSD' 'GPL' 'LGPL')
+url="http://netpbm.sourceforge.net/"
+depends=('perl' 'libpng' 'libtiff' 'libxml2')
+makedepends=('python2' 'jbigkit' 'subversion')
+options=('!makeflags')
+source=(https://netix.dl.sourceforge.net/project/$pkgname/super_stable/$pkgver/$pkgname-$pkgver.tgz)
+validpgpkeys=('5357F3B111688D88C1D88119FCF2CB179205AC90')
+
+getsrc(){
+    wget --recursive --relative -nH http://netpbm.sourceforge.net/doc/
+}
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  sed -i 's|#!/usr/bin/python|#!/usr/bin/python2|' buildtools/makeman
+  sed -i 's|@python|@python2|' buildtools/manpage.mk
+
+  cp config.mk.in  config.mk
+  [ "${CARCH}" = 'x86_64' ] && echo 'CFLAGS_SHLIB = -fPIC' >> config.mk
+  echo "NETPBM_DOCURL = file://${srcdir}/doc" >> config.mk
+  echo 'TIFFLIB = libtiff.so' >> config.mk
+  echo 'JPEGLIB = libjpeg.so' >> config.mk
+  echo 'PNGLIB = libpng.so' >> config.mk
+  echo 'ZLIB = libz.so' >> config.mk
+  echo 'JBIGLIB = /usr/lib/libjbig.a' >> config.mk
+
+  sed -i 's|misc|share/netpbm|' common.mk
+  sed -i 's|/link|/lib|' lib/Makefile
+  sed -i 's|install.manwebmain install.manweb install.man|install.man|' GNUmakefile
+}
+
+build() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS}
+  # Generating useful man pages with html doc
+  make MAKEMAN="${srcdir}/$pkgname-$pkgver/buildtools/makeman" USERGUIDE=. \
+    -C ../doc -f "${srcdir}/$pkgname-$pkgver/buildtools/manpage.mk" manpages
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make pkgdir="${pkgdir}/usr" PKGMANDIR=share/man install-run install-dev
+
+# Removing dummy man pages
+  rm "${pkgdir}"/usr/share/man/man{1,3,5}/*
+
+  make MAKEMAN="${srcdir}/$pkgname-$pkgver/buildtools/makeman" MANDIR="${pkgdir}/usr/share/man" \
+    -C ../doc -f "${srcdir}/$pkgname-$pkgver/buildtools/manpage.mk" installman
+
+# Replace obsolete utility
+  echo -e '#!/bin/sh\npamditherbw $@ | pamtopnm\n' > "${pkgdir}/usr/bin/pgmtopbm"
+
+# Licensing.  Note that each program in the package has a separate license.
+  install -D -m644 "${srcdir}/$pkgname-$pkgver/doc/copyright_summary" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

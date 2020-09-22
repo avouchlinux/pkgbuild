@@ -1,0 +1,29 @@
+commit 59784c512ec40e588b21cf5ae8e31e9c4f99d6b8
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Sat May 18 14:55:50 2019 +0200
+
+    aarch64 (arm64) isn't a supported architecture for exp-sgcheck.
+    
+    exp-sgcheck/pc_main.c contains:
+    
+       #if defined(VGA_arm) || defined(VGA_arm64)
+          VG_(printf)("SGCheck doesn't work on ARM yet, sorry.\n");
+          VG_(exit)(1);
+       #endif
+    
+    But exp-sgcheck/tests/is_arch_supported checked against uname -m
+    which returns aarch64 (not arm64). Fix the test check so the
+    exp-sgcheck tests are skipped instead of producing failures.
+
+diff --git a/exp-sgcheck/tests/is_arch_supported b/exp-sgcheck/tests/is_arch_supported
+index 818cc61..d4c6191 100755
+--- a/exp-sgcheck/tests/is_arch_supported
++++ b/exp-sgcheck/tests/is_arch_supported
+@@ -10,6 +10,6 @@
+ # architectures.
+ 
+ case `uname -m` in
+-  ppc*|arm*|s390x|mips*) exit 1;;
++  ppc*|aarch64|arm*|s390x|mips*) exit 1;;
+   *)         exit 0;;
+ esac

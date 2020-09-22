@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libaccounts-glib
+pkgver=1.24
+pkgrel=1
+pkgdesc="Glib-based client library for accessing the online accounts database"
+arch=('x86_64')
+groups=('net-libs')
+url="https://gitlab.com/accounts-sso/libaccounts-glib"
+license=(LGPL)
+depends=(dbus-glib libxml2 sqlite)
+makedepends=(python-gobject gobject-introspection vala meson check)
+source=("https://gitlab.com/accounts-sso/libaccounts-glib/repository/archive.tar.gz?ref=VERSION_$pkgver")
+
+prepare() {
+  mkdir -p build
+  mv $pkgname-*/ $pkgname
+}
+
+build() {
+  cd build
+  avouch-meson ../$pkgname -Dtests=false
+  ninja
+}
+
+check() {
+  cd build
+  ninja test || true
+}
+
+package() {
+  cd build
+  DESTDIR="$pkgdir" ninja install
+}

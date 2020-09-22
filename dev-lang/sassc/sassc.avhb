@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sassc
+pkgver=3.6.1
+pkgrel=1
+pkgdesc="C implementation of Sass CSS preprocessor."
+arch=('x86_64')
+groups=('dev-lang')
+url="http://libsass.org/"
+license=("MIT")
+depends=("libsass")
+source=("https://github.com/sass/$pkgname/archive/$pkgver.tar.gz")
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+
+	autoreconf -i
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+
+	make DESTDIR="$pkgdir/" install
+	install -D -m644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

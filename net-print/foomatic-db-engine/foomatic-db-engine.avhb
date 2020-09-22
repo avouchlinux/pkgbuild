@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=foomatic-db-engine
+_pkgver=4.0
+_date=20200422
+pkgver=$_pkgver-$_date
+pkgdesc="Foomatic - Foomatic's database engine generates PPD files from the data in Foomatic's XML database. It also contains scripts to directly generate print queues and handle jobs."
+arch=('x86_64')
+groups=('net-print')
+url="http://www.linuxprinting.org/foomatic.html"
+license=('GPL2')
+depends=('perl' 'libxml2' "cups-filters" 'bash' 'perl-xml-libxml' 'perl-clone' 'perl-dbi')
+makedepends=('cups' 'ghostscript' 'a2ps' 'wget' 'perl-xml-libxml' 'foomatic-db') # 'enscript' 'net-snmp'
+optdepends=('foomatic-db:	linuxprinting.org xml files database to create ppd driver files')
+backup=('etc/foomatic/defaultspooler')
+source=(https://www.openprinting.org/download/foomatic/$pkgname-$pkgver.tar.gz)
+
+build() {
+  export LIB_CUPS="/usr/lib/cups"
+  cd $pkgname-$pkgver
+  PERL_INSTALLDIRS=vendor \
+  ./configure --prefix=/usr \
+    --sbindir=/usr/bin
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR=${pkgdir} install
+
+  # preset default spooler
+  echo cups > ${pkgdir}/etc/foomatic/defaultspooler
+  # add some docs
+  install -Dm644 USAGE ${pkgdir}/usr/share/doc/${pkgname}/USAGE
+  install -Dm644 README ${pkgdir}/usr/share/doc/${pkgname}/README
+
+  # cleanup
+  rm -r ${pkgdir}/usr/lib/perl5
+}

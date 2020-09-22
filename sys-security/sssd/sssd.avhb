@@ -1,0 +1,88 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sssd
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="System Security Services Daemon"
+arch=('x86_64')
+groups=('sys-security')
+url="https://pagure.io/SSSD/sssd"
+license=('GPL3')
+depends=(
+  'bind'          # for nsupdate
+  'c-ares'
+  'cyrus-sasl-gssapi'
+  'ding-libs'
+  'libnl'
+  'libunistring'
+  'nss'
+  'smbclient'     # for libndr-nbt
+  'nfsidmap'
+  'jansson'
+)
+makedepends=(
+  'docbook-xsl'
+  'doxygen'
+  'python'
+  'python2'
+  'samba'         # for libndr-nbt headers
+  'systemd'
+)
+source=("https://releases.pagure.org/SSSD/$pkgname/$pkgname-$pkgver.tar.gz"{,.asc})
+sha512sums=('12a7e5b89d462350af3c43e15b24a437dd985ac4a2e419d5e52cc0d05c6eacb9319d39b23681595ef860120cd1ae6e5fb265054afeddcb05d3d5f5de5d6ffa63'
+            'SKIP')
+validpgpkeys=('E4E366758CA0716AAB8048671EC6AB7532E7BC25')
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+  for f in "${source[@]}"; do
+    if [[ $f == *.patch ]]; then
+      msg2 "Applying $f"
+      patch -p1 < "$srcdir/$f"
+    fi
+  done
+
+  # dbus policy files in /usr/share/dbus-1
+  sed -i -e 's/^dbuspolicydir = $(sysconfdir)/dbuspolicydir = $(datadir)/' Makefile.in
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure \
+    --prefix=/usr                                 \
+    --sbindir=/usr/bin                            \
+    --sysconfdir=/etc                             \
+    --localstatedir=/var                          \
+    --libexecdir=/usr/lib/sssd                    \
+    --datadir=/usr/share                          \
+    --enable-pammoddir=/usr/lib/security          \
+    --with-initscript=systemd                     \
+    --with-os=fedora                              \
+    --with-pid-path=/run                          \
+    --with-python2-bindings                       \
+    --with-python3-bindings                       \
+    --with-syslog=journald                        \
+    --without-selinux                             \
+    --without-semanage                            \
+    --with-systemdunitdir=/usr/lib/systemd/system
+  sed -i '/\<HAVE_KRB5_SET_TRACE_CALLBACK\>/d' config.h
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make -j1 DESTDIR="$pkgdir/" install
+  rm -rf "$pkgdir"/etc/rc.d
+  rm -rf "$pkgdir"/lib
+  rm -rf "$pkgdir"/run
+  rm -f "$pkgdir"/usr/lib/ldb/modules/ldb/memberof.la
+  find "$pkgdir"/usr -depth -type d \
+    -exec rmdir --ignore-fail-on-non-empty {} \;
+
+  cd "$srcdir"
+  rm -rf "$pkgdir/etc/systemd" # remove the drop-in
+
+  sed '1 s/python$/python2/' -i "$pkgdir"/usr/bin/sss_obfuscate
+}

@@ -1,0 +1,25 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-backgrounds
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Background images and data for GNOME"
+url="https://gitlab.gnome.org/GNOME/gnome-backgrounds"
+arch=(any)
+groups=('gnome-base')
+makedepends=(glib2 meson)
+license=(GPL)
+
+source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

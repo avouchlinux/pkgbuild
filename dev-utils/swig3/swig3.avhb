@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=swig3
+_realname=swig
+pkgver=3.0.12
+pkgrel=1
+pkgdesc="Generate scripting interfaces to C/C++ code"
+arch=('x86_64')
+groups=('dev-lang')
+url="http://www.swig.org/"
+license=('custom')
+depends=('pcre' 'gcc-libs')
+checkdepends=('ruby' 'python2' 'java-environment' 'tcl' 'php' 'lua' 'ocaml' 'r' 'go' 'python2-cffi' 'camlp4')
+source=(https://downloads.sourceforge.net/${_pkgname}/${_pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd ${_realname}-${pkgver}
+  ./configure --prefix=/usr --program-suffix="-3"
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  make check || warning "Tests failed"
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+  install -D -m644 LICENSE-UNIVERSITIES "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE-UNIVERSITIES
+}

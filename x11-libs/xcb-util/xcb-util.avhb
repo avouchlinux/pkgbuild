@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xcb-util
+pkgver=0.4.0
+pkgrel=1
+pkgdesc="Utility libraries for XC Binding"
+arch=('x86_64')
+groups=('x11-libs')
+url="https://xcb.freedesktop.org"
+license=('custom')
+depends=('libxcb>=1.7')
+makedepends=('gperf' 'xorg-util-macros')
+source=("https://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make ${MAKEFLAGS} check
+}
+
+package() { 
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -D -m644 COPYING \
+    "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+

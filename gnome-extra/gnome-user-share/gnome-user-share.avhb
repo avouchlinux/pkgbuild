@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-user-share
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="Easy to use user-level file sharing for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://git.gnome.org/browse/gnome-user-share"
+license=(GPL)
+depends=(mod_dnssd dconf gtk3 libnotify libcanberra)
+makedepends=(libnautilus-extension itstool docbook-xsl gnome-common git)
+options=(!emptydirs)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D gtk_doc=true
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

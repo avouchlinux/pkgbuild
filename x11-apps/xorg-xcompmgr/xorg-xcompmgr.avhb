@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xcompmgr
+_realname=xcompmgr
+pkgver=1.1.8
+pkgrel=1
+pkgdesc='A sample compositing manager for X servers supporting the XFIXES, DAMAGE, RENDER, and COMPOSITE extensions'
+url='http://xorg.freedesktop.org/'
+arch=('x86_64')
+groups=('x11-apps')
+license=('custom')
+depends=('libx11' 'libxrandr')
+makedepends=('xorg-util-macros' 'xproto')
+source=("http://xorg.freedesktop.org/archive/individual/app/xev-${pkgver}.tar.bz2")
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

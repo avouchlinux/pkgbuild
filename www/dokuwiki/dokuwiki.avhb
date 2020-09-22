@@ -1,0 +1,64 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dokuwiki
+pkgver=20170219_e
+_pkgver=${pkgver:0:4}-${pkgver:4:2}-${pkgver:6}
+_pkgver=${_pkgver/_/}
+pkgrel=1
+pkgdesc='Simple to use and highly versatile Open Source wiki software'
+arch=('any')
+url='https://www.dokuwiki.org/'
+license=('GPL')
+depends=('php')
+backup=('etc/webapps/dokuwiki/.htaccess'
+        'etc/httpd/conf/extra/dokuwiki.conf')
+options=('!strip')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/splitbrain/dokuwiki/archive/release_stable_${_pkgver}.tar.gz"
+        'apache.example.conf')
+sha256sums=('be79fce00d9f19a19aba14b5a2ffca2aa53ed1853c3293b6ccc6a2ba006aa299'
+            '6d6f19b545ca98573761f522fa837a4d2d3de932d21e593ac882ef57b13f0bb1')
+
+package() {
+  cd "$pkgdir"
+  install -dm0755 usr/share/webapps var/lib/dokuwiki etc/webapps
+  cp -a "$srcdir"/$pkgname usr/share/webapps/dokuwiki
+
+  # move data in var
+  mv usr/share/webapps/dokuwiki/data var/lib/dokuwiki
+  ln -s {../../../../../var/lib/dokuwiki,usr/share/webapps/dokuwiki}/data
+
+  # move plugins in var
+  mv usr/share/webapps/dokuwiki/lib/plugins var/lib/dokuwiki
+  ln -s {../../../../../../var/lib/dokuwiki,usr/share/webapps/dokuwiki/lib}/plugins
+
+  # move templates in var
+  mv usr/share/webapps/dokuwiki/lib/tpl var/lib/dokuwiki
+  ln -s {../../../../../../var/lib/dokuwiki,usr/share/webapps/dokuwiki/lib}/tpl
+
+  # move config in /etc
+  mv usr/share/webapps/dokuwiki/conf etc/webapps/dokuwiki
+  chmod g=rwx etc/webapps/dokuwiki
+  ln -s ../../../../../etc/webapps/dokuwiki usr/share/webapps/dokuwiki/conf
+
+  # inform update on changes.log
+  touch var/lib/dokuwiki/data/changes.log
+  chmod 0644 var/lib/dokuwiki/data/changes.log
+
+  # use default htaccess
+  cp usr/share/webapps/dokuwiki/.htaccess.dist etc/webapps/dokuwiki/.htaccess
+  ln -s /etc/webapps/dokuwiki/.htaccess usr/share/webapps/dokuwiki/.htaccess
+
+  # fix rights and ownership
+  chown http:http var/lib/dokuwiki/plugins
+  chown -R http:http var/lib/dokuwiki/data
+  chown -R http:http etc/webapps/dokuwiki
+
+  # apache config
+  install -Dm0644 "$srcdir"/apache.example.conf etc/httpd/conf/extra/dokuwiki.conf
+
+  # php.ini
+#  install -dm0755 "$pkgdir"/etc/php/conf.d/
+#  echo 'open_basedir = ${open_basedir}:/etc/webapps/dokuwiki/:/var/lib/dokuwiki/' >"$pkgdir"/etc/php/conf.d/dokuwiki.ini
+}

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=beanshell
+_realname=bsh
+pkgver=2.0b6
+pkgrel=1
+pkgdesc="Small, free, embeddable, source level Java interpreter with object based scripting language features written in Java"
+arch=('any')
+groups=('dev-java')
+url="https://github.com/beanshell/beanshell"
+license=('Apache')
+depends=('java-runtime')
+provides=('bsh')
+source=("https://github.com/beanshell/beanshell/releases/download/$pkgver/bsh-${pkgver}.jar")
+noextract=("${pkgname}-${pkgver}.jar")
+
+# beanshell2 fork is dead
+# http://stackoverflow.com/questions/26549307/current-state-of-beanshell
+# https://github.com/stain/beanshell2 - google code got removed and only this fork is left and outdated 
+# original url http://www.beanshell.org - unmaintained
+
+# Fedora and our only package making use of it use the follow up of the old beanshell:
+# https://github.com/beanshell/beanshell
+
+package() {
+  install -m755 -d "${pkgdir}"/usr/share/java/
+  install -D -m644 "${srcdir}"/bsh-${pkgver}.jar "${pkgdir}"/usr/share/java/bsh.jar
+}

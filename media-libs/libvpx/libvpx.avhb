@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libvpx
+pkgver=1.8.2
+pkgrel=1
+pkgdesc='VP8 and VP9 codec'
+arch=('x86_64')
+groups=('media-libs')
+url='http://www.webmproject.org/'
+license=('BSD')
+depends=('glibc' 'gcc-libs')
+makedepends=('yasm' 'git')
+provides=('libvpx.so')
+source=("https://github.com/webmproject/libvpx/archive/v${pkgver}.tar.gz")
+
+build() {
+  cd libvpx-${pkgver}
+
+  ./configure \
+    --prefix='/usr' \
+    --disable-install-docs \
+    --disable-install-srcs \
+    --enable-pic \
+    --enable-postproc \
+    --enable-runtime-cpu-detect \
+    --enable-shared \
+    --enable-vp8 \
+    --enable-vp9 \
+    --enable-vp9-highbitdepth \
+    --enable-vp9-temporal-denoising
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd libvpx-${pkgver}
+
+  make DIST_DIR="${pkgdir}"/usr install
+
+  install -Dm 644 LICENSE -t "${pkgdir}"/usr/share/licenses/libvpx/
+}

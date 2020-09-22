@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-power-manager
+pkgver=3.32.0
+pkgrel=1
+pkgdesc="System power information and statistics"
+url="https://gitlab.gnome.org/GNOME/gnome-power-manager"
+arch=(x86_64)
+groups=('gnome-base')
+license=(GPL)
+depends=(gtk3 upower dconf)
+makedepends=(git meson)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+    cd ${pkgname}-${pkgver}
+    # do not build man pages as build breaks
+    sed -i "/subdir('man')/d" meson.build
+}
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

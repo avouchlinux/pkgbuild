@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsidplay
+pkgver=1.36.59
+pkgrel=1
+pkgdesc="A library for playing SID music files."
+arch=('x86_64')
+groups=('media-libs')
+url="http://critical.ch/distfiles/"
+license=('GPL')
+source=(http://critical.ch/distfiles/${pkgname}-${pkgver}.tgz libsidplay-1.36.59-gcc43.patch)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	patch -Np1 -i $srcdir/libsidplay-1.36.59-gcc43.patch
+	patch -Np1 -i ../g++-6_build.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

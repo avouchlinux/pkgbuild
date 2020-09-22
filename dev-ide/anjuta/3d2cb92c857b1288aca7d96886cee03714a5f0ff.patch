@@ -1,0 +1,26 @@
+From 3d2cb92c857b1288aca7d96886cee03714a5f0ff Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bj=C3=B8rn=20Lie?= <bjorn.lie@gmail.com>
+Date: Sat, 25 Aug 2018 11:30:47 +0000
+Subject: [PATCH] build: Allow building with vala 0.42
+
+Add new vala version.
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 44706d9c2..eeda3ed3e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -334,7 +334,7 @@ if test "$user_disabled_vala" = 1; then
+ else
+         AC_MSG_RESULT(no)
+ 	AC_MSG_CHECKING(if libvala is available)
+-	m4_foreach([VERSION], [[0.40], [0.38], [0.36], [0.34], [0.32], [0.30], [0.28], [0.26], [0.24], [0.22], [0.20], [0.18]],
++	m4_foreach([VERSION], [[0.42], [0.40], [0.38], [0.36], [0.34], [0.32], [0.30], [0.28], [0.26], [0.24], [0.22], [0.20], [0.18]],
+ 		[PKG_CHECK_EXISTS([ libvala-VERSION ],
+ 			 [ valaver="-VERSION" ])
+ 			 ])
+-- 
+2.21.0
+

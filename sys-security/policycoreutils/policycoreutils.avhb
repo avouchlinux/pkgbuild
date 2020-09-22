@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=policycoreutils
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux policy core utilities"
+arch=('x86_64')
+groups=('sys-security')
+url='http://userspace.selinuxproject.org'
+license=('GPL2')
+depends=('libsemanage>=2.7' 'pam')
+optdepends=('mcstrans: SELinux MCS translation daemon'
+            'restorecond: SELinux daemon that fixes SELinux file contexts'
+            'selinux-dbus-config: D-Bus configuration for SELinux'
+            'selinux-gui: GUI tools for SELinux'
+            'selinux-python: Python tools and libraries for SELinux'
+            'selinux-sandbox: sandboxing tool for SELinux'
+            'semodule-utils: SELinux module tools')
+conflicts=("selinux-usr-${pkgname}")
+provides=("selinux-usr-${pkgname}=${pkgver}-${pkgrel}")
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('c53c344f28007b3c0742bd958751e9b5d2385898adeb8aec6281ae57342f0f7b')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make LSPP_PRIV=y all
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" LIBEXECDIR=/usr/lib SBINDIR=/usr/bin install
+}

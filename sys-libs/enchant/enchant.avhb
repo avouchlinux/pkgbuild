@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=enchant
+pkgver=2.2.8
+pkgrel=1
+pkgdesc="A wrapper library for generic spell checking"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://abiword.github.io/enchant/"
+license=('LGPL')
+depends=('aspell' 'hunspell' 'hspell' 'libvoikko' 'glib2')
+makedepends=('git')
+source=("https://github.com/AbiWord/enchant/archive/v$pkgver.tar.gz")
+
+prepare() {
+    cd $pkgname-$pkgver
+    bsdtar -xf $srcarchivedir/gnulib-git20200319.tar.xz
+    # ./bootstrap
+    autoreconf -fi
+}
+
+build() {
+    cd $pkgname-$pkgver
+    ./configure --prefix=/usr \
+        --disable-static \
+        --disable-ispell \
+        --with-myspell-dir=/usr/share/myspell
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,52 @@
+diff -crB docs/faq/Makefile.am /build/gtk2/docs/faq/Makefile.am
+*** docs/faq/Makefile.am	2014-09-30 01:02:16.000000000 +0500
+--- /build/gtk2/docs/faq/Makefile.am	2015-04-10 23:54:19.300696000 +0500
+***************
+*** 9,14 ****
+--- 9,15 ----
+  	  (cd $(srcdir); \
+  	   db2html gtk-faq.sgml; \
+  	   test -d html && rm -r html; \
++ 	   mkdir gtk-faq; \
+  	   mv gtk-faq html); \
+  	fi
+  
+diff -crB docs/faq/Makefile.in /build/gtk2/docs/faq/Makefile.in
+*** docs/faq/Makefile.in	2015-03-03 21:41:21.000000000 +0500
+--- /build/gtk2/docs/faq/Makefile.in	2015-04-10 23:53:57.430696000 +0500
+***************
+*** 644,649 ****
+--- 644,650 ----
+  @HAVE_DOCBOOK_TRUE@	  (cd $(srcdir); \
+  @HAVE_DOCBOOK_TRUE@	   db2html gtk-faq.sgml; \
+  @HAVE_DOCBOOK_TRUE@	   test -d html && rm -r html; \
++ @HAVE_DOCBOOK_TRUE@	   mkdir gtk-faq; \
+  @HAVE_DOCBOOK_TRUE@	   mv gtk-faq html); \
+  @HAVE_DOCBOOK_TRUE@	fi
+  
+diff -crB docs/tutorial/Makefile.am /build/gtk2/docs/tutorial/Makefile.am
+*** docs/tutorial/Makefile.am	2014-09-30 01:02:16.000000000 +0500
+--- /build/gtk2/docs/tutorial/Makefile.am	2015-04-10 23:54:52.327362000 +0500
+***************
+*** 42,47 ****
+--- 42,48 ----
+  	  (cd $(srcdir); \
+  	   db2html gtk-tut.sgml; \
+  	   test -d html && rm -r html; \
++ 	   mkdir gtk-tut; \
+  	   mv gtk-tut html; \
+  	   mkdir html/images; \
+  	   cp images/*.png html/images); \
+diff -crB docs/tutorial/Makefile.in /build/gtk2/docs/tutorial/Makefile.in
+*** docs/tutorial/Makefile.in	2015-03-03 21:41:21.000000000 +0500
+--- /build/gtk2/docs/tutorial/Makefile.in	2015-04-10 23:55:18.237362000 +0500
+***************
+*** 657,662 ****
+--- 657,663 ----
+  @HAVE_DOCBOOK_TRUE@	  (cd $(srcdir); \
+  @HAVE_DOCBOOK_TRUE@	   db2html gtk-tut.sgml; \
+  @HAVE_DOCBOOK_TRUE@	   test -d html && rm -r html; \
++ @HAVE_DOCBOOK_TRUE@	   mkdir gtk-tut; \
+  @HAVE_DOCBOOK_TRUE@	   mv gtk-tut html; \
+  @HAVE_DOCBOOK_TRUE@	   mkdir html/images; \
+  @HAVE_DOCBOOK_TRUE@	   cp images/*.png html/images); \

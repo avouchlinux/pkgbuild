@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=plasma-pass
+pkgver=1.1.0
+pkgrel=1
+arch=('x86_64')
+groups=('kde-apps')
+pkgdesc="Plasma applet for the Pass password manager"
+url="https://www.dvratil.cz/2018/05/plasma-pass/"
+license=(GPL)
+depends=(plasma-workspace)
+makedepends=(extra-cmake-modules)
+source=(https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
+validpgpkeys=('0ABDFA55A4E6BEA99A83EA974D69557AECB13683') # Daniel Vrátil <dvratil@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+   -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package(){
+  cd build
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,61 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=selinux-refpolicy
+_realname=refpolicy
+_policyname=refpolicy
+pkgver=2.20200229
+pkgrel=1
+pkgdesc="Modular SELinux reference policy including headers and docs"
+arch=('any')
+groups=('sys-security')
+url="https://github.com/SELinuxProject/refpolicy/wiki"
+license=('GPL2')
+groups=('selinux')
+makedepends=('git' 'python' 'checkpolicy>=2.8' 'semodule-utils')
+depends=('policycoreutils')
+optdepends=('linux-hardened: Linux kernel with SELinux support'
+            'linux-selinux: Linux kernel with SELinux support')
+install="${pkgname}.install"
+# refpolicy 2.20180701 moved the repository to SELinuxProject Github organization
+# When updating, if makepkg reports "refpolicy is not a clone of https://github.com/SELinuxProject/refpolicy",
+# you need to update the remote of the git repository, for example with the following command:
+#   git -C refpolicy remote set-url origin https://github.com/SELinuxProject/refpolicy
+source=("git+https://github.com/SELinuxProject/refpolicy"
+        'config')
+
+prepare() {
+  cd refpolicy
+
+  patch -Np0 -i ../avouch-environment.patch
+
+  # Ensure the environment is clean
+  make bare
+
+  # Configure, overriding build.conf values with the ones given on the command line
+  make conf NAME="${_policyname}" DISTRO=avouch SYSTEMD=y UBAC=n
+}
+
+build() {
+  cd refpolicy
+  make NAME="${_policyname}" DISTRO=avouch SYSTEMD=y UBAC=n
+}
+
+package() {
+  cd refpolicy
+  make install \
+    DESTDIR="${pkgdir}" NAME="${_policyname}" DISTRO=avouch SYSTEMD=y UBAC=n
+  make install-headers \
+    DESTDIR="${pkgdir}" NAME="${_policyname}" DISTRO=avouch SYSTEMD=y UBAC=n
+  make install-docs \
+    DESTDIR="${pkgdir}" NAME="${_policyname}" DISTRO=avouch SYSTEMD=y UBAC=n \
+    PKGNAME="${_policyname}"
+
+  # Create /var/lib/selinux, which is necessary for loading policy,
+  # which is done via install script.
+  install -d -m0755 "${pkgdir}/var/lib/selinux"
+
+  # Install main SELinux config file defaulting to refpolicy
+  install -m644 -D "${srcdir}/config" "${pkgdir}/etc/selinux/config.${_policyname}"
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mdadm
+pkgver=4.1
+pkgrel=1
+pkgdesc="A tool for managing/monitoring Linux md device arrays, also known as Software RAID"
+arch=('x86_64')
+groups=('sys-base')
+license=('GPL')
+url="https://git.kernel.org/cgit/utils/mdadm"
+depends=('glibc')
+backup=('etc/mdadm.conf')
+validpgpkeys=('6A86B80E1D22F21D0B26BA75397D82E0531A9C91') # Jes Sorensen
+source=("git+https://git.kernel.org/pub/scm/utils/mdadm/mdadm.git#tag=${pkgname}-${pkgver}?signed"
+        'mdadm.conf'
+        'mdadm_udev_install')
+
+build() {
+	cd "${pkgname}"
+	make CXFLAGS="$CFLAGS" BINDIR=/usr/bin UDEVDIR=/usr/lib/udev
+}
+
+package() {
+        cd "${pkgname}"
+        make INSTALL=/usr/bin/install BINDIR=/usr/bin DESTDIR=$pkgdir UDEVDIR=/usr/lib/udev install
+        make SYSTEMD_DIR=$pkgdir/usr/lib/systemd/system install-systemd
+        install -D -m644 ../mdadm.conf $pkgdir/etc/mdadm.conf
+}
+

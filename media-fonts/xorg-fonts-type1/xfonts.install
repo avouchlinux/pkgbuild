@@ -1,0 +1,16 @@
+post_install() {
+  echo -n "Updating font cache... "
+  fc-cache -f > /dev/null
+  mkfontscale /usr/share/fonts/type1
+  mkfontdir /usr/share/fonts/type1
+  echo "done."
+
+}
+
+post_upgrade() {
+  post_install $1
+}
+
+post_remove() {
+  post_install $1
+}

@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=serd
+pkgver=0.30.2
+pkgrel=1
+pkgdesc="Lightweight C library for RDF syntax supporting reading/ writing Turtle and NTriples."
+arch=('x86_64')
+groups=('media-libs')
+url="https://drobilla.net/software/serd/"
+license=('custom:ISC')
+depends=('glibc')
+makedepends=('python')
+source=("https://download.drobilla.net/${pkgname}-${pkgver}.tar.bz2"{,.sig})
+validpgpkeys=('907D226E7E13FA337F014A083672782A9BF368F3')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # remove call to local ldconfig
+  sed -i "/ldconfig/d" wscript
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  python waf configure --prefix=/usr \
+                       --mandir=/usr/share/man \
+                       --test
+  python waf
+}
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  python waf test
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  python waf install --destdir="${pkgdir}"
+  # license
+  install -vDm 644 COPYING \
+    "$pkgdir/usr/share/licenses/${pkgname}/LICENSE"
+  # docs
+  install -t "$pkgdir/usr/share/doc/${pkgname}" \
+    -vDm 644 {AUTHORS,NEWS,README.md}
+}

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=usbutils
+pkgver=012
+pkgrel=1
+pkgdesc="USB Device Utilities"
+arch=('x86_64')
+groups=('sys-base')
+license=('GPL')
+depends=('libusb' 'hwids')
+optdepends=('python2: for lsusb.py usage'
+            'coreutils: for lsusb.py usage')
+url="http://linux-usb.sourceforge.net/"
+source=("http://www.kernel.org/pub/linux/utils/usb/usbutils/${pkgname}-${pkgver}.tar.xz")
+md5sums=('c9df5107ae9d26b10a1736a261250139'
+         '45766196895b4cc50b53cd56e1bbf3d1')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./autogen.sh
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --datadir=/usr/share/hwdata --disable-zlib
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=$pkgdir install
+	# this is now in the hwids package
+	rm -rf $pkgdir/usr/{share/hwdata,sbin
+}

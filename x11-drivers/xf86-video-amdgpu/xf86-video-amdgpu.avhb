@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-amdgpu
+pkgver=19.1.0
+pkgrel=1
+pkgdesc="X.org ati video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libdrm>=2.4.41' 'systemd' 'ati-dri' 'glamor-egl')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
+
+prepare() {
+  cd "$srcdir"/$pkgname-$pkgver
+  # GCC 10 fix (Gentoo)
+  patch -p1 -i ../xf86-video-amdgpu-19.1.0-Fix-link-failure-with-gcc-10.patch
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

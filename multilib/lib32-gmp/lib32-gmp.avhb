@@ -1,0 +1,51 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-gmp
+pkgbase=gmp
+pkgver=6.2.0
+pkgrel=1
+pkgdesc="A free library for arbitrary precision arithmetic (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://gmplib.org/"
+depends=('lib32-gcc-libs' $_pkgbasename)
+makedepends=(gcc-multilib)
+license=('LGPL3')
+options=(!libtool)
+source=(ftp://ftp.gmplib.org/pub/gmp-${pkgver}/gmp-${pkgver}.tar.xz{,.sig})
+md5sums=('e5fe367801ff067b923d1e6a126448aa'
+         'SKIP')
+
+build() {
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	export ABI=32
+
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	./configure --prefix=/usr \
+	--infodir=/usr/share/info \
+	--libdir=/usr/lib32 \
+	--includedir=/usr/lib32/gmp \
+	--enable-fat --enable-cxx
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make check 2>&1 | tee gmp-check-log
+
+	# ensure that all 188 tests in the test suite passed
+	awk '/tests passed/{total+=$2} ; END{print total}' gmp-check-log
+}
+
+package() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

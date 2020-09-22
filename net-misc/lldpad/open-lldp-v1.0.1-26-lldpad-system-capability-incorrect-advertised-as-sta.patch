@@ -1,0 +1,72 @@
+From 036e314bd93602f7388262cc37faf8b626980af1 Mon Sep 17 00:00:00 2001
+From: Gary Loughnane <gary.loughnane@intel.com>
+Date: Mon, 17 Aug 2015 21:19:24 +0000
+Subject: [PATCH] lldpad: system capability incorrect advertised as station
+ only
+
+Fix system capability TLV on switch. On our switches we have found
+that the system capability was being advertised as Station Only. This
+patch changes the capability to Bridge.
+
+Signed-off-by: Gary Loughnane <gary.loughnane@intel.com>
+Signed-off-by: John Fastabend <john.r.fastabend@intel.com>
+---
+ include/lldp_util.h |  1 +
+ lldp_util.c         | 22 +++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/include/lldp_util.h b/include/lldp_util.h
+index 878426b..69b67b1 100644
+--- a/include/lldp_util.h
++++ b/include/lldp_util.h
+@@ -125,6 +125,7 @@ int is_active(const char *ifname);
+ int is_bond(const char *ifname);
+ int is_san_mac(u8 *addr);
+ int is_bridge(const char *ifname);
++int is_bridge_port(const char *ifname);
+ int is_vlan(const char *ifname);
+ int is_vlan_capable(const char *ifname);
+ int is_wlan(const char *ifname);
+diff --git a/lldp_util.c b/lldp_util.c
+index f1fb7b9..62f0af8 100644
+--- a/lldp_util.c
++++ b/lldp_util.c
+@@ -580,6 +580,26 @@ int is_bridge(const char *ifname)
+ 	return rc;
+ }
+ 
++int is_bridge_port(const char *ifname)
++{
++	int rc = 0;
++	char path[256];
++	DIR *dirp;
++
++	if (!is_ether(ifname)) {
++		return 0;
++	}
++	/* check if the given ifname is a bridge port in sysfs */
++	snprintf(path, sizeof(path), "/sys/class/net/%s/brport/", ifname);
++	dirp = opendir(path);
++	if (dirp) {
++		closedir(dirp);
++		rc = 1;
++	}
++
++	return rc;
++}
++
+ int is_vlan(const char *ifname)
+ {
+ 	int fd;
+@@ -942,7 +962,7 @@ u16 get_caps(const char *ifname)
+ 	if (is_vlan(ifname))
+ 		caps |= SYSCAP_CVLAN;
+ 
+-	if (is_bridge(ifname))
++	if (is_bridge_port(ifname))
+ 		caps |= SYSCAP_BRIDGE;
+ 
+ 	if (is_router())
+-- 
+2.5.0
+

@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=patchelf
+pkgver=0.10
+pkgrel=1
+pkgdesc='Small utility to modify the dynamic linker and RPATH of ELF executables'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://nixos.org/patchelf.html'
+license=('GPL3')
+depends=('gcc-libs')
+source=(https://github.com/NixOS/patchelf/archive/${pkgver}.tar.gz)
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  autoreconf -fiv
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make -C tests -j1 check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

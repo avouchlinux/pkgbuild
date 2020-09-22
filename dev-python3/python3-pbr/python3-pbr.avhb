@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pbr
+_realname=pbr
+pkgver=5.4.4
+pkgrel=1
+pkgdesc="python3 Build Reasonableness"
+arch=('any')
+groups=('dev-python3')
+url='https://pypi.python.org/pypi/pbr'
+license=('Apache')
+depends=('python3-setuptools')
+makedepends=('python3-setuptools')
+checkdepends=('python3-testscenarios' 'python3-testrepository'  'python3-testresources' 'python3-mock' 
+              'python3-virtualenv' 'python3-wheel' 'python3-sphinx')
+source=("https://github.com/openstack-dev/pbr/archive/$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

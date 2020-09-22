@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgbasename=glu
+pkgname=lib32-$_pkgbasename
+pkgver=9.0.1
+pkgrel=1
+pkgdesc="Mesa OpenGL utility library (32 bits)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://mesa.freedesktop.org/"
+license=('LGPL')
+depends=('lib32-libgl' 'glu')
+makedepends=('gcc-multilib' 'lib32-mesa')
+options=('!libtool')
+source=(ftp://ftp.freedesktop.org/pub/mesa/glu/glu-$pkgver.tar.bz2)
+sha256sums=('1f7ad0d379a722fcbd303aa5650c6d7d5544fde83196b42a73d1193568a4df12')
+
+build() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static    
+	make
+}
+
+check() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	make -k check
+}
+
+package() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+	make DESTDIR=${pkgdir} install  
+	rm -rf ${pkgdir}/usr/include
+}

@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dragon
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='A multimedia player where the focus is on simplicity, instead of features'
+arch=('x86_64')
+groups=('kde-apps')
+url='http://kde.org/applications/multimedia/dragon'
+license=(GPL)
+depends=(hicolor-icon-theme kparts)
+makedepends=(extra-cmake-modules kdoctools python)
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+install=$pkgname.install
+md5sums=('d62f7d2cfa3a87a01e69787c3eeef448')
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+	cd ${srcdir}/build
+	cmake ../$pkgname-$pkgver \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLIB_INSTALL_DIR=lib \
+		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+}
+

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxcomposite
+_realname=libXcomposite
+pkgver=0.4.5
+pkgrel=1
+pkgdesc="X11 Composite extension library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('lib32-libxfixes' 'libxcomposite')
+makedepends=('xorg-util-macros' gcc-multilib)
+options=(!libtool)
+source=(${url}/releases/individual/lib/libXcomposite-${pkgver}.tar.bz2)
+sha256sums=('ede250cd207d8bee4a338265c3007d7a68d5aca791b6ac41af18e9a2aeb34178')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

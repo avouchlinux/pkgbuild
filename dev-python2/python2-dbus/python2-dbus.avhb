@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-dbus
+_realname=dbus-python
+pkgver=1.2.16
+pkgrel=1
+pkgdesc="Python 2.7 bindings for DBUS"
+arch=('x86_64')
+groups=('dev-python2')
+license=('GPL' 'LGPL')
+url="http://www.freedesktop.org/wiki/Software/DBusBindings"
+depends=('dbus' 'glib2' 'python-dbus-common' 'python2' 'dbus-core')
+optdepends=('dbus-glib: glib mainloop support')
+makedepends=('python' 'python2' 'autoconf-archive' 'python-sphinx_rtd_theme' 'python-sphinx')
+source=(https://dbus.freedesktop.org/releases/${pkgbase}/${pkgbase}-${pkgver}.tar.gz{,.asc})
+
+prepare() {
+	cd ${_realname}-${pkgver}
+
+	autoreconf -fi  
+}
+
+build() {
+	cd ${_realname}-${pkgver}
+	./configure --prefix=/usr PYTHON_VERSION=2
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+
+	rm -rf "${pkgdir}/usr/share"
+	rm -rf "${pkgdir}/usr/include"
+	rm -rf "${pkgdir}/usr/lib/pkgconfig"
+}

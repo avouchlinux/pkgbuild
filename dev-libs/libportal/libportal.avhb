@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libportal
+pkgver=0.3
+pkgrel=1
+pkgdesc="GIO-style async APIs for most Flatpak portals"
+arch=('x86_64')
+groups=('dev-libs')
+url="https://github.com/flatpak/libportal"
+arch=(x86_64)
+license=(LGPL)
+depends=(glib2)
+makedepends=(git meson gtk-doc)
+source=("git+https://github.com/flatpak/libportal#commit=$_commit")
+
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

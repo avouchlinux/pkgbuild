@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rarian
+pkgver=0.8.1
+pkgrel=1
+pkgdesc="Documentation meta-data library, designed as a replacement for Scrollkeeper."
+arch=('x86_64')
+groups=('app-text')
+url="http://rarian.freedesktop.org/"
+license=('GPL')
+depends=('gcc-libs')
+makedepends=('libxslt')
+source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/0.8/${pkgname}-${pkgver}.tar.bz2
+        user-segfault.patch)
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    patch -Np0 -i ../user-segfault.patch
+}
+
+build() {
+
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --disable-static
+    make ${MAKEFLAGS}
+
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

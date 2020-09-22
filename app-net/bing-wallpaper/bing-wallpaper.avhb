@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=bing-wallpaper
+_realname=linux-bing-wallpaper
+pkgver=r62
+pkgrel=1
+pkgdesc="Change wallpaper from Bing daily"
+arch=(any)
+groups=('app-utils')
+url="https://github.com/marguerite/linux-bing-wallpaper"
+license=('GPL3')
+depends=('curl' 'bc' 'feh')
+makedepends=('git' 'go')
+source=("https://github.com/marguerite/linux-bing-wallpaper.git")
+
+getsrc(){
+	git clone https://github.com/marguerite/linux-bing-wallpaper.git
+}
+
+pkgver() {
+    cd "${srcdir}/${_realname}"
+    printf "r%s" "$(git rev-list --count HEAD)"
+}
+
+build() {
+    cd "${srcdir}/${_realname}"
+    go build bing-wallpaper.go
+}
+
+package() {
+    build_dir="${srcdir}/${_realname}"
+    install -Dm755 "${build_dir}/bing-wallpaper" "${pkgdir}/usr/bin/bing-wallpaper"
+    install -Dm644 "${build_dir}/bing-wallpaper.service" "${pkgdir}/usr/lib/systemd/user/bing-wallpaper.service"
+}

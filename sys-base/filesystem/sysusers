@@ -1,0 +1,33 @@
+# default avouch groups
+g bin 1 - -
+g daemon 2 - -
+g sys 3 - -
+g mem 8 - -
+g usb 14 - -
+g log 17 - -
+g power 33 - -
+g scanner 34 - -
+g plugdev 36 - -
+g proc 37 - -
+g network 40 - -
+g http 41 - -
+g ftp 42 - -
+g mail 43 - -
+g smmsp 44 - -
+g lock 62 - -
+g games 150 - -
+
+
+# default avouch users
+u bin 1 - -
+u daemon 2 - -
+u http 41 - /srv/http
+u ftp 42 - /srv/ftp
+u mail 43 - /var/spool/mail
+
+
+# default membership
+m bin daemon
+m bin sys
+m daemon adm
+m daemon bin

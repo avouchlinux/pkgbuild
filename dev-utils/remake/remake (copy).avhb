@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=remake
+pkgver=4.3+dbg-1.5
+pkgrel=1
+pkgdesc="Enhanced GNU Make - tracing, error reporting, debugging, profiling and more"
+arch=('x86_64')
+groups=('dev-utils')
+url="http://bashdb.sourceforge.net/remake/"
+license=('GPL3')
+depends=('glibc' 'guile')
+source=("https://sourceforge.net/projects/bashdb/files/remake/4.2%2Bdbg-1.1/remake-4.2.1%2Bdbg1.1.tar.bz2")
+
+
+build() {
+  cd ${pkgname}-${pkgver}
+  export LDFLAGS="$LDFLAGS -fuse-ld=bfd"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR=${pkgdir} install
+  mv "$pkgdir/usr/include/gnumake.h" "$pkgdir/usr/include/remake.h"
+  rm "$pkgdir"/usr/share/info/make.info{,-1,-2}
+}

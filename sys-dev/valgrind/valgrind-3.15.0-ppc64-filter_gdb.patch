@@ -1,0 +1,22 @@
+commit b1cc37ddb660afc536131227a9fb452ac9328972
+Author: Alexandra Hájková <ahajkova@redhat.com>
+Date:   Mon Apr 15 15:34:12 2019 +0200
+
+    filter_gdb: add regexp to filter out names which starts with a "."
+    
+    such names are used for "function descriptors" on ppc64
+    
+    https://bugs.kde.org/show_bug.cgi?id=406561
+
+diff --git a/gdbserver_tests/filter_gdb b/gdbserver_tests/filter_gdb
+index 6eff229..fd2e8e7 100755
+--- a/gdbserver_tests/filter_gdb
++++ b/gdbserver_tests/filter_gdb
+@@ -119,6 +119,7 @@ sed -e '/Remote debugging using/,/vgdb launched process attached/d'
+     -e 's/in select ()$/in syscall .../'                                                              \
+     -e 's/in \.__select ()$/in syscall .../'                                                          \
+     -e 's/in select () at \.\.\/sysdeps\/unix\/syscall-template\.S.*$/in syscall .../'                \
++    -e 's/in \.__select () at \.\.\/sysdeps\/unix\/syscall-template\.S.*$/in syscall .../'            \
+     -e '/^[ 	]*at \.\.\/sysdeps\/unix\/syscall-template\.S/d'                                      \
+     -e '/^[ 	]*in \.\.\/sysdeps\/unix\/syscall-template\.S/d'                                      \
+     -e '/^[1-9][0-9]*[ 	]*\.\.\/sysdeps\/unix\/syscall-template\.S/d'                                 \

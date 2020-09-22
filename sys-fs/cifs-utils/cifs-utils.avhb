@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cifs-utils
+pkgver=6.10
+pkgrel=1
+pkgdesc="CIFS filesystem user-space tools"
+arch=('x86_64')
+groups=('sys-fs')
+url="https://wiki.samba.org/index.php/LinuxCIFS_utils"
+license=('GPL')
+depends=('libcap-ng' 'keyutils' 'krb5' 'talloc' 'libwbclient' 'pam')
+makedepends=('python-docutils')
+source=("https://download.samba.org/pub/linux-cifs/$pkgname/$pkgname-$pkgver.tar.bz2"{,.asc})
+validpgpkeys=('C699981A31F338706C817650DF5BA9D30642D5A0') #cifs-utils Distribution Verification Key <cifs-utils@samba.org>
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	autoreconf -v -i
+	./configure --prefix=/usr --sbindir=/usr/bin --enable-systemd
+	make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" ROOTSBINDIR=/usr/bin install
+  mkdir -p $pkgdir/etc/request-key.d
+  install -m 644 contrib/request-key.d/cifs.idmap.conf $pkgdir/etc/request-key.d
+  install -m 644 contrib/request-key.d/cifs.spnego.conf $pkgdir/etc/request-key.d
+  # set mount.cifs uid, to enable none root mounting form fstab
+  chmod +s $pkgdir/usr/bin/mount.cifs
+  # fix idmap-plugin #42052
+  mkdir -p $pkgdir/etc/cifs-utils
+  ln -s /usr/lib/cifs-utils/idmapwb.so ${pkgdir}/etc/cifs-utils/idmap-plugin
+}

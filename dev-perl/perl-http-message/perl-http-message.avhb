@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-http-message
+_realname=HTTP-Message
+pkgver=6.18
+pkgrel=1
+pkgdesc="HTTP style messages"
+arch=(any)
+url=http://search.cpan.org/dist/HTTP-Message
+license=(PerlArtistic GPL)
+options=('!emptydirs')
+depends=('perl>=5.8.8' 'perl-encode-locale>=1' 'perl-html-parser>=3.33'
+	 'perl-http-date>=6' 'perl-lwp-mediatypes>=6' 'perl-uri>=1.10')
+checkdepends=('perl-io-html')
+conflicts=('perl-libwww<6')
+source=(https://search.cpan.org/CPAN/authors/id/O/OA/OALDERS/HTTP-Message-$pkgver.tar.gz)
+md5sums=('e563ac516e28d33f65bc0f295f625f85')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=soundtouch
+pkgver=2.1.2
+pkgrel=1
+pkgdesc='An audio processing library'
+arch=('x86_64')
+groups=('media-sound')
+url='https://www.surina.net/soundtouch/'
+license=(LGPL)
+makedepends=(git)
+source=(https://gitlab.com/soundtouch/soundtouch/-/archive/$pkgver/soundtouch-$pkgver.tar.bz2)
+
+prepare() {
+  cd soundtouch-$pkgver
+
+  ./bootstrap
+}
+
+build() {
+  cd soundtouch-$pkgver
+
+  ./configure --prefix='/usr' --enable-shared
+  make ${MAKEFLAGS}
+}
+
+package() {
+  make DESTDIR="${pkgdir}" pkgdocdir='/usr/share/doc/soundtouch' -C soundtouch-$pkgver install
+}

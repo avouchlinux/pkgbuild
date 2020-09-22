@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=time
+pkgver=1.9
+pkgrel=1
+pkgdesc="Utility for monitoring a program's use of system resources"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://directory.fsf.org/wiki/Time"
+license=('GPL')
+depends=('glibc')
+makedepends=('git')
+source=(
+  http://git.savannah.gnu.org/cgit/time.git/snapshot/time-$pkgver.tar.gz
+  git://git.savannah.gnu.org/gnulib.git#commit=7df04f9b8a0adb1575ca0555775ec10860143cbf)
+
+
+prepare() {
+	bsdtar -xf $srcarchivedir/gnulib-git20200319.tar.xz
+
+  cd "$pkgname-$pkgver"
+
+  ./bootstrap --no-git --gnulib-srcdir="$srcdir/gnulib"
+} 
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  ./configure --prefix=/usr --infodir=/usr/share/info
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make exec_prefix="$pkgdir/usr" infodir="$pkgdir/usr/share/info" install
+}

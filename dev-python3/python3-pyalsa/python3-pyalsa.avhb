@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pyalsa
+_realname=pyalsa
+pkgver=1.1.6
+pkgrel=1
+pkgdesc="Python binding for the ALSA library"
+arch=('x86_64')
+groups=('dev-python3')
+url="https://www.alsa-project.org"
+license=('LGPL2.1')
+depends=('alsa-lib' 'python3')
+makedepends=('python3-setuptools')
+source=("ftp://ftp.alsa-project.org/pub/${_realname}/${_realname}-${pkgver}.tar.bz2")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

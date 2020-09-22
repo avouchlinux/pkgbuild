@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libftdi-compat
+_realname=libftdi
+pkgver=0.20
+pkgrel=1
+pkgdesc="A library to talk to FTDI chips"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://www.intra2net.com/en/developer/libftdi/download.php"
+license=('GPL2' 'LGPL2.1')
+depends=('libusb-compat' 'gcc-libs')
+makedepends=('boost')
+source=(http://www.intra2net.com/en/developer/libftdi/download/libftdi-$pkgver.tar.gz{,.sig})
+validpgpkeys=('3CEA9B8868BC3852618EB5B4707F91A424F006F5')  # Intra2net open source
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --without-examples
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

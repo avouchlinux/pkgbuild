@@ -1,0 +1,24 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sddm-theme-solarized
+_realname=solarized_sddm_theme
+pkgver=0.1.8
+pkgrel=1
+pkgdesc='SDDM Configuration Editor'
+arch=('x86_64')
+groups=('sys-dm')
+license=('APACHE')
+url='https://github.com/hagabaka/sddm-config-editor'
+md5sums=('SKIP')
+depends=('qt5-quickcontrols' 'sddm' 'polkit')
+makedepends=('git' 'qt5-tools')
+source=('git+https://github.com/MalditoBarbudo/solarized_sddm_theme.git')
+
+package() {
+	mkdir -p $pkgdir/usr/share/sddm/themes
+	cp -a $_realname-$pkgver $pkgdir/usr/share/sddm/themes/solarized
+}
+

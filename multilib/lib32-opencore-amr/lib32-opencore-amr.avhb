@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-opencore-amr
+_realname=opencore-amr
+pkgver=0.1.5
+pkgrel=1
+pkgdesc="Open source implementation of the Adaptive Multi Rate (AMR) speech codec, lib32"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('APACHE')
+url="http://opencore-amr.sourceforge.net/"
+source=("http://downloads.sourceforge.net/sourceforge/$_pkgname/$_realname-$pkgver.tar.gz")
+depends=("glibc" "$_realname")
+md5sums=('e0798587b91411cc092aa73091a97dfc')
+
+build() {
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    cd "$srcdir/$_realname-$pkgver"
+    ./configure --prefix=/usr --disable-static --libdir=/usr/lib32 --libexecdir=/usr/lib32
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "$srcdir/$_realname-$pkgver"
+    make DESTDIR="$pkgdir" install
+    cd "$pkgdir/usr"
+    rm -rf include/
+}
+

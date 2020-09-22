@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>frontend-spec</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="DocBook Utils"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Application programming interface"
+HREF="api.html"><LINK
+REL="PREVIOUS"
+TITLE="backend-spec"
+HREF="backend-spec.html"><LINK
+REL="NEXT"
+TITLE="sgmldiff"
+HREF="intro-sgmldiff.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook Utils</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="backend-spec.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="intro-sgmldiff.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="FRONTEND-SPEC"
+></A
+>frontend-spec</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN918"
+></A
+><H2
+>Name</H2
+>frontend-spec&nbsp;--&nbsp;interface between jw and its frontends</DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN921"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>jw</SPAN
+>(1)</SPAN
+> calls frontends like
+    <TT
+CLASS="FILENAME"
+>frontends/docbook</TT
+> to get the informations
+    specific to a given input format. The frontend knows which information
+    to return from the first command line parameter. It gets all necessary
+    data via environment variables ready to use.</P
+><P
+>This document describes that command line parameter and those
+    environment variables.</P
+><P
+>The frontend should return 0 if there weren't any problem,
+    and return a positive value otherwise.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN930"
+></A
+><H2
+>Variables</H2
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>$1</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The command line parameter, specifying which information
+          to return. It can take the following values:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>centralized-catalog</DT
+><DD
+><P
+>The frontend must return the DTD-specific
+              centralized catalog name.  Centralized catalogs normally
+              reside in <TT
+CLASS="FILENAME"
+>/etc/sgml</TT
+> and provide the
+              location of all the catalog files useful for handling
+              this input type (the catalog for the DTD, the catalog
+              for the stylesheets, the catalog for the entities,
+              ...)</P
+></DD
+><DT
+>style-sheet</DT
+><DD
+><P
+>The frontend must return the filename
+              of the style sheet to be used for this document type and
+              with the chosen backend.</P
+></DD
+></DL
+></DIV
+>
+          </P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_CATALOGS_DIR</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The directory where the centralized catalogs reside. It is normally
+            <TT
+CLASS="FILENAME"
+>/etc/sgml</TT
+>.</P
+><P
+>(This variable is valid only while determining
+            the centralized catalog to use.)</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_BASE_DIR</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The base directory of the SGML system. It is normally
+            <TT
+CLASS="FILENAME"
+>/usr/share/sgml</TT
+>.</P
+><P
+>(This variable is valid only while determining
+            the style sheet to use.)</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_FILE</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The name of the file to convert.</P
+><P
+>(This variable is valid only while determining
+            the centralized catalog to use.)</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_TYPE</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The type of the backend to use, whether it produces output
+            files to be displayed online or to be printed out.
+            It can take the value <CODE
+CLASS="CONSTANT"
+>html</CODE
+> or
+            <CODE
+CLASS="CONSTANT"
+>print</CODE
+>.</P
+><P
+>(This variable is valid only while determining
+            the style sheet to use).</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_STYLESHEETS</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The desired custom stylesheet type, either <CODE
+CLASS="CONSTANT"
+>none</CODE
+>
+	    or <CODE
+CLASS="CONSTANT"
+>default</CODE
+>.
+	    If <CODE
+CLASS="CONSTANT"
+>none</CODE
+>, the frontend must return the file name of
+	    the style sheet provided by the system beneath the docbook-utils.
+	    If <CODE
+CLASS="CONSTANT"
+>default</CODE
+>, the frontend must return the custom
+	    stylesheet provided by the docbook-utils.</P
+><P
+>(This variable is valid only while determining
+            the style sheet to use).</P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <CODE
+CLASS="ENVAR"
+>SGML_XML</CODE
+>
+        </B
+></DT
+><DD
+><P
+>The metalanguage of the file to convert, either <CODE
+CLASS="CONSTANT"
+>sgml</CODE
+>
+	    or <CODE
+CLASS="CONSTANT"
+>xml</CODE
+>.</P
+><P
+>(This variable is valid only while determining
+            the centralized catalog to use).</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1005"
+></A
+><H2
+>Files</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1008"
+></A
+><H2
+>See also</H2
+><P
+><SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>backend-spec</SPAN
+>(7)</SPAN
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1014"
+></A
+><H2
+>Authors</H2
+><P
+>Jochem Huhmann <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:joh@revier.com"
+>joh@revier.com</A
+>&#62;</CODE
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="backend-spec.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="intro-sgmldiff.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>backend-spec</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="api.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>sgmldiff</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

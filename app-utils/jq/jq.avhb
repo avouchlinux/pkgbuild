@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jq
+pkgver=1.6
+pkgrel=1
+pkgdesc='Command-line JSON processor'
+arch=('x86_64')
+groups=('app-utils')
+url='http://stedolan.github.io/jq/'
+license=('MIT')
+depends=('glibc' 'oniguruma')
+makedepends=('autoconf' 'automake' 'bison' 'flex' 'python2')
+source=("https://github.com/stedolan/jq/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" prefix=/usr install
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

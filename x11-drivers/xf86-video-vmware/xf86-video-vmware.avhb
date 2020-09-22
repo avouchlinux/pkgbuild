@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-vmware
+pkgver=13.3.0
+pkgrel=1
+pkgdesc="X.org vmware video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libdrm' 'svga-dri' 'mesa>=10.0')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.0')
+options=('!emptydirs')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	#Fixes building with the latest version of Glibc (BLFS)
+	sed -i "/xf86xv.h/i #include <xorg-server.h>" vmwgfx/vmwgfx_overlay.c
+
+	patch -Np0 -i ../gcc8.diff
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	# Since avouch, hardened flags are now enabled in apm.conf
+	# With them, module fail to load with undefined symbol.
+    export CFLAGS=${CFLAGS/-fno-plt}
+    export CXXFLAGS=${CXXFLAGS/-fno-plt}
+    export LDFLAGS=${LDFLAGS/ -z now}
+
+
+	./configure --prefix=/usr --enable-vmwarectrl-client
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

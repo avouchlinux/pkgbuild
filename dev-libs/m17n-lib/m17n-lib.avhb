@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=m17n-lib
+pkgver=1.8.0
+pkgrel=1
+pkgdesc='Multilingual text processing library (runtimes)'
+url='http://www.nongnu.org/m17n/'
+arch=('x86_64')
+groups=('dev-libs')
+license=('GPL')
+depends=('libxft' 'm17n-db' 'fribidi' 'libxml2' 'gd' 'libotf')
+optdepends=('anthy: to use the anthy input method')
+options=('!makeflags' '!emptydirs')
+source=("http://download.savannah.gnu.org/releases/m17n/${pkgname}-${pkgver}.tar.gz")
+validpgpkeys=('D68584F9B40A6502FD7C53015F592A4029890630')
+
+prepare() {
+    cd ${pkgname}-${pkgver}
+    sed -i 's/freetype-config/pkg-config freetype2/' configure
+}
+
+build() {
+    cd ${pkgname}-${pkgver}
+    ./configure --prefix=/usr
+    # parallel build failed
+    make
+}
+
+package() {
+    cd ${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+}

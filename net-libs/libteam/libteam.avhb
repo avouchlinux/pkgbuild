@@ -1,0 +1,58 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libteam
+pkgver=1.30
+pkgrel=1
+pkgdesc="Library for controlling team network device"
+arch=('x86_64')
+groups=('net-libs')
+url="http://libteam.org/"
+license=(LGPL)
+depends=(libnl libdaemon jansson libdbus bash zeromq)
+makedepends=(python python2 swig git doxygen graphviz)
+source=("https://github.com/jpirko/libteam/archive/v$pkgver.tar.gz")
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Reduce docs size
+  printf '%s\n' >>doc/Doxyfi ${MAKEFLAGS}e.in \
+    HAVE_DOT=yes DOT_IMAGE_F ${MAKEFLAGS}RMAT=svg INTERACTIVE_SVG=yes
+
+  NOCONFIGURE=1 ./autogen.sh ${MAKEFLAGS}
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-static --libexecdir=/usr/lib
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS} all html
+
+  cp -aT binding/python binding/python2
+  (cd binding/python;  python  ./setup.py build;)
+  (cd binding/python2; python2 ./setup.py build;)
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 teamd/redhat/systemd/teamd@.service \
+    "$pkgdir/usr/lib/systemd/system/teamd@.service"
+  install -Dm644 teamd/dbus/teamd.conf \
+    "$pkgdir/usr/share/dbus-1/system.d/teamd.conf"
+
+  (cd binding/python;  python  ./setup.py install --root "$pkgdir" -O1;)
+  (cd binding/python2; python2 ./setup.py install --root "$pkgdir" -O1;)
+
+  mkdir -p "$pkgdir/usr/share/doc/$pkgname"
+  cp -a doc/api "$pkgdir/usr/share/doc/$pkgname"
+}

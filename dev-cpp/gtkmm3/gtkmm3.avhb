@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gtkmm3
+pkgname=(gtkmm3 gtkmm3-docs)
+_realname=gtkmm
+pkgver=3.24.2
+pkgrel=1
+pkgdesc="C++ bindings for GTK+ 3"
+url="http://www.gtkmm.org/"
+arch=('x86_64')
+groups=('dev-cpp')
+license=(LGPL)
+depends=(gtk3 pangomm atkmm)
+makedepends=(git mm-common glibmm-docs cairomm-docs pangomm-docs atkmm-docs)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --enable-maintainer-mode
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package_gtkmm3() {
+	pkgdesc="C++ bindings for gtk3"
+	depends=('gtk3' 'pangomm' 'atkmm')
+
+	cd ${srcdir}/${_realname}-${pkgver}
+	sed -i -e 's/^doc_subdirs/#doc_subdirs/' Makefile
+	make DESTDIR="$pkgdir" install
+}
+
+package_gtkmm3-docs() {
+	pkgdesc="Developer documentation for gtkmm v3"
+
+	cd ${srcdir}/${_realname}-${pkgver}
+	make -C docs DESTDIR="$pkgdir" install
+}

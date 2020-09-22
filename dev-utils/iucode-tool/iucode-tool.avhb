@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iucode-tool
+pkgver=2.3.1
+pkgrel=1
+pkgdesc="Tool to manipulate Intel® IA-32/X86-64 microcode bundles"
+arch=('x86_64')
+grous=('dev-utils')
+url="https://gitlab.com/iucode-tool/iucode-tool/wikis/home"
+license=('GPL')
+makedepends=()
+source=("https://gitlab.com/iucode-tool/releases/raw/master/${pkgname}_${pkgver}.tar.xz"
+    "https://gitlab.com/iucode-tool/releases/raw/master/${pkgname}_${pkgver}.tar.xz.asc")
+validpgpkeys=('C467A717507BBAFED3C160920BD9E81139CB4807') # Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+
+build() {
+	cd "$srcdir/${pkgname}-$pkgver"
+	./configure --prefix=/usr --sbindir=/usr/bin
+	make
+}
+
+package() {
+	cd "$srcdir/${pkgname}-$pkgver"
+	make DESTDIR="$pkgdir/" install
+}

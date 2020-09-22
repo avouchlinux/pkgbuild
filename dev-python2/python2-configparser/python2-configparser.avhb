@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-configparser
+_realname=configparser
+pkgver=5.0.0
+pkgrel=1
+pkgdesc="This library brings the updated configparser from Python 3.5 to Python 2.6-3.5."
+arch=('any')
+groups=('dev-python2')
+url="https://bitbucket.org/ambv/configparser"
+license=('MIT')
+depends=('python2')
+makedepends=('python2-setuptools')
+source=("https://pypi.io/packages/source/c/configparser/configparser-${pkgver}.tar.gz" license)
+
+prepare() {
+  sed -i -e "s|#![ ]*/usr/bin/env python$|#!/usr/bin/env python2|" \
+    $(find "${srcdir}"/configparser-${pkgver} -name '*.py')
+}
+
+build() {
+  cd "${srcdir}"/configparser-${pkgver}
+
+  python2 setup.py build
+}
+
+package() {
+  cd "${srcdir}"/configparser-${pkgver}
+
+  python2 setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1
+
+  rm "$pkgdir"/usr/lib/python2.7/site-packages/backports/__init__.py{,c,o}
+
+  install -D "${srcdir}"/license "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libopts
+pkgbase=autogen
+pkgver=5.18.16
+pkgrel=1
+pkgdesc="A tool designed to simplify the creation and maintenance of programs that contain large amounts of repetitious text"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://autogen.sourceforge.net/"
+license=('GPL3')
+depends=('guile' 'libxml2')
+install=autogen.install
+source=(http://ftp.gnu.org/gnu/${pkgname}/rel${pkgver}/${pkgname}-${pkgver}.tar.xz{,.sig})
+md5sums=('1924fdfe36edb3e0fd66add20aca9b70'
+         'SKIP')
+
+prepare(){
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	patch -Np1 -i ../allow-guile-2.2.diff
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

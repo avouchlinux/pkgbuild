@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=akonadi-calendar-tools
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="CLI tools to manage akonadi calendars"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://community.kde.org/KDE_PIM"
+license=(GPL2)
+depends=(hicolor-icon-theme calendarsupport)
+makedepends=(extra-cmake-modules kdoctools kdesignerplugin boost python)
+source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+sha256sums=('92b1e679c7b483ac1571dcc78aa56f27a4f784c3cb57b4fd970ba8f8a72b72e1'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

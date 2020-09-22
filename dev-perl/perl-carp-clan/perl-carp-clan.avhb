@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-carp-clan
+_realname=Carp-Clan
+pkgver=6.04
+pkgrel=1
+pkgdesc='Report errors from perspective of caller of a "clan" of modules'
+arch=(any)
+groups=('dev-perl')
+repo=('extra')
+license=('PerlArtistic')
+url="http://search.cpan.org/dist/${_realname}/"
+depends=('perl')
+options=(!emptydirs)
+source=(http://search.cpan.org/CPAN/authors/id/S/ST/STBEY/${_realname}-${pkgver}.tar.gz)
+md5sums=('b6316bc51bb530d994f2784615939fb2')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

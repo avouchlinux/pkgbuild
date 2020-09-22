@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libatomic_ops
+pkgbase=libatomic_ops
+pkgver=7.6.10
+pkgrel=1
+pkgdesc="Provides semi-portable access to hardware provided atomic memory operations"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://github.com/ivmai/libatomic_ops"
+license=('GPL2' 'MIT')
+depends=()
+options=('staticlibs')
+source=(http://www.ivmaisoft.com/_bin/atomic_ops/libatomic_ops-$pkgver.tar.gz)
+md5sums=('8fb7a67a46f0d2753b7d7c2b924b7c55')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./autogen.sh
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static --enable-shared
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

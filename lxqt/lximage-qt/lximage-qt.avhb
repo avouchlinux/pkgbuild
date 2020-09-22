@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lximage-qt
+pkgver=0.15.0
+pkgrel=1
+pkgdesc="The LXQt image viewer"
+arch=("x86_64")
+groups=('lxqt')
+url="http://lxqt.org"
+license=("GPL2")
+depends=("pcmanfm-qt")
+makedepends=("cmake" "qt5-tools")
+install="$pkgname.install"
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

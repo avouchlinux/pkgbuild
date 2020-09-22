@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=phpmyadmin
+_realname=phpMyAdmin
+pkgver=4.7.7
+pkgrel=1
+pkgdesc='PHP and hence web-based tool to administrate MySQL over the WWW'
+arch=('any')
+url='http://www.phpmyadmin.net'
+license=('GPL')
+depends=('mariadb-clients' 'php')
+backup=(etc/webapps/phpmyadmin/config.inc.php)
+source=(https://files.phpmyadmin.net/phpMyAdmin/$pkgver/phpMyAdmin-$pkgver-all-languages.tar.xz)
+sha256sums=('f94ed0fc5df38e049746e40852135bf55b9af0fd9fcee07f175919c463ad58a5')
+
+package() {
+	_instdir="$pkgdir"/usr/share/webapps/phpMyAdmin
+	mkdir -p "$_instdir" "$pkgdir"/etc/webapps/phpmyadmin
+	cd "$_instdir"
+
+	cp -ra "$srcdir"/phpMyAdmin-$pkgver-all-languages/* .
+
+	ln -s /etc/webapps/phpmyadmin/config.inc.php "$_instdir"/config.inc.php
+	cp "$_instdir"/config.sample.inc.php "$pkgdir"/etc/webapps/phpmyadmin/config.inc.php
+	install -D -m644 ${srcdir}/apache.conf ${pkgdir}/etc/httpd/conf/extra/phpmyadmin.conf
+}

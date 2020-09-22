@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=labplot
+pkgver=2.7.0
+pkgrel=1
+pkgdesc="KDE Application for interactive graphing and analysis of scientific data"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://labplot.kde.org/"
+license=(GPL2)
+depends=(cantor netcdf cfitsio fftw gsl qt5-serialport libcerf)
+makedepends=(extra-cmake-modules kdelibs4support kdesignerplugin kdoctools)
+source=(https://download.kde.org/stable/$pkgname/$pkgver.0/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+   -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package(){
+  cd build
+  make DESTDIR="$pkgdir" install
+}

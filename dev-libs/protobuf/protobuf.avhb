@@ -1,0 +1,78 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase='protobuf'
+pkgname=('protobuf' 'python-protobuf')
+pkgver=3.12.2
+pkgrel=1
+pkgdesc="Protocol Buffers - Google's data interchange format"
+arch=('x86_64')
+groups=('dev-libs')
+url='https://developers.google.com/protocol-buffers/'
+license=('BSD')
+depends=('gcc-libs' 'glibc' 'zlib')
+makedepends=('unzip' 'python-setuptools')
+source=("https://github.com/protocolbuffers/$pkgname/releases/download/v$pkgver/$pkgname-all-$pkgver.tar.gz")
+
+prepare() {
+  cd "$pkgbase-$pkgver"
+  # from gentoo
+  patch -Np1 -i ../protobuf-3.11.0-disable_no-warning-test.patch
+	patch -Np1 -i ../protobuf-3.11.0-system_libraries.patch
+	patch -Np1 -i ../protobuf-3.11.0-protoc_input_output_files.patch
+  autoreconf -vfi
+}
+
+build() {
+  cd "$pkgbase-$pkgver"
+  # use ld.bfd linker
+  # https://sourceware.org/bugzilla/show_bug.cgi?id=24527
+  export LDFLAGS="$LDFLAGS -fuse-ld=bfd"
+  export LD=ld.bfd
+  CPPFLAGS="$CPPFLAGS -DGOOGLE_PROTOBUF_NO_RTTI"
+  LD=ld.bfd ./configure --prefix=/usr
+  LD=ld.bfd make ${MAKEFLAGS}
+  
+  cd python
+  python setup.py build --cpp_implementation
+}
+
+check() {
+  cd "$pkgbase-$pkgver"
+  make check
+
+  cd python
+  python setup.py test
+}
+
+package_protobuf() {
+  replaces=('protobuf-cpp')
+  provides=('libprotoc.so' 'libprotobuf.so' 'libprotobuf-lite.so')
+
+  cd "$pkgbase-$pkgver"
+  make DESTDIR="$pkgdir" install
+
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
+  install -vDm 644 editors/protobuf-mode.el \
+    -t "$pkgdir/usr/share/emacs/site-lisp/"
+  install -vDm 644 editors/proto.vim \
+    -t "${pkgdir}/usr/share/vim/vimfiles/syntax"
+}
+
+package_python-protobuf() {
+  pkgdesc='Python 3 bindings for Google Protocol Buffers'
+  depends=('python' 'python-six' "protobuf=$pkgver")
+
+  local python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+  cd "$pkgbase-$pkgver"
+  (
+    cd python
+    PYTHONPATH="$PWD/build/lib.linux-$CARCH-${python_version}:PYTHONPATH" \
+    python setup.py install --skip-build \
+                            --cpp_implementation \
+                            --optimize=1 \
+                            --root="$pkgdir"
+  )
+  install -vDm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=geoip
+_realname=geoip-api-c
+pkgver=1.6.12
+pkgrel=1
+pkgdesc="Non-DNS IP-to-country resolver C library and utils"
+arch=('x86_64')
+groups=('net-misc')
+url="http://www.maxmind.com/app/c"
+license=('GPL')
+depends=('zlib' 'geoip-database')
+optdepends=('geoip-database-extra: city/ASN databases (not needed for country lookups)')
+makedepends=('autoconf' 'libtool')
+options=('!emptydirs')
+groups=(enlightenment)
+source=(https://github.com/maxmind/${pkgname}-api-c/archive/v${pkgver}.tar.gz)
+
+prepare() {
+  cd geoip-api-c-$pkgver
+  ./bootstrap
+}
+
+build() {
+  cd geoip-api-c-$pkgver
+
+  ./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man \
+    --sysconfdir=/etc/geoip
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd geoip-api-c-$pkgver
+  make DESTDIR="$pkgdir" install
+}

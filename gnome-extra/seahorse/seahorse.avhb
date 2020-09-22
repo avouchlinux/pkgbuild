@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=seahorse
+pkgver=3.36.2
+pkgrel=1
+pkgdesc="GNOME application for managing PGP keys."
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+url="http://projects.gnome.org/seahorse/"
+depends=(gtk3 gcr libsecret libsoup desktop-file-utils dconf gpgme)
+makedepends=(libldap intltool yelp-tools gobject-introspection openssh libsm vala meson)
+optdepends=('openssh: SSH support')
+provides=(x11-ssh-askpass)
+options=('!emptydirs')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

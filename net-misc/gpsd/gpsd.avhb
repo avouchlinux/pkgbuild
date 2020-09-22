@@ -1,0 +1,86 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gpsd
+pkgver=3.20
+pkgrel=1
+pkgdesc="GPS daemon and library to support USB/serial GPS devices"
+arch=('x86_64')
+groups=('net-misc')
+url="http://catb.org/gpsd/"
+license=('BSD')
+depends=('python' 'libusb' 'bluez-libs')
+optdepends=('gtk3: GUI frontends'
+            'php: generate a PHP status page for your GPS'
+            'php-gd: image support for the PHP status page'
+            'python-cairo: GUI frontends'
+            'python-gobject: GUI frontends'
+            'qt5-base: for Qgpsmm')
+makedepends=('scons' 'docbook-xsl' 'qt5-base' 'python-gobject' 'python-cairo')
+backup=('etc/default/gpsd')
+source=(https://download.savannah.gnu.org/releases/$pkgname/$pkgname-$pkgver.tar.gz{,.sig}
+        $pkgname.conf fix-python-libdir.patch)
+validpgpkeys=('EED4A0893DCC705DB309E202CCF29C7238522905') # Gary E. Miller <gem@rellim.com>
+# validpgpkeys=('41876B2F579463A499843D1DECC8208F8C6C738D') # Eric S. Raymond
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../fix-python-libdir.patch # Fix python install dir
+
+  # don't try reloading systemd when installing in the build root
+  sed -i 's|systemctl daemon-reload|true|' SConstruct
+
+  # fix systemd path
+  sed -i 's|systemd_dir =.*|systemd_dir = '\'/usr/lib/systemd/system\''|' SConstruct
+
+  # fix paths in systemd unit files
+  sed -i 's|/usr/local/sbin|/usr/bin|' systemd/*.service
+  
+  cp ../SConstruct .
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  export LINKFLAGS="${LDFLAGS}"
+  scons prefix=/usr \
+        systemd=yes \
+        gpsd_group=uucp \
+        sbindir=/usr/bin \
+        qt_versioned=5 \
+        leapfetch=no
+  scons build
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  # Fix python interpreter path.
+  sed -e "s,#!/usr/bin/\(python[23]\?\|env \+python[23]\?\),#!/usr/bin/python3,g" -i \
+	  gegps gpscat gpsfake xgps xgpsspeed gpsprof gps/*.py ubxtool zerk
+
+  export DESTDIR="${pkgdir}"
+  scons install
+  install -Dm755 gpsinit -t "${pkgdir}"/usr/bin
+  chmod 755 "${pkgdir}"/usr/bin/*
+
+  install -Dm644 "$srcdir/gpsd.conf" "${pkgdir}"/etc/default/gpsd
+
+  install -Dm644 "gpsd.rules" "${pkgdir}"/usr/lib/udev/rules.d/25-gpsd-usb.rules
+
+  install -Dm755 gpsd.hotplug "${pkgdir}"/usr/lib/udev/gpsd.hotplug
+
+  install -Dm644 packaging/X11/xgps.desktop \
+    "${pkgdir}"/usr/share/applications/xgps.desktop
+  install -Dm644 packaging/X11/xgpsspeed.desktop \
+    "${pkgdir}"/usr/share/applications/xgpsspeed.desktop
+  install -Dm644 packaging/X11/gpsd-logo.png \
+    "${pkgdir}"/usr/share/gpsd/gpsd-logo.png
+
+  install -Dm644 systemd/gpsd.service "${pkgdir}"/usr/lib/systemd/system/gpsd.service
+  install -Dm644 systemd/gpsd.socket "${pkgdir}"/usr/lib/systemd/system/gpsd.socket
+  install -Dm644 systemd/gpsdctl@.service "${pkgdir}"/usr/lib/systemd/system/gpsdctl@.service
+
+  install -Dm644 COPYING "${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+}

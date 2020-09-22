@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=minimist
+pkgver=1.2.5
+pkgrel=1
+pkgdesc="parse argument options"
+arch=('any')
+grous=('dev-node')
+url='https://github.com/substack/minimist'
+license=('MIT')
+depends=('nodejs')
+makedepends=('npm')
+source=(https://github.com/substack/$pkgname/archive/$pkgver.tar.gz)
+noextract=($pkgname-$pkgver.tgz)
+
+package() {	
+	npm install -g --user root --prefix "$pkgdir"/usr "$srcdir"/$pkgname-$pkgver.tar.gz
+	install -d "$pkgdir"/usr/share/licenses/$pkgname
+	ln -s ../../../lib/node_modules/$pkgname/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

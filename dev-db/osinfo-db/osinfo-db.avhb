@@ -1,0 +1,24 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=osinfo-db
+pkgver=20200529
+pkgrel=1
+pkgdesc="Osinfo database of information about operating systems for virtualization provisioning tools"
+arch=('any')
+arch=('x86_64')
+groups=('dev-db')
+url="https://libosinfo.org/"
+license=('GPL')
+makedepends=('osinfo-db-tools')
+options=('!emptydirs')
+source=("https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.xz"{,.asc})
+noextract=($pkgname-$pkgver.tar.xz)
+validpgpkeys=('DAF3A6FDB26B62912D0E8E3FBE86EBB415104FDF'  # Daniel P. Berrange
+              '09B9C8FF223EF113AFA06A39EE926C2BDACC177B') # Fabiano Fidêncio
+
+package() {
+	osinfo-db-import --root "$pkgdir" --system $pkgname-$pkgver.tar.xz
+}

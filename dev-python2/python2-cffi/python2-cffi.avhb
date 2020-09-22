@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pytho2n-cffi
+_realname=cffi
+pkgver=1.14.0
+pkgrel=1
+pkgdesc="Foreign Function Interface for Python calling C code"
+arch=('any')
+groups=('dev-python2')
+url="http://cffi.readthedocs.org/"
+license=('MIT')
+depends=('python2-pycparser')
+makedepends=('python2-setuptools''python2-pycparser')
+checkdepends=('python2-pytest-runner')
+source=("https://bitbucket.org/cffi/cffi/get/$_revision.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

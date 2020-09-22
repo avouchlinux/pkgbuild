@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxp
+_realname=libXp
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="X11 X Print Library"
+arch=('x86_64')
+groups=('x11-libs')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('libxext' 'printproto')
+makedepends=('xorg-util-macros')
+source=("${url}/releases/individual/lib/libXp-${pkgver}.tar.bz2")
+license=('custom')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

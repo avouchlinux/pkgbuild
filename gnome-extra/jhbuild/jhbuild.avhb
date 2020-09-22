@@ -1,0 +1,67 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jhbuild
+pkgver=3.38.0
+pkgrel=1
+pkgdesc='Tool to build the whole GNOME desktop from sources'
+arch=('any')
+groups=('sys-libs')
+url='https://wiki.gnome.org/Projects/Jhbuild'
+license=('GPL')
+depends=(python git)
+makedepends=(yelp-tools)
+optdepends=('subversion: fetch subversion repositories'
+            'cvs: fetch CVS repositories'
+            'bzr: fetch Bazaar repositories'
+            'mercurial: fetch Mercurial repositories'
+            'darcs: fetch Darcs repositories')
+_commit=a05fc06b
+source=("$pkgname::git+https://gitlab.gnome.org/GNOME/jhbuild.git#commit=$_commit"
+        "module_args.patch")
+# 'jhbuild sysdeps --install' should install all extra dependencies,
+# here is a list of packages that fail to install for some reason,
+# as detailed below
+depends+=(
+
+     # at AUR, required by 'jhbuild sysdeps'
+    plymouth
+
+     # from official repositories, but not installed by 'jhbuild sysdeps'
+    spice-protocol
+    gtk-sharp-2
+    libevent
+
+     # other reasons
+    unicode-character-database # required by ibus
+)
+
+prepare() {
+  cd $pkgname-$pkgver
+  # Set parameters known to be required in Avouch
+  patch -p1 -i "$srcdir/module_args.patch"
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make -k check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  # install -Dm644 examples/sample.jhbuildrc "$pkgdir/usr/share/jhbuild/examples/sample.jhbuildrc"
+  # install -Dm644 examples/wayland.jhbuildrc "$pkgdir/usr/share/jhbuild/examples/wayland.jhbuildrc"
+  # install -Dm644 contrib/jhbuild_completion.bash "$pkgdir/usr/share/bash-completion/completions/jhbuild"
+  sed -i "s|$srcdir/$pkgname|$HOME/jhbuild|g" "$pkgdir"/usr/bin/jhbuild
+}
+
+

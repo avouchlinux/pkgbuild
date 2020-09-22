@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=broadcom-wl-dkms
+_realname=hybrid-v35_64-nodebug-pcoem-6_30_223_271
+pkgver=6.30.223.271
+pkgrel=1
+pkgdesc='Broadcom 802.11 Linux STA wireless driver'
+arch=(x86_64)
+groups=('sys-drivers')
+url='https://www.broadcom.com/support/download-search/?pf=Wireless+LAN+Infrastructure'
+license=(custom)
+depends=(dkms)
+conflicts=(broadcom-wl)
+install=broadcom-wl-dkms.install
+source=('broadcom-wl-dkms.conf'
+        'dkms.conf.in'
+        '001-null-pointer-fix.patch'
+        '002-rdtscl.patch'
+        '003-linux47.patch'
+        '004-linux48.patch'
+        '005-debian-fix-kernel-warnings.patch'
+        '006-linux411.patch'
+        '007-linux412.patch'
+        '008-linux415.patch'
+        '009-fix_mac_profile_discrepancy.patch'
+        '010-linux56.patch'
+        "https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/hybrid-v35_64-nodebug-pcoem-${pkgver//./_}.tar.gz")
+
+prepare() {
+  sed -i -e '/BRCM_WLAN_IFNAME/s/eth/wlan/' src/wl/sys/wl_linux.c
+  sed -i -e "/EXTRA_LDFLAGS/s|\$(src)/lib|/usr/lib/$pkgname|" Makefile
+  sed -e "s/@PACKAGE_VERSION@/$pkgver/" dkms.conf.in > dkms.conf
+  sed -n -e '/Copyright/,/SOFTWARE\./{s/^ \* //;p}' src/wl/sys/wl_linux.c
+  sed -i 's/get_ds()/KERNEL_DS/g' src/wl/sys/wl_iw.c
+  sed -i 's/get_ds()/KERNEL_DS/g' src/wl/sys/wl_cfg80211_hybrid.c
+  sed -i '/GE_49 :=/s|:= .*|:= 1|' Makefile
+}
+
+package() {
+  local dest="$pkgdir/usr/src/${pkgname/-dkms/}-$pkgver"
+  install -Dm644 Makefile "$dest/Makefile"
+  install -Dm644 dkms.conf "$dest/dkms.conf"
+  install -Dm644 -t "$dest/patches" *.patch
+  cp -a src "$dest"
+
+  install -Dm644 lib/wlc_hybrid.o_shipped \
+    "$pkgdir/usr/lib/$pkgname/wlc_hybrid.o_shipped"
+  install -Dm644 broadcom-wl-dkms.conf \
+    "$pkgdir/usr/lib/modprobe.d/broadcom-wl-dkms.conf"
+
+  install -Dm644 lib/LICENSE.txt \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE.shipped"
+}

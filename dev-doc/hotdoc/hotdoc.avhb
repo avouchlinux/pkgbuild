@@ -1,0 +1,55 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=hotdoc
+pkgver=0.12.2
+pkgrel=1
+epoch=
+pkgdesc="HotDoc: the tastiest API documentation system"
+arch=('any')
+groups=('dev-doc')
+url="https://github.com/hotdoc/hotdoc"
+license=('LGPL2')
+depends=(
+    'libxml2'
+    'json-glib'
+    'clang'
+    'llvm'
+    'python'
+    'python-cchardet'
+    'python-dbus-deviation'
+    'python-decorator'
+    'python-lxml'
+    'python-networkx-1.11'
+    'python-pkgconfig-1.1.0'
+    'python-schema'
+    'python-sqlalchemy'
+    'python-toposort'
+    'python-wheezy'
+    'python-yaml'
+)
+makedepends=(
+    'cmake'
+    'flex'
+    'git'
+    'npm'
+    'python-setuptools'
+)
+source=("https://codeload.github.com/hotdoc/hotdoc/tar.gz/$pkgver")
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  sed -r 's|print (".*\])|print (\1)|' -i hotdoc/hotdoc_dep_printer.py
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  python setup.py build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  python setup.py install --root="$pkgdir/" --optimize=1
+}

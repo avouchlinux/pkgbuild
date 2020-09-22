@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sentora
+pkgver=1.0.4-beta
+pkgrel=1
+pkgdesc='Blog tool and publishing platform'
+arch=('any')
+grups=('net')
+repo=('extra')
+url='http://www.sentora.org'
+license=('GPL')
+depends=('php')
+optdepends=('nginx: Web server for serving Wordpress'
+            'apache: Web server for serving Wordpress'
+            'mariadb: Database server')
+options=('emptydirs')
+install="$pkgname.install"
+source=("https://github.com/sentora/sentora-core/archive/beta-1.0.4.tar.gz"
+        'password_reset_exploit.patch')
+sha256sums=('a1664b259755021adbfbe5e8f7fd78a98c015e92e1f985258abed19f759822cb'
+            '68244b5bd534b21c88dc25074bf1fbc7a26d601cee69d78a467b1287f9eb2eed')
+
+package() {
+  install -d "$pkgdir/usr/share/webapps"
+  cp -r "$pkgname-core-beta-1.0.4" "$pkgdir/usr/share/webapps/$pkgname"
+}

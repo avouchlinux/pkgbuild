@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Furqan Ullah <furqan@real3d.pk>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=codelite
+pkgver=12.0
+pkgrel=1
+pkgdesc="Cross platform C/C++/PHP and Node.js IDE written in C++"
+arch=('x86_64')
+groups=('dev-ide')
+url="http://www.codelite.org/"
+license=('GPL')
+makedepends=('pkgconfig' 'cmake' 'clang')
+depends=('wxgtk'
+          'clang' 'lldb'
+          'libedit'
+          'libssh'
+          'libmariadbclient'
+          'ncurses'
+          'xterm' 'curl'
+          'python2'
+        )
+optdepends=('graphviz: callgraph visualization'
+             'clang: compiler'
+             'gcc: compiler'
+             'gdb: debugger'
+             'valgrind: debugger'
+            )
+source=(https://github.com/eranif/${pkgname}/archive/${pkgver//_/-}.tar.gz
+	http://repos.codelite.org/wxCrafterLibs/wxgui.zip)
+
+md5sums=('aa00490c9e9eb8b756c9597355a5019e'
+         '093485fcae62073ca8d0ba6ff3a5cb69')
+
+noextract=('wxgui.zip')
+
+prepare(){
+	mkdir -p build
+}
+build() {
+	cd "${srcdir}"/build
+	
+    CXXFLAGS="${CXXFLAGS} -fno-devirtualize"    
+    
+    cmake "${srcdir}/${pkgname}-${pkgver}" -G "Unix Makefiles" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DENABLE_CLANG=1 \
+		-DENABLE_LLDB=1 \
+		-DWITH_MYSQL=1
+    
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkg_name_ver}/build"
+    make -j1 DESTDIR="${pkgdir}" install
+    install -m 644 -D "${srcarchivedir}/wxgui.zip" "${pkgdir}/usr/share/codelite/wxgui.zip"
+    install -m 644 -D "${srcdir}/${pkg_name_ver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

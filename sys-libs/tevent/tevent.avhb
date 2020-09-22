@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tevent
+pkgver=0.10.2
+pkgrel=1
+pkgdesc="An event system based on the talloc memory management library"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://tevent.samba.org/"
+license=('GPL3')
+depends=('talloc')
+makedepends=('python')
+optdepends=('python: for python bindings')
+source=("https://samba.org/ftp/tevent/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+		--bundled-libraries=NONE \
+		--builtin-libraries=replace
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR=${pkgdir}/ install
+}

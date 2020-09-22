@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=selinux-dbus
+pkgver=3.0
+pkgrel=1
+pkgdesc="DBus service which allows managing SELinux configuration"
+arch=('x86_64')
+groups=('sys-security')
+url='http://userspace.selinuxproject.org'
+license=('GPL2')
+groups=('selinux')
+makedepends=('libsepol')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('a946c32b284532447857e4c48830f8816867c61220c8c08bdd32e6f691335f8e')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcuefile
+pkgver=475
+pkgrel=1
+pkgdesc="A library to work with CUE files"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.musepack.net/index.php?pg=src"
+license=('GPL2')
+depends=('glibc')
+makedepends=('cmake')
+source=(http://files.musepack.net/source/${pkgname}_r${pkgver}.tar.gz)
+
+prepare() {
+	srcdir=/${builddir}/${pkgname}
+	cd ${srcdir}
+	tar -zxf ${srcdir}/${pkgname}_r${pkgver}.tar.gz
+	cd "${srcdir}/${pkgname}_r${pkgver}"
+
+	mkdir "${srcdir}/${pkgname}_r${pkgver}/build"
+}
+
+build() {
+	cd "${srcdir}/${pkgname}_r${pkgver}/build"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}_r${pkgver}/build"
+	make DESTDIR="${pkgdir}/" install
+
+	mkdir -p "${pkgdir}/usr/include/cuetools"
+	install -Dm644 "${srcdir}"/${pkgname}_r${pkgver}/include/cuetools/{cd,cdtext,cuefile}.h \
+	"${pkgdir}/usr/include/cuetools"
+
+	# license
+	install -Dm644 ../COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

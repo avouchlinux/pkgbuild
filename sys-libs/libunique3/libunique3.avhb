@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libunique3
+_realname=libunique
+pkgver=3.0.2
+pkgrel=1
+pkgdesc="Library for writing single instance applications for GTK3"
+arch=('x86_64')
+groups=('sys-libs')
+license=('LGPL')
+depends=('gtk3')
+makedepends=('gtk-doc' 'gobject-introspection')
+url="http://live.gnome.org/LibUnique"
+source=(http://ftp.gnome.org/pub/gnome/sources/libunique/${pkgver%.*}/libunique-$pkgver.tar.xz)
+sha256sums=('a8f02ce073e2b920cca8ac45d418e7cb64438ad0814780c5912c6d63f8a4e038')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --disable-dbus
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}
+

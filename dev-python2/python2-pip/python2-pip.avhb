@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pip
+_realname=pip
+pkgver=20.0.2
+pkgrel=1
+pkgdesc="The PyPA recommended tool for installing Python packages"
+url="https://pip.pypa.io/"
+arch=('any')
+groups=('dev-python2')
+license=('MIT')
+_deps=('setuptools' 'appdirs' 'cachecontrol' 'colorama' 'distlib' 'distro'
+       'html5lib' 'lockfile' 'msgpack' 'packaging' 'progress' 'pyparsing' 'pytoml'
+       'requests' 'retrying' 'six' 'webencodings')
+depends=("${_deps[@]/#/python2-}" 'python2-ipaddress')
+makedepends=("${_deps[@]/#/python-}" "${_deps[@]/#/python2-}" 'python2-ipaddress' 'python-sphinx')
+source=("https://github.com/pypa/pip/archive/${pkgver}.tar.gz")
+
+shopt -s extglob
+
+build() {
+	cd ${_realname}-${pkgver}
+
+  python2 setup.py build
+
+}
+
+package() {
+	cd ${_realname}-${pkgver}
+  python2 setup.py install --prefix=/usr --root="$pkgdir"
+
+  mv "$pkgdir/usr/bin/pip" "$pkgdir/usr/bin/pip2"
+  sed -i "s|#!/usr/bin/env python$|#!/usr/bin/env python2|" \
+    ${pkgdir}/usr/lib/python2.7/site-packages/pip/__init__.py
+  python2 -m compileall ${pkgdir}/usr/lib/python2.7/site-packages/pip/__init__.py
+
+  install -D -m644 LICENSE.txt \
+	  "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+
+  install -Dm644 -t "$pkgdir"/usr/share/man/man1 docs/build/man-pip2/*
+
+  PYTHONPATH="$pkgdir"/usr/lib/python2.7/site-packages "$pkgdir"/usr/bin/pip2 completion --bash \
+    | install -Dm644 /dev/stdin "$pkgdir"/usr/share/bash-completion/completions/pip2
+}

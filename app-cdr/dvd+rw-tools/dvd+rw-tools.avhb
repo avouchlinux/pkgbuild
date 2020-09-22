@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dvd+rw-tools
+pkgver=7.1
+pkgrel=1
+pkgdesc="dvd burning tools"
+arch=('x86_64')
+groups=('app-cdr')
+url="http://fy.chalmers.se/~appro/linux/DVD+RW"
+license=('GPL')
+depends=('cdtools' 'gcc-libs')
+source=("http://fy.chalmers.se/~appro/linux/DVD+RW/tools/${pkgname}-${pkgver}.tar.gz"
+        'dvd+rw-tools-7.0-dvddl.patch'
+        'dvd+rw-tools-7.0-glibc2.6.90.patch'
+        'dvd+rw-tools-7.0-wctomb.patch'
+        'dvd+rw-tools-7.0-wexit.patch'
+		'dvd+rw-tools-7.1-layerbreaksetup.patch'
+		'dvd+rw-tools-7.1-minor-major.patch')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# patches from Gentoo/Fedora
+	# see https://bugs.gentoo.org/257360, https://bugzilla.redhat.com/show_bug.cgi?id=426068
+	# and https://bugzilla.redhat.com/show_bug.cgi?id=243036
+	patch -p0 -i "${srcdir}/dvd+rw-tools-7.0-dvddl.patch"
+	patch -p1 -i "${srcdir}/dvd+rw-tools-7.0-glibc2.6.90.patch"
+	patch -p0 -i "${srcdir}/dvd+rw-tools-7.0-wctomb.patch"
+	patch -p1 -i "${srcdir}/dvd+rw-tools-7.0-wexit.patch"
+	patch -p1 -i "${srcdir}/dvd+rw-tools-7.1-layerbreaksetup.patch"
+	patch -p1 -i "${srcdir}/dvd+rw-tools-7.1-minor-major.patch" # Fix build with glibc 2.29
+	make all rpl8 btcflash
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make prefix="$pkgdir"/usr install
+}

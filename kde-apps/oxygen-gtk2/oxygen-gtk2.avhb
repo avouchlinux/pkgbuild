@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=oxygen-gtk2
+pkgver=1.4.6
+pkgrel=1
+pkgdesc="Port of the default KDE widget theme (Oxygen) to GTK2"
+arch=('x86_64')
+groups=('kde-apps')
+url='https://projects.kde.org/projects/playground/artwork/oxygen-gtk/'
+license=('LGPL')
+depends=('gtk2')
+makedepends=('cmake')
+source=("http://download.kde.org/stable/${pkgname}/${pkgver}/src/${pkgname}-${pkgver}.tar.bz2")
+
+prepare() {
+  [ -d build ] || mkdir build
+}
+
+build() {
+  cd build
+  cmake ../${pkgname}-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=macchanger
+pkgver=1.7.0
+pkgrel=1
+pkgdesc="A small utility to change your NIC's MAC address"
+arch=('x86_64')
+groups=('app-net')
+#url="http://ftp.gnu.org/gnu/macchanger"
+url="http://www.gnu.org/software/macchanger"
+license=('GPL')
+depends=('glibc')
+source=("https://github.com/alobbs/macchanger/archive/$pkgver.tar.gz")
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./autogen.sh
+  ./configure --prefix=/usr \
+              --mandir=/usr/share/man \
+              --infodir=/usr/share/info
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ktoblzcheck
+pkgver=1.52
+pkgrel=1
+pkgdesc="A library to check account numbers and bank codes of German banks"
+arch=('x86_64')
+groups=('net-libs')
+url="http://ktoblzcheck.sourceforge.net"
+license=("LGPL")
+depends=('gcc-libs' 'python')
+optdepends=('perl')
+source=(http://downloads.sourceforge.net/sourceforge/ktoblzcheck/ktoblzcheck-$pkgver.tar.gz)
+
+build() {
+  cmake -S$pkgname-$pkgver -Bbuild -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

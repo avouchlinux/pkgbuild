@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-nv
+pkgver=2.1.21
+pkgrel=1
+pkgdesc="X.org nv video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2 git-fixes.patch)
+
+prepare() {
+
+	cd ${srcdir}/${pkgname}
+
+	#patch -Np1 -i ${srcdir}/git-fixes.patch
+	./autogen.sh
+
+}
+
+build() {
+	cd ${srcdir}/${pkgname}
+	./configure --prefix=/usr
+	make 
+}
+
+package() {
+	cd ${srcdir}/${pkgname}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qca
+pkgver=2.3.0
+pkgrel=1
+pkgdesc="Qt Cryptographic Architecture"
+arch=('x86_64')
+groups=('app-crypt')
+url="https://userbase.kde.org/QCA"
+license=(LGPL)
+depends=(qt5-base nss ca-certificates)
+optdepends=('pkcs11-helper: PKCS-11 plugin' 'botan: botan plugin')
+makedepends=(cmake doxygen pkcs11-helper botan)
+source=("https://download.kde.org/stable/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(CB9387521E1EE0127DA804843FDBB55084CC5D84) # Harald Sitter <sitter@kde.org>
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTS=OFF \
+    -DQCA_INSTALL_IN_QT_PREFIX=ON \
+    -DQCA_MAN_INSTALL_DIR=/usr/share/man
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

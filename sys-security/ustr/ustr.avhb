@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ustr
+pkgver=1.0.4
+pkgrel=1
+pkgdesc="micro string API for C"
+arch=('x86_64')
+groups=('sys-security')
+url="http://www.and.org/ustr/"
+license=('GPL')
+depends=('glibc')
+groups=(security)
+source=(http://www.and.org/ustr/$pkgver/ustr-$pkgver.tar.bz2)
+md5sums=('93147d9f0c9765d4cd0f04f7e44bdfce')
+
+prepare(){
+    cd "$srcdir/$pkgname-$pkgver"
+    patch -Np1 -i ../c99-inline.patch
+}
+build() {
+    cd "$srcdir/$pkgname-$pkgver"
+    make all-shared CFLAGS="${CFLAGS} -fgnu89-inline"
+}
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    make DESTDIR="$pkgdir" install
+    mv "$pkgdir"/usr/share/doc/man "$pkgdir"/usr/share/
+}

@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=coreutils
+pkgver=8.32
+pkgrel=1
+pkgdesc='The basic file, shell and text manipulation utilities of the GNU operating system'
+arch=('x86_64')
+groups=('sys-base')
+url='https://www.gnu.org/software/coreutils/'
+depends=('glibc' 'acl' 'attr' 'gmp' 'libcap' 'openssl')
+source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=('6C37DC12121A5006BC1DB804DF6FD971306037D9') # Pádraig Brady
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ../coreutils-selinux.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	FORCE_UNSAFE_CONFIGURE=1 \
+	./configure --prefix=/usr \
+	--libexecdir=/usr/lib \
+	--with-packager="Avouch Linux" \
+	--with-packager-bug-reports="https://bugs.avouch.org/" \
+	--with-openssl \
+	--with-selinux \
+	--enable-install-program=arch,dir \
+	--enable-no-install-program=groups,hostname,kill,uptime
+	# group and hostname provided by others
+
+	make ${MAKEFLAGS} all
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# make check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	#install missing binary
+	cp 'src/dir' "$pkgdir/usr/bin/dir"
+}
+

@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=phpcov
+pkgver=7.0.2
+pkgrel=1
+pkgdesc="A command-line frontend for the PHP_CodeCoverage library."
+url="https://github.com/sebastianbergmann/phpcov"
+arch=("any")
+groups=("dev-php")
+license=("BSD")
+depends=("php")
+install="${pkgname}.install"
+source=("https://phar.phpunit.de/${pkgname}-${pkgver}.phar"
+        "https://raw.githubusercontent.com/sebastianbergmann/${pkgname}/${pkgver}/LICENSE")
+
+package() {
+    install -D -m755 "${srcdir}/${pkgname}-${pkgver}.phar" "${pkgdir}/usr/share/webapps/bin/${pkgname}.phar"
+    install -d "${pkgdir}/usr/bin"
+    ln -s "/usr/share/webapps/bin/${pkgname}.phar" "${pkgdir}/usr/bin/${pkgname}"
+}

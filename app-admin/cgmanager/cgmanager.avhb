@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cgmanager
+pkgver=0.42
+pkgrel=1
+pkgdesc="Another daemon for managing control groups"
+arch=(x86_64)
+groups=('app-admin')
+url="https://linuxcontainers.org/"
+license=('GPL')
+depends=('libnih')
+makedepends=('help2man')
+source=(#"https://linuxcontainers.org/downloads/cgmanager/cgmanager-$pkgver.tar.gz"
+		https://github.com/lxc/cgmanager/archive/v0.42.tar.gz)
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+	./bootstrap.sh
+	./configure \
+		--prefix=/usr \
+		--sbindir=/usr/bin \
+		--libdir=/usr/lib \
+		--libexecdir=/usr/lib \
+		--with-init-script=systemd
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+	mv "$pkgdir"/lib/* "$pkgdir"/usr/lib/
+	rmdir "$pkgdir"/lib
+}

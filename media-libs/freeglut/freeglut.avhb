@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=freeglut
+pkgver=3.2.1
+pkgrel=1
+pkgdesc="Provides functionality for small OpenGL programs"
+arch=('x86_64')
+groups=('media-libs')
+url="http://freeglut.sourceforge.net/"
+license=('MIT')
+depends=('libxi' 'libxrandr' 'libgl')
+makedepends=('mesa' 'glu' 'libxxf86vm')
+source=(http://downloads.sourceforge.net/freeglut/${pkgname}-${pkgver}.tar.gz)
+
+prepare() {
+	cd $pkgname-$pkgver
+	patch -p1 -i ../freeglut-3.2.1-gcc10-fno-common.patch
+}
+
+build() {
+	cmake -S $pkgname-$pkgver -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

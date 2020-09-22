@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwnck2
+_realname=libwnck
+pkgver=2.31.0
+pkgrel=1
+pkgdesc="Window Navigator Construction Kit"
+arch=('x86_64')
+groups=('sys-libs')
+license=('LGPL')
+depends=('gtk2' 'startup-notification' 'libxres')
+makedepends=('libxt' 'intltool' 'gobject-introspection' 'python2')
+url="https://www.gnome.org/"
+source=(https://download.gnome.org/sources/${pkgname}/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz
+        WindowActionMenu-unset-window-and-stop-async-events-on-dispose.patch)
+
+prepare() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    patch -Np1 -i ../WindowActionMenu-unset-window-and-stop-async-events-on-dispose.patch
+}
+
+build() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    ./configure --prefix=/usr --sysconfdir=/etc \
+    --localstatedir=/var --disable-static
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+
+    #The binaries are shipped in libwnck3
+    rm -f ${pkgdir}/usr/bin/wnckprop
+    rm -f ${pkgdir}/usr/bin/wnck-urgency-monitor
+}
+

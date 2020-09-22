@@ -1,0 +1,22 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=papyon
+pkgver=0.5.6
+pkgrel=1
+pkgdesc="papyon is the library behind the msn connection manager: telepathy-butterfly."
+arch=('any')
+groups=('net-misc')
+url="http://www.freedesktop.org/wiki/Software/papyon"
+license=("GPL")
+depends=('python2-gobject2' 'python2-pyopenssl' 'pycrypto')
+source=(http://www.freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.gz)
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	python2 setup.py install --root="${pkgdir}" --optimize=1
+	sed -i "s|env python|env python2|" "${pkgdir}/usr/lib/python2.7/site-packages/papyon/msnp2p/test.py"
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

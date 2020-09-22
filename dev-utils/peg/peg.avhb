@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=peg
+pkgver=0.1.18
+pkgrel=1
+pkgdesc='recursive-descent parser generators for C'
+arch=('x86_64')
+grous=('dev-utils')
+url='http://piumarta.com/software/peg/'
+license=('MIT')
+source=("http://piumarta.com/software/peg/peg-${pkgver}.tar.gz"
+        '0000-dont-strip.patch')
+
+prepare() {
+    cd "$pkgname-$pkgver"
+    patch -Np1 -i "${srcdir}/0000-dont-strip.patch"
+}
+
+build() {
+    cd "$pkgname-$pkgver"
+    make
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+    make ROOT="${pkgdir}" PREFIX="/usr" MANDIR="${pkgdir}/usr/share/man/man1" install
+
+    install -Dm644 LICENSE.txt "$pkgdir/usr/share/licenses/${pkgname}/LICENSE.txt"
+}

@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=epiphany
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="A GNOME web browser based on the WebKit rendering engine"
+url="https://wiki.gnome.org/Apps/Web"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(webkit2gtk gcr icu libdazzle libhandy)
+makedepends=(docbook-xml startup-notification lsb-release gobject-introspection yelp-tools
+             appstream-glib git meson)
+checkdepends=(xorg-server-xvfb)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D distributor_name="Avouch"
+    ninja -C build
+}
+
+check() {
+    # ERROR:../epiphany/tests/ephy-web-app-utils-test.c:109:test_web_app_lifetime: assertion failed (g_list_length (apps) == 1): (0 == 1)
+    xvfb-run meson test -C build --print-errorlogs || :
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

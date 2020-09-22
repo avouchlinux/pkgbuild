@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmpeg2
+pkgver=0.5.1
+pkgrel=1
+pkgdesc="Library for decoding MPEG-1 and MPEG-2 video streams."
+arch=('x86_64')
+groups=('media-libs')
+url="http://libmpeg2.sourceforge.net/"
+depends=('glibc')
+license=('GPL2')
+provides=('mpeg2dec')
+makedepends=('sdl' 'libxv')
+optdepends=('sdl: required for mpeg2dec'
+            'libxv: required for mpeg2dec')
+source=(http://libmpeg2.sourceforge.net/files/${pkgname}-${pkgver}.tar.gz
+        libmpeg2-0.5.1-gcc4.6.patch)
+
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  patch -Np1 -i "${srcdir}/libmpeg2-0.5.1-gcc4.6.patch"
+
+  sed '/AC_PATH_XTRA/d' -i configure.ac
+  autoreconf --force --install
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --enable-shared --disable-static
+  make ${MAKEFLAGS}	OPT_CFLAGS="${CFLAGS}" \
+	MPEG2DEC_CFLAGS="${CFLAGS}" \
+	LIBMPEG2_CFLAGS=""
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

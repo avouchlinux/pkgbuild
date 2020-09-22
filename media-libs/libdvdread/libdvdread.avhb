@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdvdread
+pkgver=6.1.1
+pkgrel=1
+pkgdesc="Provides a simple foundation for reading DVD video disks"
+arch=('x86_64')
+groups=('media-libs')
+url="https://www.videolan.org/developers/libdvdnav.html"
+license=('GPL')
+depends=('glibc')
+makedepends=('libdvdcss' 'git')
+optdepends=('libdvdcss: for decoding encrypted DVDs')
+source=("https://code.videolan.org/videolan/libdvdread/-/archive/$pkgver/libdvdread-$pkgver.tar.bz2")
+
+prepare() {
+  cd $pkgname-$pkgver
+  autoreconf -fi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

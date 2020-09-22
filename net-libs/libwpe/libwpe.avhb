@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwpe
+pkgver=1.6.0
+pkgrel=1
+pkgdesc="General-purpose library for WPE WebKit"
+url="https://wpewebkit.org/"
+arch=(x86_64)
+groups=('net-libs')
+license=(custom)
+depends=(libxkbcommon gcc-libs)
+makedepends=(cmake mesa)
+source=($url/releases/$pkgname-$pkgver.tar.xz{,.asc})
+validpgpkeys=('5AA3BC334FD7E3369E7C77B291C559DBE4C9123B') # Adrián Pérez de Castro <aperez@igalia.com>
+
+build() {
+  cmake -S$pkgname-$pkgver -Bbuild -GNinja \
+    -DCMAKE_BUILD_TYPE=Plain \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" $pkgname-$pkgver/COPYING
+}

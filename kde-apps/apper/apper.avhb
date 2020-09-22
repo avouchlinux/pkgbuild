@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=apper
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="An application and package manager using PackageKit"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.kde.org/applications/system/apper/"
+license=(GPL)
+depends=(packagekit-qt5 kcmutils appstream-qt)
+makedepends=(extra-cmake-modules kdoctools plasma-workspace)
+optdepends=('plasma-workspace: Updates daemon')
+source=("https://download.kde.org/stable/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz"
+        apper-rpath.patch
+        apper-qt5.11.patch::"https://cgit.kde.org/apper.git/patch/?id=d8960ea9"
+        apper-qt5.14.patch::"https://cgit.kde.org/apper.git/patch/?id=1815d19f"
+        kdebug-401461.patch::"https://cgit.kde.org/apper.git/patch/?id=d486706f")
+validpgpkeys=(70C26659D184ABC01FFAF45228DDEDC6E4480AD0) # Daniel Nicoletti <dantti12@gmail.com>
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../apper-rpath.patch # Fix RPATH of apper binary
+  patch -p1 -i ../apper-qt5.11.patch # fix build with Qt 5.11
+  patch -p1 -i ../apper-qt5.14.patch # fix build with Qt 5.14
+  patch -p1 -i ../kdebug-401461.patch # fix crash
+}
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DAPPSTREAM=ON
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+
+  # fix conflicts with gnome-software
+  mv "$pkgdir"/usr/share/dbus-1/services/{,kde_}org.freedesktop.PackageKit.service
+}

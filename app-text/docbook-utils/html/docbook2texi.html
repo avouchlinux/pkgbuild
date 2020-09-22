@@ -1,0 +1,362 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>docbook2texi-spec.pl</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="DocBook Utils"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Helper programs"
+HREF="helpers.html"><LINK
+REL="PREVIOUS"
+TITLE="docbook2man-spec.pl"
+HREF="docbook2man.html"><LINK
+REL="NEXT"
+TITLE="Application programming interface"
+HREF="api.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook Utils</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="docbook2man.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="api.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="DOCBOOK2TEXI"
+></A
+>docbook2texi-spec.pl</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN737"
+></A
+><H2
+>Name</H2
+>docbook2texi-spec.pl&nbsp;--&nbsp;convert DocBook <CODE
+CLASS="SGMLTAG"
+>Book</CODE
+>s
+to <SPAN
+CLASS="APPLICATION"
+>Texinfo</SPAN
+> documents</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN742"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>sgmlspl</B
+>  {docbook2man-spec.pl}</P
+><P
+><B
+CLASS="COMMAND"
+>nsgmls</B
+>  [<TT
+CLASS="REPLACEABLE"
+><I
+>sgml document</I
+></TT
+>]<BR><B
+CLASS="COMMAND"
+>| sgmlspl</B
+>  {docbook2texi-spec.pl} [<TT
+CLASS="REPLACEABLE"
+><I
+>basename</I
+></TT
+>]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN754"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>docbook2texi</SPAN
+> is a sgmlspl spec file that produces
+GNU Texinfo documents from DocBook documents.  </P
+><P
+>The program reads ESIS produced by nsgmls (or other SGML parsers) from
+standard input.  Currently the document element must be <CODE
+CLASS="SGMLTAG"
+>Book</CODE
+>,
+otherwise the results are undefined.</P
+><P
+>Its output, the converted Texinfo document, is written to standard
+output.</P
+><P
+>The file <TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>basename.refs</I
+></TT
+></TT
+> will also
+be created, which contains all the nodes in the document and their immediate
+'child' nodes.  As node processing always require forward references,
+<SPAN
+CLASS="APPLICATION"
+>docbook2texi</SPAN
+> must be run twice for each document: the
+first time to build the references, and the second to actually generate a valid
+document.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN765"
+></A
+><H2
+>Requirements</H2
+><P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+>The SGMLSpm package from CPAN.  This package includes the sgmlspl script
+that is also needed.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN769"
+></A
+><H2
+>Limitations</H2
+><P
+>Trying <SPAN
+CLASS="APPLICATION"
+>docbook2man</SPAN
+> on non-DocBook or non-conformant
+SGML results in undefined behavior. :-)</P
+><P
+>This program is a slow, dodgy Perl script.</P
+><P
+>This program does not come close to supporting all the possible markup
+in DocBook, and may produce wrong output in some cases with supported
+markup.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN775"
+></A
+><H2
+>To do</H2
+><P
+></P
+><UL
+><LI
+><P
+>How the hell do you represent a backslash (<TT
+CLASS="LITERAL"
+>\</TT
+>) in Texinfo!!@?
+I've tried <TT
+CLASS="LITERAL"
+>\\</TT
+> but TeX complains about it.</P
+></LI
+><LI
+><P
+>Fix breakages found in the test documents.</P
+></LI
+><LI
+><P
+>Add new element handling and fix existing handling.  
+Be robust.  </P
+></LI
+><LI
+><P
+>Make it faster. I think most of the speed problems so far is with parsing
+ESIS.  Rewrite <TT
+CLASS="FILENAME"
+>SGMLS.pm</TT
+> with C and/or get input directly
+from <SPAN
+CLASS="APPLICATION"
+>SP</SPAN
+>.</P
+></LI
+><LI
+><P
+>There are some dependencies on elements occurring when they are actually
+optional (according to the DTD).  We need to fix that (preferably) or 
+prominently state the requirements.</P
+></LI
+><LI
+><P
+>Allow other more common document elements.</P
+></LI
+><LI
+><P
+>Separate out node referencing to a separate script.  Not only would it
+make it faster/easier to maintain because it's separate from the main
+code, but also I would like it to evolve into an automatic DocBook
+<CODE
+CLASS="SGMLTAG"
+>ToC</CODE
+> generator.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN797"
+></A
+><H2
+>Copyright</H2
+><P
+>Copyright (C) 1998-1999 Steve Cheng <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:steve@ggi-project.org"
+>steve@ggi-project.org</A
+>&#62;</CODE
+></P
+><P
+>This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2, or (at your option) any
+later version.</P
+><P
+>You should have received a copy of the GNU General Public License along with
+this program; see the file <TT
+CLASS="FILENAME"
+>COPYING</TT
+>.  If not, please write
+to the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="docbook2man.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="api.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>docbook2man-spec.pl</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="helpers.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Application programming interface</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

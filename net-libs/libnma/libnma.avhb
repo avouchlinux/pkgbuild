@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnma
+pkgver=1.8.30
+pkgrel=1
+pkgdesc="NetworkManager GUI client library"
+url="https://wiki.gnome.org/Projects/NetworkManager/"
+arch=('x86_64')
+groups=('net-libs')
+license=(GPL LGPL)
+depends=(libnm gcr gtk3 iso-codes mobile-broadband-provider-info)
+makedepends=(gobject-introspection git gtk-doc meson vala)
+provides=(libnma.so)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

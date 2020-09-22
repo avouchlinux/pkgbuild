@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-crypt-ssleay
+_realname=Crypt-SSLeay
+pkgver=0.73_06
+pkgrel=1
+pkgdesc="OpenSSL glue that provides LWP https support"
+arch=('i686' 'x86_64')
+url="http://search.cpan.org/dist/Crypt-SSLeay"
+license=('GPL' 'PerlArtistic')
+depends=('perl-lwp-protocol-https' 'perl-try-tiny')
+options=('!emptydirs')
+source=(http://www.cpan.org/CPAN/authors/id/N/NA/NANIS/Crypt-SSLeay-$pkgver.tar.gz) 
+md5sums=('4812f14d6e8c71714a26c0ad733666dc')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_USE_UNSAFE_INC=1 \
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR="${pkgdir}"
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libfbclient
+_realname=Firebird
+pkgver=3.0.5.33220
+pkgrel=1
+pkgdesc="Client library for Firebird."
+arch=('x86_64')
+grous=('dev-db')
+url="https://www.firebirdsql.org/"
+license=('custom')
+depends=('gcc-libs' 'libtommath')
+source=(https://github.com/FirebirdSQL/firebird/releases/download/R3_0_4/Firebird-$pkgver-0.tar.bz2
+        LICENSE)
+
+build() {
+  cd Firebird-$pkgver-0
+
+  ./configure --prefix=/usr --without-fbudf \
+    --without-fbsbin --without-fbconf --without-fbdoc --without-fbsample \
+    --without-fbsample-db --without-fbintl --without-fbmisc --without-fbhelp \
+    --without-fbsecure-db --with-fbmsg=/usr/share/firebird --without-fblog \
+    --without-fbglock --without-fbplugins
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd Firebird-$pkgver-0
+
+  mkdir -p "$pkgdir"/usr/{bin,share/{firebird,licenses/$pkgname}}
+
+  cp -R gen/Release/firebird/{lib,include} "$pkgdir"/usr
+  rm -f "$pkgdir"/usr/lib/libedit.a
+
+  install -m644 gen/Release/firebird/*.msg "$pkgdir"/usr/share/firebird
+  install -m755 gen/Release/firebird/bin/fb_config "$pkgdir"/usr/bin
+  install -m644 "$srcdir"/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+  # Add libgds support FS#30062 FS#30282
+  cd "$pkgdir"/usr/lib
+  ln -s libfbclient.so libgds.so.0
+  ln -s libfbclient.so libgds.so
+}

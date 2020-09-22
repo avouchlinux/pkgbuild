@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-babel
+_realname=Babel
+pkgver=2.8.0
+_core=36
+pkgrel=1
+pkgdesc="A collection of tools for internationalizing Python applications"
+arch=('any')
+groups=('dev-python2')
+url="http://babel.pocoo.org/"
+license=("BSD")
+depends=('python2' 'python2-pytz')
+makedepends=('python2' 'python2-setuptools' 'python2-pytz')
+checkdepends=('python-pytest-runner' 'python2-pytest-runner' 'python2-freezegun')
+noextract=("cldr-core-$_core.zip")
+source=("https://github.com/python-babel/babel/archive/v$pkgver.tar.gz"
+        "http://unicode.org/Public/cldr/$_core/core.zip")
+
+prepare() {	
+	mkdir -p $_realname-$pkgver/cldr
+	cp "$srcarchivedir"/cldr-core-$_core.zip $_realname-$pkgver/cldr/cldr-core-$_core.zip
+}
+
+build(){
+  cd ${_realname}-${pkgver}
+  python2 setup.py import_cldr
+  python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+  mv "$pkgdir"/usr/bin/pybabel "$pkgdir"/usr/bin/pybabel2
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

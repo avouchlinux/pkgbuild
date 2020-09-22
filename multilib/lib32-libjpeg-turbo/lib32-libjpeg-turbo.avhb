@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libjpeg-turbo
+pkgbase=libjpeg-turbo
+pkgver=2.0.4
+pkgrel=1
+pkgdesc="libjpeg derivative with accelerated baseline JPEG compression and decompression (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://libjpeg-turbo.org/"
+license=('custom')
+depends=('lib32-glibc' $_pkgbasename)
+makedepends=('nasm' 'cmake')
+provides=('lib32-libjpeg=8.2.2' 'lib32-turbojpeg')
+conflicts=('lib32-libjpeg' 'lib32-turbojpeg')
+replaces=('lib32-libjpeg' 'lib32-turbojpeg')
+validpgpkeys=('7D6293CC6378786E1B5C496885C7044E033FDE16')
+source=(https://sourceforge.net/projects/$_pkgbasename/files/$pkgver/$_pkgbasename-$pkgver.tar.gz{,.sig})
+sha512sums=('204b6d083e99488c975c75efb08699e4dc1c409556e4dee4f21e3ee67e9c6682eb342f2e5712816b0342c00399fbe6e43fbce30c3d22f30f7ef91db006b3be08'
+            'SKIP')
+
+build() {
+  cd "$pkgbase-$pkgver"
+
+  export CC="gcc -m32"
+  export CXX="g++ -m32"
+  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  cmake -DWITH_JPEG8=1 \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=/usr/lib32 \
+        .
+
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "$pkgbase-$pkgver"
+  make ${MAKEFLAGS} test
+}
+
+package() {
+  cd "$pkgbase-$pkgver"
+
+  make DESTDIR="$pkgdir/" docdir=/usr/share/doc/libjpeg-turbo \
+    exampledir=/usr/share/doc/libjpeg-turbo install
+
+  rm -rf "${pkgdir}"/usr/{include,share,bin,sbin}
+
+  mkdir -p "$pkgdir/usr/share/licenses"
+  ln -s $_pkgbasename "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dm 644 ChangeLog.md -t"${pkgdir}/usr/share/doc/${pkgname}"
+}

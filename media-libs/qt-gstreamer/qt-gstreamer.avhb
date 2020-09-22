@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt-gstreamer
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="Qt bindings for GStreamer"
+arch=('x86_64')
+groups=('media-libs')
+url='http://gstreamer.freedesktop.org/modules/qt-gstreamer.html'
+license=(LGPL2.1)
+depends=(qt5-declarative gst-plugins-good)
+makedepends=(cmake boost doxygen)
+source=("https://gstreamer.freedesktop.org/src/$pkgname/$pkgname-$pkgver.tar.xz"
+	qt-gstreamer-1.6.patch::"http://cgit.freedesktop.org/gstreamer/qt-gstreamer/patch/?id=e2ca8094")
+
+prepare() {
+  mkdir -p build
+
+# Fix build with gstreamer 1.6
+  cd $pkgname-$pkgver
+  patch -p1 -i ../qt-gstreamer-1.6.patch
+  patch -p1 -i ../qt-gstreamer-1.2.0-boost157.patch
+  #patch -p1 -i ../qt-gstreamer-1.2.0-gstreamer15.patch
+  patch -p1 -i ../qt-gstreamer-1.2.0-qt-5.11b3.patch
+  patch -p1 -i ../qt-gstreamer-1.2.0-gstreamer16.patch
+
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DQTGSTREAMER_EXAMPLES=OFF \
+    -DQT_VERSION=5
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

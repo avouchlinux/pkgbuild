@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-nettle
+pkgbase=nettle
+pkgver=3.5.1
+pkgrel=1
+pkgdesc="A low-level cryptographic library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.lysator.liu.se/~nisse/nettle/"
+license=('GPL2')
+depends=('lib32-gmp' $_pkgbasename)
+makedepends=(gcc-multilib)
+source=(ftp://ftp.gnu.org/gnu/nettle/$_pkgbasename-$pkgver.tar.gz)
+md5sums=('003d5147911317931dd453520eb234a5')
+
+build() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr --libdir=/usr/lib32 \
+        --disable-static --with-include-path=/usr/lib32/gmp
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make -k check
+}
+
+package() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make DESTDIR="$pkgdir/" install
+    rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libpipeline
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="A C library for manipulating pipelines of subprocesses"
+arch=('x86_64')
+groups=('sys-base')
+url="https://libpipeline.nongnu.org/"
+license=('GPL')
+depends=('glibc')
+source=(https://download.savannah.gnu.org/releases/libpipeline/$pkgname-$pkgver.tar.gz{,.asc})
+sha256sums=('d633706b7d845f08b42bc66ddbe845d57e726bf89298e2cee29f09577e2f902f'
+            'SKIP')
+validpgpkeys=('AC0A4FF12611B6FCCF01C111393587D97D86500B') # Colin Watson <cjwatson@debian.org>
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

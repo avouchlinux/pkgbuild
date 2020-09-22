@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kwordquiz
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Flash Card Trainer"
+url="http://kde.org/applications/education/kwordquiz/"
+arch=('x86_64')
+groups=('kde-apps')
+license=('GPL' 'LGPL' 'FDL')
+depends=('knotifyconfig' 'libkeduvocdocument' 'knewstuff' 'kdelibs4support')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools' 'kdesignerplugin')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/kwordquiz-${pkgver}.tar.xz"{,.sig})
+sha1sums=('5953491d5bf546dda73fc87481126efca5cb8e15'
+          'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../kwordquiz-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/build
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,68 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=system-config-printer
+pkgver=1.5.11
+pkgrel=1
+pkgdesc="A CUPS printer configuration tool and status applet"
+arch=('x86_64')
+groups=('app-admin')
+url="https://github.com/zdohnal/system-config-printer"
+license=('GPL')
+depends=('python-pycups' 'python-dbus' 'python-pycurl' 'libnotify'
+         'python-requests' 'python-gobject' 'gtk3' 'python-cairo')
+makedepends=('intltool' 'xmlto' 'docbook-xsl' 'desktop-file-utils' 'libsecret')
+optdepends=('libsecret: password management'
+            'python-pysmbc: SMB browser support'
+            'cups-pk-helper: PolicyKit helper to configure cups with fine-grained privileges')
+source=(https://github.com/zdohnal/system-config-printer/releases/download/$pkgver/system-config-printer-${pkgver}.tar.xz
+        0001-Fix-constructing-the-auth-dialog.patch)
+
+prepare() {
+  cd ${pkgname}
+  # create missing dummy files
+
+  #sed -i 's/_X-GNOME-FullName/_GNOME-FullName/g' system-config-printer.desktop.in
+  #sed -i '/_X-GNOME-FullName/d' system-config-printer.desktop.in
+
+  touch ./{README,ChangeLog}
+  autoreconf -vfi
+}
+
+build() {
+    cd ${pkgname}
+    ./configure --prefix=/usr \
+        --sbindir=/usr/bin \
+        --sysconfdir=/etc \
+        --with-udevdir=/usr/lib/udev \
+        --with-udev-rules 
+    make
+}
+
+package() {
+    cd ${pkgname}
+    make DESTDIR="${pkgdir}" install
+
+    # Compile *.pyc
+    find "${pkgdir}" -name '*.py' -exec python -mpy_compile {} +
+    # Compile *.pyo
+    find "${pkgdir}" -name '*.py' -exec python -O -mpy_compile {} +
+
+    # desktop files
+    install -Dm644 print-applet.desktop ${pkgdir}/usr/share/applications/print-applet.desktop
+    install -Dm644 system-config-printer.desktop ${pkgdir}/usr/share/applications/system-config-printer.desktop
+
+  
+    install -Dm644 udev/configure-printer@.service ${pkgdir}/usr/lib/systemd/system/configure-printer@.service
+
+
+    # new cups 2.0.0 service naming
+    sed -i "s|cups.socket|org.cups.cupsd.socket|g" ${pkgdir}/usr/lib/systemd/system/configure-printer@.service
+
+    # fix dbus policy location - --with-dbusdir doens't work
+    install -dm755 ${pkgdir}/usr/share/dbus-1/system.d
+    mv ${pkgdir}/etc/dbus-1/system.d/* ${pkgdir}/usr/share/dbus-1/system.d
+    rm -rf ${pkgdir}/etc/dbus-1
+}

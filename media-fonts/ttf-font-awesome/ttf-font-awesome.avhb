@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-font-awesome
+_realname=Font-Awesome
+pkgver=5.13.0
+pkgrel=1
+pkgdesc="Iconic font designed for Bootstrap"
+url="http://fortawesome.github.io/Font-Awesome/"
+license=('CCPL')
+depends=()
+arch=('any')
+groups=('media-fonts')
+source=("https://github.com/FortAwesome/Font-Awesome/archive/v$pkgver.tar.gz")
+
+package() {
+  cd Font-Awesome-$pkgver/webfonts
+  install -d "$pkgdir"/usr/share/fonts/TTF
+  install -m644 *.ttf "$pkgdir"/usr/share/fonts/TTF
+}

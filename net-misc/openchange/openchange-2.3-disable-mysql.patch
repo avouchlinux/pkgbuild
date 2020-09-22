@@ -1,0 +1,81 @@
+diff -up openchange-openchange-2.3-VULCAN/configure.ac.disable-mysql openchange-openchange-2.3-VULCAN/configure.ac
+--- openchange-openchange-2.3-VULCAN/configure.ac.disable-mysql	2018-02-19 17:21:16.683135863 +0100
++++ openchange-openchange-2.3-VULCAN/configure.ac	2018-02-19 17:23:26.313134071 +0100
+@@ -50,22 +50,22 @@ AC_SUBST(ENDIAN)
+ dnl #################################################################
+ dnl MySQL
+ dnl #################################################################
+-AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
+-if test x"$MYSQL_CONFIG" = x""; then
+-	AC_MSG_WARN([No version of mysql_config was found!])
+-	AC_MSG_ERROR([Please install libmysqlclient-dev])
+-fi
+-AC_SUBST(MYSQL_CONFIG)
+-
+-AC_MSG_CHECKING(mysql cflags)
+-MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
+-AC_MSG_RESULT($MYSQL_CFLAGS)
+-AC_SUBST(MYSQL_CFLAGS)
+-
+-AC_MSG_CHECKING(mysql libs)
+-MYSQL_LIBS=`$MYSQL_CONFIG --libs`
+-AC_MSG_RESULT($MYSQL_LIBS)
+-AC_SUBST(MYSQL_LIBS)
++dnl AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
++dnl if test x"$MYSQL_CONFIG" = x""; then
++dnl 	AC_MSG_WARN([No version of mysql_config was found!])
++dnl	AC_MSG_ERROR([Please install libmysqlclient-dev])
++dnl fi
++dnl AC_SUBST(MYSQL_CONFIG)
++dnl
++dnl AC_MSG_CHECKING(mysql cflags)
++dnl MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
++dnl AC_MSG_RESULT($MYSQL_CFLAGS)
++dnl AC_SUBST(MYSQL_CFLAGS)
++dnl
++dnl AC_MSG_CHECKING(mysql libs)
++dnl MYSQL_LIBS=`$MYSQL_CONFIG --libs`
++dnl AC_MSG_RESULT($MYSQL_LIBS)
++dnl AC_SUBST(MYSQL_LIBS)
+ 
+ dnl #################################################################
+ dnl Check for OS dependent options
+@@ -409,22 +409,22 @@ AC_SUBST(pythondir)
+ dnl ----------------------------------------------------------------------------
+ dnl Check for MYSQL client libraries
+ dnl ----------------------------------------------------------------------------
+-AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
+-if test x"$MYSQL_CONFIG" = x""; then
+-   AC_MSG_WARN([No version of mysql_config was found!])
+-   AC_MSG_ERROR([Please install libmysqlclient-dev])
+-fi
+-AC_SUBST(MYSQL_CONFIG)
+-
+-AC_MSG_CHECKING(mysql cflags)
+-MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
+-AC_MSG_RESULT($MYSQL_CFLAGS)
+-AC_SUBST(MYSQL_CFLAGS)
+-
+-AC_MSG_CHECKING(mysql libs)
+-MYSQL_LIBS=`$MYSQL_CONFIG --libs`
+-AC_MSG_RESULT($MYSQL_LIBS)
+-AC_SUBST(MYSQL_LIBS)
++dnl AC_PATH_PROG(MYSQL_CONFIG, mysql_config)
++dnl if test x"$MYSQL_CONFIG" = x""; then
++dnl    AC_MSG_WARN([No version of mysql_config was found!])
++dnl    AC_MSG_ERROR([Please install libmysqlclient-dev])
++dnl fi
++dnl AC_SUBST(MYSQL_CONFIG)
++dnl
++dnl AC_MSG_CHECKING(mysql cflags)
++dnl MYSQL_CFLAGS=`$MYSQL_CONFIG --cflags`
++dnl AC_MSG_RESULT($MYSQL_CFLAGS)
++dnl AC_SUBST(MYSQL_CFLAGS)
++dnl
++dnl AC_MSG_CHECKING(mysql libs)
++dnl MYSQL_LIBS=`$MYSQL_CONFIG --libs`
++dnl AC_MSG_RESULT($MYSQL_LIBS)
++dnl AC_SUBST(MYSQL_LIBS)
+ 
+ dnl ----------------------------------------------------------------------------
+ dnl Check for memcached

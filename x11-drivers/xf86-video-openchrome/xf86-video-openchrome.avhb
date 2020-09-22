@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-openchrome
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="X.Org Openchrome drivers"
+arch=('x86_64')
+groups=('x11-drivers')
+license=('custom')
+url="http://www.openchrome.org"
+depends=('libdrm' 'libxvmc' 'systemd')
+optdepends=('unichrome-dri')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+replaces=('openchrome' 'xf86-video-via')
+options=('!emptydirs' '!makeflags')
+source=(http://xorg.freedesktop.org/archive/individual/driver/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	export CFLAGS+=' -fcommon'
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# remove empty directory
+	rm -r "${pkgdir}"/usr/sbin
+
+}

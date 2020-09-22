@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gst-plugins-base
+pkgname=('lib32-gst-plugins-base')
+pkgver=1.16.2
+pkgrel=1
+pkgdesc="GStreamer Multimedia Framework Base Plugins"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('LGPL')
+makedepends=('pkgconfig' 'gstreamer' 'orc' 'libxv' 'alsa-lib' 'cdparanoia' 'libvisual' 'libvorbis' 'libtheora' 'pango' 'gobject-introspection')
+options=(!emptydirs)
+url="http://gstreamer.freedesktop.org/"
+source=(${url}/src/$pkgbase/$pkgbase-${pkgver}.tar.xz)
+sha256sums=('fa90cf21eac0a77f9393100356aef99ae42072c31dc218d3ae2e7f86cd5ced69')
+
+build() {
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+    avouch-meson $pkgbase-$pkgver build \
+    --libdir='/usr/lib32' \
+    --libexecdir='/usr/lib32' \
+    -D ptp-helper-permissions=capabilities \
+    -D dbghelp=disabled \
+    -D gobject-cast-checks=disabled \
+    -D glib-asserts=disabled \
+    -D glib-checks=disabled \
+    -D package-name="GStreamer Base Plugins (Avouch Linux)" \
+    -D package-origin="https://www.avouch.org/" \
+	  -D introspection=disabled \
+    -D tremor=disabled \
+    -D examples=disabled \
+    -D tests=disabled
+  ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

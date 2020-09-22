@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-html-parser
+_realname=HTML-Parser
+pkgver=3.72
+pkgrel=1
+pkgdesc="Perl HTML parser class"
+arch=('x86_64')
+groups=('dev-perl')
+license=('PerlArtistic')
+url="http://search.cpan.org/dist/HTML-Parser/"
+depends=('perl-html-tagset' 'perl')
+checkdepends=('perl-test-pod')
+options=('!emptydirs')
+source=(http://www.cpan.org/authors/id/G/GA/GAAS/HTML-Parser-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

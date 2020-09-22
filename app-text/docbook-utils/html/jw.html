@@ -1,0 +1,1452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>jw</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="DocBook Utils"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Command reference"
+HREF="intro-jw.html#AEN75"><LINK
+REL="PREVIOUS"
+TITLE="jw"
+HREF="intro-jw.html"><LINK
+REL="NEXT"
+TITLE="Helper programs"
+HREF="helpers.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook Utils</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="intro-jw.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="helpers.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="JW"
+></A
+>jw</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN99"
+></A
+><H2
+>Name</H2
+>jw, docbook2dvi, docbook2html, docbook2man, docbook2pdf, docbook2ps, docbook2rtf, docbook2tex, docbook2texi, docbook2txt&nbsp;--&nbsp;(Jade Wrapper) converts SGML files to other formats</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN111"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>jw</B
+>  [<CODE
+CLASS="OPTION"
+>-f</CODE
+>
+      <TT
+CLASS="REPLACEABLE"
+><I
+>frontend</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--frontend</CODE
+>
+      <TT
+CLASS="REPLACEABLE"
+><I
+>frontend</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-b</CODE
+>
+      <TT
+CLASS="REPLACEABLE"
+><I
+>backend</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--backend</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>backend</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-c</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--cat</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-n</CODE
+> | <CODE
+CLASS="OPTION"
+>--nostd</CODE
+>]<BR> [<CODE
+CLASS="OPTION"
+>-d</CODE
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>|default|none | <CODE
+CLASS="OPTION"
+>--dsl</CODE
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>|default|none]<BR> [<CODE
+CLASS="OPTION"
+>-l</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--dcl</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-s</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>path</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--sgmlbase</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>path</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-p</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>program</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--parser</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>program</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-o</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--output</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-V</CODE
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>variable</I
+></TT
+>[=<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>]]<BR> [<CODE
+CLASS="OPTION"
+>-u</CODE
+> | <CODE
+CLASS="OPTION"
+>--nochunks</CODE
+>] [<CODE
+CLASS="OPTION"
+>-i</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>section</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--include</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>section</I
+></TT
+>]<BR> [<CODE
+CLASS="OPTION"
+>-w</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list | <CODE
+CLASS="OPTION"
+>--warning</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list]<BR> [<CODE
+CLASS="OPTION"
+>-e</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list | <CODE
+CLASS="OPTION"
+>--error</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list]<BR> [<CODE
+CLASS="OPTION"
+>-h</CODE
+> | <CODE
+CLASS="OPTION"
+>--help</CODE
+>] [<CODE
+CLASS="OPTION"
+>-v</CODE
+> | <CODE
+CLASS="OPTION"
+>--version</CODE
+>]<BR> {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2dvi</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2html</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2man</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2pdf</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2ps</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2rtf</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2tex</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2texi</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+><P
+><B
+CLASS="COMMAND"
+>docbook2txt</B
+>  {<TT
+CLASS="REPLACEABLE"
+><I
+>SGML-file</I
+></TT
+>}</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN267"
+></A
+><H2
+>Description</H2
+><P
+>The <SPAN
+CLASS="APPLICATION"
+>jw</SPAN
+> shell script allows to
+    convert a DocBook file (or some other SGML-based format) to
+    other formats (including HTML, RTF, PS and PDF) with
+    an easy-to-understand syntax. It hides most of Jade's
+    or OpenJade complexity and adds comfortable features.</P
+><P
+>Other scripts like <SPAN
+CLASS="APPLICATION"
+>docbook2html</SPAN
+>,
+    <SPAN
+CLASS="APPLICATION"
+>docbook2rtf</SPAN
+> or
+    <SPAN
+CLASS="APPLICATION"
+>docbook2ps</SPAN
+> provide different ways of
+    calling <SPAN
+CLASS="APPLICATION"
+>jw</SPAN
+> that might be easier to
+    remember.</P
+><P
+>For the moment, jw does not handle XML, but only SGML.</P
+><P
+>This utility assumes that several other components are
+    installed. The list includes:
+    <P
+></P
+><UL
+><LI
+><P
+>the ISO character entities for SGML</P
+></LI
+><LI
+><P
+>James Clark's DSSSL engine, jade, or an equivalent parser
+        like OpenJade</P
+></LI
+><LI
+><P
+>the DocBook DTD from the OASIS consortium</P
+></LI
+><LI
+><P
+>Norman Walsh's DocBook modular style sheets (or some other
+        set of DSSSL style sheets)</P
+></LI
+><LI
+><P
+>Sebastian Rahtz's jadetex set of TeX macros for jade
+        (for backends intended to "printing" formats like PDF, RTF or
+        PostScript)</P
+></LI
+><LI
+><P
+>A perl interpreter (for backends that use perl)</P
+></LI
+><LI
+><P
+>SGMLSpm from CPAN (for backends that use sgmls)</P
+></LI
+><LI
+><P
+>Lynx HTML browser (for the <TT
+CLASS="FILENAME"
+>txt</TT
+>
+        backend)</P
+></LI
+></UL
+>
+    </P
+><P
+>The jw script is basically called like this:</P
+><PRE
+CLASS="SCREEN"
+>jw mydoc.sgml</PRE
+><P
+>where <TT
+CLASS="FILENAME"
+>mydoc.sgml</TT
+> is a SGML file.</P
+><P
+>The command line above uses default options: it converts
+    from DocBook (the default frontend) to HTML (the default backend),
+    does not put the result in a subdirectory (unless specified
+    otherwise in the style sheets), etc.</P
+><P
+>In this example, the "mydoc" file name as well as the ".sgml"
+    extension can be replaced by anything else. Current extensions
+    for SGML DocBook files include ".sgml", ".sgm", ".docbook", and
+    ".db". The processed file <TT
+CLASS="FILENAME"
+>mydoc.sgml</TT
+> can
+    be in any other directory than the current one.</P
+><P
+>Here we have chosen to generate HTML output. In fact we can
+    use any of the backends stored in the <TT
+CLASS="FILENAME"
+>backends/</TT
+>
+    subdirectory of the DocBook-utils distribution directory (usually
+    <TT
+CLASS="FILENAME"
+>/usr/share/docbook-utils</TT
+>).
+    Similarly, you can use any frontend defined in the
+    <TT
+CLASS="FILENAME"
+>frontends/</TT
+> subdirectory to convert from another
+    input format.</P
+><P
+>This sample command creates one or many HTML files with
+    arbitrary file names in the current directory. This default behavior
+    can be changed through command line options and/or customization
+    style sheets.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN308"
+></A
+><H2
+>Options</H2
+><P
+>The following options apply to the conversion script:</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-f</CODE
+>
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>frontend</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--frontend</CODE
+>
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>frontend</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Allows to specify another frontend than default <TT
+CLASS="FILENAME"
+>docbook</TT
+>.
+          The list of currently available frontends is:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="FILENAME"
+>docbook</TT
+></DT
+><DD
+><P
+>Converts docbook with Norman Walsh's
+              style sheets. This frontend searches in the
+              subdirectories of the base SGML directory for a
+              file named <TT
+CLASS="FILENAME"
+>html/docbook.dsl</TT
+> or
+              <TT
+CLASS="FILENAME"
+>print/docbook.dsl</TT
+> (depending on the
+              backend's type: html or print).</P
+></DD
+></DL
+></DIV
+>
+          </P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-b</CODE
+>
+                <TT
+CLASS="REPLACEABLE"
+><I
+>backend</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--backend</CODE
+>
+                <TT
+CLASS="REPLACEABLE"
+><I
+>backend</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Allows to specify another backend than default
+          <TT
+CLASS="FILENAME"
+>HTML</TT
+>. The list of currently available
+          backends is:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="FILENAME"
+>dvi</TT
+></DT
+><DD
+><P
+>Converts to DVI (DeVice Independant
+              files) by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> or
+              <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>html</TT
+></DT
+><DD
+><P
+>Converts to HTML (HyperText Markup
+              Language) by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+>
+              or <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>man</TT
+></DT
+><DD
+><P
+>Converts a refentry to a Unix manual page
+              by calling docbook2man. Does not work with other SGML
+              document types than DocBook.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>pdf</TT
+></DT
+><DD
+><P
+>Converts to PDF (Portable Document
+              Format) by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> or
+              <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>ps</TT
+></DT
+><DD
+><P
+>Converts to PostScript by
+              calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> or
+              <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>rtf</TT
+></DT
+><DD
+><P
+>Converts to RTF (Rich Text Format)
+              by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> or
+              <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>. The resulting file can
+              then be inported into <SPAN
+CLASS="APPLICATION"
+>MS Word</SPAN
+>
+              or one of its Linux replacement programs.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>tex</TT
+></DT
+><DD
+><P
+>Converts to TeX by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> or
+              <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>texi</TT
+></DT
+><DD
+><P
+>Converts to GNU TeXinfo pages by calling
+              docbook2texi. Does not work with other SGML document types
+              than DocBook.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>txt</TT
+></DT
+><DD
+><P
+>Converts to a bare text file
+              by calling <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+>
+              or <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>, then
+              <SPAN
+CLASS="APPLICATION"
+>Lynx</SPAN
+>.</P
+></DD
+></DL
+></DIV
+>
+          </P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-c</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--cat</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Allows to use an extra SGML Open Catalog that will list
+          other files like customization style sheets, adaptations to the
+          DocBook Document Type Definition, special character entities,
+          etc. This catalog is added to the list of catalogs determined
+          by the script (see option <CODE
+CLASS="OPTION"
+>--nostd</CODE
+> below)</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-n</CODE
+> | <CODE
+CLASS="OPTION"
+>--nostd</CODE
+>]</P
+></DT
+><DD
+><P
+>Do not use the standard SGML Open Catalogs. Normally,
+	  the standard catalogs list is determined like this:
+          <P
+></P
+><UL
+><LI
+><P
+>if the centralized catalog exists, then
+              use it. The centralized catalog is a list of all
+              catalogs that might be necessary that usually
+              resides in <TT
+CLASS="FILENAME"
+>/etc/sgml</TT
+>. Its
+              name is provided by the frontend, for example
+              the <TT
+CLASS="FILENAME"
+>docbook</TT
+> frontend returns
+              <TT
+CLASS="FILENAME"
+>/etc/sgml/sgml-docbook.cat</TT
+>.</P
+></LI
+><LI
+><P
+>Otherwise, take all the files
+              named <TT
+CLASS="FILENAME"
+>catalog</TT
+> from the
+              subdirectories of the SGML base directory (usually
+              <TT
+CLASS="FILENAME"
+>/usr/share/sgml</TT
+>).</P
+></LI
+></UL
+>
+	  This option is useful in conjunction with the
+	  <CODE
+CLASS="OPTION"
+>--cat</CODE
+> option to use only the catalogs that
+	  are specified on the command line.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-d</CODE
+>
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>|default|none | <CODE
+CLASS="OPTION"
+>--dsl</CODE
+>
+	      <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>|default|none]</P
+></DT
+><DD
+><P
+>Allows to use a customized style sheet instead
+          of the default one.</P
+><P
+>A "target" starting with a hash mark "#" can be appended
+	  to the file name. As a result, only the corresponding part
+	  of the style sheet is executed (the "style specification" whose
+	  "identificator" is equal to the target's name). A common use of this
+	  mechanism is to define "#html" and "#print" targets to trigger
+	  the corresponding part  of a replacement style sheet which is
+	  common for both HTML and printout conversion.</P
+><P
+>By replacing the file name with "default", the default
+	  style sheet provided with the frontend is used. For example, the
+          <TT
+CLASS="FILENAME"
+>docbook</TT
+> frontend returns 
+          <TT
+CLASS="FILENAME"
+>./docbook.dsl#html</TT
+> (or
+          <TT
+CLASS="FILENAME"
+>./docbook.dsl#print</TT
+>) in the SGML base
+	  directory.</P
+><P
+>By replacing the file name with "none", no replacement
+	  style sheet is used, not even the default style sheet. The style
+	  sheet which is used is also determined by the frontend. For
+	  example, the <TT
+CLASS="FILENAME"
+>docbook</TT
+> frontend returns
+	  Norman Walsh's <TT
+CLASS="FILENAME"
+>html/docbook.dsl</TT
+> (or
+          <TT
+CLASS="FILENAME"
+>print/docbook.dsl</TT
+>) found somewhere below
+          the SGML base directory.</P
+><P
+>If no --dsl option is specified, then "--dsl default" is
+	  used.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-l</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--dcl</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Allows to use a customized SGML declaration instead
+          of the default one. The file name of the default SGML
+          declaration is not set for SGML files, and is set to
+	  <TT
+CLASS="FILENAME"
+>xml.dcl</TT
+> in the SGML base directory
+	  for XML files.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-s</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>path</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--sgmlbase</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>path</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Allows to use another location for the SGML base
+          directory. This is the directory below which all SGML DTDs,
+          style sheets, entities, etc are installed. The default value
+          is <TT
+CLASS="FILENAME"
+>/usr/share/sgml</TT
+>.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-p</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>program</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--parser</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>program</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Specify the parser to use (<SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+>
+          or <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>) if several
+          are installed. If this option is not specified,
+          the script first tries to use Jade, then it tries
+          <SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-o</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--output</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Set output directory where all the resulting files will
+          be stored. If the style sheets define a subdirectory where to
+          store the resulting files too, the subdirectory defined by the
+          style sheets will be placed below the subdirectory defined by
+          this option.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-V</CODE
+>
+	<TT
+CLASS="REPLACEABLE"
+><I
+>variable</I
+></TT
+>=[<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>]]</P
+></DT
+><DD
+><P
+>Set a variable (to a value, if one is specified).</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-u</CODE
+> | <CODE
+CLASS="OPTION"
+>--nochunks</CODE
+>]</P
+></DT
+><DD
+><P
+>Output only one big file. This option is useful only
+          when generating HTML, because the output can be split into
+          several files. This option overrides the setting that may be
+          done in the style sheets.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-i</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>section</I
+></TT
+> | <CODE
+CLASS="OPTION"
+>--include</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>section</I
+></TT
+>]</P
+></DT
+><DD
+><P
+>Declare a SGML marked section as "include". A SGML marked
+          section is a kind of conditional part of a document. If it is
+          declared "ignore", it will be left ignored, otherwise it will
+          be processed. An example of such a marked section would be:
+            <DIV
+CLASS="INFORMALEXAMPLE"
+><P
+></P
+><A
+NAME="AEN549"
+></A
+><P
+><P
+CLASS="LITERALLAYOUT"
+>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;DOCTYPE&nbsp;mydoc&nbsp;[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!ENTITY&nbsp;%&nbsp;confidential&nbsp;"ignore"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;mydoc&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;![&nbsp;%confidential&nbsp;[&nbsp;Some&nbsp;confidential&nbsp;text...&nbsp;]]&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/mydoc&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P
+></P
+><P
+></P
+></DIV
+>
+          </P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-w</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list | <CODE
+CLASS="OPTION"
+>--warning</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list]</P
+></DT
+><DD
+><P
+>Enables or disables the display of given types of warnings.
+	  Several -w options might be entered on the command line.
+	  Warning types that start with "no-" disable the corresponding
+	  warnings, the other types enable them.</P
+><P
+>If the warning type is replaced with "list", then
+	  a list of allowed warning types is displayed.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-e</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list | <CODE
+CLASS="OPTION"
+>--error</CODE
+> <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>|list]</P
+></DT
+><DD
+><P
+>Disables given types of errors.
+	  Several -e options might be entered on the command line.
+	  All error types start with "no-".</P
+><P
+>If the error type is replaced with "list", then
+	  a list of allowed error types is displayed.</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-h</CODE
+> | <CODE
+CLASS="OPTION"
+>--help</CODE
+>]</P
+></DT
+><DD
+><P
+>Print a short help message and exit</P
+></DD
+><DT
+><P
+>[<CODE
+CLASS="OPTION"
+>-v</CODE
+> | <CODE
+CLASS="OPTION"
+>--version</CODE
+>]</P
+></DT
+><DD
+><P
+>Print the version identifier and exit</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN598"
+></A
+><H2
+>Files</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="FILENAME"
+>/etc/sgml/sgml-docbook.cat</TT
+></DT
+><DD
+><P
+>Centralized SGML open catalog. This file name might
+          vary if another frontend than <TT
+CLASS="FILENAME"
+>docbook</TT
+>
+          is used.</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>/usr/share/docbook-utils/backends</TT
+></DT
+><DD
+><P
+>The various backends</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>/usr/share/docbook-utils/frontends</TT
+></DT
+><DD
+><P
+>The various frontends</P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>/usr/share/perl5/sgmlspl-specs</TT
+></DT
+><DD
+><P
+>The various helper scripts like docbook2man or docbook2texi</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN622"
+></A
+><H2
+>Authors</H2
+><P
+>Eric Bischoff (jw shell script and a few backends),
+      Jochem Huhmann (the <TT
+CLASS="FILENAME"
+>man</TT
+> and
+      <TT
+CLASS="FILENAME"
+>texi</TT
+> backends)</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN627"
+></A
+><H2
+>See Also</H2
+><P
+><SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>docbook2man-spec.pl</SPAN
+>(1)</SPAN
+>,
+    <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>docbook2texi-spec.pl</SPAN
+>(1)</SPAN
+>,
+    <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>install-catalog</SPAN
+>(8)</SPAN
+>,
+    <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>nsgmls</SPAN
+>(1)</SPAN
+>, <A
+HREF="http://sources.redhat.com/docbook-tools/"
+TARGET="_top"
+>docbook-utils
+    homepage</A
+>.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="intro-jw.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="helpers.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>jw</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="intro-jw.html#AEN75"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Helper programs</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

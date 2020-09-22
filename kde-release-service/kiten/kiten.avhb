@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kiten
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="A Japanese reference tool"
+url="http://kde.org/applications/games/kiriki/"
+arch=('x86_64')
+groups=('kde-apps')
+license=(GPL LGPL FDL)
+depends=(libkdegames hicolor-icon-theme)
+makedepends=(extra-cmake-modules kdoctools python)
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+sha1sums=('8a57641eb44ac7bb97e9145072b209d5afe2bc63')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIB_INSTALL_DIR=lib
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

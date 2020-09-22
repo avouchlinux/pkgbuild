@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=smpeg
+pkgver=0.4.5
+pkgrel=1
+pkgdesc="SDL MPEG Player Library"
+arch=('x86_64')
+groups=('media-libs')
+url="https://icculus.org/smpeg/"
+license=(LGPL)
+depends=(sdl)
+makedepends=(mesa glu subversion)
+optdepends=('glu: to use glmovie')
+source=("$pkgname-$pkgver::svn://svn.icculus.org/smpeg/tags/release_${pkgver//./_}")
+
+getsrc(){
+	svn co svn://svn.icculus.org/smpeg/trunk smpeg
+}
+prepare() {
+  cd $pkgname
+  ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  export CFLAGS+=" -Wno-error=narrowing"
+  CFLAGS+=" -Wno-error=narrowing" \
+  ./configure --prefix=/usr --mandir=/usr/share/man --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}

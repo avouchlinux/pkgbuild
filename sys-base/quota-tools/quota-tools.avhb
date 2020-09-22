@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=quota-tools
+_realname=quota
+pkgver=4.05
+pkgrel=1
+pkgdesc="Tools to manage kernel-level quotas in Linux"
+arch=('x86_64')
+groups=('sys-base')
+url="https://sourceforge.net/projects/linuxquota/"
+license=(GPL BSD)
+depends=(libnl dbus libtirpc)
+makedepends=(rpcsvc-proto)
+options=(!emptydirs)
+backup=('etc/warnquota.conf' 'etc/quotatab' 'etc/quotagrpadmins')
+source=(https://downloads.sourceforge.net/sourceforge/linuxquota/quota-$pkgver.tar.gz)
+sha1sums=('d23711f3b204e0a86b8378c32545c95fb149168d')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="$pkgdir" sbindir=/usr/bin root_sbindir=/usr/bin STRIP="" install
+	# license
+	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+	head -33 quota.c > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	# remove conflicts with glibc
+	rm "${pkgdir}"/usr/include/rpcsvc/rquota.{h,x}
+}
+

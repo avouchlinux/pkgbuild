@@ -1,0 +1,20 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-hack
+_realname=Hack
+pkgver=3.003
+pkgrel=1
+pkgdesc='A hand groomed and optically balanced typeface based on Bitstream Vera Mono.'
+arch=('any')
+groups=('media-fonts')
+license=('SIL Open Font License 1.1 and Bitstream Vera License')
+url="http://sourcefoundry.org/hack/"
+depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-font-utils')
+source=("https://github.com/chrissimpkins/Hack/releases/download/v${pkgver}/Hack-v${_pkgver_major}_${_pkgver_minor}-ttf.zip")
+
+package() {
+  install -Dm644 -t "$pkgdir/usr/share/fonts/TTF" "$srcdir"/Hack-*.ttf
+  install -Dm644 LICENSE.md "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

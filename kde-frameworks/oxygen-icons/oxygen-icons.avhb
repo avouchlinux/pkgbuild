@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=oxygen-icons
+pkgname=('oxygen-icons' 'oxygen-icons-svg')
+_realname=oxygen-icons5
+pkgver=5.74.0
+pkgrel=1
+pkgdesc="The Oxygen Icon Theme"
+arch=('any')
+groups=('kde-frameworks')
+url='http://www.oxygen-icons.org/'
+license=('LGPL')
+makedepends=('extra-cmake-modules' 'qt5-base')
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}5-${pkgver}.tar.xz")
+
+build() {
+	cmake -S ${_realname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package_oxygen-icons() {
+	groups=('kde-frameworks')
+
+	DESTDIR="${pkgdir}" ninja -C build install
+}
+
+package_oxygen-icons-svg() {
+	pkgdesc="The Oxygen Icon Theme (Scalable Vector Graphics)"
+
+	cd ${srcdir}/${_realname}-${pkgver}
+	find scalable -type f ! -name '*.sh' -exec \
+    install -D -m644 "{}" "${pkgdir}/usr/share/icons/oxygen/{}" \;
+}

@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=leveldb
+pkgver=1.22
+pkgrel=1
+pkgdesc="A fast and lightweight key/value database library"
+arch=('x86_64')
+grous=('dev-db')
+url="https://github.com/google/leveldb"
+license=('BSD')
+depends=('gperftools' 'snappy')
+makedepends=('cmake')
+source=("https://github.com/google/leveldb/archive/$pkgver.tar.gz")
+
+build() {
+  mkdir "$pkgname-$pkgver/build"
+  cd "$pkgname-$pkgver/build"
+
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=1 \
+    ..
+
+  make
+}
+
+check() {
+  make -C "$pkgname-$pkgver/build" test
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make -C build DESTDIR="$pkgdir" install
+
+  # documentation
+  install -dm755 "$pkgdir"/usr/share/doc/"$pkgname"
+  cp -dr --no-preserve=ownership doc/* "$pkgdir/usr/share/doc/$pkgname"
+
+  # license
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnl1
+_realname=libnl
+pkgver=1.1.4
+pkgrel=1
+pkgdesc="Library for applications dealing with netlink sockets (Legacy version)"
+arch=('x86_64')
+groups=('net-libs')
+url="http://www.infradead.org/~tgr/libnl/"
+license=('GPL')
+depends=('glibc')
+options=('!staticlibs')
+source=("http://www.infradead.org/~tgr/libnl/files/libnl-${pkgver}.tar.gz")
+
+build() {
+	cd "$srcdir/$_realname-$pkgver"
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd "$srcdir/$_realname-$pkgver"
+	make DESTDIR="${pkgdir}" install
+}

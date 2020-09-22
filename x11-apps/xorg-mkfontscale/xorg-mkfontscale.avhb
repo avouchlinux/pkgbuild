@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-mkfontscale
+_realname=mkfontscale
+pkgver=1.2.1
+pkgrel=1
+pkgdesc="Create an index of scalable font files for X"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('freetype2' 'libfontenc')
+makedepends=('xorg-util-macros' 'xproto')
+source=(http://xorg.freedesktop.org/archive/individual/app/mkfontscale-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=php-box
+_realname=box
+pkgver=2.7.5
+pkgrel=1
+pkgdesc="An application for building and managing Phars"
+url="https://github.com/box-project/box2"
+license=("MIT")
+arch=("any")
+groups=("dev-php")
+repo=("extra")
+depends=("php")
+install="${pkgname}.install"
+source=(
+  "https://github.com/box-project/box2/releases/download/${pkgver}/box-${pkgver}.phar"
+  "https://github.com/box-project/box2/releases/download/${pkgver}/box-${pkgver}.phar.sig"
+  "https://raw.github.com/box-project/box2/${pkgver}/LICENSE"
+)
+validpgpkeys=("32E4B74757B1D65234FC389F293D771241515FE8")
+
+package() {
+    install -D -m644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    install -D -m755 "${srcdir}/box-${pkgver}.phar" "${pkgdir}/usr/share/webapps/bin/${pkgname}.phar"
+    install -d "${pkgdir}/usr/bin"
+    ln -s "/usr/share/webapps/bin/${pkgname}.phar" "${pkgdir}/usr/bin/${pkgname}"
+}

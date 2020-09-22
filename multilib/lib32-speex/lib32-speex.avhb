@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-speex
+pkgbase=speex
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="A free codec for free speech (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('BSD')
+depends=('lib32-libogg' $_pkgbasename)
+makedepends=(gcc-multilib)
+options=('!libtool')
+source=(http://downloads.us.xiph.org/releases/$_pkgbasename/$_pkgbasename-$pkgver.tar.gz)
+md5sums=('c4438b22c08e5811ff10e2b06ee9b9ae')
+url="http://www.speex.org/"
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --libdir=/usr/lib32 \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=$pkgdir install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

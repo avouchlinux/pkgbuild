@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-extutils-depends
+_realname=ExtUtils-Depends
+pkgver=0.404
+pkgrel=1
+pkgdesc="The Perl depends module"
+arch=('any')
+license=('PerlArtistic')
+url="http://search.cpan.org/dist/${_realname}/"
+depends=('perl>=5.10.0')
+source=(http://www.cpan.org/authors/id/F/FL/FLORA/ExtUtils-Depends-${pkgver}.tar.gz)
+replaces=('extutils-depends')
+options=('!emptydirs')
+md5sums=('da66d6cb19e2c76d7f3266846832026c')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+}
+

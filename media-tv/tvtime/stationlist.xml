@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE stationlist PUBLIC "-//tvtime//DTD stationlist 1.0//EN" "http://tvtime.sourceforge.net/DTD/stationlist1.dtd">
+<stationlist xmlns="http://tvtime.sourceforge.net/DTD/">
+  <list norm="PAL" frequencies="Custom" audio="bg">
+    <station name="55.75MHz" active="1" position="1" band="Custom" channel="55.75MHz" finetune="0"/>
+    <station name="61.75MHz" active="1" position="2" band="Custom" channel="61.75MHz" finetune="0"/>
+    <station name="69.50MHz" active="1" position="3" band="Custom" channel="69.50MHz" finetune="0"/>
+    <station name="76.50MHz" active="1" position="4" band="Custom" channel="76.50MHz" finetune="0"/>
+    <station name="83.50MHz" active="1" position="5" band="Custom" channel="83.50MHz" finetune="0"/>
+    <station name="97.50MHz" active="1" position="6" band="Custom" channel="97.50MHz" finetune="0"/>
+    <station name="105.25MHz" active="1" position="7" band="Custom" channel="105.25MHz" finetune="0"/>
+    <station name="112.25MHz" active="1" position="8" band="Custom" channel="112.25MHz" finetune="0"/>
+    <station name="126.50MHz" active="1" position="9" band="Custom" channel="126.50MHz" finetune="0"/>
+    <station name="133.25MHz" active="1" position="10" band="Custom" channel="133.25MHz" finetune="0"/>
+    <station name="140.50MHz" active="1" position="11" band="Custom" channel="140.50MHz" finetune="0"/>
+    <station name="147.50MHz" active="1" position="12" band="Custom" channel="147.50MHz" finetune="0"/>
+    <station name="154.50MHz" active="1" position="13" band="Custom" channel="154.50MHz" finetune="0"/>
+    <station name="159.25MHz" active="1" position="14" band="Custom" channel="159.25MHz" finetune="0"/>
+    <station name="161.50MHz" active="1" position="15" band="Custom" channel="161.50MHz" finetune="0"/>
+    <station name="168.50MHz" active="1" position="16" band="Custom" channel="168.50MHz" finetune="0"/>
+    <station name="182.50MHz" active="1" position="17" band="Custom" channel="182.50MHz" finetune="0"/>
+    <station name="189.25MHz" active="1" position="18" band="Custom" channel="189.25MHz" finetune="0"/>
+    <station name="196.25MHz" active="1" position="19" band="Custom" channel="196.25MHz" finetune="0"/>
+    <station name="203.50MHz" active="1" position="20" band="Custom" channel="203.50MHz" finetune="0"/>
+    <station name="210.50MHz" active="1" position="21" band="Custom" channel="210.50MHz" finetune="0"/>
+    <station name="217.25MHz" active="1" position="22" band="Custom" channel="217.25MHz" finetune="0"/>
+    <station name="224.50MHz" active="1" position="23" band="Custom" channel="224.50MHz" finetune="0"/>
+    <station name="231.50MHz" active="1" position="24" band="Custom" channel="231.50MHz" finetune="0"/>
+    <station name="238.25MHz" active="1" position="25" band="Custom" channel="238.25MHz" finetune="0"/>
+    <station name="245.50MHz" active="1" position="26" band="Custom" channel="245.50MHz" finetune="0"/>
+    <station name="252.50MHz" active="1" position="27" band="Custom" channel="252.50MHz" finetune="0"/>
+    <station name="259.50MHz" active="1" position="28" band="Custom" channel="259.50MHz" finetune="0"/>
+    <station name="266.50MHz" active="1" position="29" band="Custom" channel="266.50MHz" finetune="0"/>
+    <station name="280.50MHz" active="1" position="30" band="Custom" channel="280.50MHz" finetune="0"/>
+    <station name="287.50MHz" active="1" position="31" band="Custom" channel="287.50MHz" finetune="0"/>
+    <station name="294.25MHz" active="1" position="32" band="Custom" channel="294.25MHz" finetune="0"/>
+    <station name="311.50MHz" active="1" position="33" band="Custom" channel="311.50MHz" finetune="0"/>
+    <station name="319.25MHz" active="1" position="34" band="Custom" channel="319.25MHz" finetune="0"/>
+    <station name="327.50MHz" active="1" position="35" band="Custom" channel="327.50MHz" finetune="0"/>
+    <station name="335.50MHz" active="1" position="36" band="Custom" channel="335.50MHz" finetune="0"/>
+    <station name="343.50MHz" active="1" position="37" band="Custom" channel="343.50MHz" finetune="0"/>
+    <station name="367.50MHz" active="1" position="38" band="Custom" channel="367.50MHz" finetune="0"/>
+    <station name="415.50MHz" active="1" position="39" band="Custom" channel="415.50MHz" finetune="0"/>
+    <station name="423.00MHz" active="1" position="40" band="Custom" channel="423.00MHz" finetune="0"/>
+    <station name="439.00MHz" active="1" position="41" band="Custom" channel="439.00MHz" finetune="0"/>
+    <station name="455.25MHz" active="1" position="42" band="Custom" channel="455.25MHz" finetune="0"/>
+    <station name="487.50MHz" active="1" position="43" band="Custom" channel="487.50MHz" finetune="0"/>
+  </list>
+</stationlist>

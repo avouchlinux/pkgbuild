@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-m2crypto
+_realname=m2crypto
+pkgver=0.35.2
+pkgrel=1
+pkgdesc="A crypto and SSL toolkit for Python"
+arch=('x86_64')
+groups=('dev-python')
+url="https://pypi.python.org/pypi/M2Crypto"
+license=('BSD')
+depends=('python2' 'openssl' 'python2-typing')
+makedepends=('python2' 'python2-setuptools' 'swig')
+source=("https://gitlab.com/m2crypto/m2crypto/repository/${pkgver}/archive.tar.gz"
+	"LICENSE")
+
+build(){
+  cd "$srcdir/m2crypto-$pkgver"
+  python2 setup.py build
+}
+
+package() {
+  cd "${srcdir}/m2crypto-${pkgver}"
+  python2 setup.py install --root="${pkgdir}/" --optimize=1 --skip-build
+  install -D -m644 "$srcdir"/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

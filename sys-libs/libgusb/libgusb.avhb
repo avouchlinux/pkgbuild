@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgusb
+pkgver=0.3.4
+pkgrel=1
+pkgdesc='GObject wrapper for libusb1'
+arch=('x86_64')
+groups=('sys-libs')
+url='https://github.com/hughsie/libgusb'
+license=('LGPL2.1')
+depends=('glib2' 'libusb')
+makedepends=('git' 'gobject-introspection' 'gtk-doc' 'meson' 'python2' 'vala')
+source=("https://github.com/hughsie/libgusb/archive/$pkgver.tar.gz")
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

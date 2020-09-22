@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsndfile
+pkgver=1.0.28
+pkgrel=1
+pkgdesc="A C library for reading and writing files containing sampled sound"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.mega-nerd.com/libsndfile"
+license=('LGPL')
+depends=('alsa-lib' 'flac' 'libvorbis')
+checkdepends=('python2')
+source=(http://www.mega-nerd.com/libsndfile/files/${pkgname}-${pkgver}.tar.gz{,.asc})
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+
+    sed -i 's|#!/usr/bin/python|#!/usr/bin/python2|' src/binheader_writef_check.py \
+        src/create_symbols_file.py programs/test-sndfile-metadata-set.py
+
+    sed -i 's|python|&2|' src/Makefile.am
+
+    autoreconf -vi
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --disable-sqlite
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+}
+

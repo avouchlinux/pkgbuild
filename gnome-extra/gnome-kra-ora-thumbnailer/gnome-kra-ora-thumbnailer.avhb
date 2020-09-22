@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-kra-ora-thumbnailer
+pkgver=1.4
+pkgrel=1
+pkgdesc="A thumbnailer for KRA ( Krita native file ) and ORA ( open-raster ) for the Gnome desktop"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://github.com/Deevad/gnome-kra-ora-thumbnailer"
+makedepends=('git' 'gnome-common' 'automake' 'intltool')
+license=('GPL2')
+source=("http://ftp.acc.umu.se/pub/gnome/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz")
+
+build() {
+	cd $srcdir/$pkgname-$pkgver
+	./autogen.sh
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+}

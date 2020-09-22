@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ktexteditorpreviewplugin
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='KTextEditor Document Preview Plugin'
+arch=('x86_64')
+groups=('kde-apps')
+url='https://projects.kde.org/projects/frameworks/ktextwidgets'
+license=('LGPL')
+depends=('kcompletion' 'kservice' 'kiconthemes' 'sonnet')
+makedepends=('extra-cmake-modules' 'python')
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+	cd ${srcdir}/build
+	cmake ../${pkgname}-${pkgver} \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+		-DBUILD_TESTING=OFF
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+	# License
+	install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING.LIB" \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

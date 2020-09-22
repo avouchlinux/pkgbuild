@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=khangman
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Hangman Game"
+url="http://kde.org/applications/education/khangman/"
+arch=('x86_64')
+groups=('kde-games')
+license=('GPL' 'LGPL' 'FDL')
+depends=('libkeduvocdocument' 'knewstuff' 'kdeclarative')
+makedepends=('extra-cmake-modules' 'kdoctools' 'python')
+replaces=('kdeedu-khangman')
+conflicts=('kdeedu-khangman')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/khangman-${pkgver}.tar.xz")
+sha1sums=('ed47f1af65972b20482ae45131c7d4bbd5f4a005')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../khangman-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DKDE_INSTALL_LIBDIR=lib \
+    -DSYSCONF_INSTALL_DIR=/etc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/build
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=devhelp
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="API documentation browser for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+url="https://wiki.gnome.org/Apps/Devhelp"
+depends=(webkit2gtk amtk)
+makedepends=(gtk-doc git appstream-glib gobject-introspection meson yelp-tools)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build -D gtk_doc=true
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

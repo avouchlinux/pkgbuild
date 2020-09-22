@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_realname=talloc
+pkgname=lib32-${_realname}
+pkgver=2.3.1
+pkgrel=1
+pkgdesc='A hierarchical pool based memory allocator with destructors'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://talloc.samba.org/'
+license=('GPL3')
+source=("https://samba.org/ftp/${_realname}/${_realname}-${pkgver}.tar.gz")
+depends=('talloc')
+makedepends=('python')
+sha256sums=('195bf6830a070deb11c492b8cd575a59cd4d3b634164f3f693f6388f806a52a9')
+
+build() {
+  cd ${_realname}-${pkgver}
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  ./configure --prefix=/usr \
+     --libdir='/usr/lib32' \
+     --sysconfdir=/etc/samba \
+     --localstatedir=/var \
+     --bundled-libraries=NONE \
+     --builtin-libraries=replace \
+     --enable-talloc-compat1 \
+     --disable-python
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/{include,share}
+}

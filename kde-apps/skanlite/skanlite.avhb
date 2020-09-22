@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=skanlite
+pkgver=2.1.0.1
+pkgrel=1
+pkgdesc="Image Scanning Application for KDE"
+arch=('x86_64')
+groups=('kde-apps')
+url='https://www.kde.org/applications/graphics/skanlite'
+license=(GPL)
+depends=(libksane kio)
+makedepends=(extra-cmake-modules kdoctools)
+source=("https://download.kde.org/stable/$pkgname/${pkgver%.*.*}/$pkgname-$pkgver.tar.xz") # {,.sig} - No public key available
+sha256sums=('b4733e55b706eaf749522aa81ec47bfd65a95c2fec994c1c47e0c4b628e70442')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

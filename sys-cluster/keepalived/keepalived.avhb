@@ -1,0 +1,44 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=keepalived
+pkgver=2.0.20
+pkgrel=1
+pkgdesc='Failover and monitoring daemon for LVS clusters'
+arch=('x86_64')
+groups=('sys-cluster')
+url='http://www.keepalived.org/'
+license=('GPL2')
+backup=('etc/keepalived/keepalived.conf' 'etc/sysconfig/keepalived')
+makedepends=('ipset')
+depends=('glibc' 'libnl' 'openssl' 'file' 'iptables')
+optdepends=('ipset: ipset support')
+makedepends=('libnfnetlink' 'ipset' 'systemd')
+options=('!emptydirs')
+source=("http://www.keepalived.org/software/$pkgname-$pkgver.tar.gz")
+
+build() {
+  # trick broken ./configure systemctl test
+  printf "#!/bin/sh\necho -.mount\n" > systemctl
+  chmod +x systemctl
+  PATH=$PWD:$PATH
+
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --sbindir=/usr/bin \
+    --localstatedir=/var \
+    --runstatedir=/run
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  # move examples to /usr/share
+  install -d -m 755 "$pkgdir/usr/share/$pkgname"
+  mv "$pkgdir/etc/keepalived/samples" "$pkgdir/usr/share/$pkgname/samples"
+}

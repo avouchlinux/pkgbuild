@@ -1,0 +1,71 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=keybinder
+pkgname=('libkeybinder' 'lua-keybinder' 'python2-keybinder')
+_realname=keybinder
+pkgver=0.3.1
+pkgrel=1
+pkgdesc='Library for registering global keyboard shortcuts'
+arch=('x86_64')
+groups=('kde-apps')
+url='https://github.com/engla/keybinder'
+license=('GPL')
+makedepends=('pygtk' 'gnome-common' 'gtk-doc')
+source=(https://github.com/engla/${_offname}/archive/master.zip)
+sha256sums=('30e46747a76b38395b669079edd0532d3ed8c818d13dd6cbd32da9ffc012919b')
+
+prepare() {
+
+srcdir=${builddir}/${pkgbase}
+cd ${srcdir}
+tar -zxf ${srcdir}/${_realname}-${pkgver}.tar.gz
+cd ${srcdir}/${_realname}-${pkgver}
+
+}
+
+build() {
+
+cd ${srcdir}/${_realname}-${pkgver}
+export PYTHON=/usr/bin/python2
+./configure --prefix=/usr \
+--with-lua-includes=/usr/include/lua5.1 \
+--with-lua-suffix=5.1
+make
+
+}
+
+package_libkeybinder() {
+  pkgdesc='Library for registering global keyboard shortcuts'
+  depends=('gtk2')
+
+cd ${srcdir}/${_realname}-${pkgver}
+make DESTDIR="${pkgdir}/" install
+rm -rf "${pkgdir}/usr/lib/python2.7"
+
+}
+
+package_lua-keybinder() {
+  pkgdesc='Library for registering global keyboard shortcuts - Python 2 bindings'
+  depends=('libkeybinder2' 'pygtk')
+  provides=('python-keybinder')
+
+cd ${srcdir}/${_realname}-${pkgver}
+make DESTDIR="${pkgdir}/" install
+rm -rf "${pkgdir}"/usr/lib/{girepository-1.0,libkeybinder*,pkgconfig,python2.7}
+rm -rf "${pkgdir}"/usr/{include,share}
+
+}
+
+package_python2-keybinder() {
+  pkgdesc='Library for registering global keyboard shortcuts - Python 2 bindings'
+  depends=('libkeybinder2' 'pygtk')
+  provides=('python-keybinder')
+
+cd ${srcdir}/${_realname}-${pkgver}
+make DESTDIR="${pkgdir}/" install
+rm -rf "${pkgdir}"/usr/lib/{girepository-1.0,libkeybinder*,pkgconfig,lua}
+rm -rf "${pkgdir}"/usr/{include,share}
+
+}

@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=(flashplugin pepper-flash)
+pkgver=32.0.0.344
+pkgrel=1
+pkgdesc="Adobe Flash Player"
+arch=('x86_64')
+groups=('www')
+url="https://get.adobe.com/flashplayer/"
+license=('custom' 'LGPL')
+options=('!strip')
+source=(flash_player_npapi_linux_$pkgver.x86_64.tar.gz::https://fpdownload.adobe.com/get/flashplayer/pdc/$pkgver/flash_player_npapi_linux.x86_64.tar.gz
+        flash_player_ppapi_linux_$pkgver.x86_64.tar.gz::https://fpdownload.adobe.com/get/flashplayer/pdc/$pkgver/flash_player_ppapi_linux.x86_64.tar.gz)
+noextract=(${source[@]%::*})
+
+prepare() {
+  mkdir -p npapi ppapi
+  bsdtar -xf $srcarchivedir/flash_player_npapi_linux.x86_64.tar.gz -C npapi
+  bsdtar -xf $srcarchivedir/flash_player_ppapi_linux.x86_64.tar.gz -C ppapi
+}
+
+package_flashplugin() {
+  pkgdesc+=" NPAPI"
+  depends=('libxt' 'gtk2' 'nss' 'curl' 'hicolor-icon-theme')
+  optdepends=('libvdpau: GPU acceleration on Nvidia cards')
+
+  cd npapi
+  install -Dm644 libflashplayer.so "$pkgdir/usr/lib/mozilla/plugins/libflashplayer.so"
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" license.pdf LGPL/notice.txt
+
+  install -D -t "$pkgdir/usr/bin" usr/bin/flash-player-properties
+  cp -a usr/share/{applications,icons} "$pkgdir/usr/share/"
+
+}
+
+package_pepper-flash() {
+  pkgdesc+=" PPAPI"
+  depends=('gcc-libs')
+  optdepends=('flashplugin: settings utility')
+
+  cd ppapi
+  install -Dm644 -t "$pkgdir/usr/lib/PepperFlash" manifest.json libpepflashplayer.so
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" license.pdf LGPL/notice.txt
+}

@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfce4-mpc-plugin
+pkgver=0.5.2
+pkgrel=1
+pkgdesc="Control the Music Player Daemon from the Xfce4 panel"
+arch=('x86_64')
+groups=('xfce4-goodies')
+url="https://goodies.xfce.org/projects/panel-plugins/xfce4-mpc-plugin"
+license=('BSD')
+depends=('xfce4-panel' 'libmpd')
+makedepends=('intltool')
+source=(https://archive.xfce.org/src/panel-plugins/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --libexecdir=/usr/lib \
+    --localstatedir=/var \
+    --disable-static \
+    --disable-debug
+  make ${MAKEFLAGS}
+}
+
+package(){
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

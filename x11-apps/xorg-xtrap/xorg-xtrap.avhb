@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xtrap
+_pkgname=xtrap
+pkgdesc="X Trap sample clients"
+pkgver=1.0.3
+pkgrel=1
+arch=('x86_64')
+groups=('x11-apps')
+url="http://www.x.org/"
+license=('custom')
+depends=('libxtrap')
+source=("http://xorg.freedesktop.org/releases/individual/app/$_pkgname-$pkgver.tar.bz2")
+
+build() {
+  cd "$srcdir/$_pkgname-$pkgver"
+  ./configure --prefix=/usr --sysconfdir=/etc \
+	--mandir=/usr/share/man
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$_pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

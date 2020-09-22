@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=whois
+pkgver=5.2.15
+pkgrel=1
+pkgdesc="The whois client by Marco d'Itri"
+arch=('i686' 'x86_64')
+url="http://www.linux.it/~md/software/"
+license=('GPL')
+depends=('libidn')
+makedepends=('perl')
+backup=('etc/whois.conf')
+source=("http://ftp.debian.org/debian/pool/main/w/whois/${pkgname}_${pkgver}.tar.xz")
+md5sums=('8144fc16bd11f04087c6f91f26ced381')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make prefix=/usr \
+	CFLAGS="$CFLAGS $CPPFLAGS" \
+	CONFIG_FILE=/etc/whois.conf \
+	HAVE_LIBIDN=1 \
+	HAVE_ICONV=1
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make prefix=/usr BASEDIR="${pkgdir}" install-whois
+	install -D -m644 whois.conf "${pkgdir}/etc/whois.conf"
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

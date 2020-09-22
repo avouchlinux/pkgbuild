@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-filelock
+_realname=py-filelock
+pkgver=3.0.12
+pkgrel=1
+pkgdesc="A platform independent file lock"
+url="https://github.com/benediktschmitt/py-filelock"
+license=('custom:Unlicense')
+arch=('any')
+depends=('python')
+makedepends=('python-setuptools' 'python2-setuptools')
+checkdepends=('python-pytest' 'python2-pytest')
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/benediktschmitt/py-filelock/archive/v$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --root="$pkgdir" --optimize=1
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
+}

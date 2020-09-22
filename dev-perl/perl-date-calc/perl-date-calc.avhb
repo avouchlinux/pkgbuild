@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-date-calc
+_realname=Date-Calc
+pkgver=6.3
+pkgrel=1
+pkgdesc="Perl module for Gregorian calendar date calculations"
+arch=(any)
+license=('PerlArtistic')
+url="http://search.cpan.org/dist/${_realname}/"
+depends=('perl-bit-vector' 'perl>=5.10.0')
+options=(!emptydirs)
+source=(http://search.cpan.org/CPAN/authors/id/S/ST/STBEY/${_realname}-${pkgver}.tar.gz)
+md5sums=('9b64555b7051c1beb6b61daead2d01b3')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

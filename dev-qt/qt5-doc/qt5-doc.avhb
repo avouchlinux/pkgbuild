@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt5-doc
+_qtver=5.15.0
+pkgver=${_qtver/-/}
+pkgrel=1
+_tarname="${pkgname/5-/}-everywhere-src"
+arch=('any')
+groups=('dev-qt')
+url='http://qt-project.org/'
+license=('GPL3' 'LGPL' 'FDL' 'custom')
+pkgdesc='A cross-platform application and UI framework (Documentation)'
+depends=('qt5-base')
+makedepends=('qt5-tools' 'python2')
+source=("http://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/single/${_pkgfqn}.tar.xz")
+md5sums=('47763c168f58b1196271b231f03c8bae')
+
+prepare() {
+	cd "${srcdir}/${_tarname}-${_qtver}"	
+  	# Generate headers
+	syncqt.pl -version ${_qtver} sync.profile 
+}
+
+build() {
+	cd "${srcdir}/${_tarname}-${_qtver}"
+
+	qmake
+	make ${MAKEFLAGS} docs
+}
+
+package() {
+	cd "${srcdir}/${_tarname}-${_qtver}"
+	make INSTALL_ROOT="$pkgdir" install_docs
+
+	install -d "$pkgdir"/usr/share/licenses
+	ln -s /usr/share/licenses/qt5-base "$pkgdir"/usr/share/licenses/${pkgname}
+
+	# Fix conflicts with qt5-examples
+	rm -r "$pkgdir"/usr/share/doc/qt/examples
+}

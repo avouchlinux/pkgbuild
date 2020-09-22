@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libvirt-glib
+pkgver=3.0.0
+pkgrel=1
+pkgdesc="GLib bindings for libvirt"
+arch=('x86_64')
+groups=('app-emulation')
+url="https://libvirt.org"
+license=('LGPL2.1')
+depends=('libvirt' 'libcap-ng')
+makedepends=('intltool' 'gobject-introspection' 'vala' 'python')
+optdepends=('python: support for python')
+source=("https://libvirt.org/sources/glib/$pkgname-$pkgver.tar.gz")
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}

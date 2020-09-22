@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxfont2
+_realname=libXfont2
+#pkgver=2.0.4 # build errors
+pkgver=2.0.3
+pkgrel=1
+pkgdesc="X11 font rasterisation library 2"
+arch=('x86_64')
+groups=('x11-libs')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('freetype2' 'libfontenc' 'xproto' 'fontsproto')
+makedepends=('xorg-util-macros' 'xtrans')
+source=(${url}/archive/individual/lib/libXfont-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	autoreconf -v --install --force
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

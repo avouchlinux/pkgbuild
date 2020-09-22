@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-chardet
+_realname=chardet
+pkgver=3.0.4
+pkgrel=1
+pkgdesc="Python2 module for character encoding auto-detection"
+arch=('any')
+groups=('dev-python2')
+url="https://github.com/chardet/chardet"
+license=('LGPL')
+depends=('python2-setuptools')
+makedepends=('python2-setuptools')
+source=("https://pypi.io/packages/source/c/chardet/chardet-${pkgver}.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+
+   # To avoid file conflict with the python3 version
+   mv "$pkgdir"/usr/bin/chardetect{,-py2}
+   
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

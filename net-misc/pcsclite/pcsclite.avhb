@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pcsclite
+_realname=pcsc-lite
+pkgver=1.8.25
+pkgrel=1
+pkgdesc="PC/SC Architecture smartcard middleware library"
+arch=('x86_64')
+groups=('net-misc')
+url='https://pcsclite.apdu.fr/'
+license=('BSD')
+depends=('python' 'systemd')
+makedepends=('pkg-config')
+options=('!docs')
+source=("https://pcsclite.apdu.fr/files/pcsc-lite-${pkgver}.tar.bz2"{,.asc})
+validpgpkeys=('F5E11B9FFE911146F41D953D78A1B4DFE8F9C57E') # Ludovic Rousseau <rousseau@debian.org>
+
+build() {
+  cd "pcsc-lite-$pkgver"
+
+  ./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --sysconfdir=/etc \
+    --enable-filter \
+    --enable-ipcdir=/run/pcscd \
+    --enable-libudev \
+    --enable-usbdropdir=/usr/lib/pcsc/drivers \
+    --with-systemdsystemunitdir=/usr/lib/systemd/system
+
+  make ${MAKEFLAGS} 
+}
+
+package() {
+  cd "pcsc-lite-$pkgver"
+  make DESTDIR="$pkgdir" install
+
+  install -D -m644 "$srcdir/pcsc-lite-$pkgver/COPYING" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -d "$pkgdir/usr/lib/pcsc/drivers"
+}

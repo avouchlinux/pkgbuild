@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-dbusmock
+_realname=python-dbusmock
+pkgver=0.19
+pkgrel=1
+pkgdesc="Mock D-Bus objects for tests"
+url="https://github.com/martinpitt/python-dbusmock"
+arch=(any)
+license=(LGPL3)
+depends=(python-dbus python-gobject)
+makedepends=(python-setuptools git)
+source=("https://github.com/martinpitt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --root="$pkgdir" --optimize=1 --skip-build
+}

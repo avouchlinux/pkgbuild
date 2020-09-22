@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=webrtc-audio-processing
+pkgver=0.3.1
+pkgrel=1
+pkgdesc="AudioProcessing library based on Google's implementation of WebRTC"
+arch=('x86_64')
+groups=('medi-libs')
+url="https://freedesktop.org/software/pulseaudio/webrtc-audio-processing/"
+license=(custom)
+depends=(gcc-libs)
+makedepends=(git)
+source=("http://freedesktop.org/software/pulseaudio/$pkgname/$pkgname-$pkgver.tar.xz")
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

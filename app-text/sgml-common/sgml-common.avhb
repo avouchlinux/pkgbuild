@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sgml-common
+pkgver='0.6.3'
+pkgrel=1
+pkgdesc='Tools for maintaining centralized SGML catalogs.'
+arch=('x86_64')
+groups=('app-text')
+url='http://www.docbook.org/xml/'
+license=('custom')
+install='sgml-common.install'
+source=("ftp://sources.redhat.com/pub/docbook-tools/new-trials/SOURCES/sgml-common-${pkgver}.tgz"
+        'sgml-common-0.6.3-manpage-1.patch')
+
+prepare() {
+        cd ${srcdir}/${pkgname}-${pkgver}
+
+        patch -Np1 -i ../sgml-common-0.6.3-manpage-1.patch || return 1
+        autoreconf -f -i
+}
+
+build() {
+        cd ${srcdir}/${pkgname}-${pkgver}
+        ./configure --prefix=/usr --sysconfdir=/etc \
+                --docdir=/usr/share/doc
+        make
+}
+
+package() {
+        cd "${srcdir}/${pkgname}-${pkgver}"
+        make DESTDIR="${pkgdir}" install
+        # license
+        install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+
+        mv ${pkgdir}/usr/doc ${pkgdir}/usr/share
+}

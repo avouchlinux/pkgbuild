@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kmouth
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Speech Synthesizer Frontend'
+arch=('x86_64')
+groups=('kde-apps')
+url='http://kde.org/applications/utilities/kmouth/'
+license=('GPL' 'FDL')
+depends=('kdebase-runtime')
+makedepends=('cmake' 'automoc4')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/kmouth-${pkgver}.tar.xz"{,.sig})
+sha1sums=('7d751102689082fd88969fcbf6049a47138d153d'
+          'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+build() {
+  cd "${srcdir}"
+  mkdir -p build
+  cd build
+  cmake ../kmouth-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DKDE4_BUILD_TESTS=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $srcdir/build
+  make DESTDIR=$pkgdir install
+}

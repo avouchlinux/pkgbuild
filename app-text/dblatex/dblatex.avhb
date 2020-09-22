@@ -1,0 +1,24 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dblatex
+pkgver=0.3.11
+pkgrel=1
+pkgdesc='DocBook (XML and SGML) to DVI, PDF, PostScript converter using latex.'
+arch=('any')
+groups=('app-text')
+url='http://dblatex.sourceforge.net/'
+license=('GPL')
+depends=('docbook-xsl' 'docbook-xml' 'libxslt' 'python2' 'texlive-core' 'texlive-htmlxml'
+         'texlive-latexextra' 'texlive-pictures' 'texlive-science')
+source=("https://downloads.sourceforge.net/project/dblatex/dblatex/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.bz2")
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  python2 setup.py install --root "${pkgdir}" --catalogs=/etc/xml/docbook-xml
+  sed -i -e "s,${pkgdir},," -e "s,#!/usr/bin/env python,#!/usr/bin/env python2," \
+    "${pkgdir}/usr/bin/dblatex"
+}

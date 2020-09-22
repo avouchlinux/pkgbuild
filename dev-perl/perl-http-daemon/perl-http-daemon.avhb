@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-http-daemon
+_realname=HTTP-Daemon
+pkgver=6.01
+pkgrel=1
+pkgdesc="a simple http server class"
+arch=(any)
+license=(PerlArtistic GPL)
+options=('!emptydirs')
+depends=('perl>=5.8.8' 'perl-http-date>=6' 'perl-http-message'
+	 'perl-lwp-mediatypes>=6')
+conflicts=('perl-libwww<6')
+url=http://search.cpan.org/dist/HTTP-Daemon
+source=(http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/HTTP-Daemon-$pkgver.tar.gz)
+md5sums=('ed0ae02d25d7f1e89456d4d69732adc2')
+_distdir="${srcdir}/HTTP-Daemon-$pkgver"
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

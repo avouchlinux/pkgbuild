@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Furqan Ullah <furqan@real3d.pk>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fle
+_realname=FL-Essentials
+pkgver=131
+pkgrel=1
+pkgdesc='FLTK utility widgets'
+arch=('i686' 'x86_64')
+url='https://github.com/drfurqan/FL-Essentials'
+license=('GPL2')
+depends=('fltk' 'opencv' 'ilmbase' 'openexr' 'hdf5')
+makedepends=('cmake')
+optdepends=('')
+groups=('gui')
+source=("https://github.com/drfurqan/FL-Essentials.git")
+md5sums=('')
+
+#getsrc(){
+	
+#	git clone $source
+#}
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+	cd ${srcdir}/build
+	cmake ../$_realname \
+		-DCMAKE_PREFIX_PATH=/usr \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DFLTK_FLUID_EXECUTABLE=/usr/bin/fluid \
+		-DFLTK_DIR=/usr \
+		-DFLTK_BASE_LIBRARY=/usr/lib/libfltk_SHARED.so \
+		-DFLTK_FORMS_LIBRARY=/usr/lib/libfltk_forms_SHARED.so \
+		-DFLTK_GL_LIBRARY=/usr/lib/libfltk_gl_SHARED.so \
+		-DFLTK_IMAGES_LIBRARY=/usr/lib/libfltk_images_SHARED.so \
+		-DOpenCV_DIR=/usr		
+	make
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+}

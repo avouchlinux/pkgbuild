@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-internet-radio-locator
+pkgver=3.2.0
+pkgrel=1
+pkgdesc="Easily find live radio programs based on geographical location of radio broadcasters on the Internet"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Apps/InternetRadioLocator"
+license=(GPL3)
+depends=('libchamplain' 'geocode-glib' 'gst-plugins-base' 'gst-plugins-bad')
+makedepends=('intltool' 'itstool' 'python')
+source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --with-recording
+  make ${MAKEFLAGS}
+}
+
+check(){
+  cd $pkgname-$pkgver
+  make check
+}
+
+package(){
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

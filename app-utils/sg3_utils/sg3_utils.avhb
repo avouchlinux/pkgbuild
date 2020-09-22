@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sg3_utils
+pkgver=1.45
+pkgrel=1
+pkgdesc="Generic SCSI utilities"
+arch=('x86_64')
+groups=('app-utils')
+url="http://sg.danny.cz/sg/sg3_utils.html"
+license=('GPL' 'custom:BSD')
+depends=('glibc')
+source=(http://sg.danny.cz/sg/p/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcdaudio
+pkgver=0.99.12p2
+pkgrel=1
+pkgdesc="Library for controlling Audio CDs and interacting with CDDB"
+arch=('x86_64')
+groups=('media-libs')
+url="http://libcdaudio.sourceforge.net/"
+license=('GPL')
+depends=('glibc')
+source=("http://downloads.sourceforge.net/sourceforge/libcdaudio/${pkgname}-${pkgver}.tar.gz"
+        '01-cddb-bufferoverflow.patch'
+        '02-cddb-bufferoverflow.patch')
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	patch -Np1 -i "${srcdir}/01-cddb-bufferoverflow.patch"
+	patch -Np1 -i "${srcdir}/02-cddb-bufferoverflow.patch"
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

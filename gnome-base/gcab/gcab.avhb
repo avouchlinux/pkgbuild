@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gcab
+pkgver=1.4
+pkgrel=1
+pkgdesc="A tool and library mainly made to create Cabinet files, using GObject/GIO API"
+arch=('x86_64')
+groups=('gnome-base')
+url="http://www.gnome.org"
+license=('GPL2')
+depends=('dconf' 'desktop-file-utils' 'gtk3' 'hicolor-icon-theme' 'libgcrypt')
+makedepends=('intltool' 'gobject-introspection' 'python' 'vala' 'meson')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build \
+        -D docs=false
+    meson compile -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

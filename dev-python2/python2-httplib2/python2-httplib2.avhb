@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-httplib2
+pkgname=(python-httplib2 python2-httplib2)
+_realname=httplib2
+pkgver=0.10.3
+pkgrel=1
+pkgdesc='Comprehensive HTTP client library, supporting many features'
+url='https://github.com/httplib2/httplib2'
+license=('MIT')
+arch=('any')
+makedepends=('python-setuptools' 'python2-setuptools' 'git')
+depends=('ca-certificates')
+provides=('httplib2')
+replaces=('httplib2')
+source=("git+https://github.com/httplib2/httplib2.git#tag=v$pkgver"
+        'cert.patch')
+sha256sums=('SKIP'
+            'ba05f491fd07afec6abc6bccb08369906f8e6f1a808d94a54fe4e7be7d9771d9')
+
+prepare() {
+  pushd "${_realname}-${pkgver}"
+
+  # Patch, ref FS#40179
+  patch -p1 -i "$srcdir/cert.patch"
+
+  popd
+
+  # Prepare one build directory for each package
+  cp -a "${_realname}-${pkgver}""${pkgname[0]}"
+  cp -a "${_realname}-${pkgver}" "${pkgname[1]}"
+}
+
+package_python-httplib2() {
+  depends=('python')
+
+  cd "${_realname}-${pkgver}"
+  python setup.py install -O1 --root="$pkgdir"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+package_python2-httplib2() {
+  depends=('python2')
+
+  cd "${_realname}-${pkgver}"
+  python2 setup.py install -O1 --root="$pkgdir"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+
+# vim:set ts=2 sw=2 et:

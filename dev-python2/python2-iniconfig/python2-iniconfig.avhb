@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-iniconfig
+_realname=iniconfig
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="brain-dead simple config-ini parsing"
+url="https://github.com/RonnyPfannschmidt/iniconfig"
+license=('MIT')
+arch=('any')
+groups=('dev-python2')
+depends=('python2')
+makedepends=('python2-setuptools' 'python2-setuptools-scm')
+checkdepends=('python2-pytest-runner')
+source=("https://github.com/RonnyPfannschmidt/iniconfig/archive/v$pkgver.tar.gz"
+        'pytest5.patch')
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  patch -Np1 -i ../pytest5.patch 
+}
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

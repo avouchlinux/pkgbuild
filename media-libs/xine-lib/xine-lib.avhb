@@ -1,0 +1,61 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname= 
+pkgver=1.2.10
+pkgrel=1
+pkgdesc="A multimedia playback engine"
+arch=('x86_64')
+groups=('media-libs')
+repo=('extra')
+url="http://www.xine-project.org"
+license=('LGPL' 'GPL')
+depends=('libxvmc' 'ffmpeg' 'libxinerama' 'libnsl')
+makedepends=('wavpack' 'faad2' 'libmng' 'libmagick' 'mesa' 'libmodplug'
+             'vcdimager' 'jack' 'aalib' 'libdca' 'a52dec' 'libmad' 'libdvdnav'
+             'libmpcdec' 'libcaca' 'libbluray' 'libvdpau' 'glu' 'gdk-pixbuf2')
+optdepends=('libmagick: for using the imagemagick plugin' \
+            'jack: for using the jack plugin' \
+            'vcdimager: for using the vcd plugin' \
+            'glu: for using the opengl plugin' \
+            'wavpack: for using the wavpack plugin' \
+            'faad2: for using the faad plugin' \
+            'libmng: for using the mng plugin' \
+            'aalib: for using the aalib plugin' \
+            'libmodplug: for using the modplug plugin' \
+            'libdca: for using the dca plugin' \
+            'a52dec: for using the a52 plugin' \
+            'libmad: for using the mp3 plugin' \
+            'libdvdnav: for using the dvd plugin' \
+            'libmpcdec: for using the musepack plugin' \
+            'libcaca: for using the caca plugin' \
+            'libbluray: for using the bluray plugin' \
+            'libvdpau: for using the VDPAU plugin' \
+            'smbclient: for using the samba plugin' \
+            'gdk-pixbuf2: for using the gdk-pixbuf plugin')
+source=(https://downloads.sourceforge.net/project/xine/xine-lib/$pkgver/xine-lib-$pkgver.tar.xz
+        xine-lib-imagemagick7.patch)
+
+prepare() {
+    cd $pkgname-$pkgver    
+    #patch -p1 -i ../xine-lib-imagemagick7.patch # PLD linux patch
+    
+    autoreconf -vi
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    export CFLAGS=' -fomit-frame-pointer -fcommon'
+    ./configure --prefix=/usr \
+        --with-wavpack \
+        --with-external-dvdnav \
+        --enable-vdpau \
+        --disable-optimizations
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

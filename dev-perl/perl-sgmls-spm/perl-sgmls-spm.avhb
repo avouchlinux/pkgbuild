@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-sgmls
+_realname=SGMLSpm
+pkgver=1.03ii
+pkgrel=1
+pkgdesc="A Post-Processor for SGMLS and NSGMLS"
+arch=('any')
+url="http://search.cpan.org/dist/SGMLSpm"
+license=('GPL' 'PerlArtistic')
+depends=('perl')
+options=('!emptydirs' 'docs')
+source=(http://www.cpan.org/authors/id/D/DM/DMEGG/SGMLSpm-$pkgver.tar.gz)
+md5sums=('5bcb197fd42e67d51c739b1414d514a7')
+
+build() {
+	cd "${srcdir}/${_realname}"	
+
+
+	#patch Makefile <<EOF
+	#84a85
+	#>	find \${HTMLDIR} -type l -exec rm -f {} \;
+	#EOF
+
+	cp -f ../Makefile Makefile
+}
+
+check() {
+	cd "${srcdir}/${_realname}"
+	#make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}"
+	
+	mkdir -p $pkgdir/usr/bin 
+	mkdir -p $pkgdir/usr/lib/perl5/vendor_perl 
+	mkdir -p $pkgdir/usr/share/doc/perl-sgmls
+	
+	make install install_html \
+	BINDIR=$pkgdir/usr/bin \
+	PERL5DIR=$pkgdir/usr/lib/perl5/vendor_perl \
+	HTMLDIR=$pkgdir/usr/share/doc/perl-sgmls
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

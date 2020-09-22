@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=minisign
+pkgver=0.8
+pkgrel=1
+pkgdesc="A dead simple tool to sign files and verify digital signatures."
+arch=('x86_64')
+url="https://github.com/jedisct1/minisign"
+license=('custom:ISC')
+depends=('libsodium')
+makedepends=('cmake')
+source=("https://github.com/jedisct1/minisign/archive/$pkgver.tar.gz")
+
+build() {
+  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

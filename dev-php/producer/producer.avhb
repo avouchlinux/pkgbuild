@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=producer
+_realname=producer.producer
+pkgver=2.3.0
+pkgrel=1
+pkgdesc="Producer is a command-line quality-assurance tool to validate, and then release, your PHP library package."
+arch=("any")
+groups=("dev-php")
+repo=("extra")
+url="http://getproducer.org/"
+license=("MIT")
+depends=("php" "composer" "phpdocumentor2")
+source=("https://github.com/producerphp/producer.producer/archive/${pkgver}.tar.gz")
+
+build() {
+    cd "${srcdir}/producer.producer-${pkgver}/"
+    composer install
+}
+
+package() {
+    install -D -m 644 "${srcdir}/producer.producer-${pkgver}/LICENSE.md" "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE"
+    install -d -m 755 "${pkgdir}/opt/"
+    mv "${srcdir}/producer.producer-${pkgver}" "${pkgdir}/opt/${_pkgname}"
+    install -d "${pkgdir}/usr/bin"
+    ln -s "/opt/${_pkgname}/bin/${_pkgname}" "${pkgdir}/usr/bin/${_pkgname}"
+}

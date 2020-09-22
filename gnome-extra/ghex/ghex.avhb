@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ghex
+pkgver=3.18.4
+pkgrel=1
+pkgdesc="A simple binary editor for the Gnome desktop"
+url="https://wiki.gnome.org/Apps/Ghex"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gtk3)
+makedepends=(git meson yelp-tools)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

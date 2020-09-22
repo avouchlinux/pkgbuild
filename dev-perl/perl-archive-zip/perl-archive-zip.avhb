@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-archive-zip
+_realname=Archive-Zip
+pkgver=1.68
+pkgrel=1
+pkgdesc="Provide a perl interface to ZIP archive files"
+arch=('any')
+license=('GPL' 'PerlArtistic')
+url="http://search.cpan.org/dist/Archive-Zip/"
+depends=('perl')
+options=('!emptydirs')
+source=(http://search.cpan.org/CPAN/authors/id/P/PH/PHRED/Archive-Zip-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

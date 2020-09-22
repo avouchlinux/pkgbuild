@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jsonrpc-glib
+pkgver=3.38.0
+pkgrel=1
+pkgdesc='JSON-RPC library for GLib'
+url='https://github.com/GNOME/jsonrpc-glib'
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(glib2 json-glib)
+makedepends=(
+	git	# gather source code
+	meson	# build system
+	gobject-introspection	# generate gir
+	vala	# generate vapi
+)
+source=(https://ftp.acc.umu.se/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    avouch-meson build -D gtk_doc=true
+    ninja -C build
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-blessings
+_realname=blessings
+pkgver=1.7
+pkgrel=1
+pkgdesc="A thin, practical wrapper around terminal coloring, styling, and positioning"
+url="https://github.com/erikrose/blessings"
+arch=('any')
+license=('MIT')
+depends=('python2')
+makedepends=('python2-distribute')
+source=("http://pypi.python.org/packages/source/b/$_pkgname/$_pkgname-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

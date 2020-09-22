@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xvinfo
+_realname=xvinfo
+pkgver=1.1.4
+pkgrel=1
+pkgdesc="Prints out the capabilities of any video adaptors associated with the display that are accessible through the X-Video extension"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libx11' 'libxv')
+makedepends=('xorg-util-macros')
+source=(http://xorg.freedesktop.org/archive/individual/app/xvinfo-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

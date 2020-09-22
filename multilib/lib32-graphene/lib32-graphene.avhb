@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_realname=graphene
+pkgname="lib32-$_realname"
+pkgver=1.10.0
+pkgrel=1
+pkgdesc="A thin layer of graphic data types (32-bit)"
+url="https://github.com/ebassi/graphene"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=(MIT)
+depends=('lib32-glib2' 'graphene')
+makedepends=('git' 'lib32-gcc-libs' 'gobject-introspection' 'gtk-doc' 'meson')
+_commit=e22dc08a84d8a9128873a46ad9c71f81c1b4657d  # tags/1.8.6^0
+source=("git+https://github.com/ebassi/graphene#commit=$_commit")
+sha256sums=('SKIP')
+ 
+build() {
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  avouch-meson $_realname-$pkgver build \
+  --libdir='/usr/lib32' \
+  -D gtk_doc=true \
+  -D introspection=false
+  ninja -C build
+}
+
+check() {
+  cd build
+  meson test
+}
+ 
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+  rm -r "$pkgdir"/usr/{lib,share}/installed-tests
+  rm -rf ${pkgdir}/usr/{bin,share,include}
+}

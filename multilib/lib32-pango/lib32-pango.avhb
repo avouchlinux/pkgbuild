@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-pango
+pkgbase=pango
+pkgver=1.44.7
+pkgrel=1
+pkgdesc="A library for layout and rendering of text (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('LGPL')
+depends=(lib32-libthai lib32-cairo lib32-libxft lib32-harfbuzz lib32-fribidi pango)
+makedepends=(git meson)
+checkdepends=(ttf-dejavu cantarell-fonts)
+install=pango.install
+source=(http://ftp.gnome.org/pub/gnome/sources/${_pkgbasename}/${pkgver:0:4}/${_pkgbasename}-${pkgver}.tar.xz)
+url="http://www.pango.org/"
+sha256sums=('42e4b51cdc99e6878a9ea2a5ef2b31b79c1033f8518726df738a3c54c90e59f8')
+
+build() {
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    avouch-meson $pkgbase-$pkgver build --libdir=/usr/lib32 -D gir=false
+    ninja -C build
+}
+
+check() {
+    cd build
+    meson test
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    rm -r "$pkgdir"/usr/{bin,lib,share,include}
+}

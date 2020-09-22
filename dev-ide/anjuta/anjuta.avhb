@@ -1,0 +1,69 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=anjuta
+pkgname=('libanjuta' 'anjuta')
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="GNOME Integrated Development Environment (IDE)"
+arch=('x86_64')
+groups=('dev-ide')
+license=(GPL)
+makedepends=(gdl vte3 autogen devhelp glade libgda subversion neon vala dconf gtk-doc yelp-tools gnome-common intltool gobject-introspection itstool gjs git python)
+url="http://www.anjuta.org/"
+options=('!emptydirs')
+_commit=aaadfafe19450d8524400af9ae09d5187b2d627a  # master
+source=(https://download.gnome.org/sources/$pkgbase/3.28/$pkgbase-$pkgver.tar.xz
+        https://gitlab.gnome.org/GNOME/anjuta/commit/3d2cb92c857b1288aca7d96886cee03714a5f0ff.patch)
+
+prepare() {
+  cd $pkgbase-$pkgver
+
+  # vala 0.46
+  sed -i '/m4_foreach/s/0\.44/0.46/' configure.ac
+
+  AUTOPOINT="intltoolize" autoreconf -fvi
+}
+
+
+build() {
+  cd $pkgbase-$pkgver
+
+  ./configure --prefix=/usr 
+  	--sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-compile-warnings \
+    --disable-schemas-compile \
+    --disable-silent-rules \
+    --disable-static \
+    --enable-introspection \
+    --enable-plugin-devhelp \
+    --enable-plugin-glade \
+    --enable-plugin-subversion \
+    --enable-glade-catalog 
+    --enable-gtk-doc
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package_libanjuta(){
+  pkgdesc="Anjuta runtime library"
+  depends=(gdl)
+
+  cd $pkgbase-$pkgver/libanjuta
+  # j1: Race during linking
+  make -j1 DESTDIR="$pkgdir" install
+}
+
+package_anjuta(){
+  pkgdesc="GNOME Integrated Development Environment (IDE)"
+  depends=(libanjuta vte3 autogen devhelp glade libgda subversion neon vala dconf)
+
+  cd $pkgbase-$pkgver
+  make -j1 DESTDIR="$pkgdir" install
+
+  cd libanjuta
+  make -j1 DESTDIR="$pkgdir" uninstall
+}

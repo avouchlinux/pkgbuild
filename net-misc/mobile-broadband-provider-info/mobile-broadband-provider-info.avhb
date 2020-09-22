@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mobile-broadband-provider-info
+pkgver=20190618
+pkgrel=1
+pkgdesc="Network Management daemon"
+url="https://gitlab.gnome.org/GNOME/mobile-broadband-provider-info"
+arch=(any)
+groups=('net-misc')
+license=(custom)
+makedepends=(git)
+checkdepends=(libxml2)
+source=("https://gitlab.gnome.org/GNOME/$pkgnameinfo/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+  cd $pkgname-$pkgver
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make check
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
+}

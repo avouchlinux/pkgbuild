@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxmlb
+pkgver=0.1.15
+pkgrel=1
+pkgdesc="A library to help create and query binary XML blobs"
+arch=(x86_64)
+groups=('sys-libs')
+url="https://github.com/hughsie/libxmlb"
+license=(LGPL)
+depends=(glib2 libstemmer)
+makedepends=(meson gobject-introspection gtk-doc)
+checkdepends=(shared-mime-info)
+source=("https://people.freedesktop.org/~hughsient/releases/${pkgname}-${pkgver}.tar.xz")
+validpgpkeys=(163EB50119225DB3DF8F49EA17ACBA8DFA970E17) # Richard Hughes <richard@hughsie.com>
+
+prepare() {
+    cd ${pkgname}-${pkgver}
+}
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D stemmer=true
+    ninja -v -C build
+}
+
+check() {
+    meson test -C build --print-errorlogs
+}
+
+package() {
+    DESTDIR="${pkgdir}" meson install -C build
+}

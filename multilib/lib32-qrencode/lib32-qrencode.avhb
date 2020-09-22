@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-qrencode
+pkgbase=qrencode
+pkgver=4.0.2
+pkgrel=1
+pkgdesc="C library for encoding data in a QR Code symbol."
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+depends=('libpng')
+makedepends=(sdl)
+url="http://megaui.net/fukuchi/works/qrencode/index.en.html"
+license=('GPL')
+source=(http://megaui.net/fukuchi/works/${pkgname}/${pkgname}-${pkgver}.tar.bz2)
+md5sums=('62ba472bede0ad393cc63e0012b5f007')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  ./configure --prefix=/usr --libdir=/usr/lib32
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/$pkgbase-$pkgver"
+	#make prefix="$pkgdir/usr" install
+
+	/usr/bin/mkdir -p "${pkgdir}"/usr/lib32
+	install -c .libs/libqrencode.so.4.0.2 "${pkgdir}"/usr/lib32/libqrencode.so.4.0.2
+	cd "${pkgdir}"/usr/lib32 
+	ln -s -f libqrencode.so.4.0.2 libqrencode.so.4
+	ln -s -f libqrencode.so.4.0.2 libqrencode.so
+
+  	#rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

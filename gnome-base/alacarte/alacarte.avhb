@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=alacarte
+pkgver=3.36.0
+pkgrel=1
+pkgdesc="Menu editor for gnome"
+url="https://gitlab.gnome.org/GNOME/alacarte"
+arch=(any)
+groups=('gnome-base')
+license=(LGPL)
+depends=(gnome-menus python-gobject gtk3)
+makedepends=(intltool libxslt docbook-xsl git gnome-common python2)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver::4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  python -m compileall -d /usr "$pkgdir/usr"
+  python -O -m compileall -d /usr "$pkgdir/usr"
+}

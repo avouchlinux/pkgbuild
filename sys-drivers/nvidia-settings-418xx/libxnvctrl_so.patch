@@ -1,0 +1,25 @@
+--- src/libXNVCtrl/Makefile	2019-07-29 22:26:32.000000000 +0000
++++ ../Makefile	2020-06-09 16:47:04.639098000 +0000
+@@ -56,14 +56,21 @@
+ 
+ .PHONY: clean
+ 
+-all: $(LIBXNVCTRL)
++all: libXNVCtrl.so
+ 
+ $(LIBXNVCTRL) : $(OBJS)
+ 	$(AR) ru $@ $(OBJS)
+ 
+++libXNVCtrl.so: $(OBJS)
++	$(RM) $@ $@.*
++	$(CC) -shared -Wl,-soname=$@.0 -o $@.0.0.0 $(LDFLAGS) $^ -lXext -lX11
++	ln -s $@.0.0.0 $@.0
++	ln -s $@.0 $@
++
+ # define the rule to build each object file
+ $(foreach src,$(SRC),$(eval $(call DEFINE_OBJECT_RULE,TARGET,$(src))))
+ 
+ clean:
+ 	rm -rf $(LIBXNVCTRL) *~ \
+ 		$(OUTPUTDIR)/*.o $(OUTPUTDIR)/*.d
++	rm -f libXNVCtrl.so libXNVCtrl.so.*

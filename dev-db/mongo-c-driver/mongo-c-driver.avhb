@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mongo-c-driver
+pkgver=1.16.2
+pkgrel=1
+pkgdesc='A client library written in C for MongoDB'
+arch=('x86_64')
+groups=('dev-db')
+url='https://www.mongodb.org/display/DOCS/C+Language+Center'
+license=('Apache')
+depends=('libsasl' 'icu' 'snappy' 'zlib' 'zstd')
+makedepends=('cmake')
+source=("https://github.com/mongodb/mongo-c-driver/releases/download/$pkgver/$pkgname-$pkgver.tar.gz")
+
+build() {
+  cmake -S mongo-c-driver-$pkgver -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DENABLE_STATIC=OFF -DENABLE_TESTS=OFF
+    # Test profiles are not found even with ENABLE_TESTS=ON
+  ninja -C build
+}
+
+check() {
+  cd build
+  # No test profile found
+  # pifpaf run mongodb --port 27017 make test || warning "Tests failed"
+}
+
+package() {
+  DESTDIR="$pkgdir/" ninja -C build install
+}

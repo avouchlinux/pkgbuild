@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sddm-theme-darkine
+_realname=darkine-kde
+pkgver=2.0
+pkgrel=1
+pkgdesc='SDDM Configuration Editor'
+arch=('x86_64')
+groups=('sys-dm')
+license=('GPLv3' 'MIT' 'CC BY 3.0')
+url='https://github.com/Rokin05/darkine-kde'
+depends=('qt5-quickcontrols' 'sddm' 'polkit')
+makedepends=('git' 'qt5-tools')
+source=('https://github.com/Rokin05/darkine-kde')
+
+package() {
+	mkdir -p $pkgdir/usr/share
+	cp -a $_realname/sddm $pkgdir/usr/share/
+}
+

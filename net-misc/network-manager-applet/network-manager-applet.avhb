@@ -1,0 +1,56 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=network-manager-applet
+pkgname=(network-manager-applet nm-connection-editor)
+pkgver=1.18.0
+pkgdesc="Applet for managing network connections"
+arch=('x86_64')
+groups=('net-misc')
+url="https://wiki.gnome.org/Projects/NetworkManager/"
+pkgrel=1
+license=(GPL LGPL)
+makedepends=(libsecret libnotify libmm-glib intltool gobject-introspection git gtk-doc meson
+             libnm gcr gtk3 iso-codes mobile-broadband-provider-info)
+source=("ghttps://gitlab.gnome.org/GNOME/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgbase-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_network-manager-applet() {
+  depends=(nm-connection-editor libmm-glib libnotify libsecret networkmanager)
+
+  DESTDIR="$pkgdir" meson install -C build
+
+### Split nm-connection-editor
+  _pick nm-connection-editor "$pkgdir"/usr/bin/nm-connection-editor
+  _pick nm-connection-editor "$pkgdir"/usr/share/applications/nm-connection-editor.desktop
+  _pick nm-connection-editor "$pkgdir"/usr/share/icons/hicolor/22x22/apps/nm-device-wwan.png
+  _pick nm-connection-editor "$pkgdir"/usr/share/locale
+  _pick nm-connection-editor "$pkgdir"/usr/share/man/man1/nm-connection-editor.1
+  _pick nm-connection-editor "$pkgdir"/usr/share/metainfo
+}
+
+package_nm-connection-editor() {
+  pkgdesc="NetworkManager GUI connection editor and widgets"
+  depends=(libnma)
+  mv nm-connection-editor/* "$pkgdir"
+}

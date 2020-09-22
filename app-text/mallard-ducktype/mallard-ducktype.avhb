@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mallard-ducktype
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="Parser for the lightweight Ducktype syntax for Mallard"
+arch=(any)
+groups=('app-text')
+url="http://projectmallard.org"
+license=(MIT)
+depends=(python)
+makedepends=(python-setuptools git)
+source=("git+https://github.com/projectmallard/mallard-ducktype#commit=$_commit")
+
+build() {
+  cd $pkgname-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $pkgname-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
+}

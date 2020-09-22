@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=imlib2
+pkgver=1.6.1
+pkgrel=1
+pkgdesc="Library that does image file loading and saving as well as rendering, manipulation, arbitrary polygon support"
+url="https://sourceforge.net/projects/enlightenment/"
+arch=('x86_64')
+groups=('media-libs')
+license=('BSD')
+depends=('libtiff' 'giflib' 'bzip2' 'freetype2' 'libxext' 'libpng' 'libid3tag' 'libjpeg-turbo')
+source=(https://downloads.sourceforge.net/enlightenment/$pkgname-$pkgver.tar.bz2)
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  sed -i 's/@my_libs@//' imlib2-config.in
+}
+
+
+build() {
+  cd "${pkgname}-${pkgver}"
+
+  [ $CARCH = "i686" ] && EXTRAOPTS="--enable-mmx"
+  [ $CARCH = "x86_64" ] && EXTRAOPTS="--enable-amd64"
+
+  ./configure --prefix=/usr \
+              --sysconfdir=/etc/imlib2 \
+              --x-libraries=/usr/lib $EXTRAOPTS
+  make ${MAKEFLAGS}
+}
+
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  make check
+}
+
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  # Install License
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

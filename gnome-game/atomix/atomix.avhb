@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=atomix
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="Build molecules out of single atoms"
+arch=('x86_64')
+groups=('gnome-games')
+url="https://wiki.gnome.org/Apps/Atomix"
+license=(GPL2)
+depends=(gtk3 libgnome-games-support)
+makedepends=(meson appstream-glib git)
+source=(https://gitlab.gnome.org/GNOME/$pkgver/-/archive/$pkgver/$pkgver-$pkgver.tar.bz2)
+
+build() {
+    # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+    export CFLAGS+=' -fcommon'
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libmnl
+pkgbase=libmnl
+pkgver=1.0.4
+pkgrel=1
+pkgdesc='Minimalistic user-space library oriented to Netlink developers.'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://www.netfilter.org/projects/libmnl/'
+license=('LGPL2.1')
+depends=('glibc')
+validpgpkeys=('57FF5E9C9AA67A860B557AF7A4111F89BB5F58CC') # Netfilter Core Team
+source=("http://www.netfilter.org/projects/$pkgname/files/$pkgname-$pkgver.tar.bz2"{,.sig})
+sha1sums=('c27e25f67c6422ebf893fc3a844af8085a1c5b63'
+          'SKIP')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	
+	./configure --prefix=/usr --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

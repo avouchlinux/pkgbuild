@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libideviceactivation
+pkgver=1.1.0
+pkgrel=1
+pkgdesc="Activates iDevices using a single tool."
+arch=('x86_64')
+groups=('app-mobile')
+url="http://github.com/libimobiledevice/libideviceactivation"
+license=('LGPL')
+depends=('curl' 'libplist-git' 'libxml2' 'libimobiledevice-git')
+makedepends=('git')
+source=("git+https://github.com/libimobiledevice/libideviceactivation")
+
+build() {
+
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./autogen.sh --prefix=/usr
+    make ${MAKEFLAGS}
+
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

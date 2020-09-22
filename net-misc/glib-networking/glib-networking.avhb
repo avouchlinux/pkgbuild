@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glib-networking
+pkgver=2.66.0
+pkgrel=1
+pkgdesc="Network extensions for GLib"
+url="https://gitlab.gnome.org/GNOME/glib-networking"
+arch=('x86_64')
+groups=('net-misc')
+license=(GPL2)
+depends=(glib2 libproxy gnutls gsettings-desktop-schemas)
+makedepends=(meson git openssl)
+checkdepends=(ca-certificates)
+optdepends=('openssl: Alternative backend')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D openssl=enabled
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

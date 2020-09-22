@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libart-lgpl
+_realname=libart_lgpl
+pkgver=2.3.21
+pkgrel=1
+pkgdesc="A library for high-performance 2D graphics"
+url="https://www.levien.com/libart/"
+arch=('x86_64')
+groups=('media-grafix')
+license=('LGPL')
+source=(https://download.gnome.org/sources/libart_lgpl/2.3/libart_lgpl-${pkgver}.tar.bz2)
+
+build() {
+  cd "${srcdir}/libart_lgpl-${pkgver}"
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/libart_lgpl-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

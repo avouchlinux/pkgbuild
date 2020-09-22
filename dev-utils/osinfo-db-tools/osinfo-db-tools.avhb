@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=osinfo-db-tools
+pkgver=1.8.0
+pkgrel=1
+pkgdesc="Tools for managing the osinfo database"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://libosinfo.org/"
+license=('GPL')
+depends=('glib2' 'libarchive' 'libxslt')
+makedepends=('intltool')
+source=("https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.gz"{,.asc})
+validpgpkeys=('DAF3A6FDB26B62912D0E8E3FBE86EBB415104FDF') # Daniel P. Berrange
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+}

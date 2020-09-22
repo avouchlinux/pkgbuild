@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sound-themes-materia
+_realname=materia-sound-theme
+_themename=materia
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="a freedesktop sound theme using Google's Material sound resources"
+arch=('any')
+groups=('media-libs')
+url="https://github.com/nana-4/materia-sound-theme"
+license=('LGPL2.1')
+source=(https://github.com/nana-4/materia-sound-theme/archive/master.zip)
+
+build() {
+    avouch-meson $_realname-master build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

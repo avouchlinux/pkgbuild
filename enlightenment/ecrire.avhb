@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ecrire
+pkgver=0.3.0
+pkgrel=1
+pkgdesc="Simple text editor based on EFL"
+arch=('x86_64')
+url="http://www.enlightenment.org"
+license=('GPL3')
+depends=('elementary')
+makedepends=('git' 'cmake')
+groups=(enlightenment)
+repo=(extra)
+install=$_pkgname.install
+source=("https://github.com/Obsidian-StudiosInc/ecrire/archive/v0.3.0.tar.gz")
+sha256sums=('SKIP')
+
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  export CFLAGS="$CFLAGS -fvisibility=hidden"
+
+  cmake . \
+    -DCMAKE_INSTALL_PREFIX=/usr
+
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+
+# install text files
+  install -d "$pkgdir/usr/share/doc/$_pkgname/"
+  install -m644 -t "$pkgdir/usr/share/doc/$_pkgname/" AUTHORS ChangeLog NEWS README
+}

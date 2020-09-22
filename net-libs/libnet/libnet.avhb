@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnet
+pkgver=1.1.6
+pkgrel=1
+pkgdesc="A library which provides API for commonly used low-level net functions"
+arch=('x86_64')
+groups=('net-libs')
+url="https://sourceforge.net/projects/libnet-dev/"
+license=('BSD')
+depends=('glibc' 'sh')
+source=("https://downloads.sourceforge.net/libnet-dev/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS} CFLAGS="${CFLAGS} -fPIC"
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 doc/COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+

@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rust-bindgen
+pkgver=0.53.2
+pkgrel=1
+pkgdesc='Automatically generates Rust FFI bindings to C (and some C++) libraries'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://github.com/rust-lang/rust-bindgen'
+depends=('gcc-libs')
+makedepends=('rust')
+license=('BSD')
+source=("https://github.com/rust-lang/rust-bindgen/archive/v$pkgver.tar.gz")
+
+build() {
+  cd $pkgname-$pkgver
+  cargo build --release
+}
+
+package() {
+  cd $pkgname-$pkgver
+  install -Dm755 target/release/bindgen "$pkgdir"/usr/bin/bindgen
+
+  install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libexplain
+pkgver=1.4
+pkgrel=1
+pkgdesc="A library which may be used to explain Unix and Linux system call errors."
+arch=('x86_64')
+groups=('dev-libs')
+url="http://libexplain.sourceforge.net/"
+license=('GPL3')
+depends=('libcap')
+options=('!libtool')
+source=("http://downloads.sourceforge.net/project/$pkgname/$pkgver/$pkgname-$pkgver.tar.gz")
+
+build() {
+    cd "$srcdir/$pkgname-$pkgver"
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    make DESTDIR="$pkgdir/" install
+}

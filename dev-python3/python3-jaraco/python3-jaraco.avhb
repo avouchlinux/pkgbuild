@@ -1,0 +1,70 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-jaraco
+pkgver=2019.12.31
+pkgrel=1
+pkgdesc='A gaggle of idiosyncratic and questionable wrappers for the stdlib.'
+arch=('any')
+groups=('dev-python3')
+url='https://github.com/jaraco?page=1&tab=repositories&utf8=%E2%9C%93&q=jaraco'
+license=('MIT')
+depends=('python3-six' 'python3-pytz' 'python3-more-itertools')
+makedepends=('python3-setuptools-scm' 'python3-more-itertools')
+
+# These should not exist and do not deserve 16 packages.
+# Furthermore, try to make a replacement for python3-irc so we can nuke it all.
+# And now cherrypy depends on this too :-(
+_text=3.2.0
+_functools=3.0.0
+_collections=3.0.0
+_classes=3.1.0
+_stream=3.0.0
+_logging=3.0.0
+_itertools=5.0.0
+_pyhost="https://files.python3hosted.org/packages/source"
+
+source=("$_pyhost/j/jaraco.text/jaraco.text-$_text.tar.gz"
+        "$_pyhost/j/jaraco.functools/jaraco.functools-$_functools.tar.gz"
+        "$_pyhost/j/jaraco.collections/jaraco.collections-$_collections.tar.gz"
+        "$_pyhost/j/jaraco.classes/jaraco.classes-$_classes.tar.gz"
+        "$_pyhost/j/jaraco.stream/jaraco.stream-$_stream.tar.gz"
+        "$_pyhost/j/jaraco.logging/jaraco.logging-$_logging.tar.gz"
+        "$_pyhost/j/jaraco.itertools/jaraco.itertools-$_itertools.tar.gz")
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+prepare() {
+  bsdtar -xf $srcarchivedir/jaraco.classes-$_classes.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.collections-$_collections.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.functools-$_functools.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.itertools-$_itertools.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.logging-$_logging.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.stream-$_stream.tar.gz
+  bsdtar -xf $srcarchivedir/jaraco.text-$_text.tar.gz
+
+  # remove inflect dep
+  cd "$srcdir/jaraco.itertools-$_itertools"
+  sed -i "s/'inflect',//" setup.py
+  sed -i "s/inflect//"    setup.cfg
+  sed -i 's/import inflect//' jaraco/itertools.py
+  sed -i 's/ord = .*$/ord = str(self.sliceArgs[2])+"th"/' jaraco/itertools.py
+}
+
+package() {
+  cd "$srcdir/jaraco.text-$_text"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.functools-$_functools"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.collections-$_collections"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.classes-$_classes"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.stream-$_stream"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.logging-$_logging"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+  cd "$srcdir/jaraco.itertools-$_itertools"
+  python3 setup.py install --root="$pkgdir/" --optimize=0
+}

@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnucash-docs
+pkgver=3.0
+pkgrel=1
+pkgdesc="GnuCash documentation package"
+arch=('x86_64')
+groups=('app-office')
+url="http://www.gnucash.org/docs.phtml"
+license=('GPL')
+depends=('yelp')
+makedepends=('rarian' 'libxslt')
+groups=('extra')
+repo=('extra')
+source=("gnucash-docs-$pkgver.tar.gz::http://sourceforge.net/projects/gnucash/files/gnucash-docs/$pkgver/gnucash-docs-$pkgver.tar.gz/download")
+
+build() {
+  cd $pkgname-$pkgver
+
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+
+  make -k check
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="$pkgdir/" install
+}
+
+# vim:set ts=2 sw=2 et:

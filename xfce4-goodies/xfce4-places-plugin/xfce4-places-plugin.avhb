@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfce4-places-plugin
+pkgver=1.8.1
+pkgrel=1
+pkgdesc="Plugin for the Xfce4 panel to mount and unmount volumes"
+arch=('x86_64')
+groups=('xfce4-goodies')
+url="http://xfce-goodies.berlios.de/"
+license=('GPL')
+depends=('xfce4-panel')
+makedepends=('intltool')
+install=$pkgname.install
+source=("http://archive.xfce.org/src/panel-plugins/$pkgname/${pkgver%.*}/$pkgname-${pkgver}.tar.bz2"
+        "mounts.patch")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+  	# Show other mounts that are non disks (eg. NFS)
+	patch -Np1 -i "${srcdir}/mounts.patch"
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib \
+		--localstatedir=/var \
+		--disable-static \
+		--disable-debug
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

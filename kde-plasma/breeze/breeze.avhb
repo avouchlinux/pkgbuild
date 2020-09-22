@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=breeze
+pkgver=5.19.5
+pkgrel=1
+arch=('x86_64')
+groups=('kde-plasma')
+url='https://www.kde.org/workspaces/plasmadesktop/'
+pkgdesc='Artwork, styles and assets for the Breeze visual style for the Plasma Desktop'
+license=(LGPL)
+depends=(frameworkintegration kdecoration breeze-icons kwayland hicolor-icon-theme)
+optdepends=('breeze-kde4: Breeze widget style for KDE4 applications' 
+            'breeze-gtk: Breeze widget style for GTK applications'
+            'kcmutils: for breeze-settings')
+makedepends=(extra-cmake-modules frameworkintegration kdelibs automoc4 kdecoration kcmutils plasma-framework python)
+source=("https://download.kde.org/stable/plasma/$pkgver/$pkgbase-$pkgver.tar.xz"{,.sig})
+validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

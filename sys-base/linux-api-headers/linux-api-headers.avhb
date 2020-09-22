@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=linux-api-headers
+_realname=linux
+pkgver=5.8.1
+pkgrel=1
+pkgdesc="Kernel headers sanitized for use in userspace"
+arch=('x86_64')
+groups=('sys-base')
+url="http://www.gnu.org/software/libc"
+license=('GPL2')
+options=('!strip')
+source=(http://www.kernel.org/pub/linux/kernel/v5.x/linux-${_basever}.tar.xz
+        http://www.kernel.org/pub/linux/kernel/v5.x/patch-${pkgver}.xz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make mrproper
+	make headers_check
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make INSTALL_HDR_PATH=${pkgdir}/usr headers_install
+
+	# use headers from libdrm
+	rm -r ${pkgdir}/usr/include/drm
+	  
+	# clean-up unnecessary files generated during install
+	find ${pkgdir} \( -name .install -o -name ..install.cmd \) -delete
+}
+

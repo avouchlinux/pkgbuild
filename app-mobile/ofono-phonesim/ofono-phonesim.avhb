@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ofono-phonesim
+_realname=phonesim
+pkgver=1.21
+pkgrel=1
+pkgdesc="Phone Simulator for modem testing"
+arch=('x86_64')
+groups=('app-mobile')
+url="https://git.kernel.org/pub/scm/network/ofono/phonesim.git/"
+license=('GPL2')
+depends=('qt5-declarative' 'libpng' 'freetype2' 'libsm' 'libice' 'libxrender' 'fontconfig' 'libxext' 'libx11' 'harfbuzz' 'libxcb' 'graphite' 'libxau' 'libxdmcp')
+makedepends=('git' 'gcc')
+source=('https://git.kernel.org/pub/scm/network/ofono/phonesim.git')
+sha512sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/$_realname"
+  ( set -o pipefail
+    git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+    cd "$srcdir/$_realname"
+    ./bootstrap-configure
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "$srcdir/$_realname"
+    make DESTDIR="$pkgdir" install
+}

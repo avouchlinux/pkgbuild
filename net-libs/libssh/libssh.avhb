@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libssh
+pkgname=(libssh libssh-docs)
+pkgver=0.9.4
+pkgrel=1
+pkgdesc="Library for accessing ssh client services through C libraries"
+arch=('x86_64')
+groups=('net-libs')
+url="https://www.libssh.org/"
+license=(LGPL)
+arch=(x86_64)
+depends=(zlib openssl)
+makedepends=(cmake cmocka doxygen python)
+source=(/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.asc})
+validpgpkeys=('8DFF53E18F2ABC8D8F3C92237EE0FC4DCC014E3D') # Andreas Schneider <asn@cryptomilk.org>
+
+prepare() {
+  # disable the test. It is confused by our clean container setup.
+  # 'extra-x86-build' uses user 'nobody' that has a record in /etc/passwd file
+  # but $HOME envvar is set to '/build'. The test expects that $HOME corresponds to passwd file.
+  sed 's/cmocka_unit_test(torture_path_expand_tilde_unix),//' -i libssh-${pkgver}/tests/unittests/torture_misc.c
+}
+
+build() {
+  cmake -S$pkgname-$pkgver -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DWITH_GSSAPI=OFF \
+    -DUNIT_TESTING=ON
+  make ${MAKEFLAGS} -C build
+  make ${MAKEFLAGS} -C build docs
+}
+
+check() {
+  make ${MAKEFLAGS} -C build test
+}
+
+package_libssh() {
+  make DESTDIR="$pkgdir" -C build install
+}
+
+package_libssh-docs() {
+  pkgdesc="Documentation for libssh"
+  depends=()
+
+  mkdir -p "$pkgdir"/usr/share/doc/libssh
+  cp -r build/doc/html "$pkgdir"/usr/share/doc/libssh
+#  cp -r build/doc/man "$pkgdir"/usr/share
+#  rm "$pkgdir"/usr/share/man/man3/{bug,deprecated}.*
+}

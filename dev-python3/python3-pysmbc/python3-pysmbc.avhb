@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pysmbc
+_realname=pysmbc
+pkgver=1.0.19
+pkgrel=1
+pkgdesc="python 3 bindings for libsmbclient"
+arch=('any')
+groups=('dev-python3')
+depends=('python3' 'smbclient')
+url="http://pypi.python.org/pypi/pysmbc/"
+license=('GPL')
+depends=('python3')
+makedepends=('python3' 'smbclient')
+source=(https://pypi.io/packages/source/p/${pkgbase}/${pkgbase}-${pkgver}.tar.bz2)
+# validpgpkeys=('228521116D3438163C2EA5B916BED1016069BE55')  # Tsukasa Hamano, revoked
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

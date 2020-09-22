@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-linecache2
+_realname=linecache2
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Backports of the linecache module'
+arch=('any')
+groups=('dev-python2')
+url='https://pypi.python.org/pypi/linecache2'
+license=('PSF')
+depends=('python2')
+makedepends=('python2-setuptools' 'python2-pbr')
+source=("https://pypi.python.org/packages/source/l/${pkgname#*-}/${pkgname#*-}-${pkgver}.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

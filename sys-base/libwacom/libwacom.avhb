@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwacom
+pkgver=1.2
+pkgrel=1
+pkgdesc="Library to identify Wacom tablets and their features"
+arch=('x86_64')
+groups=('sys-base')
+url="https://github.com/linuxwacom/libwacom/wiki"
+license=('MIT')
+depends=('glib2' 'systemd' 'libgudev')
+makedepends=('libxml2')
+validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF')
+source=(https://github.com/linuxwacom/libwacom/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.bz2{,.sig})
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

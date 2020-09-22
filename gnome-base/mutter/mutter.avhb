@@ -1,0 +1,48 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mutter
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="A window manager for GNOME"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://gitlab.gnome.org/GNOME/mutter"
+license=(GPL)
+depends=(dconf gobject-introspection-runtime gsettings-desktop-schemas libcanberra
+         startup-notification zenity libsm gnome-desktop upower libxkbcommon-x11
+         gnome-settings-daemon libgudev libinput pipewire xorg-server-xwayland)
+makedepends=(gobject-introspection git egl-wayland meson xorg-server)
+checkdepends=(xorg-server-xvfb)
+install=mutter.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+  cd $pkgname-$pkgver
+
+}
+
+build() {
+  export CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"
+  export LDFLAGS+=" -Wl,-Bsymbolic-functions"
+  avouch-meson $pkgname-$pkgver build \
+    -D egl_device=true \
+    -D wayland_eglstream=true \
+    -D xwayland_initfd=disabled \
+    -D installed_tests=false
+  meson compile -C build
+}
+
+check() (
+  mkdir -p -m 700 "${XDG_RUNTIME_DIR:=$PWD/runtime-dir}"
+  glib-compile-schemas "${GSETTINGS_SCHEMA_DIR:=$PWD/build/data}"
+  export XDG_RUNTIME_DIR GSETTINGS_SCHEMA_DIR
+
+  dbus-run-session xvfb-run -s '+iglx -noreset' meson test -C build --print-errorlogs
+)
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

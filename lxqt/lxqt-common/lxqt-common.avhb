@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lxqt-common
+pkgver=0.11.2
+pkgrel=1
+pkgdesc="Common data to run a LXQt session."
+arch=("any")
+groups=("lxqt")
+url="http://lxqt.org"
+license=("LGPL2.1")
+depends=("qt5-svg" "hicolor-icon-theme" "xdg-utils")
+makedepends=("cmake" "liblxqt" "qt5-tools")
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

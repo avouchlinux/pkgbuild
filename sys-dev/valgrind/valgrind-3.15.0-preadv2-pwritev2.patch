@@ -1,0 +1,751 @@
+commit b0861063a8d2a55bb7423e90d26806bab0f78a12
+Author: Alexandra Hájková <ahajkova@redhat.com>
+Date:   Tue Jun 4 13:47:14 2019 +0200
+
+    Add support for preadv2 and pwritev2 syscalls
+    
+    Support for amd64, x86 - 64 and 32 bit, arm64, ppc64, ppc64le,
+    s390x, mips64. This should work identically on all
+    arches, tested on x86 32bit and 64bit one, but enabled on all.
+    
+    Refactor the code to be reusable between old/new syscalls. Resolve TODO
+    items in the code. Add the testcase for the preadv2/pwritev2 and also
+    add the (similar) testcase for the older preadv/pwritev syscalls.
+    
+    Trying to test handling an uninitialized flag argument for the v2 syscalls
+    does not work because the flag always comes out as defined zero.
+    Turns out glibc does this deliberately on 64bit architectures because
+    the kernel does actually have a low_offset and high_offset argument, but
+    ignores the high_offset/assumes it is zero.
+    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=601cc11d054ae4b5e9b5babec3d8e4667a2cb9b5
+    
+    https://bugs.kde.org/408414
+
+diff --git a/configure.ac b/configure.ac
+index 352892565..3596d2fec 100755
+--- a/configure.ac
++++ b/configure.ac
+@@ -4173,6 +4173,10 @@ AC_CHECK_FUNCS([     \
+         process_vm_readv  \
+         process_vm_writev \
+         copy_file_range \
++        preadv \
++        pwritev \
++        preadv2 \
++        pwritev2 \
+         ])
+ 
+ # AC_CHECK_LIB adds any library found to the variable LIBS, and links these
+@@ -4190,6 +4194,10 @@ AM_CONDITIONAL([HAVE_PTHREAD_SETNAME_NP],
+                [test x$ac_cv_func_pthread_setname_np = xyes])
+ AM_CONDITIONAL([HAVE_COPY_FILE_RANGE],
+                [test x$ac_cv_func_copy_file_range = xyes])
++AM_CONDITIONAL([HAVE_PREADV_PWRITEV],
++               [test x$ac_cv_func_preadv = xyes && test x$ac_cv_func_pwritev = xyes])
++AM_CONDITIONAL([HAVE_PREADV2_PWRITEV2],
++               [test x$ac_cv_func_preadv2 = xyes && test x$ac_cv_func_pwritev2 = xyes])
+ 
+ if test x$VGCONF_PLATFORM_PRI_CAPS = xMIPS32_LINUX \
+      -o x$VGCONF_PLATFORM_PRI_CAPS = xMIPS64_LINUX ; then
+diff --git a/coregrind/m_syswrap/priv_syswrap-generic.h b/coregrind/m_syswrap/priv_syswrap-generic.h
+index 3e1c8b682..73f9224f7 100644
+--- a/coregrind/m_syswrap/priv_syswrap-generic.h
++++ b/coregrind/m_syswrap/priv_syswrap-generic.h
+@@ -109,6 +109,19 @@ ML_(handle_auxv_open)(SyscallStatus *status, const HChar *filename,
+ /* Helper function for generic mprotect and linux pkey_mprotect. */
+ extern void handle_sys_mprotect (ThreadId tid, SyscallStatus *status,
+                                  Addr *addr, SizeT *len, Int *prot);
++/* Helper functions for preadv/preadv2. */
++extern
++void handle_pre_sys_preadv(ThreadId tid, SyscallStatus* status,
++                           Int fd, Addr vector, Int count,
++                           const char *str);
++extern
++void handle_post_sys_preadv(ThreadId tid, SyscallStatus* status, Addr vector, Int count);
++
++/* Helper function for pwritev/pwritev2. */
++extern
++void handle_sys_pwritev(ThreadId tid, SyscallStatus* status,
++                        Int fd, Addr vector, Int count,
++                        const char *str);
+ 
+ DECL_TEMPLATE(generic, sys_ni_syscall);            // * P -- unimplemented
+ DECL_TEMPLATE(generic, sys_exit);
+diff --git a/coregrind/m_syswrap/priv_syswrap-linux.h b/coregrind/m_syswrap/priv_syswrap-linux.h
+index be2f9bdde..8ce8ef3d5 100644
+--- a/coregrind/m_syswrap/priv_syswrap-linux.h
++++ b/coregrind/m_syswrap/priv_syswrap-linux.h
+@@ -46,7 +46,9 @@ DECL_TEMPLATE(linux, sys_oldumount);
+ DECL_TEMPLATE(linux, sys_umount);
+ DECL_TEMPLATE(linux, sys_perf_event_open);
+ DECL_TEMPLATE(linux, sys_preadv);
++DECL_TEMPLATE(linux, sys_preadv2);
+ DECL_TEMPLATE(linux, sys_pwritev);
++DECL_TEMPLATE(linux, sys_pwritev2);
+ DECL_TEMPLATE(linux, sys_sendmmsg);
+ DECL_TEMPLATE(linux, sys_recvmmsg);
+ DECL_TEMPLATE(linux, sys_dup3);
+diff --git a/coregrind/m_syswrap/syswrap-amd64-linux.c b/coregrind/m_syswrap/syswrap-amd64-linux.c
+index 382dc65cf..9b8068d0f 100644
+--- a/coregrind/m_syswrap/syswrap-amd64-linux.c
++++ b/coregrind/m_syswrap/syswrap-amd64-linux.c
+@@ -857,6 +857,8 @@ static SyscallTableEntry syscall_table[] = {
+ //   LIN__(__NR_kexec_file_load,   sys_ni_syscall),       // 320
+    LINXY(__NR_bpf,               sys_bpf),              // 321
+ 
++   LINXY(__NR_preadv2,           sys_preadv2),           // 327
++   LINX_(__NR_pwritev2,          sys_pwritev2),          // 328
+ 
+    LINXY(__NR_statx,             sys_statx),             // 332
+ 
+diff --git a/coregrind/m_syswrap/syswrap-arm64-linux.c b/coregrind/m_syswrap/syswrap-arm64-linux.c
+index c700e3dbe..d12d40632 100644
+--- a/coregrind/m_syswrap/syswrap-arm64-linux.c
++++ b/coregrind/m_syswrap/syswrap-arm64-linux.c
+@@ -818,8 +818,8 @@ static SyscallTableEntry syscall_main_table[] = {
+    LINX_(__NR_membarrier,        sys_membarrier),        // 283
+    //   (__NR_mlock2,            sys_ni_syscall),        // 284
+    LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 285
+-   //   (__NR_preadv2,           sys_ni_syscall),        // 286
+-   //   (__NR_pwritev2,          sys_ni_syscall),        // 287
++   LINX_(__NR_preadv2,           sys_ni_syscall),        // 286
++   LINX_(__NR_pwritev2,          sys_ni_syscall),        // 287
+    //   (__NR_pkey_mprotect,     sys_ni_syscall),        // 288
+    //   (__NR_pkey_alloc,        sys_ni_syscall),        // 289
+    //   (__NR_pkey_free,         sys_ni_syscall),        // 290
+diff --git a/coregrind/m_syswrap/syswrap-linux.c b/coregrind/m_syswrap/syswrap-linux.c
+index 36d09d6e0..2fe15d97b 100644
+--- a/coregrind/m_syswrap/syswrap-linux.c
++++ b/coregrind/m_syswrap/syswrap-linux.c
+@@ -5501,12 +5501,57 @@ POST(sys_open_by_handle_at)
+ /* ---------------------------------------------------------------------
+    p{read,write}v wrappers
+    ------------------------------------------------------------------ */
++/* This handles the common part of the PRE macro for preadv and preadv2. */
++void handle_pre_sys_preadv(ThreadId tid, SyscallStatus* status,
++                           Int fd, Addr vector, Int count, const char *str)
++{
++   struct vki_iovec * vec;
++   Int i;
++   /* safe size for the "preadv/preadv2(vector[i])" string */
++   char tmp[30];
++
++   if (!ML_(fd_allowed)(fd, str, tid, False)) {
++      SET_STATUS_Failure( VKI_EBADF );
++   } else if (count > 0) {
++      VG_(strcpy) (tmp, str);
++      VG_(strcat) (tmp, "(vector)");
++      PRE_MEM_READ( tmp, vector, count * sizeof(struct vki_iovec) );
++
++      if (ML_(safe_to_deref) ((void *)(Addr)vector,
++                              count * sizeof(struct vki_iovec))) {
++         vec = (struct vki_iovec *)(Addr)vector;
++         for (i = 0; i < count; i++) {
++            VG_(snprintf) (tmp, 30, "%s(vector[%d])", str, i);
++            PRE_MEM_WRITE( tmp, (Addr)vec[i].iov_base, vec[i].iov_len );
++         }
++      }
++   }
++}
++
++/* This handles the common part of the POST macro for preadv and preadv2. */
++void handle_post_sys_preadv(ThreadId tid, SyscallStatus* status, Addr vector, Int count)
++{
++    vg_assert(SUCCESS);
++    if (RES > 0) {
++        Int i;
++        struct vki_iovec * vec = (struct vki_iovec *)(Addr)vector;
++        Int remains = RES;
++
++        /* RES holds the number of bytes read. */
++        for (i = 0; i < count; i++) {
++            Int nReadThisBuf = vec[i].iov_len;
++            if (nReadThisBuf > remains) nReadThisBuf = remains;
++            POST_MEM_WRITE( (Addr)vec[i].iov_base, nReadThisBuf );
++            remains -= nReadThisBuf;
++            if (remains < 0) VG_(core_panic)("preadv: remains < 0");
++        }
++    }
++}
+ 
+ PRE(sys_preadv)
+ {
+-   Int i;
+-   struct vki_iovec * vec;
+    *flags |= SfMayBlock;
++   const char *str = "preadv";
+ #if VG_WORDSIZE == 4
+    /* Note that the offset argument here is in lo+hi order on both
+       big and little endian platforms... */
+@@ -5525,45 +5570,89 @@ PRE(sys_preadv)
+ #else
+ #  error Unexpected word size
+ #endif
+-   if (!ML_(fd_allowed)(ARG1, "preadv", tid, False)) {
+-      SET_STATUS_Failure( VKI_EBADF );
+-   } else {
+-      PRE_MEM_READ( "preadv(vector)", ARG2, ARG3 * sizeof(struct vki_iovec) );
++   Int fd = ARG1;
++   Addr vector = ARG2;
++   Int count = ARG3;
++
++   handle_pre_sys_preadv(tid, status, fd, vector, count, str);
+ 
+-      if (ARG2 != 0) {
+-         /* ToDo: don't do any of the following if the vector is invalid */
+-         vec = (struct vki_iovec *)(Addr)ARG2;
+-         for (i = 0; i < (Int)ARG3; i++)
+-            PRE_MEM_WRITE( "preadv(vector[...])",
+-                           (Addr)vec[i].iov_base, vec[i].iov_len );
+-      }
+-   }
+ }
+ 
+ POST(sys_preadv)
+ {
+-   vg_assert(SUCCESS);
+-   if (RES > 0) {
+-      Int i;
+-      struct vki_iovec * vec = (struct vki_iovec *)(Addr)ARG2;
+-      Int remains = RES;
++   Addr vector = ARG2;
++   Int count = ARG3;
+ 
+-      /* RES holds the number of bytes read. */
+-      for (i = 0; i < (Int)ARG3; i++) {
+-	 Int nReadThisBuf = vec[i].iov_len;
+-	 if (nReadThisBuf > remains) nReadThisBuf = remains;
+-	 POST_MEM_WRITE( (Addr)vec[i].iov_base, nReadThisBuf );
+-	 remains -= nReadThisBuf;
+-	 if (remains < 0) VG_(core_panic)("preadv: remains < 0");
++   handle_post_sys_preadv(tid, status, vector, count);
++}
++
++PRE(sys_preadv2)
++{
++   *flags |= SfMayBlock;
++   const char *str = "preadv2";
++#if VG_WORDSIZE == 4
++   /* Note that the offset argument here is in lo+hi order on both
++      big and little endian platforms... */
++   PRINT("sys_preadv2 ( %" FMT_REGWORD "u, %#" FMT_REGWORD "x, %" FMT_REGWORD
++         "u, %lld, %" FMT_REGWORD "u )",
++         ARG1, ARG2, ARG3, (Long)LOHI64(ARG4,ARG5), ARG6);
++   PRE_REG_READ6(ssize_t, "preadv2",
++                 unsigned long, fd, const struct iovec *, vector,
++                 unsigned long, count, vki_u32, offset_low,
++                 vki_u32, offset_high, unsigned long, flags);
++#elif VG_WORDSIZE == 8
++   PRINT("sys_preadv2 ( %lu, %#lx, %lu, %ld, %lu )", ARG1, ARG2, ARG3, SARG4, ARG5);
++   PRE_REG_READ5(ssize_t, "preadv2",
++                 unsigned long, fd, const struct iovec *, vector,
++                 unsigned long, count, Word, offset, unsigned long, flags);
++#else
++#  error Unexpected word size
++#endif
++   Int fd = ARG1;
++   Addr vector = ARG2;
++   Int count = ARG3;
++
++   handle_pre_sys_preadv(tid, status, fd, vector, count, str);
++}
++
++POST(sys_preadv2)
++{
++   Addr vector = ARG2;
++   Int count = ARG3;
++
++   handle_post_sys_preadv(tid, status, vector, count);
++}
++
++/* This handles the common part of the PRE macro for pwritev and pwritev2. */
++void handle_sys_pwritev(ThreadId tid, SyscallStatus* status,
++                        Int fd, Addr vector, Int count, const char *str)
++{
++   Int i;
++   struct vki_iovec * vec;
++   /* safe size for the "preadv/preadv2(vector[i])" string */
++   char tmp[30];
++
++   if (!ML_(fd_allowed)(fd, str, tid, False)) {
++      SET_STATUS_Failure( VKI_EBADF );
++   } else if (count > 0) {
++      VG_(strcpy) (tmp, str);
++      VG_(strcat) (tmp, "(vector)");
++      PRE_MEM_READ( tmp, vector, count * sizeof(struct vki_iovec) );
++      if (ML_(safe_to_deref) ((void *)(Addr)vector,
++                              count * sizeof(struct vki_iovec))) {
++         vec = (struct vki_iovec *)(Addr)vector;
++         for (i = 0; i < count; i++) {
++            VG_(snprintf) (tmp, 30, "%s(vector[%d])", str, i);
++            PRE_MEM_READ( tmp, (Addr)vec[i].iov_base, vec[i].iov_len );
++         }
+       }
+    }
+ }
+ 
+ PRE(sys_pwritev)
+ {
+-   Int i;
+-   struct vki_iovec * vec;
+    *flags |= SfMayBlock;
++   const char *str = "pwritev";
+ #if VG_WORDSIZE == 4
+    /* Note that the offset argument here is in lo+hi order on both
+       big and little endian platforms... */
+@@ -5581,19 +5670,41 @@ PRE(sys_pwritev)
+ #else
+ #  error Unexpected word size
+ #endif
+-   if (!ML_(fd_allowed)(ARG1, "pwritev", tid, False)) {
+-      SET_STATUS_Failure( VKI_EBADF );
+-   } else {
+-      PRE_MEM_READ( "pwritev(vector)", 
+-		     ARG2, ARG3 * sizeof(struct vki_iovec) );
+-      if (ARG2 != 0) {
+-         /* ToDo: don't do any of the following if the vector is invalid */
+-         vec = (struct vki_iovec *)(Addr)ARG2;
+-         for (i = 0; i < (Int)ARG3; i++)
+-            PRE_MEM_READ( "pwritev(vector[...])",
+-                           (Addr)vec[i].iov_base, vec[i].iov_len );
+-      }
+-   }
++   Int fd = ARG1;
++   Addr vector = ARG2;
++   Int count = ARG3;
++
++   handle_sys_pwritev(tid, status, fd, vector, count, str);
++}
++
++PRE(sys_pwritev2)
++{
++   *flags |= SfMayBlock;
++   const char *str = "pwritev2";
++#if VG_WORDSIZE == 4
++   /* Note that the offset argument here is in lo+hi order on both
++      big and little endian platforms... */
++   PRINT("sys_pwritev2 ( %" FMT_REGWORD "u, %#" FMT_REGWORD "x, %" FMT_REGWORD
++         "u, %lld, %" FMT_REGWORD "u )",
++         ARG1, ARG2, ARG3, (Long)LOHI64(ARG4,ARG5), ARG6);
++   PRE_REG_READ6(ssize_t, "pwritev2",
++                 unsigned long, fd, const struct iovec *, vector,
++                 unsigned long, count, vki_u32, offset_low,
++                 vki_u32, offset_high, unsigned long, flags);
++#elif VG_WORDSIZE == 8
++   /* Note offset_high isn't actually used?  */
++   PRE_REG_READ6(ssize_t, "pwritev2",
++                 unsigned long, fd, const struct iovec *, vector,
++                 unsigned long, count, Word, offset,
++		 Word, offset_high, unsigned long, flags);
++#else
++#  error Unexpected word size
++#endif
++   Int fd = ARG1;
++   Addr vector = ARG2;
++   Int count = ARG3;
++
++   handle_sys_pwritev(tid, status, fd, vector, count, str);
+ }
+ 
+ /* ---------------------------------------------------------------------
+diff --git a/coregrind/m_syswrap/syswrap-ppc64-linux.c b/coregrind/m_syswrap/syswrap-ppc64-linux.c
+index baa2934ab..d65a664dd 100644
+--- a/coregrind/m_syswrap/syswrap-ppc64-linux.c
++++ b/coregrind/m_syswrap/syswrap-ppc64-linux.c
+@@ -1006,6 +1006,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINX_(__NR_membarrier,        sys_membarrier),       // 365
+ 
+    LINX_(__NR_copy_file_range,   sys_copy_file_range),  // 379
++   LINX_(__NR_preadv2,           sys_preadv2),          // 380
++   LINX_(__NR_pwritev2,          sys_pwritev2),         // 381
+ 
+    LINXY(__NR_statx,             sys_statx),            // 383
+ };
+diff --git a/coregrind/m_syswrap/syswrap-s390x-linux.c b/coregrind/m_syswrap/syswrap-s390x-linux.c
+index 1481e768b..3354d41c0 100644
+--- a/coregrind/m_syswrap/syswrap-s390x-linux.c
++++ b/coregrind/m_syswrap/syswrap-s390x-linux.c
+@@ -853,6 +853,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINX_(__NR_shutdown, sys_shutdown),                                // 373
+ 
+    LINX_(__NR_copy_file_range, sys_copy_file_range),                  // 375
++   LINXY(__NR_preadv2, sys_preadv2),                                  // 376
++   LINX_(__NR_pwritev2, sys_pwritev2),                                // 377
+ 
+    LINXY(__NR_statx, sys_statx),                                      // 379
+ };
+diff --git a/coregrind/m_syswrap/syswrap-x86-linux.c b/coregrind/m_syswrap/syswrap-x86-linux.c
+index 9ff53a92a..33d1213a3 100644
+--- a/coregrind/m_syswrap/syswrap-x86-linux.c
++++ b/coregrind/m_syswrap/syswrap-x86-linux.c
+@@ -1607,6 +1607,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINX_(__NR_membarrier,        sys_membarrier),       // 375
+ 
+    LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 377
++   LINXY(__NR_preadv2,           sys_preadv2),           // 378
++   LINX_(__NR_pwritev2,          sys_pwritev2),          // 379
+ 
+    LINXY(__NR_pkey_mprotect,     sys_pkey_mprotect),    // 380
+    LINX_(__NR_pkey_alloc,        sys_pkey_alloc),       // 381
+diff --git a/memcheck/tests/linux/Makefile.am b/memcheck/tests/linux/Makefile.am
+index 00e99a52a..e13325869 100644
+--- a/memcheck/tests/linux/Makefile.am
++++ b/memcheck/tests/linux/Makefile.am
+@@ -26,7 +26,9 @@ EXTRA_DIST = \
+ 	timerfd-syscall.vgtest timerfd-syscall.stderr.exp \
+ 	with-space.stderr.exp with-space.stdout.exp with-space.vgtest \
+ 	proc-auxv.vgtest proc-auxv.stderr.exp getregset.vgtest \
+-	getregset.stderr.exp getregset.stdout.exp
++	getregset.stderr.exp getregset.stdout.exp \
++	sys-preadv_pwritev.vgtest sys-preadv_pwritev.stderr.exp \
++	sys-preadv2_pwritev2.vgtest sys-preadv2_pwritev2.stderr.exp
+ 
+ check_PROGRAMS = \
+ 	brk \
+@@ -54,6 +56,14 @@ if HAVE_COPY_FILE_RANGE
+         check_PROGRAMS += sys-copy_file_range
+ endif
+ 
++if HAVE_PREADV_PWRITEV
++        check_PROGRAMS += sys-preadv_pwritev
++endif
++
++if HAVE_PREADV2_PWRITEV2
++        check_PROGRAMS += sys-preadv2_pwritev2
++endif
++
+ AM_CFLAGS   += $(AM_FLAG_M3264_PRI)
+ AM_CXXFLAGS += $(AM_FLAG_M3264_PRI)
+ 
+diff --git a/memcheck/tests/linux/sys-preadv2_pwritev2.c b/memcheck/tests/linux/sys-preadv2_pwritev2.c
+new file mode 100644
+index 000000000..942eab68b
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv2_pwritev2.c
+@@ -0,0 +1,79 @@
++#define _GNU_SOURCE
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <sys/syscall.h>
++#include <sys/uio.h>
++#include <string.h>
++#include "../../memcheck.h"
++
++#include <errno.h>
++
++int main(int argc, char **argv)
++{
++    char str0[] = "hello ";
++    char str1[] = "world\n";
++    struct iovec iov[2];
++    int fd;
++
++    fd = open("prwv2_source", O_CREAT | O_RDWR, 0644);
++    if (fd == -1) {
++        perror("prwv2_source");
++        exit(EXIT_FAILURE);
++    }
++
++    iov[0].iov_base = str0;
++    iov[0].iov_len = strlen(str0);
++    iov[1].iov_base = str1;
++    iov[1].iov_len = strlen(str1);
++
++    /* Check pwritev2 and preadv2 called with the correct arguments works. */
++    if (pwritev2(fd, iov, 2, 0, 0) == -1) {
++        perror("pwritev2");
++        exit(EXIT_FAILURE);
++    }
++
++    if (preadv2(fd, iov, 2, 0, 0) == -1) {
++        perror("preadv2");
++        printf("errno: %d\n", errno);
++        exit(EXIT_FAILURE);
++    }
++
++    /* Check valgrind will produce expected warnings for the
++       various wrong arguments. */
++    do {
++        /* always allocate 16 bytes to not to have different .exps for different reg sizes */
++        char *mem = malloc(16);
++        void *t = (void *) &mem[0];
++        void *z = (void *) -1;
++	int c = *((int *) &mem[4]);
++        int flag = *((int *) &mem[8]);
++        pwritev2(fd, NULL, 2, 0, 0);
++        pwritev2(fd, z, 2, 0, 0);
++        pwritev2(fd, t, 2, 0, 0);
++        pwritev2(fd, iov, -1, 0, 0);
++        pwritev2(fd, iov, c, 0, 0);
++        pwritev2(fd, iov, 2, -5, 0);
++        pwritev2(-1, iov, 2, -5, 0);
++        pwritev2(fd, iov, 2, -5, flag);
++
++        preadv2(fd, NULL, 2, 0, 0);
++        preadv2(fd, z, 2, 0, 0);
++        preadv2(fd, t, 2, 0, 0);
++        preadv2(fd, iov, -1, 0, 0);
++        preadv2(fd, iov, c, 0, 0);
++        preadv2(fd, iov, 2, -5, 0);
++        preadv2(-1, iov, 2, -5, 0);
++
++        iov[1].iov_base = (void *) -1;
++        pwritev2(fd, iov, 2, 0, 0);
++        preadv2(fd, iov, 2, 0, 0);
++        free(mem);
++    } while (0);
++
++    close(fd);
++    unlink("prwv2_source");
++    exit(EXIT_SUCCESS);
++}
+diff --git a/memcheck/tests/linux/sys-preadv2_pwritev2.stderr.exp b/memcheck/tests/linux/sys-preadv2_pwritev2.stderr.exp
+new file mode 100644
+index 000000000..e11f2a51d
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv2_pwritev2.stderr.exp
+@@ -0,0 +1,56 @@
++Syscall param pwritev2(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:53)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param pwritev2(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:54)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param pwritev2(vector) points to uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:55)
++ Address 0x........ is 0 bytes inside a block of size 16 alloc'd
++   at 0x........: malloc (vg_replace_malloc.c:...)
++   by 0x........: main (sys-preadv2_pwritev2.c:48)
++
++Syscall param pwritev2(count) contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:57)
++
++Syscall param pwritev2(flags) contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:60)
++
++Syscall param preadv2(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:62)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv2(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:63)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv2(vector) points to uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:64)
++ Address 0x........ is 0 bytes inside a block of size 16 alloc'd
++   at 0x........: malloc (vg_replace_malloc.c:...)
++   by 0x........: main (sys-preadv2_pwritev2.c:48)
++
++Syscall param preadv2(count) contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:66)
++
++Syscall param pwritev2(vector[1]) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:71)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv2(vector[1]) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv2_pwritev2.c:72)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
+diff --git a/memcheck/tests/linux/sys-preadv2_pwritev2.vgtest b/memcheck/tests/linux/sys-preadv2_pwritev2.vgtest
+new file mode 100644
+index 000000000..5cd23aacd
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv2_pwritev2.vgtest
+@@ -0,0 +1,3 @@
++prereq: test -e sys-preadv2_pwritev2
++prog: sys-preadv2_pwritev2
++vgopts: -q
+diff --git a/memcheck/tests/linux/sys-preadv_pwritev.c b/memcheck/tests/linux/sys-preadv_pwritev.c
+new file mode 100644
+index 000000000..f5087dddc
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv_pwritev.c
+@@ -0,0 +1,77 @@
++#define _GNU_SOURCE
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <sys/syscall.h>
++#include <sys/uio.h>
++#include <string.h>
++#include "../../memcheck.h"
++
++#include <errno.h>
++
++int main(int argc, char **argv)
++{
++    char str0[] = "hello ";
++    char str1[] = "world\n";
++    struct iovec iov[2];
++    int fd;
++
++    fd = open("prwv_source", O_CREAT | O_RDWR, 0644);
++    if (fd == -1) {
++        perror("prwv2_source");
++        exit(EXIT_FAILURE);
++    }
++
++    iov[0].iov_base = str0;
++    iov[0].iov_len = strlen(str0);
++    iov[1].iov_base = str1;
++    iov[1].iov_len = strlen(str1);
++
++    /* Check pwritev and preadv called with the correct arguments works. */
++    if (pwritev(fd, iov, 2, 0) == -1) {
++        perror("pwritev");
++        exit(EXIT_FAILURE);
++    }
++
++    if (preadv(fd, iov, 2, 0) == -1) {
++        perror("preadv");
++        printf("errno: %d\n", errno);
++        exit(EXIT_FAILURE);
++    }
++
++    /* Check valgrind will produce expected warnings for the
++       various wrong arguments. */
++    do {
++        /* always allocate 16 bytes to not to have different .exps for different reg sizes */
++        char *mem = malloc(16);
++        void *t = (void *) &mem[0];
++        void *z = (void *) -1;
++        int c = *((int *) &mem[4]);
++        pwritev(fd, NULL, 2, 0);
++        pwritev(fd, z, 2, 0);
++        pwritev(fd, t, 2, 0);
++        pwritev(fd, iov, -1, 0);
++        pwritev(fd, iov, c, 0);
++        pwritev(fd, iov, 2, -5);
++        pwritev(-1, iov, 2, -5);
++
++        preadv(fd, NULL, 2, 0);
++        preadv(fd, z, 2, 0);
++        preadv(fd, t, 2, 0);
++        preadv(fd, iov, -1, 0);
++        preadv(fd, iov, c, 0);
++        preadv(fd, iov, 2, -5);
++        preadv(-1, iov, 2, -5);
++
++        iov[1].iov_base = (void *) -1;
++        pwritev(fd, iov, 2, 0);
++        preadv(fd, iov, 2, 0);
++        free(mem);
++    } while (0);
++
++    close(fd);
++    unlink("prwv_source");
++    exit(EXIT_SUCCESS);
++}
+diff --git a/memcheck/tests/linux/sys-preadv_pwritev.stderr.exp b/memcheck/tests/linux/sys-preadv_pwritev.stderr.exp
+new file mode 100644
+index 000000000..4fede44d8
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv_pwritev.stderr.exp
+@@ -0,0 +1,52 @@
++Syscall param pwritev(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:52)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param pwritev(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:53)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param pwritev(vector) points to uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:54)
++ Address 0x........ is 0 bytes inside a block of size 16 alloc'd
++   at 0x........: malloc (vg_replace_malloc.c:...)
++   by 0x........: main (sys-preadv_pwritev.c:48)
++
++Syscall param pwritev(count) contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:56)
++
++Syscall param preadv(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:60)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv(vector) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:61)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv(vector) points to uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:62)
++ Address 0x........ is 0 bytes inside a block of size 16 alloc'd
++   at 0x........: malloc (vg_replace_malloc.c:...)
++   by 0x........: main (sys-preadv_pwritev.c:48)
++
++Syscall param preadv(count) contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:64)
++
++Syscall param pwritev(vector[1]) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:69)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Syscall param preadv(vector[1]) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-preadv_pwritev.c:70)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
+diff --git a/memcheck/tests/linux/sys-preadv_pwritev.vgtest b/memcheck/tests/linux/sys-preadv_pwritev.vgtest
+new file mode 100644
+index 000000000..f07dc2935
+--- /dev/null
++++ b/memcheck/tests/linux/sys-preadv_pwritev.vgtest
+@@ -0,0 +1,3 @@
++prereq: test -e sys-preadv_pwritev
++prog: sys-preadv_pwritev
++vgopts: -q
+
+commit 514f899388e05142513ff3f679a9e0131145e34e
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Wed Jul 3 10:27:17 2019 +0200
+
+    Hook up preadv2 and pwritev2 correctly for arm64.
+    
+    Use the correct generic linux sys wrapper.
+    
+    Followup for https://bugs.kde.org/408414
+
+diff --git a/coregrind/m_syswrap/syswrap-arm64-linux.c b/coregrind/m_syswrap/syswrap-arm64-linux.c
+index d12d40632..91329b682 100644
+--- a/coregrind/m_syswrap/syswrap-arm64-linux.c
++++ b/coregrind/m_syswrap/syswrap-arm64-linux.c
+@@ -818,8 +818,8 @@ static SyscallTableEntry syscall_main_table[] = {
+    LINX_(__NR_membarrier,        sys_membarrier),        // 283
+    //   (__NR_mlock2,            sys_ni_syscall),        // 284
+    LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 285
+-   LINX_(__NR_preadv2,           sys_ni_syscall),        // 286
+-   LINX_(__NR_pwritev2,          sys_ni_syscall),        // 287
++   LINXY(__NR_preadv2,           sys_preadv2),           // 286
++   LINX_(__NR_pwritev2,          sys_pwritev2),          // 287
+    //   (__NR_pkey_mprotect,     sys_ni_syscall),        // 288
+    //   (__NR_pkey_alloc,        sys_ni_syscall),        // 289
+    //   (__NR_pkey_free,         sys_ni_syscall),        // 290

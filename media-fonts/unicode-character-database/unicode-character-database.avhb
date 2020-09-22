@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=unicode-character-database
+pkgver=13.0.0
+pkgrel=1
+pkgdesc="Unicode Character Database"
+arch=(any)
+groups=('media-fonts')
+license=(BSD)
+url="https://www.unicode.org/"
+source=("UCD-$pkgver.zip::https://www.unicode.org/Public/zipped/$pkgver/UCD.zip"
+        "Unihan-$pkgver.zip::https://www.unicode.org/Public/zipped/$pkgver/Unihan.zip"
+        LICENSE)
+noextract=({UCD,Unihan}-$pkgver.zip)
+
+prepare(){
+  cp $srcarchivedir/UCD-$pkgver.zip .
+  cp $srcarchivedir/Unihan-$pkgver.zip .
+
+}
+
+package() {
+  for _f in UCD-$pkgver Unihan-$pkgver; do
+    install -Dm644 $_f.zip "$pkgdir/usr/share/unicode/$_f.zip"
+    bsdtar -C "$pkgdir/usr/share/unicode" -x --no-same-owner --no-same-permissions -f $_f.zip
+  done
+
+  ln -s unicode "$pkgdir/usr/share/$pkgname"
+
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

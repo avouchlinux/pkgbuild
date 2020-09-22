@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=restorecond
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux restorecon daemon"
+arch=('x86_64')
+groups=('sys-security')
+url='https://github.com/SELinuxProject/selinux/wiki'
+license=('GPL2')
+groups=('selinux')
+depends=('dbus-glib' 'libselinux>=2.7')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('cbf9820583e641ee0462fa7bc89e6024676af281e025703e17b2d019b1a25a4f')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" SBINDIR=/usr/bin install
+
+  # Remove restorecond init script
+  rm -rf "${pkgdir}/etc/rc.d"
+}

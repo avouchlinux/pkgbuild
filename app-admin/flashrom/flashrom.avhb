@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=flashrom
+pkgver=1.2
+pkgrel=1
+pkgdesc="Utility for reading, writing, erasing and verifying flash ROM chips"
+arch=('x86_64')
+groups=('app-admin')
+url="https://www.flashrom.org/"
+license=(GPL)
+depends=(libftdi pciutils libusb-compat)
+makedepends=(meson)
+optdepends=('dmidecode: for SMBIOS/DMI table decoder support')
+source=("https://download.flashrom.org/releases/${pkgname}-v${pkgver}.tar.bz2")
+validpgpkeys=(58A4868B25C7CFD662FB0132A3EB95B8D9780F68) # David Hendricks (packaging key) <david.hendricks@gmail.com>
+
+build() {
+  cd ${pkgname}-v${pkgver}
+  avouch-meson ../build
+  ninja -v -C ../build
+  # Workaround for meson not installing manpage
+  make
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+  # Workaround for meson not installing manpage
+  cd ${pkgname}-v${pkgver}
+  make PREFIX=temp/ install
+  cp -r temp/share "${pkgdir}"/usr/
+}

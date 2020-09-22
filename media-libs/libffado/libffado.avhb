@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libffado
+pkgver=2.4.2
+pkgrel=1
+pkgdesc="Driver for FireWire audio devices"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.ffado.org/"
+license=('GPL')
+depends=('alsa-lib' 'gcc-libs' 'glibc' 'glibmm' 'hicolor-icon-theme'
+'libavc1394' 'libdbus-c++-1.so' 'libconfig++.so' 'libiec61883' 'libxml++'
+'python-dbus')
+makedepends=('jack' 'python-pyqt5' 'scons')
+optdepends=('python-pyqt5: ffado-mixer')
+provides=('libffado.so')
+source=("http://www.ffado.org/files/${pkgname}-${pkgver}.tgz"
+        "${pkgname}-fix-python3-pyqt5.diff"
+)
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # fix icon name, so it's coherent with XDG desktop file name
+  sed -e 's/hi64-apps-ffado/ffado-mixer/g' \
+      -i support/xdg/ffado.org-ffadomixer.desktop
+  # fix missing type conversion for python >= 3.8
+  patch -Np1 -i "../${pkgname}-2.4.2-python38.patch"
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  scons PREFIX=/usr \
+        DEBUG=no \
+        MANDIR='/usr/share/man' \
+        PYTHON_INTERPRETER='/usr/bin/python3' \
+        PYPKGDIR='/usr/lib/python3.8/site-packages' \
+        UDEVDIR='/usr/lib/udev/rules.d'
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  scons DESTDIR="${pkgdir}" WILL_DEAL_WITH_XDG_MYSELF="True" install
+
+  # XDG
+  install -vDm644 support/xdg/ffado.org-ffadomixer.desktop \
+    "${pkgdir}/usr/share/applications/ffadomixer.desktop"
+  install -vDm 644 support/xdg/hi64-apps-ffado.png \
+    "${pkgdir}/usr/share/icons/hicolor/64x64/apps/ffado-mixer.png"
+
+  # docs
+  install -t "${pkgdir}/usr/share/doc/${pkgname}" -vDm644 {AUTHORS,README}
+}

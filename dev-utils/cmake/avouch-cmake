@@ -1,0 +1,11 @@
+#!/bin/bash -ex
+# cmake wrapper for Avouch packaging
+
+# set ninja as default generator
+exec cmake -GNinja "$@" \
+  	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib
+    
+    

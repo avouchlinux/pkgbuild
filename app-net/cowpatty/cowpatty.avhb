@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cowpatty
+pkgver=4.6
+pkgrel=1
+pkgdesc="Wireless WPA/WPA2 PSK handshake cracking utility"
+arch=('x86_64')
+groups=('app-utils')
+url="http://www.willhackforsushi.com/?page_id=50"
+license=('GPL')
+depends=('openssl' 'libpcap')
+options=('docs' '!makeflags')
+source=(http://www.willhackforsushi.com/code/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tgz
+        cowpatty-4.6-fixup16.patch)
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  sed -r 's|(= -pipe)|+\1|g' -i Makefile
+  sed 's|-g3 -ggdb||g' -i Makefile
+  patch -Np1 < "${srcdir}/cowpatty-4.6-fixup16.patch"
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make all strip 
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" BINDIR="/usr/bin" install
+  install -Dm 644 dict "${pkgdir}/usr/share/cowpatty/dict"
+  install -Dm 644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm 644 README "${pkgdir}/usr/share/doc/${pkgname}/README"
+}
+

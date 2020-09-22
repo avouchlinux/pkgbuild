@@ -1,0 +1,61 @@
+diff -up rpcbind-1.2.5/configure.ac.orig rpcbind-1.2.5/configure.ac
+--- rpcbind-1.2.5/configure.ac.orig	2018-08-15 11:15:14.188974027 -0400
++++ rpcbind-1.2.5/configure.ac	2018-08-15 11:15:44.948991114 -0400
+@@ -26,8 +26,8 @@ AC_ARG_ENABLE([rmtcalls],
+ AM_CONDITIONAL(RMTCALLS, test x$enable_rmtcalls = xyes)
+ 
+ AC_ARG_WITH([statedir],
+-  AS_HELP_STRING([--with-statedir=ARG], [use ARG as state dir @<:@default=/var/run/rpcbind@:>@])
+-  ,, [with_statedir=/var/run/rpcbind])
++  AS_HELP_STRING([--with-statedir=ARG], [use ARG as state dir @<:@default=/run/rpcbind@:>@])
++  ,, [with_statedir=/run/rpcbind])
+ AC_SUBST([statedir], [$with_statedir])
+ 
+ AC_ARG_WITH([rpcuser],
+diff -up rpcbind-1.2.5/configure.orig rpcbind-1.2.5/configure
+--- rpcbind-1.2.5/configure.orig	2018-08-15 11:00:32.000000000 -0400
++++ rpcbind-1.2.5/configure	2018-08-15 11:15:44.951991115 -0400
+@@ -1391,7 +1391,7 @@ Optional Features:
+ Optional Packages:
+   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+-  --with-statedir=ARG     use ARG as state dir [default=/var/run/rpcbind]
++  --with-statedir=ARG     use ARG as state dir [default=/run/rpcbind]
+ 
+   --with-rpcuser=ARG      use ARG for RPC [default=root]
+ 
+@@ -3901,7 +3901,7 @@ fi
+ if test "${with_statedir+set}" = set; then :
+   withval=$with_statedir;
+ else
+-  with_statedir=/var/run/rpcbind
++  with_statedir=/run/rpcbind
+ fi
+ 
+ statedir=$with_statedir
+diff -up rpcbind-1.2.5/man/rpcbind-fr.8.orig rpcbind-1.2.5/man/rpcbind-fr.8
+--- rpcbind-1.2.5/man/rpcbind-fr.8.orig	2018-08-15 10:51:19.000000000 -0400
++++ rpcbind-1.2.5/man/rpcbind-fr.8	2018-08-15 11:15:44.951991115 -0400
+@@ -138,8 +138,8 @@ est redémarré.
+ .Xr rpcbind 3 ,
+ .Xr rpcinfo 8
+ .Sh FILES
+-.Bl -tag -width /var/run/rpcbind.sock -compact
+-.It Pa /var/run/rpcbind.sock
++.Bl -tag -width /run/rpcbind.sock -compact
++.It Pa /run/rpcbind.sock
+ .Sh TRADUCTION
+ Aurelien CHARBON (Sept 2003)
+ .El
+diff -up rpcbind-1.2.5/src/rpcbind.c.orig rpcbind-1.2.5/src/rpcbind.c
+--- rpcbind-1.2.5/src/rpcbind.c.orig	2018-08-15 10:51:19.000000000 -0400
++++ rpcbind-1.2.5/src/rpcbind.c	2018-08-15 11:15:44.952991116 -0400
+@@ -106,7 +106,7 @@ char *nss_modules = "files";
+ /* who to suid to if -s is given */
+ #define RUN_AS  "daemon"
+ 
+-#define RPCBINDDLOCK "/var/run/rpcbind.lock"
++#define RPCBINDDLOCK RPCBIND_STATEDIR "/rpcbind.lock"
+ 
+ int runasdaemon = 0;
+ int insecure = 0;

@@ -1,0 +1,69 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nmap
+pkgver=6.47
+avhver=1
+pkgrel=1
+pkgdate=20141110
+pkgdesc='Utility for network discovery and security auditing'
+url='http://nmap.org/'
+arch=('i686' 'x86_64')
+license=('GPL2')
+makedepends=('pygtk')
+optdepends=('pygtk: zenmap'
+            'sudo: privilege escalation for zenmap'
+            'xterm: privilege escalation for zenmap'
+            'kdebase-runtime: privilege escalation for zenmap'
+            'gksu: privilege escalation for zenmap')
+depends=('pcre' 'openssl' 'lua')
+source=("http://nmap.org/dist/${pkgname}-${pkgver}.tar.bz2")
+sha1sums=('0c917453a91a5e85c2a217d27c3853b0f3e0e6ac')
+
+case "${ARCH}" in
+  'x86_64') BUILD="--build=x86_64-avouch-linux" ; HOST="--build=x86_64-avouch-linux" ;;
+  'i686'  ) BUILD="--build=i686-avouch-linux" ; HOST="--build=i686-avouch-linux" ;;
+esac
+
+prepare() {
+
+srcdir=/build/${pkgname}
+cd ${srcdir}
+tar -jxf ${srcdir}/${pkgname}-${pkgver}.tar.bz2
+cd ${srcdir}/${pkgname}-${pkgver}
+
+}
+
+build() {
+
+cd "${srcdir}/${pkgname}-${pkgver}"
+export PYTHON=python2
+./configure \
+--prefix=/usr \
+--libexecdir=/usr/lib \
+--mandir=/usr/share/man \
+--with-libpcap=included \
+"${BUILD}" "${HOST}"
+make
+
+}
+
+package() {
+
+cd "${srcdir}/${pkgname}-${pkgver}"
+make DESTDIR="${pkgdir}" install
+rm "${pkgdir}"/usr/bin/uninstall_zenmap
+install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+python2 -m compileall "${pkgdir}"/usr/lib/python2.7/site-packages/zenmapCore
+
+}
+
+makepkg() {
+
+# make avouch package
+apm "${pkgname}" "${pkgver}" "${avhver}" "${pkgrel}" "${pkgdesc}" "${url}" "${depends[@]}"
+
+# install avouch package
+api ${pkgname} ${pkgver} ${avhver} ${pkgrel}
+
+}

@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=librabbitmq-c
+_realname=rabbitmq-c
+pkgver=0.10.0
+pkgrel=1
+pkgdesc="A RabbitMQ(amqp) library written in C-language"
+arch=('x86_64')
+groups=('net-libs')
+license=('MIT')
+depends=('popt' 'openssl')
+makedepends=('cmake' 'docbook-xsl' 'doxygen' 'xmlto')
+url="https://github.com/alanxz/rabbitmq-c"
+source=("https://github.com/alanxz/rabbitmq-c/archive/v$pkgver.zip")
+
+build() {
+  cmake -S ${_realname}-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_EXAMPLES=OFF \
+    -DBUILD_TOOLS=ON \
+    -DBUILD_TOOLS_DOCS=ON \
+    -DBUILD_TESTS=OFF \
+    -DENABLE_SSL_SUPPORT=ON \
+    -DBUILD_API_DOCS=ON
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dm644 $_realname-$pkgver/LICENSE-MIT "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

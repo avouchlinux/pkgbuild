@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=malcontent
+pkgver=0.7.0
+pkgrel=1
+pkgdesc="Parental control support for applications"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://gitlab.freedesktop.org/pwithnall/malcontent"
+license=(LGPL2.1)
+depends=(accountsservice dbus flatpak glib2 gtk3 polkit)
+makedepends=(git meson gobject-introspection gtk-doc)
+source=("https://gitlab.freedesktop.org/pwithnall/malcontent/-/archive/$pkgver/malcontent-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+}

@@ -1,0 +1,58 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=opensp
+_realname=OpenSP
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="A library and a set of tools for validating, parsing and manipulating SGML and XML documents"
+arch=('x86_64')
+groups=('app-text')
+url="http://openjade.sourceforge.net/"
+license=('BSD')
+depends=('gcc-libs')
+makedepends=('xmlto' 'docbook-xsl')
+source=("http://download.sourceforge.net/openjade/OpenSP-$pkgver.tar.gz")
+
+
+prepare() {
+    cd ${srcdir}/${_realname}-${pkgver}
+
+    sed -i 's/32,/253,/' lib/Syntax.cxx &&
+    sed -i 's/LITLEN          240 /LITLEN          8092/' \
+    unicode/{gensyntax.pl,unicode.syn}
+}
+
+build() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    ./configure --prefix=/usr \
+        --mandir=/usr/share/man \
+        --enable-http \
+        --enable-default-catalog=/etc/sgml/catalog:/etc/xml/catalog \
+        --enable-default-search-path=/usr/share/sgml:/usr/share/xml \
+        --enable-xml-messages \
+        --disable-nls \
+        --disable-doc-build \
+        --disable-static
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -D -m644 COPYING "${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+
+    # usefull symlink
+    ln -v -sf onsgmls "${pkgdir}"/usr/bin/nsgmls
+    ln -v -sf osgmlnorm "${pkgdir}"/usr/bin/sgmlnorm
+    ln -v -sf ospam "${pkgdir}"/usr/bin/spam
+    ln -v -sf ospcat "${pkgdir}"/usr/bin/spcat
+    ln -v -sf ospent "${pkgdir}"/usr/bin/spent
+    ln -v -sf osx "${pkgdir}"/usr/bin/sx
+    ln -v -sf osx "${pkgdir}"/usr/bin/sgml2xml
+    ln -v -sf libosp.so "${pkgdir}"/usr/lib/libsp.so
+}
+

@@ -1,0 +1,57 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mailutils
+pkgver=3.9
+pkgrel=1
+pkgdesc="MUA command line tool (mailx)"
+arch=('x86_64')
+groups=('net-mail')
+url="http://www.gnu.org/software/mailutils/"
+license=('GPL')
+depends=('libldap' 'pam' 'gnutls' 'gsasl')
+makedepends=('emacs')
+options=(!emptydirs)
+source=(https://ftp.gnu.org/gnu/mailutils/mailutils-$pkgver.tar.bz2{,.sig}
+        fix-build-mb-len-max.patch)
+validpgpkeys=('325F650C4C2B6AD58807327A3602B07F55D0C732')
+
+prepare() {
+    cd "$srcdir/mailutils-$pkgver"
+    # Include limits.h in frm/frm.h so it doesn't misdefine MB_LEN_MAX to 4
+    # (patch from github.com/NixOS/nixpkgs)
+    #patch -Np1 -i ../fix-build-mb-len-max.patch
+
+    patch -Np1 -i ../mailutils-3.5-add-include.patch
+	patch -Np1 -i ../mailutils-3.9-underlinking.patch
+	patch -Np1 -i ../mailutils-3.8-fno-common.patch
+	patch -Np1 -i ../mailutils-3.9-python-config.patch
+    
+    autoreconf -vif
+}
+
+build() {
+    cd "$srcdir/mailutils-$pkgver"
+    ./configure \
+        --prefix=/usr \
+        --sbindir=/usr/bin \
+        --libexecdir=/usr/lib/$pkgname \
+        --with-gdbm \
+        --with-gnutls \
+        --without-guile \
+		--with-readline \
+        --disable-python \
+		--disable-debug \
+        --disable-tests 
+    make ${MAKEFLAGS} CFLAGS="$CFLAGS"
+}
+
+package() {
+    cd "$srcdir/mailutils-$pkgver"
+    make -j1 DESTDIR="$pkgdir" install
+    rm -f "$pkgdir"/usr/share/info/dir
+    mv "$pkgdir"/usr/bin/mail "$pkgdir"/usr/bin/gnu-mail
+    mv "$pkgdir"/usr/share/man/man1/mail.1 "$pkgdir"/usr/share/man/man1/gnu-mail.1
+    chown -R root:root "$pkgdir"
+}

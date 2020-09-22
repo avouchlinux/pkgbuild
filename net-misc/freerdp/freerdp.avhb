@@ -1,0 +1,63 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=freerdp
+epoch=1
+pkgver=2.1.1
+pkgrel=1
+pkgdesc="Free implementation of the Remote Desktop Protocol (RDP)"
+arch=('x86_64')
+groups=('net-misc')
+url="https://www.freerdp.com/"
+license=('Apache')
+depends=('dbus-glib' 'glibc' 'gstreamer' 'gst-plugins-base-libs' 'libcups'
+'libjpeg-turbo' 'libgssglue' 'libx11' 'libxcursor' 'libxext' 'libxdamage'
+'libxfixes' 'libxkbcommon' 'libxi' 'libxinerama' 'libxkbfile' 'libxrandr'
+'libxrender' 'libxtst' 'openssl' 'pam' 'pcsclite' 'wayland')
+makedepends=('alsa-lib' 'cmake' 'docbook-xsl' 'ffmpeg' 'krb5' 'libpulse'
+'libusb' 'systemd-libs' 'xmlto' 'xorgproto')
+provides=('libfreerdp2.so' 'libfreerdp-client2.so' 'libfreerdp-server2'
+'libfreerdp-shadow2.so' 'libfreerdp-shadow-subsystem2.so' 'libwinpr2.so'
+'libwinpr-tools2.so' 'libuwac0.so')
+source=(https://github.com/${pkgname}/${pkgname}/archive/${pkgver/_/-}.tar.gz)
+
+prepare() {
+  mv -v "${_realname}-${pkgver}" "${pkgname}-${pkgver}"
+  cd "${pkgname}-${pkgver}"
+  # fix man page formatting:
+  patch -Np1 -i "../${pkgname}-2.0.0-manpage_formatting.patch"
+}
+
+build() {
+  export CFLAGS+=" ${CPPFLAGS}"
+  export CXXFLAGS+=" ${CPPFLAGS}"
+  cmake -S${pkgname}-${pkgver} -Bbuild -GNinja \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DWITH_MBEDTLS=ON \
+        -DWITH_PULSE=ON \
+        -DWITH_CUPS=ON \
+        -DWITH_PCSC=ON \
+        -DWITH_JPEG=ON \
+        -DWITH_GSM=ON \
+        -DWITH_LAME=ON \
+        -DWITH_FAAD2=ON \
+        -DWITH_FAAC=ON \
+        -DWITH_SOXR=ON \
+        -DWITH_GSSAPI=ON \
+        -DWITH_SERVER=ON \
+        -DWITH_CHANNELS=ON \
+        -DWITH_CLIENT_CHANNELS=ON \
+        -DWITH_SERVER_CHANNELS=ON \
+        -DCHANNEL_URBDRC_CLIENT=ON \
+        -DPROXY_PLUGINDIR=/usr/lib/freerdp2/server/proxy/plugins \
+        -DCMAKE_BUILD_TYPE='None' \
+        -Wno-dev
+
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

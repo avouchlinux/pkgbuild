@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-xml-namespacesupport
+_realname=XML-NamespaceSupport
+pkgver=1.12
+pkgrel=1
+pkgdesc="Generic namespace helpers (ported from SAX2)"
+arch=('any')
+groups=('dev-perl')
+url="http://search.cpan.org/dist/XML-NamespaceSupport"
+license=('GPL')
+depends=('perl')
+options=('!emptydirs')
+source=("http://www.cpan.org/authors/id/P/PE/PERIGRIN/XML-NamespaceSupport-${pkgver}.tar.gz")
+
+build() {
+	cd  "${srcdir}/XML-NamespaceSupport-${pkgver}"
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+package() {
+	cd  "${srcdir}/XML-NamespaceSupport-${pkgver}"
+	make install DESTDIR="${pkgdir}"
+
+	find ${pkgdir} -name '.packlist' -delete
+	find ${pkgdir} -name '*.pod' -delete
+}

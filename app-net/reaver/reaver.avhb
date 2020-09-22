@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=reaver
+pkgver=1.6.6
+pkgrel=1
+pkgdesc="Brute force attack against Wifi Protected Setup"
+arch=('x86_64')
+groups=('app-net')
+url="http://code.google.com/p/reaver-wps/"
+license=('GPL2')
+depends=('libpcap' 'sqlite')
+makedepends=('git')
+backup=('etc/reaver/reaver.db')
+source=("https://github.com/t6x/reaver-wps-fork-t6x/releases/download/v$pkgver/reaver-$pkgver.tar.xz")
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver/src"
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  install -Dm755 "$srcdir/$pkgname-$pkgver/src/reaver" "$pkgdir/usr/bin/reaver"
+  install -Dm755 "$srcdir/$pkgname-$pkgver/src/wash" "$pkgdir/usr/bin/wash"
+  install -Dm644 "$srcdir/reaver.db" "$pkgdir/etc/reaver/reaver.db"
+  install -Dm644 "$srcdir/$pkgname-$pkgver/docs/README" "$pkgdir/usr/share/doc/reaver/README"
+  install -Dm644 "$srcdir/$pkgname-$pkgver/docs/reaver.1" "$pkgdir/usr/share/man/man1/reaver.1.gz"
+}

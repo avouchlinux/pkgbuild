@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=texlive-publishers
+pkgver=2017.44916
+_revnr=${pkgver#2017.}
+pkgrel=1
+pkgdesc="TeX Live - LaTeX classes and packages for specific publishers"
+license=('GPL')
+arch=(any)
+depends=('texlive-core')
+groups=('devel')
+repo=('extra')
+url='http://tug.org/texlive/'
+source=("https://sources.archlinux.org/other/texlive/$pkgname-$pkgver-src.zip")
+options=('!emptydirs')
+sha256sums=('f085c98c7655e8bbf465868450fc1460ff15a935c7a1855306af8b7ac76be96a')
+
+build() {
+   cd "$srcdir"
+	bsdtar -xf ${pkgname}-${pkgver}-src.zip
+   for p in *.tar.xz; do
+	   bsdtar -xf $p
+   done
+   rm -rf {tlpkg,doc,source} || true
+}
+
+package() {
+   install -m755 -d $pkgdir/var/lib/texmf/avouch/installedpkgs
+   sed -i '/^#/d' CONTENTS
+   install -m644 CONTENTS $pkgdir/var/lib/texmf/avouch/installedpkgs/${pkgname}_${_revnr}.pkgs
+   install -m755 -d $pkgdir/usr/share
+   wanteddirs=$(for d in *; do test -d $d && [[ $d != texmf* ]] && echo $d; done) || true
+   for dir in $wanteddirs; do
+     find $dir -type d -exec install -d -m755 $pkgdir/usr/share/texmf-dist/'{}' \;
+     find $dir -type f -exec install -m644 '{}' $pkgdir/usr/share/texmf-dist/'{}' \;
+   done
+   if [[ -d texmf-dist ]]; then
+     find texmf-dist -type d -exec install -d -m755 $pkgdir/usr/share/'{}' \;
+     find texmf-dist -type f -exec install -m644 '{}' $pkgdir/usr/share/'{}' \;
+   fi
+   if [[ -d $pkgdir/usr/share/texmf-dist/scripts ]]; then
+     find $pkgdir/usr/share/texmf-dist/scripts -type f -exec chmod a+x '{}' \;
+   fi
+}

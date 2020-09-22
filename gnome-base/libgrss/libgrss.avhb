@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgrss
+pkgver=0.7.0+19+gce58490
+pkgrel=1
+pkgdesc="Glib-based library to manage RSS and Atom feeds"
+url="https://wiki.gnome.org/Projects/Libgrss"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL3)
+depends=(glib2 libsoup libxml2)
+makedepends=(intltool gtk-doc gobject-introspection git)
+_commit=971c421dc26400e933de60b71eea0335a9ba2693  # master
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+# getsrc(){
+# 	git clone https://git.gnome.org/browse/libgrss
+# }
+# pkgver() {
+#   cd $pkgname
+#   git describe --tags | sed 's/-/+/g'
+# }
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure --prefix=/usr --enable-gtk-doc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}

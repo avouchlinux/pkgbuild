@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-sndio
+pkgbase=sndio
+pkgver=1.6.0
+pkgrel=1
+pkgdesc='A small audio and MIDI framework part of the OpenBSD project'
+arch=('x86_64')
+groups=('multilib')
+url='http://www.sndio.org'
+license=(ISC)
+
+# sndio can be built without libbsd, but there are a bunch of individual
+# ISC-licensed files by different authors to extract the licenses from
+# if done that way. Licenses are complicated.
+depends=(alsa-lib libbsd)
+
+source=("http://www.sndio.org/sndio-$pkgver.tar.gz")
+# checksums provided by packager
+sha256sums=(68713db624797dbff69c0f4ce1b24054fb0803da340508edbc5e08d6778f9781)
+backup=(etc/default/sndiod)
+
+build() {
+    cd "sndio-$pkgver"
+
+    # Multilib
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr  --libdir=/usr/lib32 --enable-alsa
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "sndio-$pkgver"
+    # Install
+    make DESTDIR="${pkgdir}" install
+
+    # Multilib
+    rm -rf "${pkgdir}"/usr/{bin,doc,include,share}
+}

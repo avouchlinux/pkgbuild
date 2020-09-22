@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pdepend
+pkgver=2.5.0
+pkgrel=1
+pkgdesc="A tool for PHP software metrics"
+url="http://pdepend.org/"
+arch=("any")
+groups=("dev-php")
+repo=("extra")
+license=("BSD")
+depends=("php")
+install="${pkgname}.install"
+source=("http://static.pdepend.org/php/${pkgver}/pdepend.phar"
+        "https://raw.githubusercontent.com/pdepend/pdepend/${pkgver}/LICENSE"
+        "pdepend.install")
+
+package() {
+    install -D -m 644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    install -D -m 755 "${srcdir}/pdepend.phar" "${pkgdir}/usr/share/webapps/bin/${pkgname}.phar"
+    install -d "${pkgdir}/usr/bin"
+    ln -s "/usr/share/webapps/bin/${pkgname}.phar" "${pkgdir}/usr/bin/pdepend"
+}

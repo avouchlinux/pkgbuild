@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=wildmidi
+pkgver=0.4.3
+pkgrel=1
+pkgdesc='Open Source MIDI Synthesizer'
+arch=('x86_64')
+groups=('media-sound')
+url="http://www.mindwerks.net/projects/wildmidi/"
+license=('LGPL3')
+depends=('alsa-lib')
+makedepends=('cmake')
+source=(https://github.com/psi29a/wildmidi/archive/wildmidi-${pkgver}.tar.gz)
+
+build() {
+    cmake -S$pkgname-$pkgname-$pkgver -Bbuild -GNinja \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_BUILD_TYPE="Release"
+    ninja -C build
+}
+ 
+package() {
+    DESTDIR="$pkgdir/" ninja -C build install
+}

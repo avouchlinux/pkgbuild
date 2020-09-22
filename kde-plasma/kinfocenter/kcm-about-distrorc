@@ -1,0 +1,4 @@
+[General]
+LogoPath=/usr/share/about-distro/avouch-logo.png
+Website=https://www.avouch.org
+Version=0.2.0

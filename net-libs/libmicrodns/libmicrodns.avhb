@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmicrodns
+_realname=microdns
+pkgver=0.1.2
+pkgrel=1
+pkgdesc='Minimal mDNS resolver library'
+arch=('x86_64')
+groups=('net-libs')
+url='https://github.com/videolabs/libmicrodns'
+license=('LGPL2.1')
+depends=('glibc')
+source=(https://github.com/videolabs/libmicrodns/archive/${pkgver}.tar.gz)
+
+build() {
+    avouch-meson ${_realname}-${pkgver} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="${pkgdir}" ninja -C build install
+}

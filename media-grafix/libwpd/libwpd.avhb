@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwpd
+pkgver=0.10.3
+pkgrel=1
+pkgdesc="Library for importing WordPerfect (tm) documents"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://libwpd.sourceforge.net/"
+license=('LGPL')
+depends=('gcc-libs' 'zlib' 'librevenge')
+makedepends=('libgsf' 'doxygen' 'boost')
+options=('!emptydirs')
+source=(https://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

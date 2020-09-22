@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-usage
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="GNOME application to view information about use of system resources"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Apps/Usage"
+license=(GPL3)
+depends=(gtk3 libgtop libdazzle)
+makedepends=(git meson vala)
+optdepends=('accountsservice: show user tags for processes')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

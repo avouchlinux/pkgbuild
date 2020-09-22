@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gmtk
+pkgver=1.0.9
+pkgrel=1
+pkgdesc='Common functions for gnome-mplayer and gecko-mediaplay.'
+arch=('x86_64')
+groups=('media-libs')
+url='https://sites.google.com/site/kdekorte2/gmtk'
+license=('GPL')
+depends=('gtk3' 'mplayer')
+makedepends=('intltool')
+source=("https://github.com/kdekorte/$pkgname/archive/v$pkgver.tar.gz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"	
+	./configure --prefix=/usr 
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

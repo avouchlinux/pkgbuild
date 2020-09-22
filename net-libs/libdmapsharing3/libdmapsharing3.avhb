@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdmapsharing3
+_realname=libdmapsharing
+pkgver=3.9.7
+pkgrel=1
+pkgdesc="A library that implements the DMAP family of protocols"
+arch=('x86_64')
+groups=('net-libs')
+url="http://www.flyn.org/projects/libdmapsharing/index.html"
+license=(LGPL2.1)
+depends=(libsoup avahi gst-plugins-base-libs gdk-pixbuf2)
+makedepends=(git gtk-doc gobject-introspection)
+source=("https://www.flyn.org/projects/libdmapsharing/libdmapsharing-$pkgver.tar.gz")
+
+build() {
+	cd $_realname-$pkgver
+	./configure --prefix=/usr --with-mdns=avahi --disable-tests
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd $_realname-$pkgver
+	make DESTDIR="$pkgdir" install
+}

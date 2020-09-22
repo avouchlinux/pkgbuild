@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ftjam
+pkgver=2.5.3rc2
+pkgrel=1
+pkgdesc='FT Jam - an enhanced version of the Jam build tool'
+arch=('x86_64')
+grous=('dev-utils')
+url="http://freetype.org/jam/"
+license=('custom')
+depends=('glibc')
+provides=('jam')
+#source=(http://downloads.sourceforge.net/freetype/$pkgname-$pkgver.tar.bz2 \
+source=(http://david.freetype.org/jam/${pkgname}-${pkgver}.tar.bz2 license.txt)
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 "${srcdir}/license.txt" "${pkgdir}/usr/share/licenses/${pkgname}/license.txt"
+}

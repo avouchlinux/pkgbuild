@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-latex
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="LaTeX editor for the GNOME desktop"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Apps/GNOME-LaTeX"
+license=(GPL3)
+depends=(gsettings-desktop-schemas gspell libgee tepl)
+makedepends=(gobject-introspection intltool itstool vala)
+optdepends=('texlive-core: build LaTeX documents')
+replaces=(latexila)
+source=("https://download.gnome.org/sources/gnome-latex/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

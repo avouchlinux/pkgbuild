@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libbsd
+pkgbase=libbsd
+pkgver=0.10.0
+pkgrel=1
+pkgdesc='Provides useful functions commonly found on BSD systems like strlcpy()'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://libbsd.freedesktop.org'
+license=('custom')
+depends=('lib32-glibc' 'libbsd')
+makedepends=('gcc-multilib')
+source=("https://libbsd.freedesktop.org/releases/libbsd-${pkgver}.tar.xz")
+sha256sums=('56d835742327d69faccd16955a60b6dcf30684a8da518c4eca0ac713b9e0a7a4')
+
+build() {
+  cd libbsd-${pkgver}
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  ./configure \
+    --prefix='/usr' \
+    --libdir='/usr/lib32'
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd libbsd-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/{include,share/man}
+
+  install -dm 755 "${pkgdir}"/usr/share/licenses
+  ln -s libbsd "${pkgdir}"/usr/share/licenses/lib32-libbsd
+}

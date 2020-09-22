@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libspectre
+pkgbase=libspectre
+pkgver=0.2.8
+pkgrel=1
+pkgdesc="Small library for rendering Postscript documents"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL2')
+url="http://www.freedesktop.org/wiki/Software/libspectre"
+depends=('ghostscript')
+source=(http://libspectre.freedesktop.org/releases/${pkgname}-${pkgver}.tar.gz)
+sha1sums=('a7efd97b82b84ff1bb7a0d88c7e35ad10cc84ea8')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	patch -Np1 -i ${srcdir}/Fix-comparison-between-signed-and-unsigned-compile-warning.patch
+	patch -Np1 -i ${srcdir}/Use-CPPFLAGS-instead-of-CFLAGS-for-compiling-flags.patch
+	patch -Np1 -i ${srcdir}/Rotate-documents-correctly.patch
+	patch -Np1 -i ${srcdir}/Revert-Rotate-documents-correctly.patch
+
+	# build fixes with new version of ghost script
+	patch -Np0 -i ${srcdir}/change-in-gs-error-function.patch
+}
+
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --disable-static \
+	--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

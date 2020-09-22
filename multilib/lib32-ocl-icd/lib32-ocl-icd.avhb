@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-ocl-icd
+_realname=ocl-icd
+pkgver=2.2.12
+_pkgver=814
+pkgrel=1
+pkgdesc="OpenCL ICD Bindings (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://forge.imag.fr/projects/ocl-icd/"
+license=('BSD')
+depends=('lib32-glibc' 'ocl-icd')
+makedepends=('ruby' 'lib32-mesa' 'opencl-headers>=2.2' 'gcc-multilib')
+checkdepends=()
+provides=('lib32-libcl' 'lib32-opencl-loader')
+conflicts=('lib32-libcl')
+replaces=('lib32-libcl')
+source=(http://forge.imag.fr/frs/download.php/$_pkgver/$_pkgname-$pkgver.tar.gz)
+md5sums=('7dab1a9531ea79c19a414a9ee229504e')
+
+build() {
+  cd "$srcdir/$_realname-$pkgver"
+
+  export CC="gcc -m32"
+  export CXX="g++ -m32"
+  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  ./configure --prefix=/usr --libdir=/usr/lib32
+  make ${MAKEFLAGS}
+}
+
+# fail in i686
+#check() {
+#  cd "$srcdir/$_realname-$pkgver"
+#  make -k check
+#}
+
+package() {
+  cd "$srcdir/$_realname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+
+  rm -rf "$pkgdir"/usr/{share,include}
+  install -m755 -d "$pkgdir/usr/share/licenses/lib32-ocl-icd"
+  install -m644 "$srcdir/$realname-$pkgver/COPYING" "${pkgdir}/usr/share/licenses/lib32-ocl-icd/"
+}

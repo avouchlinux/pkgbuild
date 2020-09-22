@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-freezegun
+_realname=freezegun
+pkgver=0.3.15
+pkgrel=1
+pkgdesc="Let your Python tests travel through time"
+arch=('any')
+groups=('dev-python3')
+license=('Apache')
+url="https://github.com/spulec/freezegun"
+depends=('python3-dateutil')
+makedepends=('python3-setuptools' 'python3-dateutil')
+checkdepends=('python3-pytest' 'python3-mock' 'python3-dateutil')
+source=("https://github.com/spulec/freezegun/archive/$pkgver.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py test
+}
+
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --root="${pkgdir}" -O1 --skip-build
+}

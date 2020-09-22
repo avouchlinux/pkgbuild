@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kindd
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="A Kindful dd gui written in qt quick"
+arch=('any')
+groups=('app-utils')
+url="https://github.com/LinArcX/Kindd"
+license=('GPL3')
+depends=('polkit' 'qt5-multimedia' 'qt5-quickcontrols' 'qt5-quickcontrols2')
+conflicts=("$pkgname-git")
+source=("https://github.com/LinArcX/Kindd/archive/$pkgver.tar.gz")
+
+build() {
+	cd "$pkgname-$pkgver"
+	cmake  -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	ninja
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	install -Dm755 core/"$pkgname" "$pkgdir/usr/bin/$pkgname"
+	install -Dm644 assets/appconf/"$pkgname.desktop" "$pkgdir/usr/share/applications/$pkgname.desktop"
+	install -Dm644 assets/appconf/"$pkgname.svg" "$pkgdir/usr/share/pixmaps/kindd.svg"
+	install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+

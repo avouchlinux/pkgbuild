@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libgcrypt
+pkgbase=libgcrypt
+pkgver=1.8.5
+pkgrel=1
+pkgdesc="General purpose cryptographic library based on the code from GnuPG (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.gnupg.org"
+license=('LGPL')
+depends=('lib32-libgpg-error' $_pkgbasename)
+makedepends=(gcc-multilib libtool-multilib)
+source=(ftp://ftp.gnupg.org/gcrypt/${_pkgbasename}/${_pkgbasename}-${pkgver}.tar.bz2)
+sha1sums=('43283c0b41c41e3d3bc13c2d8f937dfe2aaa1a77')
+
+prepare() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    # Use 32-bit assembler
+    sed 's:path="amd64":path="i586 i386":' -i mpi/config.links
+}
+
+build() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr \
+        --libdir=/usr/lib32 \
+        --disable-static \
+        --disable-padlock-support
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make DESTDIR=${pkgdir} install
+    rm -rf "${pkgdir}"/usr/{include,share,bin,sbin}
+}
+

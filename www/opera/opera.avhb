@@ -1,0 +1,78 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=opera
+pkgver=67.0.3575.115
+pkgrel=1
+pkgdesc="A fast and secure web browser"
+url="http://www.opera.com/"
+options=(!strip !zipman)
+license=('custom:opera')
+backup=("etc/$pkgname/default")
+arch=('x86_64')
+groups=('www')
+depends=('gtk3' 'alsa-lib' 'libnotify' 'gconf' 'curl' 'nss' 'libcups' 'libxss' 'ttf-font' 'desktop-file-utils' 'shared-mime-info' 'hicolor-icon-theme')
+optdepends=(
+    'opera-ffmpeg-codecs: playback of proprietary video/audio (AUR)'
+    'pepper-flash: flash support'
+    'upower: opera battery save'
+)
+source=(
+    "https://get.geo.opera.com/pub/${pkgname}/desktop/${pkgver}/linux/${pkgname}-stable_${pkgver}_amd64.deb"
+    "opera"
+    "default"
+    'eula.html'
+    'terms.html'
+    'privacy.html'
+)
+
+prepare() {
+
+	bsdtar -xf $pkgname-stable_$pkgver_amd64.deb
+	
+	sed -e "s/%pkgname%/$pkgname/g" -i "$srcdir/opera"
+	sed -e "s/%operabin%/$pkgname\/$pkgname/g" \
+		-i "$srcdir/opera"
+}
+
+package() {
+    tar -xf data.tar.xz --exclude=usr/share/{lintian,menu} -C "$pkgdir/"
+
+    # get rid of the extra subfolder {i386,x86_64}-linux-gnu
+    (
+        cd "$pkgdir/usr/lib/"*-linux-gnu/
+        mv "$pkgname" ../
+    )
+    rm -rf "$pkgdir/usr/lib/"*-linux-gnu
+
+    # suid opera_sandbox
+    chmod 4755 "$pkgdir/usr/lib/$pkgname/opera_sandbox"
+
+    # install default options
+    install -Dm644 "$srcdir/default" "$pkgdir/etc/$pkgname/default"
+
+    # install opera wrapper
+    rm "$pkgdir/usr/bin/$pkgname"
+    install -Dm755 "$srcdir/opera" "$pkgdir/usr/bin/$pkgname"
+
+   # license
+    install -Dm644 \
+        "$pkgdir/usr/share/doc/${pkgname}-stable/copyright" \
+        "$pkgdir/usr/share/licenses/$pkgname/copyright"
+
+    # eula
+    install -Dm644 \
+        "$srcdir/eula.html" \
+        "$pkgdir/usr/share/licenses/$pkgname/eula.html"
+
+    # terms
+    install -Dm644 \
+        "$srcdir/terms.html" \
+        "$pkgdir/usr/share/licenses/$pkgname/terms.html"
+
+    # privacy
+    install -Dm644 \
+        "$srcdir/privacy.html" \
+        "$pkgdir/usr/share/licenses/$pkgname/privacy.html"
+}

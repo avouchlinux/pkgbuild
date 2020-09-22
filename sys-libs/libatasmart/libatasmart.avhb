@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libatasmart
+pkgver=0.19
+pkgrel=1
+pkgdesc="ATA S.M.A.R.T. Reading and Parsing Library"
+arch=('x86_64')
+groups=('sys-libs')
+license=('LGPL')
+depends=('systemd-libs')
+makedepends=('systemd')
+url="http://0pointer.de/blog/projects/being-smart.html"
+source=(http://0pointer.de/public/${pkgname}-${pkgver}.tar.xz
+        0001-Dont-test-undefined-bits.patch
+        0002-Drop-our-own-many-bad-sectors-heuristic.patch)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i ../0001-Dont-test-undefined-bits.patch
+  patch -Np1 -i ../0002-Drop-our-own-many-bad-sectors-heuristic.patch
+}
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--sysconfdir=/etc \
+	--localstatedir=/var \
+	--sbindir=/usr/bin \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

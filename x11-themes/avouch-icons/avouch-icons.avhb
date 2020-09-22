@@ -1,0 +1,20 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avouch-icons
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Avouch set of icons"
+arch=(any)
+groups=('x11-themes')
+url='https://avouch.org/packages/avouch-icons'
+license=(LGPL)
+depends=()
+source=("http://avouch.org/packages/$pkgver/$pkgname-$pkgver.tar.xz")
+
+package() {
+	mkdir -p "${pkgdir}/usr/share/icons"
+	cp -a $pkgname-$pkgver/Avouch "${pkgdir}/usr/share/icons/"
+}

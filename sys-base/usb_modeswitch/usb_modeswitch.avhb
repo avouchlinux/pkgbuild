@@ -1,0 +1,65 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=usb_modeswitch
+_realname=usb-modeswitch
+pkgver=2.6.0
+pkgrel=1
+_pkgdata=20191128
+pkgdesc="Activating switchable USB devices on Linux."
+arch=('x86_64')
+groups=('sys-base')
+url="http://www.draisberghof.de/usb_modeswitch/"
+license=('GPL')
+depends=('libusb' 'tcl')
+makedepends=('gcc' 'make')
+backup=("etc/$pkgname.conf")
+source=("http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-${pkgver}.tar.bz2"
+	"http://www.draisberghof.de/usb_modeswitch/usb-modeswitch-data-${_pkgdata}.tar.bz2"
+	"usb-modeswitch-${pkgver}-device_reference.txt::http://www.draisberghof.de/usb_modeswitch/device_reference.txt")
+sha256sums=(' be73dcc84025794081a1d4d4e5a75e4c'
+            'e8fce7eb949cbe16c61fb71bade4cc17'
+            '846b45a82a31c9755ab86d9c051e706aff445e1e793575b7ae195a4edeb4d594'
+            'dd14f254f6c3642ce16fd7c2f43ee112')
+
+prepare() {
+    tar -jxf ${srcarchivedir}/usb-modeswitch-data-${_pkgdata}.tar.bz2
+    cd ${srcdir}/usb-modeswitch-${pkgver}
+
+    sed -i 's|/usr/sbin/usb_mode|/usr/bin/usb_mode|g' usb_modeswitch.{conf,sh}
+    sed -i 's|(PREFIX)/sbin|(PREFIX)/bin|g' Makefile
+    sed -i 's|(DESTDIR)/lib/udev|(PREFIX)/lib/udev|g' Makefile
+
+    # From fedora
+    # http://www.draisberghof.de/usb_modeswitch/bb/viewtopic.php?f=2&t=2733
+    patch -p1 -i "$srcdir"/0001-usb_modeswitch-count-the-target-devices-from-zero.patch
+}
+
+build() {
+    cd ${srcdir}/usb-modeswitch-${pkgver}
+    make clean
+    make SBINDIR=/usr/bin
+}
+
+package() {
+    cd ${srcdir}/usb-modeswitch-${pkgver}
+
+    mkdir -p "$pkgdir"/usr/lib/udev
+    mkdir -p "$pkgdir"/etc
+    mkdir -p "$pkgdir"/etc/systemd/system
+    mkdir -p "$pkgdir"/usr/share/man/man1
+
+    make \
+        DESTDIR="$pkgdir" \
+        UDEVDIR="$pkgdir"/usr/lib/udev \
+        SBINDIR="$pkgdir"/usr/bin \
+        SYSDIR="$pkgdir"/usr/lib/systemd/system \
+        install
+
+    cp $srcdir/device_reference.txt $pkgdir/etc/usb_modeswitch.setup
+
+    cd $srcdir/usb-modeswitch-data-${_pkgdata}
+    make DESTDIR=$pkgdir install RULESDIR=${pkgdir}/usr/lib/udev/rules.d
+}
+

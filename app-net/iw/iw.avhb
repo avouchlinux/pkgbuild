@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iw
+pkgver=5.4
+pkgrel=1
+pkgdesc="nl80211 based CLI configuration utility for wireless devices"
+arch=('x86_64')
+groups=('app-net')
+url="http://wireless.kernel.org/en/users/Documentation/iw"
+license=("GPL")
+depends=("libnl")
+makedepends=("linux-api-headers")
+source=(https://www.kernel.org/pub/software/network/$pkgname/$pkgname-$pkgver.tar.{xz,sign})
+validpgpkeys=('C0EBC440F6DA091C884D8532E0F373F37BF9099A') # Johannes Berg
+
+build() {
+  cd "$srcdir"/$pkgname-$pkgver
+  make
+}
+
+package() {
+  cd "$srcdir"/$pkgname-$pkgver
+  make DESTDIR="$pkgdir" SBINDIR="/usr/bin" install
+}

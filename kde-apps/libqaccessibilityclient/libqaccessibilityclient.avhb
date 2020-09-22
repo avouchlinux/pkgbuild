@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libqaccessibilityclient
+pkgver=0.4.1
+pkgrel=1
+pkgdesc="Helper library to make writing accessibility tools easier"
+arch=('x86_64')
+groups=('kde-apps')
+url='https://www.kde.org'
+license=(LGPL2.1)
+depends=(qt5-base)
+makedepends=(extra-cmake-modules)
+source=("https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(FB25861861063C64C97B89AE125C53EB96EC0C92  # Frederik Gladhorn <frederik@gladhorn.de>
+              2D1D5B0588357787DE9EE225EC94D18F7F05997E) # Jonathan Riddell <jr@jriddell.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

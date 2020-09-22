@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=msitools
+pkgver=0.99
+pkgrel=1
+pkgdesc="Set of programs to inspect and build Windows Installer (.MSI) files"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/msitools"
+license=('GPL')
+depends=('libgsf' 'gcab')
+makedepends=('intltool' 'vala')
+source=(http://ftp.gnome.org/pub/GNOME/sources/msitools/${pkgver}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  sed -i 's|LIBTOOL = $(SHELL) $(top_builddir)/libtool|LIBTOOL = /usr/bin/libtool|g' Makefile
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make install DESTDIR="${pkgdir}"
+}
+

@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dconf
+pkgver=0.38.0
+pkgrel=1
+pkgdesc="Configuration database system"
+url="https://wiki.gnome.org/Projects/dconf"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL2.1)
+depends=(glib2)
+makedepends=(vala dbus git gtk-doc python meson bash-completion)
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D gtk_doc=true
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+    install -Dm644 /dev/null "$pkgdir/etc/dconf/db/.placeholder"
+}

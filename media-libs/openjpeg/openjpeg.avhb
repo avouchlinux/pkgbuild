@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=openjpeg
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="An open source JPEG 2000 codec"
+arch=('x86_64')
+groups=('media-libs')
+license=('BSD')
+url="http://www.openjpeg.org"
+depends=('zlib')
+makedepends=('libtiff' 'lcms2' 'libpng' 'doxygen')
+optdepends=('lcms2: j2k_to_image and image_to_j2k programs'
+            'libpng: j2k_to_image and image_to_j2k programs')
+source=(http://downloads.sourceforge.net/openjpeg.mirror/${pkgname}-${pkgver}.tar.gz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	autoreconf -fi
+	# make sure we use system libs
+	rm -rf thirdparty
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-shared --disable-silent-rules
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

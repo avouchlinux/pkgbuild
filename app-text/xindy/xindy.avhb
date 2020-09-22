@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xindy
+pkgver=2.5.1 
+pkgrel=1
+pkgdesc="An index processor that can be used to generate book-like indexes for arbitrary document-preparation systems."
+license=('GPL')
+arch=('x86_64')
+groups=('app-text')
+depends=('texlive')
+makedepends=('perl' 'clisp' 'ffcall')
+optdepends=('ed: for texconfig')
+provides=('lcdf-typetools' 'kpathsea' 'xindy' 'pdfjam')
+conflicts=('pdfjam')
+options=('!strip')
+url='http://tug.org/texlive/'
+install="texlive.install"
+source=('http://tug.ctan.org/support/xindy/base/xindy-2.5.1.tar.gz'
+        'xindy-2.5.1-upstream_fixes-1.patch')
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    sed -i "s/ grep -v '^;'/ awk NF/" make-rules/inputenc/Makefile.in
+
+    sed -i 's%\(indexentry\)%\1\\%' make-rules/inputenc/make-inp-rules.pl
+
+    patch -Np1 -i ../xindy-2.5.1-upstream_fixes-1.patch
+}
+
+build() {
+
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    export TEXARCH=$(uname -m | sed -e 's/i.86/i386/' -e 's/$/-linux/')
+
+    ./configure --prefix=/usr
+
+    make ${MAKEFLAGS}
+
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+}
+

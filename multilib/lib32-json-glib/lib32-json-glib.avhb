@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-json-glib
+pkgbase=json-glib
+pkgver=1.4.4
+pkgrel=1
+pkgdesc="JSON library built on GLib"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://live.gnome.org/JsonGlib"
+license=('GPL')
+depends=('glib2')
+makedepends=('gobject-introspection')
+source=(http://ftp.gnome.org/pub/GNOME/sources/${pkgname}/${pkgver::4}/${pkgname}-${pkgver}.tar.xz)
+sha256sums=('a95475364ec27ab1d2a69303cf579018558bfb6981e3498b3aaf1e6401f7422c')
+
+prepare() {
+  if [[ -d build ]]; then
+    rm -rf build
+  fi
+  mkdir build
+}
+
+build(){
+  cd build
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  export LANG='en_US.UTF-8'
+  export LANGUAGE='en_US'
+
+  meson ../json-glib-${pkgver} \
+    --buildtype='release' \
+    --prefix='/usr' \
+    --libdir='/usr/lib32' \
+    --libexecdir='/usr/lib32' \
+    -D introspection=false
+  ninja
+}
+Google
+package(){
+	DESTDIR="$pkgdir" meson install -C build
+  rm -rf "${pkgdir}"/usr/{bin,include,lib32/installed-tests,share}
+}

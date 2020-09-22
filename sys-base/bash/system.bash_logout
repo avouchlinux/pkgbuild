@@ -1,0 +1,3 @@
+#
+# /etc/bash_logout
+#

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsepol
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux binary policy manipulation library"
+arch=('x86_64')
+groups=('sys-security')
+url='http://userspace.selinuxproject.org'
+license=('LGPL2.1')
+groups=('selinux')
+makedepends=('flex')
+depends=('glibc')
+options=(staticlibs)
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('a34b12b038d121e3e459b1cbaca3c9202e983137819c16baf63658390e3f1d5d')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    # fix compile error
+    make CFLAGS="$CFLAGS -Wno-stringop-truncation -fcommon"
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" PREFIX=/usr LIBDIR=/usr/lib SHLIBDIR=/usr/lib install
+}

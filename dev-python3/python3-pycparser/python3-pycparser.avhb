@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pycparser
+_realname=pycparser-release
+pkgver=2.20
+pkgrel=1
+pkgdesc='C parser and AST generator written in python3'
+arch=('any')
+groups=('dev-python3')
+url='https://github.com/eliben/pycparser'
+depends=('python3-ply')
+makedepends=('python3-ply' 'python3-setuptools')
+license=('BSD')
+source=("https://github.com/eliben/pycparser/archive/release_v$pkgver.tar.gz")
+
+build() {
+  cd ${_realname}_v${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}_v${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}_v${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

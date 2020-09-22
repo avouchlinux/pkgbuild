@@ -1,0 +1,7 @@
+What I did to solve my problem was to edit /etc/pulse/daemon.conf. 
+Uncomment the following line default-sample-rate = 42100 and change the sample rate to 48000. 
+
+If changing the sample rate is a fix or not, I'm not sure, but that's one of the things I did.
+
+I also turned off Pulseaudio's "Timer Based Scheduling" by editing /etc/pulse/default.pa 
+and adding tsched=0 to the following line, load-module module-udev-detect tsched=0

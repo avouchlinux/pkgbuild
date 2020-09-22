@@ -1,0 +1,2 @@
+g gdm 80 - -
+u gdm 80 "Gnome Display Manager" /var/lib/gdm

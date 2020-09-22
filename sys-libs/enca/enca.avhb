@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=enca
+pkgver=1.19
+pkgrel=1
+pkgdesc="Charset analyser and converter"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://cihar.com/software/enca/"
+license=('GPL')
+depends=('recode')
+options=('!docs')
+source=("https://dl.cihar.com/${pkgname}/${pkgname}-${pkgver}.tar.xz" enca-bad-file-descriptor.patch)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../enca-bad-file-descriptor.patch # https://github.com/nijel/enca/issues/28
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure \
+		--prefix=/usr \
+		--libexecdir=/usr/lib \
+		--mandir=/usr/share/man \
+		--with-librecode=/usr \
+		--enable-external
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pcmanfm-qt
+pkgver=0.15.1
+pkgrel=1
+pkgdesc="The LXQt file manager, Qt port of PCManFM"
+arch=("x86_64")
+groups=('lxqt')
+url="http://lxqt.org"
+license=("GPL2")
+depends=("desktop-file-utils" "libfm-qt" "lxmenu-data" "libfm-qt.so")
+makedepends=("lxqt-build-tools")
+optdepends=(
+	"gvfs: for trash support, mounting with udisks and remote filesystems"
+	"gvfs-mtp: MTP support (Media Transfer Protocol)"
+	"lxqt-archiver: archive management"
+	"qt5-translations: allow keyboard shortcuts to function in some languages (e.g. German)"
+)
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

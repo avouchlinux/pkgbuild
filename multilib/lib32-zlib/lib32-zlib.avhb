@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-zlib
+pkgbase=zlib
+pkgver=1.2.11
+pkgrel=1
+pkgdesc='Compression library implementing the deflate compression method found in gzip and PKZIP (32-bit)'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('custom')
+url="http://www.zlib.net/"
+depends=('lib32-glibc' "$_pkgbasename")
+makedepends=('gcc-multilib')
+source=("http://zlib.net/current/zlib-${pkgver}.tar.gz")
+md5sums=('44d667c142d7cda120332623eab69f40')
+
+build() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make test
+}
+
+package() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make install DESTDIR=${pkgdir}
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

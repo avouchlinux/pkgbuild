@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kxstitch
+pkgver=2.2.0
+pkgrel=1
+pkgdesc="The program that lets you create cross stitch patterns and charts."
+arch=('x86_64')
+groups=('kde-apps')
+depends=('plasma-workspace' 'libmagick')
+makedepends=('cmake' 'doxygen' 'extra-cmake-modules' 'kdoctools')
+url="https://userbase.kde.org/KXStitch"
+license=('GPL')
+_patches="https://cgit.kde.org/kxstitch.git/patch/?id="
+source=("https://download.kde.org/stable/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+       "${pkgname}.install"
+       "qt5.11.patch::${_patches}ca0f451dceecadc696ba6777084f22ceb5d372f0"
+       "imagemagick7.patch"
+       "color-find.patch::${_patches}26f7fce0508a149aefb9e9256f682abe87211760")
+install=${pkgname}.install
+prepare() {
+    [ -d build ] || mkdir build
+    
+    cd "kxstitch-${pkgver}"
+    #cp ../*.patch .
+    #patch -p1 < qt5.11.patch
+    patch -p1 < ../imagemagick7.patch
+    #patch -p1 < color-find.patch
+    
+}
+
+build() {
+    cd build
+    cmake ../"kxstitch-${pkgver}" \
+        -DCMAKE_INSTALL_PREFIX=`qtpaths --install-prefix` .. \
+        -DImageMagick_Magick++_INCLUDE_DIRS=/usr/include/ImageMagick-7 \
+        -DImageMagick_Magick++_LIBRARY=/usr/lib/libMagick++-7.Q16HDRI.so \
+        -DImageMagick_MagickCore_LIBRARY=/usr/lib/libMagickCore-7.Q16HDRI.so \
+        -DCMAKE_BUILD_TYPE="Release"
+    make ${MAKEFLAGS}
+}
+
+
+package() {
+    cd build
+    make DESTDIR="${pkgdir}" install
+}

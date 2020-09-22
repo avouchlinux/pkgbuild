@@ -1,0 +1,9 @@
+--- meson.build	2020-09-11 20:34:27.208127000 +0000
++++ ../meson.build	2020-09-12 05:28:45.281416901 +0000
+@@ -171,6 +171,7 @@
+     '/etc/fedora-release': 'redhat',
+     '/etc/exherbo-release': 'exherbo',
+     '/etc/arch-release': 'arch',
++    '/etc/avouch-release': 'avouch',
+     '/etc/lfs-release': 'lfs',
+   }

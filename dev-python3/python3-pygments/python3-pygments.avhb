@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pygments
+_realname=Pygments
+pkgver=2.6.1
+pkgrel=1
+pkgdesc="python3 syntax highlighter"
+arch=('any')
+groups=('dev-python3')
+url="http://pygments.org/"
+license=('BSD')
+depends=('python3-setuptools')
+makedepends=('python3-setuptools')
+options=('!emptydirs')
+source=("https://pypi.io/packages/source/p/$_realname/$_realname-$pkgver.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

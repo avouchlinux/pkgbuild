@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xcursor-themes
+pkgver=1.0.6
+pkgrel=1
+pkgdesc="X.org Cursor themes"
+arch=(any)
+groups=('x11-themes')
+url="http://xorg.freedesktop.org/"
+license=('MIT')
+makedepends=('pkgconfig' 'xorg-xcursorgen' 'xorg-util-macros')
+source=(${url}/releases/individual/data/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

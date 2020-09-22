@@ -1,0 +1,38 @@
+# Maintainer: Olaf Bauer <obauer@freenet.de>
+
+pkgname=v4l-dvb-saa716x
+_realname=powARman-v4l-dvb-saa716x
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="V4L-DVB device drivers"
+arch=('i686' 'x86_64')
+url="http://linuxtv.org/"
+license=('GPL')
+makedepends=('linux-headers' 'kmod' 'perl-proc-processtable' 'patchutils' 'git' 'wget')
+options=(!makeflags)
+install=v4l-dvb.install
+HG_REVISION="3b9fce66666a"
+HG_REVISION_DATE="20160322"
+_kernver="$(uname -r)"
+source=('https://bitbucket.org/powARman/v4l-dvb-saa716x/get/${HG_REVISION}.tar.gz')
+md5sums=('SKIP')
+
+prepare() {
+    cd "${srcdir}/powARman-${pkgname}-${HG_REVISION}"
+    patch -Np0 -i ../OSD_RAW_CMD_patch_2.diff
+    patch -Np1 -i ../v4l-dvb-saa716x-Makefilepatch-2.diff
+    patch -Np1 -i ../v4l-dvb-saa716x-4.16-fix-compile.patch
+}
+
+build() {
+    cd "${srcdir}/powARman-${pkgname}-${HG_REVISION}"
+  make KERNELRELEASE=${_kernver}
+}
+
+package() {
+    cd "${srcdir}/powARman-${pkgname}-${HG_REVISION}"
+  #sed -i '/^[^#].*depmod/s/^/#/' v4l/Makefile.media
+  make KERNELRELEASE=${_kernver} KDIR26="/lib/modules/${_kernver}/updates" \
+       DESTDIR="${pkgdir}/usr" FW_DIR="${pkgdir}/usr/lib/firmware/updates/" install
+}
+

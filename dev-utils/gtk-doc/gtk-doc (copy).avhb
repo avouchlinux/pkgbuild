@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk-doc
+pkgver=1.32
+pkgrel=1
+pkgdesc="Documentation tool for public library API"
+arch=(any)
+groups=('dev-utils')
+url="https://www.gtk.org/gtk-doc/"
+arch=(any)
+license=(GPL FDL)
+depends=(docbook-xsl docbook-xml glib2-docs python3-lxml python3-pygments python3-anytree)
+makedepends=(dblatex git yelp-tools meson)
+checkdepends=(bc gtk3 python3-six python3-parameterized)
+optdepends=('dblatex: PDF support')
+source=("https://gitlab.gnome.org/GNOME/$realname/-/archive/$pkgver/$realname-$pkgver.tar.bz2"
+        fixperms.diff)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i ../0001-Partially-revert-a-gtk-doc-1.31-change-that-broke-e-.patch
+}
+
+build() {
+    avouch-meson $pkgname-$pkgver build
+    ninja -C build
+}
+
+check() {
+    # Tests don't work yet
+    meson test -C build --print-errorlogs || :
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

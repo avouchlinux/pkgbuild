@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libphonenumber
+pkgver=8.12.5
+pkgrel=1
+pkgdesc="Google's common library for parsing, formatting, and validating international phone numbers"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://github.com/googlei18n/libphonenumber"
+license=(Apache)
+depends=(icu protobuf boost-libs)
+makedepends=(boost cmake gtest git 'java-environment>=9')
+source=("https://github.com/google/libphonenumber/archive/v$pkgver.tar.gz")
+
+build() {
+  #CXXFLAGS+=" -Wno-error=deprecated-declarations"  # readdir_r deprecation
+  #CXXFLAGS+=" -Wno-error=unused-variable"  # this is nuts
+
+  cmake -H$pkgname-$pkgver/cpp -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+
+  cmake --build build
+}
+
+check() {
+  cmake --build build --target tests
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --build build --target install
+}

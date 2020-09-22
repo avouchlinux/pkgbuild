@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: Jens Adam <jra@byte.cx>
+
+pkgname=fpc-src
+_realname=fpc-r44680
+pkgver=3.2.0
+pkgrel=1
+pkgdesc='Sources for the FreePascal compiler (required by the Lazarus IDE)'
+url='http://www.freepascal.org/'
+license=('GPL')
+arch=('any')
+groups=('dev-compiler')
+options=('!strip' 'staticlibs')
+source=(ftp://ftp.freepascal.org/pub/fpc/dist/$pkgver/source/fpcbuild-$pkgver.tar.gz)
+
+package() {
+  cd $srcdir/fpc-r44680
+  mkdir -p $pkgdir/usr/lib/fpc/src
+  cp -a rtl $pkgdir/usr/lib/fpc/src
+  cp -a packages $pkgdir/usr/lib/fpc/src
+  rm -rf $pkgdir/usr/lib/fpc/srcpackages/extra/amunits
+  rm -rf $pkgdir/usr/lib/fpc/src/packages/extra/winunits
+}

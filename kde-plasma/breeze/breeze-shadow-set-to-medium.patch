@@ -1,0 +1,11 @@
+--- breeze-5.14.2/kdecoration/breezesettingsdata.kcfg	2018-11-25 21:19:40.948127901 +0000
++++ breezesettingsdata.kcfg	2018-11-25 21:19:56.181461758 +0000
+@@ -21,7 +21,7 @@
+           <choice name="ShadowLarge"/>
+           <choice name="ShadowVeryLarge"/>
+       </choices>
+-      <default>ShadowLarge</default>
++      <default>ShadowMedium</default>
+     </entry>
+ 
+     <entry name="ShadowColor" type = "Color">

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sip5
+_realname=sip
+pkgver=5.3.0
+pkgrel=1
+arch=('x86_64')
+groups=('dev-utils')
+url='https://www.riverbankcomputing.com/software/sip/intro'
+license=('custom:"sip"')
+depends=('python3')
+makedepends=('python3')
+source=("https://pypi.python.org/packages/source/s/sip/sip-$pkgver.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

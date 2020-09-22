@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kio-gdrive
+pkgver=1.2.7
+pkgrel=1
+arch=('x86_64')
+groups=('kde-apps')
+pkgdesc="KIO Slave to access Google Drive"
+url="https://community.kde.org/KIO_GDrive"
+license=(GPL)
+depends=(libkgapi kaccounts-providers)
+makedepends=(extra-cmake-modules kdesignerplugin kdoctools intltool)
+source=(https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+validpgpkeys=('F07D85CAA18ACF46A346FD017C7FC6EA8633B4EA') # Elvis Angelaccio <elvis.angelaccio@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+   -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package(){
+  cd build
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-code-assistance
+pkgver=3.16.1
+pkgrel=1
+pkgdesc="Code assistance services for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Projects/CodeAssistance"
+license=(GPL3)
+depends=(libgee python-dbus python-gobject python-pylint python-pyflakes python-pycodestyle
+         python-lxml python-simplejson ruby-dbus ruby-sass)
+makedepends=(intltool gobject-introspection llvm clang gjs vala go-pie gnome-common git)
+optdepends=('clang: Assistance for C and C++'
+            'gjs: Assistance for JavaScript'
+            #'vala: Assistance for Vala'
+            'go: Assistance for Go')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	sed -i 's/libvala-0\.42/libvala-0.44/g' configure.ac
+	autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --libexecdir=/usr/lib --localstatedir=/var --disable-vala
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

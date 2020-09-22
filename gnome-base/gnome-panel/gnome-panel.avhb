@@ -1,0 +1,48 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-panel
+pkgver=3.36.2
+pkgrel=1
+pkgdesc="Panel of GNOME Flashback"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/GnomePanel"
+license=('GPL')
+depends=('evolution-data-server' 'gnome-desktop' 'gnome-menus' 'libgdm' 'libwnck3' 'nautilus' 'polkit')
+makedepends=('intltool' 'itstool' 'python' 'git' 'gtk-doc' 'yelp-tools' 'autoconf-archive')
+optdepends=('alacarte: Main menu editor'
+            'gnome-applets: Extra applets for the panel')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('a41c45c5512e796b8602ce50bf0d205993eab364c860aae31afa582d77b77079')
+
+prepare() {
+    cd $pkgname-$pkgver
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+    cd $pkgname-$pkgver
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --disable-static \
+        --libexecdir=/usr/lib/gnome-panel \
+        --disable-schemas-compile \
+        --enable-compile-warnings=minimum \
+        --enable-gtk-doc
+        
+    #https://bugzilla.gnome.org/show_bug.cgi?id=656231
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+
+

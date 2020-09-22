@@ -1,0 +1,11 @@
+--- media/webrtc/trunk/webrtc/rtc_base/physicalsocketserver.cc	2019-08-12 23:03:17.248524948 +0500
++++ ../physicalsocketserver.cc	2019-08-12 23:02:58.971858086 +0500
+@@ -64,7 +64,7 @@
+ 
+ int64_t GetSocketRecvTimestamp(int socket) {
+   struct timeval tv_ioctl;
+-  int ret = ioctl(socket, SIOCGSTAMP, &tv_ioctl);
++  int ret = ioctl(socket, SIOCGSTAMP_OLD, &tv_ioctl);
+   if (ret != 0)
+     return -1;
+   int64_t timestamp =

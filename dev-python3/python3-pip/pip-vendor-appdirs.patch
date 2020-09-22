@@ -1,0 +1,34 @@
+From 9be7454fd69081d06a3f8234a08a6d791e13173f Mon Sep 17 00:00:00 2001
+From: Christoph Reiter <reiter.christoph@gmail.com>
+Date: Sun, 2 Feb 2020 19:29:31 +0100
+Subject: [PATCH] fix un-vendored support; add missing entry for appdirs
+
+pip has started to use the vendored appdirs directly since #7501
+but didn't add an alias for the unbundled case.
+
+This adds the missing alias.
+---
+ news/7690.bugfix            | 1 +
+ src/pip/_vendor/__init__.py | 1 +
+ 2 files changed, 2 insertions(+)
+ create mode 100644 news/7690.bugfix
+
+diff --git a/news/7690.bugfix b/news/7690.bugfix
+new file mode 100644
+index 0000000000..5d7c5d0545
+--- /dev/null
++++ b/news/7690.bugfix
+@@ -0,0 +1 @@
++Fix an 'appdirs' related import error in case pip is installed debundled i.e., without vendored dependencies.
+diff --git a/src/pip/_vendor/__init__.py b/src/pip/_vendor/__init__.py
+index a0fcb8e2cc..1112e1012b 100644
+--- a/src/pip/_vendor/__init__.py
++++ b/src/pip/_vendor/__init__.py
+@@ -58,6 +58,7 @@ def vendored(modulename):
+     sys.path[:] = glob.glob(os.path.join(WHEEL_DIR, "*.whl")) + sys.path
+ 
+     # Actually alias all of our vendored dependencies.
++    vendored("appdirs")
+     vendored("cachecontrol")
+     vendored("colorama")
+     vendored("contextlib2")

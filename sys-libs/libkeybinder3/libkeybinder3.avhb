@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libkeybinder3
+_realname=keybinder-3.0
+pkgver=0.3.2
+pkgrel=1
+pkgdesc="A library for registering global keyboard shortcuts"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://github.com/engla/keybinder/tree/keybinder-3.0"
+license=('MIT')
+depends=('gtk3')
+makedepends=('gtk-doc' 'gobject-introspection')
+optdepends=('lua-lgi: lua bindings')
+source=(https://github.com/kupferlauncher/keybinder/releases/download/keybinder-3.0-v$pkgver/keybinder-3.0-$pkgver.tar.gz{,.sig})
+validpgpkeys=('2578ABA1F9023159DFF211B7368712C4D7A44445') # Ulrik Sverdrup <ulrik.sverdrup@gmail.com>
+
+build() {
+  cd keybinder-3.0-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd keybinder-3.0-${pkgver}
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

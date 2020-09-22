@@ -1,0 +1,53 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gtk3
+pkgname=(gtk3 gtk-update-icon-cache)
+_realname=gtk
+pkgver=3.24.23
+pkgrel=1
+pkgdesc="GObject-based multi-platform GUI toolkit (v3)"
+arch=('x86_64')
+groups=('x11-libs')
+url="https://www.gtk.org/"
+depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 dconf
+         libxcomposite libxdamage pango shared-mime-info at-spi2-atk wayland libxkbcommon
+         adwaita-icon-theme json-glib librsvg wayland-protocols desktop-file-utils mesa
+         cantarell-fonts colord rest libcups libcanberra fribidi iso-codes)
+makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson)
+license=(LGPL)
+source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$pkgver/gtk-$pkgver.tar.bz2"
+        settings.ini
+        gtk-update-icon-cache.script)
+
+build() {
+  CFLAGS+=" -DG_ENABLE_DEBUG -DG_DISABLE_CAST_CHECKS" # https://gitlab.gnome.org/GNOME/gtk/-/issues/2020#note_552880
+  avouch-meson gtk-$pkgver build \
+    -D broadway_backend=true \
+    -D colord=yes \
+    -D gtk_doc=true \
+    -D man=true
+  ninja -C build
+}
+
+package_gtk3() {
+  depends+=(gtk-update-icon-cache)
+  provides=(gtk3-print-backends)
+  install=gtk3.install
+
+  DESTDIR="$pkgdir" meson install -C build
+
+  install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
+
+  # split this out to use with gtk2 too
+  mv "$pkgdir/usr/bin/gtk-update-icon-cache" "$srcdir"
+}
+
+package_gtk-update-icon-cache() {
+  pkgdesc="GTK+ icon cache updater"
+  depends=(gdk-pixbuf2 librsvg hicolor-icon-theme)
+
+  install -Dt "$pkgdir/usr/bin" gtk-update-icon-cache
+}

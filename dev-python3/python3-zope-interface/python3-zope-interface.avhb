@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-zope-interface
+_realname=zope.interface
+pkgver=5.0.1
+pkgrel=1
+pkgdesc=('Zope Interfaces for python3')
+license=('ZPL')
+arch=('any')
+groups=('dev-python3')
+url="http://pypi.python3.org/pypi/zope.interface"
+depends=('python3')
+makedepends=('python3-distribute')
+source=(http://pypi.python3.org/packages/source/z/zope.interface/zope.interface-${pkgver}.tar.gz)
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,38 @@
+From c7fe78c9f73ded2c3428666722ec9c1af4b82812 Mon Sep 17 00:00:00 2001
+From: Tanu Kaskinen <tanuk@iki.fi>
+Date: Sat, 2 Sep 2017 18:23:12 +0300
+Subject: [PATCH 18/48] build-sys: add the Arctis configuration
+
+---
+ src/Makefile.am | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 1d974037..ba2ea97e 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1310,7 +1310,8 @@ dist_alsaprofilesets_DATA = \
+ 		modules/alsa/mixer/profile-sets/native-instruments-traktorkontrol-s4.conf \
+ 		modules/alsa/mixer/profile-sets/native-instruments-korecontroller.conf \
+ 		modules/alsa/mixer/profile-sets/kinect-audio.conf \
+-		modules/alsa/mixer/profile-sets/sb-omni-surround-5.1.conf
++		modules/alsa/mixer/profile-sets/sb-omni-surround-5.1.conf \
++		modules/alsa/mixer/profile-sets/steelseries-arctis-usb-audio.conf
+ 
+ if HAVE_UDEV
+ dist_udevrules_DATA = \
+@@ -1352,7 +1353,10 @@ dist_alsapaths_DATA = \
+ 		modules/alsa/mixer/paths/hdmi-output-4.conf \
+ 		modules/alsa/mixer/paths/hdmi-output-5.conf \
+ 		modules/alsa/mixer/paths/hdmi-output-6.conf \
+-		modules/alsa/mixer/paths/hdmi-output-7.conf
++		modules/alsa/mixer/paths/hdmi-output-7.conf \
++		modules/alsa/mixer/paths/steelseries-arctis-input.conf \
++		modules/alsa/mixer/paths/steelseries-arctis-output-mono.conf \
++		modules/alsa/mixer/paths/steelseries-arctis-output-stereo.conf
+ 
+ endif
+ 
+-- 
+2.13.6
+

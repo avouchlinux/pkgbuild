@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-requests
+_realname=requests
+pkgver=2.23.0
+pkgrel=1
+pkgdesc="Python HTTP for Humans"
+arch=('any')
+groups=('dev-python2')
+url="http://python-requests.org"
+license=('Apache')
+depends=('python2-urllib3' 'python2-chardet' 'python2-idna')
+optdepends=('python2-ndg-httpsclient: HTTPS requests with SNI support'
+              'python2-grequests: asynchronous requests with gevent'
+              'python2-pysocks: SOCKS proxy support')
+makedepends=('python2-setuptools' 'python2-chardet' 'python2-urllib3' 'python2-idna')
+checkdepends=('python2-pytest-httpbin'  'python2-pytest-mock' 'python2-pysocks')
+source=("https://github.com/kennethreitz/requests/archive/v$pkgver.tar.gz")
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  patch -p1 -i ../requests-pytest-5.patch
+  sed -e '/certifi/d' \
+      -e "s/,<.*'/'/" \
+      -i setup.py
+  patch -p1 -i "$srcdir"/certs.patch
+  find -name \*.py -exec sed -r 's|^#!(.*)python$|#!\1python2|' -i {} +
+}
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tinycdb
+pkgver=0.78
+pkgrel=1
+pkgdesc='Very fast and simple package for creating and reading constant data bases'
+arch=('x86_64')
+groups=('dev-db')
+url='http://www.corpit.ru/mjt/tinycdb.html'
+license=('custom')
+source=("http://www.corpit.ru/mjt/tinycdb/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	sed -e 's/all: static/all: shared/' -e '/libcdb.a/d' -i Makefile
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" prefix=/usr mandir=/usr/share/man \
+		INSTALLPROG=cdb-shared install-{all,sharedlib}
+	install -Dm644 debian/copyright "${pkgdir}"/usr/share/licenses/tinycdb/copyright
+}

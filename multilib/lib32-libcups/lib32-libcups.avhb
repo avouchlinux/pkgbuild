@@ -1,0 +1,83 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libcups
+pkgbase=cups
+pkgver=2.3.1
+pkgrel=1
+pkgdesc="The CUPS Printing System - client libraries (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL')
+url="http://www.cups.org/"
+depends=(lib32-krb5 lib32-libtiff lib32-libpng $_pkgbasename)
+makedepends=(gcc-multilib)
+source=(#ftp://ftp.easysw.com/pub/cups/${pkgver}/cups-${pkgver}-source.tar.bz2
+http://www.cups.org/software/${pkgver}/cups-${pkgver}-source.tar.bz2
+fix-libusb-configure.patch)
+md5sums=('55277c40fd4b7183dc3671d39c5c42b7'
+         '9cf39a66f21d1208a585367b25cf117b')
+
+prepare() {
+
+  cd ${pkgbase}-${pkgver}
+
+  # improve build and linking
+  # Do not export SSL libs in cups-config
+  patch -Np1 -i ${srcdir}/cups-no-export-ssllibs.patch
+  # don't zip man pages in make install, let makepkg do that / Fedora
+  patch -Np1 -i ${srcdir}/cups-no-gzip-man.patch
+  # move /var/run -> /run for pid file
+  patch -Np1 -i ${srcdir}/cups-1.6.2-statedir.patch
+
+  # bug fixes
+  # make sure network is up when starting and notify systemd - FC
+  patch -Np1 -i ${srcdir}/cups-systemd-socket.patch
+
+  # FS#56818 - https://github.com/apple/cups/issues/5236
+  patch -Np1 -i ${srcdir}/guid.patch
+
+  # FS#62360 / https://github.com/apple/cups/issues/5562
+  patch -Np1 -i  ${srcdir}/samsung-printer-workaround.patch
+
+  # set MaxLogSize to 0 to prevent using cups internal log rotation
+  sed -i -e '5i\ ' conf/cupsd.conf.in
+  sed -i -e '6i# Disable cups internal logging - use logrotate instead' conf/cupsd.conf.in
+  sed -i -e '7iMaxLogSize 0' conf/cupsd.conf.in
+
+  # Rebuild configure script for not zipping man-pages.
+  aclocal -I config-scripts
+  autoconf -I config-scripts
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --enable-raw-printing \
+        --disable-gssapi \
+        --disable-dbus \
+        --enable-ssl=no \
+        --disable-gnutls \
+        --enable-threads \
+        --enable-libusb=no \
+        --disable-avahi \
+        --disable-dnssd \
+        --with-optim="$CFLAGS" \
+        --libdir=/usr/lib32
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/cups-${pkgver}
+	make BUILDROOT=${pkgdir} install-libs
+	rm -rf "${pkgdir}"/usr/lib
+}

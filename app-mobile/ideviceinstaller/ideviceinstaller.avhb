@@ -1,0 +1,46 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ideviceinstaller
+pkgver=1.1.0.r28.gb37ce23
+pkgrel=1
+pkgdesc="Tool to interact with the installation_proxy of an iOS device"
+arch=('x86_64')
+groups=('app-mobile')
+url="http://www.libimobiledevice.org/"
+license=('GPL')
+groups=('system')
+depends=('libimobiledevice' 'usbmuxd' 'libzip') 
+makedepends=('git' 'automake')
+provides=('ideviceinstaller')
+source=("https://github.com/libimobiledevice/ideviceinstaller.git")
+
+getsrc(){
+	git clone $source
+}
+
+pkgver() {
+  cd ${srcdir}/${pkgname}
+
+  # Use the tag of the last commit
+  git describe --tags | sed -r 's/([^-]*-g)/r\1/;s/-/./g'
+  
+  # Use current date
+  #date +%Y%m%d
+}
+
+build() {
+  cd ${srcdir}/${pkgname}
+
+  sed -i "/AS_COMPILER_FLAGS(/s/-Werror//" configure.ac
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+package() {
+  cd ${srcdir}/${pkgname}
+
+  make DESTDIR=${pkgdir} install
+}

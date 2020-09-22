@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-keyring
+pkgver=3.36.0
+pkgrel=1
+epoch=1
+pkgdesc="Stores passwords and encryption keys"
+url="https://wiki.gnome.org/Projects/GnomeKeyring"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL LGPL)
+depends=(gcr libcap-ng pam openssh)
+makedepends=(git docbook-xsl python)
+install=gnome-keyring.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	patch -Np1 -i ../add-cinnamon.diff
+
+	autoreconf -vif
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--libexecdir=/usr/lib \
+		--with-pam-dir=/usr/lib/security \
+		--disable-static \
+		--disable-schemas-compile
+
+	# avoid unneeded direct dependencies
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' libtool
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

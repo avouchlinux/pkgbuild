@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libosinfo
+pkgver=1.8.0
+pkgrel=1
+pkgdesc="GObject based library API for managing information about operating systems, hypervisors and the (virtual) hardware devices they can support"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://libosinfo.org/"
+license=('GPL' 'LGPL')
+depends=('glib2' 'libxslt' 'osinfo-db')
+makedepends=('check' 'gobject-introspection' 'libsoup' 'vala' 'gtk-doc' 'meson')
+source=(https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.gz{,.asc})
+validpgpkeys=('DAF3A6FDB26B62912D0E8E3FBE86EBB415104FDF'  # Daniel P. Berrange
+              '09B9C8FF223EF113AFA06A39EE926C2BDACC177B') # Fabiano Fidêncio <fidencio@redhat.com>
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

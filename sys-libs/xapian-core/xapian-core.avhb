@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xapian-core
+epoch=1
+pkgver=1.4.15
+pkgrel=1
+pkgdesc='Open source search engine library.'
+arch=('x86_64')
+groups=('sys-libs')
+url='https://www.xapian.org/'
+license=('GPL')
+depends=('util-linux')
+# xapian config requires libxapian.la
+options=('libtool')
+source=("https://oligarchy.co.uk/xapian/${pkgver}/${pkgname}-${pkgver}.tar.xz")
+validpgpkeys=('08E2400FF7FE8FEDE3ACB52818147B073BAD2B07') # Olly Betts <olly@debian.org>
+
+build() {
+	# FS#40614
+	if [ "${CARCH}" = "i686" ]; then
+		SSE2="--disable-sse"
+	fi
+
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr ${SSE2}
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

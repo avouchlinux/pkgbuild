@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nautilus-ext-git
+_realname=nautilus-git
+pkgver=1.3
+pkgrel=1
+pkgdesc='Nautilus extension to add important information about the current git directory Edit'
+arch=('x86_64')
+groups=('x11-misc')
+license=('GPL3')
+url="https://github.com/bil-elmoussaoui/${_gitname}"
+depends=('gobject-introspection' 'gtk3' 'python2-nautilus' 'nautilus')
+makedepends=('gnome-common' 'meson' 'ninja' 'intltool' 'gettext' 'python')
+options=('!emptydirs')
+source=("https://github.com/bil-elmoussaoui/${_realname}/archive/v${pkgver}.tar.gz")
+
+build() {
+	cd "$srcdir/${_realname}-${pkgver}"
+	meson builddir -Dpost_install=false --prefix=/usr
+}
+
+package() {
+	cd "$srcdir/${_realname}-${pkgver}"
+	DESTDIR="${pkgdir}" ninja -C builddir install
+}

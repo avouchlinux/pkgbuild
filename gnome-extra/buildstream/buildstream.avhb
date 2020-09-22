@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=buildstream
+_realname=BuildStream
+pkgver=1.4.2
+pkgrel=1
+pkgdesc="Framework for modelling build pipelines in a declarative YAML format"
+arch=('any')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Projects/BuildStream/"
+license=('LGPL')
+depends=(bubblewrap ostree python-click python-jinja
+         python-gobject python-grpcio python-pluginbase
+         python-protobuf python-psutil python-ruamel-yaml
+         # specific host site dependencies
+         bzr git lzip python-arpy)
+makedepends=(python-setuptools)
+source=("https://download.gnome.org/sources/BuildStream/${pkgver%.*}/BuildStream-$pkgver.tar.xz")
+
+build() {
+  cd BuildStream-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd BuildStream-$pkgver
+  python setup.py install --root="$pkgdir/" --optimize=1 --skip-build
+}

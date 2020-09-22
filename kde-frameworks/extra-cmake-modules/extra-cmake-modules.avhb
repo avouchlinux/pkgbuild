@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=extra-cmake-modules
+pkgver=5.74.0
+pkgrel=1
+pkgdesc='Extra modules and scripts for CMake'
+arch=('any')
+groups=('kde-frameworks')
+url='https://community.kde.org/Frameworks'
+license=('LGPL')
+depends=('cmake')
+makedepends=('python3-sphinx' 'python3-requests' 'qt5-tools')
+source=("https://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"
+        fix-python-bindings-generation.patch ECM-no-init.py.patch)
+validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB) # David Faure <faure@kde.org
+
+prepare() {
+  mkdir -p build
+
+  cd $pkgname-$pkgver
+  # Requires PyQt5, bug #680256
+	sed -i -e "/^if(NOT SIP_Qt5Core_Mod_FILE)/s/NOT SIP_Qt5Core_Mod_FILE/TRUE/" \
+		tests/CMakeLists.txt || die "failed to disable GenerateSipBindings tests"
+
+	# disables applications using cmake from attempting to install files in a lib64 sub-directory
+	sed -i '/"lib64"/s/64//' kde-modules/KDEInstallDirs.cmake
+
+	# disables applications using cmake from attempting to install files in a libexec sub-directory
+	sed -i 's|LIBEXECDIR LIBDIR "libexec"|LIBEXECDIR LIBDIR ""|' kde-modules/KDEInstallDirs.cmake
+
+	# Don't create __init__.py, depend on python-pykf5 instead
+	patch -p1 -i ../ECM-no-init.py.patch
+}
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

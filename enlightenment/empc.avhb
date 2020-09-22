@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=empc
+pkgver=0.99.0.639
+pkgrel=1
+pkgdesc="EFL based MPD frontend"
+arch=('x86_64')
+url="http://www.enlightenment.org"
+license=('BSD' 'LGPL2.1' 'GPL2' 'custom')
+depends=('efl' 'elementary' 'llvm')
+optdepends=('')
+makedepends=('efl' 'elementary' 'llvm')
+groups=(enlightenment)
+repo=(extra)
+source=(http://download.enlightenment.org/rel/libs/${pkgname}/$pkgname-$pkgver.tar.gz
+	'eina_doxygen.patch')
+install=efl.install
+sha1sums=('6faabf84126f2ba790b77adef658aaaa03154bf7'
+          'ef2b961e793c711685623a149ab55b1bec9a3676')
+
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	export CFLAGS="$CFLAGS -fvisibility=hidden"
+	./configure --prefix=/usr 
+	make
+}
+
+package(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make -j1 DESTDIR=${pkgdir} install
+
+	# install non-standard license files
+	install -Dm644 "${srcdir}/${pkgbase}-${pkgver}/licenses/COPYING.BSD" \
+	"${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
+}

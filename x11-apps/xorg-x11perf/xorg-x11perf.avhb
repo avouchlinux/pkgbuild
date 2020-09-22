@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-x11perf
+_realname=x11perf
+pkgver=1.6.1
+pkgrel=1
+pkgdesc="Simple X server performance benchmarker"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libx11' 'libxmu' 'libxrender' 'libxft' 'libxext')
+makedepends=('xorg-util-macros')
+source=(http://xorg.freedesktop.org/archive/individual/app/x11perf-${pkgver}.tar.bz2)
+sha256sums=('24ee8857a2bf414b360addabf1c27ef797f7f504ee9bc409c151760bfbe53184')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

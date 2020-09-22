@@ -1,0 +1,77 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="sendmail"
+pkgver=8.15.2
+pkgrel=1
+pkgdesc="The sendmail MTA"
+arch=('x86_64')
+groups=('app-net')
+url="http://www.sendmail.org"
+arch=('x86_64')
+license=('custom:sendmail')
+provides=('sendmail=8.15' 'smtp-server' 'smtp-forwarder')
+conflicts=('msmtp-mta' 'postfix' 'exim' 'opensmtpd')
+backup=('etc/conf.d/sendmail'
+        'etc/mail/aliases'
+        'etc/mail/sendmail.cf'
+        'etc/sasl2/Sendmail.conf')
+source=("https://ftp.sendmail.org/${pkgname}.${pkgver}.tar.gz"
+        'site.config.m4'
+        'sendmail-8.14.8-sasl2-in-etc.patch'
+        'sendmail-8.15.2-smtp-session-reuse-fix.patch'
+        'sendmail-8.15.2-openssl-1.1.0-fix.patch'
+        'sendmail-8.15.2-openssl-1.1.0-ecdhe-fix.patch'
+        'sendmail-8.15.2-gethostbyname2.patch'
+        'sendmail-8.15.2-fix-covscan-issues.patch'
+        'sendmail.conf'
+        'sasl2.conf'
+        'sendmail.sysusers'
+        'sendmail.tmpfiles'
+        'sendmail.service'
+        'sm-client.service')
+depends=('db' 'cyrus-sasl')
+
+prepare() {
+    # patches picked from Fedora
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    patch -p1 < "${srcdir}"/sendmail-8.14.8-sasl2-in-etc.patch
+    patch -p1 < "${srcdir}"/sendmail-8.15.2-smtp-session-reuse-fix.patch
+    patch -p1 < "${srcdir}"/sendmail-8.15.2-openssl-1.1.0-fix.patch
+    patch -p1 < "${srcdir}"/sendmail-8.15.2-openssl-1.1.0-ecdhe-fix.patch
+    patch -p1 < "${srcdir}"/sendmail-8.15.2-gethostbyname2.patch
+    patch -p1 < "${srcdir}"/sendmail-8.15.2-fix-covscan-issues.patch
+    sed -i -e 's/CFGRP=bin/CFGRP=root/g' cf/cf/Makefile
+    install -m644 -t devtools/Site "${srcdir}"/site.config.m4
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./Build
+    GROFF_NO_SGR=1 make -C doc/op op.txt op.ps
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    install -dm755 "${pkgdir}"/usr/{bin,share/{doc/sendmail,man/man{1,5,8}}}
+    make install DESTDIR="${pkgdir}"
+    make -C mail.local force-install DESTDIR="${pkgdir}"
+    make -C rmail force-install DESTDIR="${pkgdir}"
+
+    cp -rp cf "${pkgdir}"/usr/share/sendmail-cf
+    rm ${pkgdir}/etc/mail/statistics
+    rmdir "${pkgdir}"/{var/spool/clientmqueue,var/spool,var}
+    install -Dm644 -t "${pkgdir}"/etc/mail sendmail/aliases
+    install -Dm644 cf/cf/generic-linux.cf "${pkgdir}"/etc/mail/sendmail.cf
+    install -Dm644 -t "${pkgdir}"/usr/share/doc/sendmail doc/op/op.{ps,txt}
+    install -Dm644 -t "${pkgdir}/usr/share/licenses/${pkgname}" LICENSE
+
+    cd "${srcdir}"
+    install -Dm644 sendmail.conf "${pkgdir}"/etc/conf.d/sendmail
+    install -Dm644 sasl2.conf "${pkgdir}"/etc/sasl2/Sendmail.conf
+    install -Dm644 -t "${pkgdir}"/usr/lib/systemd/system {sendmail,sm-client}.service
+    install -Dm644 sendmail.sysusers "${pkgdir}"/usr/lib/sysusers.d/sendmail.conf
+    install -Dm644 sendmail.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/sendmail.conf
+}

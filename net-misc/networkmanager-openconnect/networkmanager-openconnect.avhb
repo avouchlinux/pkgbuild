@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=networkmanager-openconnect
+_realname=NetworkManager-openconnect
+pkgver=1.2.6
+pkgrel=1
+pkgdesc="NetworkManager VPN plugin for OpenConnect"
+url="https://wiki.gnome.org/Projects/NetworkManager"
+arch=('x86_64')
+groups=('net-misc')
+license=(GPL)
+depends=(libnm libsecret openconnect libopenconnect.so)
+makedepends=(libnma intltool python git)
+optdepends=('libnma: GUI support')
+source=("https://gitlab.gnome.org/GNOME/NetworkManager-openconnect/-/archive/1.2.4/NetworkManager-openconnect-1.2.4.tar.bz2")
+sha256sums=('SKIP')
+
+prepare() {
+  cd NetworkManager-openconnect-$pkgver
+
+  intltoolize --automake --copy
+  autoreconf -fvi
+}
+
+build() {
+  cd NetworkManager-openconnect-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/lib/NetworkManager \
+    --disable-static
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd NetworkManager-openconnect-$pkgver
+  make DESTDIR="$pkgdir" install dbusservicedir=/usr/share/dbus-1/system.d
+  echo 'u nm-openconnect - "NetworkManager OpenConnect"' |
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+}

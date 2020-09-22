@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=zoom
+_realname=zoom_x86_64.pkg
+pkgver=5.1.412382.0614
+pkgrel=1
+pkgdesc="Video Conferencing and Web Conferencing Service"
+arch=('x86_64')
+groups=('app-net')
+license=('custom')
+url="https://zoom.us/"
+depends=('fontconfig' 'glib2' 'libpulse' 'libsm' 'ttf-font' 'libx11' 'libxcb' 'libxcomposite' 'libxfixes' 'libxi' 'libxcursor'
+	'libxkbcommon-x11' 'libxrandr' 'libxrender' 'libxshmfence' 'libxslt' 'mesa' 'nss' 'pulseaudio-alsa' 'xcb-util-image' 'xcb-util-keysyms')
+optdepends=('qt5-webengine: SSO login support'
+			'picom: extra compositor needed by some window managers for screen sharing'
+			'xcompmgr: extra compositor needed by some window managers for screen sharing')
+options=(!strip)
+source=("https://zoom.us/client/${pkgver}/zoom_x86_64.pkg.tar.xz")
+
+prepare() {
+	sed -i 's/Zoom\.png/Zoom/g' "${srcdir}/usr/share/applications/Zoom.desktop"
+}
+
+package() {
+	cp -dpr --no-preserve=ownership opt usr "${pkgdir}"
+}

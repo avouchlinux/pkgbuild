@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kcharselect
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Character Selector'
+url="http://kde.org/applications/utilities/kcharselect/"
+arch=('x86_64')
+groups=('kde-apps')
+license=('GPL' 'LGPL' 'FDL')
+depends=('kxmlgui')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/kcharselect-${pkgver}.tar.xz")
+sha1sums=('97220bc7ccf02d701add87e3b459d0754a557e11')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $srcdir/build
+  make DESTDIR=$pkgdir install
+}

@@ -1,0 +1,136 @@
+diff -up openchange-openchange-2.3-VULCAN/libmapi/cdo_mapi.c.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/libmapi/cdo_mapi.c
+--- openchange-openchange-2.3-VULCAN/libmapi/cdo_mapi.c.samba-4.2.0-rc2	2015-12-03 11:20:17.502119228 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/cdo_mapi.c	2015-12-03 11:20:44.524118102 +0100
+@@ -337,6 +337,9 @@ _PUBLIC_ enum MAPISTATUS SetMAPIDebugLev
+ 	ret = lpcfg_set_cmdline(mapi_ctx->lp_ctx, "log level", debuglevel);
+ 	talloc_free(debuglevel);
+ 
++	if (ret)
++		_oc_log_samba_level = level;
++
+ 	return (ret == true) ? MAPI_E_SUCCESS : MAPI_E_INVALID_PARAMETER;
+ }
+ 
+diff -up openchange-openchange-2.3-VULCAN/libmapi/oc_log.c.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/libmapi/oc_log.c
+--- openchange-openchange-2.3-VULCAN/libmapi/oc_log.c.samba-4.2.0-rc2	2015-12-03 11:11:01.801142393 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/oc_log.c	2015-12-03 11:27:22.921101494 +0100
+@@ -20,7 +20,9 @@
+ */
+ 
+ #include "libmapi/libmapi.h"
+-#include <util/debug.h>
++#include <stdio.h>
++
++int _oc_log_samba_level = 0;
+ 
+ void oc_log(enum oc_log_level level, const char *fmt_string, ...)
+ {
+@@ -47,12 +49,16 @@ void oc_logv(enum oc_log_level level, co
+ 		samba_level = 0;
+ 	}
+ 
++	if (samba_level && !(_oc_log_samba_level & samba_level))
++		return;
++
+ 	/* Add a trailing newline if one is not already present */
+ 	if (line[strlen(line)-1] == '\n') {
+-		DEBUG(samba_level, ("%s", line));
++		fprintf(stderr, "%s", line);
+ 	} else {
+-		DEBUG(samba_level, ("%s\n", line));
++		fprintf(stderr, "%s\n", line);
+ 	}
++	fflush(stderr);
+ }
+ 
+ void oc_log_init_stdout()
+diff -up openchange-openchange-2.3-VULCAN/libmapi/oc_log.h.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/libmapi/oc_log.h
+--- openchange-openchange-2.3-VULCAN/libmapi/oc_log.h.samba-4.2.0-rc2	2015-12-03 11:18:27.407123817 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/oc_log.h	2015-12-03 11:20:19.228119156 +0100
+@@ -77,4 +77,6 @@ void oc_log_init_user(const char *progna
+    defaulting to /var/log/openchange.log */
+ void oc_log_init_server(const char *progname, struct loadparm_context *lp_ctx);
+ 
++extern int _oc_log_samba_level; /* Private, do not change it other than by SetMAPIDebugLevel() */
++
+ #endif /* _OC_LOG_H_ */
+diff -up openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.c.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.c
+--- openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.c.samba-4.2.0-rc2	2015-12-03 11:11:17.337141745 +0100
++++ openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.c	2015-12-03 11:27:46.505100511 +0100
+@@ -30,14 +30,14 @@
+ #include "fault_util.h"
+ #include "libmapi/libmapi.h"
+ #include "libmapi/libmapi_private.h"
+-#include <util/debug.h>
++#include <stdio.h>
+ 
+ #include <samba/version.h>
+ 
+ #include <execinfo.h>
+ 
+ /**
+-   \details print a backtrace using DEBUG() macro.
++   \details print a backtrace (*not* using DEBUG() macro).
+ 
+  */
+ _PUBLIC_ void debug_print_backtrace(int dbg_level)
+@@ -47,16 +47,19 @@ _PUBLIC_ void debug_print_backtrace(int
+ 	size_t backtrace_size;
+ 	char **backtrace_strings;
+ 
++	if (!(_oc_log_samba_level & dbg_level))
++		return;
++
+ 	backtrace_size = backtrace(backtrace_stack, BACKTRACE_SIZE);
+ 	backtrace_strings = backtrace_symbols(backtrace_stack, backtrace_size);
+ 
+-	DEBUG(dbg_level, ("BACKTRACE: %lu stack frames:\n", (unsigned long)backtrace_size));
++	fprintf(stderr, "BACKTRACE: %lu stack frames:\n", (unsigned long)backtrace_size);
+ 
+ 	if (backtrace_strings) {
+ 		int i;
+ 
+ 		for (i = 0; i < backtrace_size; i++) {
+-			DEBUGADD(dbg_level, (" #%.2u %s\n", i, backtrace_strings[i]));
++			fprintf(stderr, " #%.2u %s\n", i, backtrace_strings[i]);
+ 		}
+ 
+ 		free(backtrace_strings);
+diff -up openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.h.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.h
+--- openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.h.samba-4.2.0-rc2	2015-12-03 11:11:37.089140922 +0100
++++ openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/fault_util.h	2015-12-03 11:26:38.633103340 +0100
+@@ -28,7 +28,7 @@
+  * It will print information about the error and if is_fatal is true abort()
+  * will be called.
+  *
+- * DEBUG macro will be used to print a report with the following format:
++ * DEBUG macro will *not* be used to print a report with the following format:
+  * @code
+  *  ==================================
+  *  OPENCHANGE INTERNAL ERROR: pid 123
+@@ -59,9 +59,10 @@
+  * @see DEBUG()
+  */
+ #define OC_PANIC( is_fatal, body ) \
+-	DEBUGSEP(0); \
+-	DEBUG(0, ("OPENCHANGE INTERNAL ERROR: pid %d\n", (int)getpid())); \
+-	DEBUG(0, body); \
++	fprintf(stderr,"\n"); \
++	fprintf(stderr, "OPENCHANGE INTERNAL ERROR: pid %d\n", (int)getpid()); \
++	fprintf(stderr, body); \
++	fflush(stderr); \
+ 	openchange_abort(is_fatal);
+ 
+ #ifndef __BEGIN_DECLS
+diff -up openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/mapi_handles.c.samba-4.2.0-rc2 openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/mapi_handles.c
+--- openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/mapi_handles.c.samba-4.2.0-rc2	2015-12-03 11:12:08.457139614 +0100
++++ openchange-openchange-2.3-VULCAN/mapiproxy/libmapiproxy/mapi_handles.c	2015-12-03 11:26:50.473102847 +0100
+@@ -429,7 +429,7 @@ static int mapi_handles_traverse_delete(
+ 		OC_DEBUG(5, "handles being released must NOT have child handles attached to them (%s is a child of %s)", handle_str, container_handle_str);
+ 		handle = strtol((const char *) handle_str, NULL, 16);
+ 		/* abort(); */
+-		/* DEBUG(5, ("deleting child handle: %d, %s\n", handle, handle_str)); */
++		/* OC_DEBUG(5, ("deleting child handle: %d, %s\n", handle, handle_str)); */
+ 		mapi_handles_delete(handles_private->handles_ctx, handle);
+ 	}
+ 

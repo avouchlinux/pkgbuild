@@ -1,0 +1,55 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=eclipse-ecj
+_realname=ecjsrc
+pkgver=4.6.3
+pkgrel=1
+_date=201703010400
+pkgdesc='Eclipse java bytecode compiler'
+arch=('any')
+groups=('dev-java')
+license=('EPL')
+url='https://www.eclipse.org/'
+makedepends=('ant' 'java-environment=8')
+_base_url=https://archive.eclipse.org/eclipse/downloads/drops4/R-${pkgver}-${_date}
+_source_file_name=ecjsrc-${pkgver}.jar
+_sha_file_name=eclipse-${pkgver}-SUMSSHA512
+source=(${_base_url}/${_source_file_name}
+        ${_base_url}/checksum/${_sha_file_name}{,.asc}
+        01-ecj-include-props.patch
+        02-buildxml-fix-manifest.patch
+        ecj)
+validpgpkeys=('869FF7E31C98FBCFCF167CDE01D81CA560A48EFD') # Eclipse Project
+
+prepare() {
+  cd "${srcdir}"
+  local _source_file_sum=$(grep -m 1 ${_source_file_name} ${_sha_file_name} | cut -d ' ' -f 1)
+  if [[ "${sha512sums[0]}" != "${_source_file_sum}" ]]; then
+    echo "Source file ${_source_file_name} does not match the SHA sum"
+    echo "provided by upstream in their PGP signed file"
+    return 1
+  fi
+
+  for p in 01-ecj-include-props 02-buildxml-fix-manifest; do
+    patch -p0 < ${p}.patch
+  done
+}
+
+build() {
+  cd "${srcdir}"
+  export LANG=en_US.UTF-8
+  ant build
+}
+
+package() {
+  depends=('java-runtime')
+
+  install -Dm644 "${srcdir}/ecj.jar" "${pkgdir}/usr/share/java/eclipse-ecj-${pkgver}.jar"
+  ln -s eclipse-ecj-${pkgver}.jar "${pkgdir}/usr/share/java/ecj.jar"
+  ln -s eclipse-ecj-${pkgver}.jar "${pkgdir}/usr/share/java/eclipse-ecj.jar"
+  install -Dm755 ecj "${pkgdir}/usr/bin/ecj"
+  install -D -m 644 ecj.1 "${pkgdir}/usr/share/man/man1/ecj.1"
+}

@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=metis
+_realname=petsc-pkg-metis
+pkgver=5.1.0.p8
+_pkgver=5.1.0-p8
+pkgrel=1
+pkgdesc="A set of serial programs for partitioning graphs, partitioning finite element meshes, and producing fill reducing orderings for sparse matrices"
+arch=('x86_64')
+groups=('media-grafix')
+url="http://glaros.dtc.umn.edu/gkhome/metis/metis/overview"
+license=(custom)
+depends=(glibc)
+makedepends=(cmake)
+options=(docs)
+_comit=ca7a59e6283f
+source=("https://bitbucket.org/petsc/pkg-metis/get/v$_pkgver.tar.bz2")
+
+build() {
+  mkdir -p build
+
+  cd build
+  cmake ../$_realname-$_comit \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DSHARED=true
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

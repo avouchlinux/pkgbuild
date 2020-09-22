@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cdrdao
+pkgver=1.2.4
+pkgrel=1
+pkgdesc='Records audio/data CD-Rs in disk-at-once (DAO) mode'
+arch=('x86_64')
+groups=('app-cdr')
+url="http://cdrdao.sourceforge.net/"
+license=('GPL')
+depends=('gcc-libs' 'lame' 'libmad' 'libvorbis' 'libao')
+source=(https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2
+        cdrdao-1.2.3-autoconf-update.patch
+        cdrdao-1.2.3-k3b.patch)
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  
+  patch -Np1 -i ../cdrdao-1.2.3-autoconf-update.patch
+  patch -Np1 -i ../cdrdao-1.2.3-k3b.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+		--mandir=/usr/share/man \
+		--sysconfdir=/etc \
+		--with-xdao --with-lame \
+		--with-ogg-support --with-mp3-support
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

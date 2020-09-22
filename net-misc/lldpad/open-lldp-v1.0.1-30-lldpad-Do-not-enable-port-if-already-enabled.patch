@@ -1,0 +1,63 @@
+From 78fd49291293d9f0da5b1bfa064a477c221cf6f8 Mon Sep 17 00:00:00 2001
+From: Ido Schimmel <idosch@mellanox.com>
+Date: Sun, 11 Aug 2019 17:16:44 +0300
+Subject: [PATCH] lldpad: Do not enable port if already enabled
+
+When a port is enslaved to a bridge, the kernel will emit multiple
+RTM_NEWLINK messages for the port when the bridge device is brought down
+and then up. Assuming 'swp3' is enslaved to 'br0', the following link
+events will be generated when 'br0' is toggled:
+
+# ip monitor link
+9: swp3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master br0 state UP
+    link/ether 7c:fe:90:ff:27:d1
+31: br0: <BROADCAST,MULTICAST> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 7c:fe:90:ff:27:d1 brd ff:ff:ff:ff:ff:ff
+9: swp3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master br0 state UP
+    link/ether 7c:fe:90:ff:27:d1
+9: swp3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master br0 state UP
+    link/ether 7c:fe:90:ff:27:d1
+31: br0: <NO-CARRIER,BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state DOWN group default
+    link/ether 7c:fe:90:ff:27:d1 brd ff:ff:ff:ff:ff:ff
+31: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default
+    link/ether 7c:fe:90:ff:27:d1 brd ff:ff:ff:ff:ff:ff
+9: swp3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 master br0 state UP
+    link/ether 7c:fe:90:ff:27:d1
+
+These events will cause lldpad to invoke lldp_mod_ifup() multiple times
+for 'swp3' despite the fact the port is already enabled as far as lldpad
+is concerned.
+
+In the specific case of the 802.1Qaz module, multiple invocations of
+ieee8021qaz_ifup() will result in the port being stuck in 'pending'
+state. The state can be cleared by the dormant timer, but this is never
+initialized as the port's operational state is always 'UP' as evident by
+the generated events.
+
+Fix this by preventing lldpad from enabling the port if it is already
+enabled.
+
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Alex Kushnarov <alexanderk@mellanox.com>
+Tested-by: Alex Kushnarov <alexanderk@mellanox.com>
+---
+ event_iface.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/event_iface.c b/event_iface.c
+index 0a4105278bf3..43a95c78c89a 100644
+--- a/event_iface.c
++++ b/event_iface.c
+@@ -205,6 +205,9 @@ int oper_add_device(char *device_name)
+ 		port = newport;
+ 	} else if (is_bond(device_name) || !port->portEnabled)
+ 		reinit_port(device_name);
++	else if (port->portEnabled) {
++		return 0;
++	}
+ 
+ 	lldp_add_agent(device_name, NEAREST_BRIDGE);
+ 	lldp_add_agent(device_name, NEAREST_NONTPMR_BRIDGE);
+-- 
+2.21.0
+

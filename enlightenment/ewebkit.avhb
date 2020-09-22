@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ewebkit
+pkgver=1.19
+pkgrel=1
+pkgdesc="Enlightenment Foundation Libraries"
+arch=('x86_64')
+url="http://www.enlightenment.org"
+license=('BSD' 'LGPL2.1' 'GPL2' 'custom')
+depends=('bullet' 'libjpeg-turbo' 'gst-plugins-base'
+         'luajit' 'curl' 'fribidi' 'libpulse' 'libxcomposite'
+         'libxinerama' 'libxrandr' 'libxss'
+         'libxcursor' 'libxp' 'libwebp' 'shared-mime-info'
+         'libxkbcommon' 'wayland')
+optdepends=('python2: einabench-cmp')
+makedepends=('doxygen' 'python' 'texlive-core' 'ghostscript')
+replaces=('ecore' 'edje' 'eet' 'eeze' 'efreet' 'eina' 'eio' 'embryo'
+          'emotion' 'ethumb' 'evas')
+options=('!emptydirs')
+groups=(enlightenment)
+repo=(extra)
+source=(http://download.enlightenment.org/rel/libs/${pkgname}/$pkgname-$pkgver.tar.gz
+	'eina_doxygen.patch')
+install=efl.install
+sha1sums=('6faabf84126f2ba790b77adef658aaaa03154bf7'
+          'ef2b961e793c711685623a149ab55b1bec9a3676')
+
+prepare() {
+	mkdir "${srcdir}/build"
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	export CFLAGS="$CFLAGS -fvisibility=hidden"
+	cmake ../$pkgname \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DENCHANT_INCLUDE_DIRS=/usr/include/enchant-2 \
+		-DENCHANT_LIBRARIES=/usr/lib \
+		-DPORT=Efl
+
+	make ${MAKEFLAGS}
+}
+
+package(){
+	cd "${srcdir}/${pkgname}"
+	make -j1 DESTDIR=${pkgdir} install
+
+	# install non-standard license files
+	install -Dm644 "${srcdir}/${pkgbase}-${pkgver}/licenses/COPYING.BSD" \
+	"${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
+}

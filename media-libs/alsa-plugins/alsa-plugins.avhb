@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=alsa-plugins
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="Extra alsa plugins"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.alsa-project.org"
+license=(GPL)
+depends=(alsa-lib)
+makedepends=(libpulse jack ffmpeg)
+optdepends=('libpulse: PulseAudio plugin'
+            'jack: Jack plugin'
+            'ffmpeg: libavcodec resampling plugin, a52 plugin'
+            'libsamplerate: libsamplerate resampling plugin'
+            'speex: libspeexdsp resampling plugin')
+source=("ftp://ftp.alsa-project.org/pub/plugins/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+
+	mv "$pkgdir"/usr/share/alsa/alsa.conf.d/99-pulseaudio-default.conf.example \
+	"$pkgdir"/usr/share/alsa/alsa.conf.d/99-pulseaudio-default.conf
+
+	install -d "$pkgdir/usr/share/doc/$pkgname"
+	install -m644 doc/README* doc/*.txt "$pkgdir/usr/share/doc/$pkgname/"
+}
+
+

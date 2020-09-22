@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmythes
+_realname=mythes
+pkgver=1.2.4
+pkgrel=1
+pkgdesc="a simple thesaurus"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://hunspell.sourceforge.net/ "
+license=('custom')
+depends=('glibc' 'perl')
+makedepends=('hunspell')
+provides=('mythes')
+source=(http://downloads.sourceforge.net/hunspell/${pkgname/lib/}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+
+	# run the example program:
+	./example th_en_US_new.idx th_en_US_new.dat checkme.lst
+
+	# run the example program with stemming and morphological generation:
+	# e.g. to check mouse, mice, rodents, eats, eaten, ate, eating etc. words
+	./example morph.idx morph.dat morph.lst morph.aff morph.dic
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=$pkgdir install
+}
+

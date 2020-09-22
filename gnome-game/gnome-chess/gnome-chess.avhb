@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-chess
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Play the classic two-player boardgame of chess"
+url="https://wiki.gnome.org/Apps/Chess"
+arch=('x86_64')
+groups=('gnome-games')
+license=(GPL)
+depends=(gtk3 librsvg)
+makedepends=(gobject-introspection yelp-tools appstream-glib vala git meson) 
+optdepends=('gnuchess: Play against computer')
+source=(https://gitlab.gnome.org/GNOME/$pkgver/-/archive/$pkgver/$pkgver-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

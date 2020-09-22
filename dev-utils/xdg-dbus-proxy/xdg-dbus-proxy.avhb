@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xdg-dbus-proxy
+pkgver=0.1.2
+pkgrel=1
+pkgdesc='D-Bus proxy'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://github.com/flatpak/xdg-dbus-proxy'
+license=(LGPL2.1)
+depends=(glib2)
+source=($url/releases/download/$pkgver/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+    cd $pkgname-$pkgver
+    ./configure --prefix=/usr
+    make
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+}
+

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=geany
+pkgver=1.36
+pkgrel=1
+pkgdesc="Fast and lightweight IDE"
+arch=('x86_64')
+groups=('dev-ide')
+url='https://www.geany.org/'
+license=(GPL)
+depends=(gtk3 python)
+makedepends=(doxygen intltool python-lxml)
+optdepends=('geany-plugins: additional functionality'
+            'vte3: embedded terminal support')
+source=("https://download.geany.org/$pkgname-${pkgver/.0}.tar.bz2")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-gtk3 --enable-gtkdoc-header
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+
+}
+
+package(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-uri
+_realname=URI
+pkgver=1.74
+pkgrel=1
+pkgrel=1
+pkgdesc="Uniform Resource Identifiers (absolute and relative)"
+arch=('any')
+groups=('dev-perl')
+url="http://search.cpan.org/dist/${_realname}/"
+license=('PerlArtistic')
+depends=('perl')
+provides=('perl-uri-escape=3.30')
+options=('!emptydirs')
+source=("http://cpan.metacpan.org/authors/id/E/ET/ETHER/${_realname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xkbcomp
+_realname=xkbcomp
+pkgver=1.4.3
+pkgrel=1
+pkgdesc="X Keyboard description compiler"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxkbfile')
+makedepends=('xorg-util-macros')
+groups=('xorg-apps' 'xorg')
+source=(${url}/releases/individual/app/xkbcomp-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

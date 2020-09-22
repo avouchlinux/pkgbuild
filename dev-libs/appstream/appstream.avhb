@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=appstream
+pkgname=(appstream appstream-qt)
+_realname=AppStream
+pkgver=0.12.11
+pkgrel=1
+pkgdesc="Provides a standard for creating app stores across distributions"
+arch=('x86_64')
+groups=('dev-libs')
+url="https://distributions.freedesktop.org/wiki/AppStream"
+license=(GPL)
+depends=(libyaml libxml2 libstemmer glib2)
+makedepends=(meson xmlto gobject-introspection python2 gtk-doc qt5-tools itstool vala gperf)
+source=("https://www.freedesktop.org/software/appstream/releases/AppStream-$pkgver.tar.xz")
+validpgpkeys=(D33A3F0CA16B0ACC51A60738494C8A5FBF4DECEB) # Matthias Klumpp <matthias@tenstral.net>
+
+prepare() {
+    mkdir -p build
+}
+
+build() {
+    cd "${srcdir}/build"
+
+    avouch-meson ../$_realname-$pkgver \
+        --prefix=/usr \
+        -Dqt=true \
+        -Dvapi=true
+    ninja
+}
+
+package_appstream() {
+    cd "${srcdir}/build"
+
+    DESTDIR="$pkgdir" ninja install
+
+    # provided by -qt subpackage
+    rm -r "$pkgdir"/usr/{include/AppStreamQt,lib/cmake,lib/libAppStreamQt.*}
+
+}
+
+package_appstream-qt() {
+    pkgdesc='Qt5 interface for AppStream'
+    depends=(appstream qt5-base)
+
+    cd "${srcdir}/build"
+    DESTDIR="$pkgdir" ninja install
+
+    # provided by appstream
+    rm -r "$pkgdir"{/etc,/usr/{bin,include/appstream,lib/{girepository-1.0,libappstream*,pkgconfig},share}}
+}

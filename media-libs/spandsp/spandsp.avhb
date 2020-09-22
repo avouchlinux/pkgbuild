@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=spandsp
+pkgver=0.0.6
+pkgrel=1
+pkgdesc="A DSP library for telephony"
+arch=('x86_64')
+groups=('media-libs')
+license=('GPL')
+url="https://www.soft-switch.org/"
+depends=('libtiff')
+source=(https://www.soft-switch.org/downloads/$pkgname/$pkgname-$pkgver.tar.gz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+   cd $pkgname-$pkgver
+   make ${MAKEFLAGS} check
+}  
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

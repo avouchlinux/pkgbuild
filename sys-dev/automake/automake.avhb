@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=automake
+pkgver=1.16.1
+pkgrel=1
+pkgdesc="A GNU tool for automatically creating Makefiles"
+arch=('any')
+groups=('sys-devel')
+depends=('perl' 'bash')
+license=('GPL')
+url="http://www.gnu.org/software/automake"
+makedepends=('autoconf')
+checkdepends=('dejagnu' 'python' 'gcc-fortran' 'java-environment' 'vala' 'emacs' 'cscope')
+install=automake.install
+source=(ftp://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz{,.sig})
+md5sums=('7fc29854c520f56b07aa232a0f880292'
+         'SKIP')
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  # fix testsuite issue with resent dejagnu
+  patch -p1 -i $srcdir/automake-1.15-dejagnu-testcase.patch
+  
+  # There are a couple of tests that incorrectly link to the wrong version of the flex library, 
+  # so we temporarily work around the problem.
+  sed -i "s:./configure:LEXLIB=/usr/lib/libfl.a &:" t/lex-{clean,depend}-cxx.sh
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --build=$CHOST --prefix=/usr
+	make
+}
+
+check() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+    # Usie ${MAKEFLAGS} make option to speeds up the tests, even on systems with only one processor, 
+    # due to internal delays in individual tests.
+	make ${MAKEFLAGS} check PYTHON=/usr/bin/python2
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

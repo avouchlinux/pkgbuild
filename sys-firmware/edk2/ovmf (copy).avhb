@@ -1,0 +1,69 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ovmf
+_realname=edk2
+pkgver=202005
+epoch=1
+pkgrel=1
+_openssl_ver=1.1.1e
+arch=('any')
+pkgdesc="Tianocore UEFI firmware for qemu."
+url="http://sourceforge.net/apps/mediawiki/tianocore/index.php?title=EDK2"
+license=('custom')
+makedepends=('git' 'python' 'iasl' 'nasm' 'subversion' 'perl-libwww' 'bc')
+source=(https://github.com/tianocore/edk2/archive/edk2-stable201908.tar.gz
+        https://www.openssl.org/source/openssl-$_openssl_ver.tar.gz{,.asc})
+validpgpkeys=(8657ABB260F056B1E5190839D9C4D26D0E604491)
+options=(!makeflags)
+_toolchain_opt=GCC5
+
+prepare() {
+  cd "${srcdir}"
+  bsdtar -xf $srcarchivedir/openssl-1.1.1c.tar.gz
+
+  # edk2 uses python everywhere, but expects python2
+  #mkdir -p bin
+  #ln -sf /usr/bin/python2 bin/python
+  rm -rf $srcdir/edk2-edk2-stable$pkgver/CryptoPkg/Library/OpensslLib/openssl
+  ln -sf $srcdir/openssl-$_openssl_ver $srcdir/edk2-edk2-stable$pkgver/CryptoPkg/Library/OpensslLib/openssl
+
+  sed -e 's/return return/return/g' \
+    -i "../openssl-$_openssl_ver/crypto/threads_none.c"
+  # -Werror, not even once
+  sed -e 's/ -Werror//g' \
+    -i BaseTools/Conf/*.template BaseTools/Source/C/Makefiles/*.makefile
+
+}
+
+build() {
+  if [ "$CARCH" != "x86_64" ]; then
+    error "This package must be built under the x86_64 architecture."
+    false
+  fi
+  export PATH="${srcdir}/bin:$PATH"
+  export CFLAGS=""
+  export LDFLAGS=""
+  export LD=ld.bfd
+	export LDFLAGS="-fuse-ld=bfd"
+  
+  cd "${srcdir}/"edk2-edk2-stable$pkgver
+  make -C BaseTools
+  export EDK_TOOLS_PATH="${srcdir}"/edk2-edk2-stable$pkgver/BaseTools
+  . edksetup.sh BaseTools
+
+  #./BaseTools/BinWrappers/PosixLike/build -t $_toolchain_opt -a X64 -p OvmfPkg/OvmfPkgX64.dsc -n $(nproc) -b RELEASE -D FD_SIZE_2MB -D NETWORK_IP6_ENABLE -D TPM2_ENABLE -D SECURE_BOOT_ENABLE -D HTTP_BOOT_ENABLE -D TLS_ENABLE
+
+  # build fails for 32bit binary
+  # ./BaseTools/BinWrappers/PosixLike/build -t $_toolchain_opt -a IA32 -p OvmfPkg/OvmfPkgIa32.dsc -n $(nproc) -b RELEASE -D FD_SIZE_2MB
+}
+
+package() {
+  #install -D -m644 "${srcdir}"/edk2/Build/OvmfIa32/RELEASE_${_toolchain_opt}/FV/OVMF_CODE.fd "${pkgdir}"/usr/share/ovmf/ia32/OVMF_CODE.fd
+  #install -D -m644 "${srcdir}"/edk2/Build/OvmfIa32/RELEASE_${_toolchain_opt}/FV/OVMF_VARS.fd "${pkgdir}"/usr/share/ovmf/ia32/OVMF_VARS.fd
+  install -D -m644 "${srcdir}"/edk2/Build/OvmfX64/RELEASE_${_toolchain_opt}/FV/OVMF_CODE.fd "${pkgdir}"/usr/share/ovmf/x64/OVMF_CODE.fd
+  install -D -m644 "${srcdir}"/edk2/Build/OvmfX64/RELEASE_${_toolchain_opt}/FV/OVMF_VARS.fd "${pkgdir}"/usr/share/ovmf/x64/OVMF_VARS.fd
+  install -D -m644 "${srcdir}"/edk2/OvmfPkg/License.txt "${pkgdir}"/usr/share/licenses/ovmf/License.txt
+}

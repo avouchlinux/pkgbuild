@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-shell-themes
+pkgver=0.01
+pkgrel=1
+_gnome-ver=3.18
+pkgdesc="Collection of shell themes for Gnome"
+arch=('x86_64')
+groups=('gnome-base')
+license=('GPL')
+depends=('gnome-shell')
+makedepends=('itstool' 'docbook-xsl' 'intltool')
+options=(!emptydirs)
+url="http://www.gnome.org"
+install=gnome-system-monitor.install
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+	srcdir=/build/${pkgname}
+	cd ${srcdir}
+
+	mkdir ${srcdir}/themes
+	cd ${srcdir}/themes
+
+	tar -zxf ../166772-Ambrosia.tar.gz
+	unzip ${srcdir}/illumination_by_oberon27-d81pk3y.zip
+
+}
+
+package() {
+	mkdir -p "${pkgdir}"/usr/share/
+	cp -rf ${srcdir}/themes "${pkgdir}"/usr/share/
+
+}

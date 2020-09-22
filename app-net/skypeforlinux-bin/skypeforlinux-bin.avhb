@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=skypeforlinux
+pkgname=$_pkgname-bin
+pkgver=8.51.76.87
+pkgrel=1
+pkgdesc="Skype for Linux - Insider/Preview Version"
+arch=("x86_64")
+groups=('app-net')
+url="http://www.skype.com"
+license=("custom")
+depends=("gtk2" "libxss" "gconf" "alsa-lib" "libxtst" "libsecret" "nss")
+optdepends=("gnome-keyring")
+provides=("$_pkgname")
+source=("https://repo.skype.com/deb/pool/main/s/$_pkgname/${_pkgname}_${pkgver}-64.rpm")
+
+package() {
+	bsdtar -xf "${srcarchivedir}/skypeforlinux-64.rpm"
+	mv usr $pkgdir/
+	mkdir -p "${pkgdir}/usr/share/licenses/$pkgname/"
+	mv "$pkgdir/usr/share/$_pkgname/LICENSES.chromium.html" \
+		"${pkgdir}/usr/share/licenses/$pkgname/"
+}

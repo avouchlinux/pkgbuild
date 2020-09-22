@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=yelp
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Get help with GNOME"
+url="https://wiki.gnome.org/Apps/Yelp"
+arch=('x86_64')
+groups=('gnome-base')
+depends=(webkit2gtk yelp-xsl libxslt xz bzip2)
+makedepends=(intltool gtk-doc itstool autoconf-archive git xorg-server-xvfb appstream-glib)
+license=('GPL')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-static --enable-compile-warnings=minimum
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+    # Documentation generation segfaults without X11
+    xvfb-run -s '-screen 0 1920x1080x24 -nolisten local' make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,34 @@
+# Maintainer: Jelle van der Waa <jelle@archlinux.org>
+# Maintainer: Eli Schwartz <eschwartz@archlinux.org>
+# Contributor: Nikola Milinković <nikmil@gmail.com>
+# Submitter: Xiao-Long Chen <chenxiaolong@cxl.epac.to>
+
+pkgname=python3-regex
+_realname=regex
+pkgver=2020.6.8
+pkgrel=1
+pkgdesc="Alternative python regular expression module. (python3 version)"
+arch=('x86_64')
+url="https://bitbucket.org/mrabarnett/mrab-regex"
+license=('Python')
+depends=('python3')
+makedepends=('python3-setuptools')
+options=(!emptydirs)
+source=("https://files.pythonhosted.org/packages/source/r/${_pkgbase}/${_pkgbase}-${pkgver}.tar.gz")
+
+build() {
+  cd "regex-${pkgver}"
+  python3 setup.py build
+}
+
+check() {
+  cd "regex-${pkgver}"
+  python3 setup.py pytest
+}
+
+package() {
+  cd "regex-${pkgver}"
+  python3 setup.py install --root="${pkgdir}/" --optimize=1 --skip-build
+
+  sed -n '1,/^$/p' regex_3/regex.py | install -Dm644 /dev/stdin "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

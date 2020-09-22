@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=peruse
+pkgver=1.2
+pkgrel=1
+pkgdesc="A comic book viewer based on Frameworks 5, for use on multiple form factors."
+url="http://peruse.kde.org/"
+arch=('x86_64')
+groups=('kde-apps')
+license=('LGPL2.1')
+depends=('baloo' 'kconfig' 'kiconthemes' 'kio-extras' 'kirigami2'
+         'plasma-framework' 'qt5-graphicaleffects')
+makedepends=('extra-cmake-modules' 'git' 'kdoctools')
+optdepends=('okular: for cbr, cb*, pdf, deja-vu, epub file support')
+source=("git://anongit.kde.org/peruse.git")
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../peruse \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DKDE_INSTALL_LIBDIR=lib \
+    -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+  make ${MAKEFLAGS}
+}
+
+package() {
+  make -C build DESTDIR=$pkgdir install
+}

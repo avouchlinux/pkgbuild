@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lsb-release
+pkgver=1.4
+pkgrel=1
+# one of the Stable, Server, Development
+# _release=Stable
+_release=Beta
+_avhver=0.2.0
+_codename=Tomato
+pkgdesc="LSB version query program"
+arch=('any')
+groups=('app-admin')
+url="http://www.linuxbase.org/"
+license=('GPL2')
+depends=('bash')
+install=lsb-release.install
+source=(https://downloads.sourceforge.net/lsb/$pkgname-$pkgver.tar.gz
+        lsb_release_description.patch)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  patch -Np0 < "$srcdir/lsb_release_description.patch"
+
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  install -dm755 "$pkgdir/etc"
+  echo "LSB_VERSION=$pkgver" >> "$pkgdir/etc/lsb-release"
+  echo "DISTRIB_ID=Avouch" >> "$pkgdir/etc/lsb-release"
+  echo "DISTRIB_RELEASE=${_release}" >> "$pkgdir/etc/lsb-release"
+  echo "DISTRIB_CODENAME=${_codename}" >> "$pkgdir/etc/lsb-release"
+  echo "DISTRIB_DESCRIPTION=\"Avouch ${_avhver}\"" >> "$pkgdir/etc/lsb-release"
+
+  install -Dm 644 lsb_release.1.gz "$pkgdir/usr/share/man/man1/lsb_release.1.gz"
+  install -Dm 755 lsb_release "$pkgdir/usr/bin/lsb_release"
+}

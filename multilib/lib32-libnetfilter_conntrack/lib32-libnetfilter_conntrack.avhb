@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libnetfilter_conntrack
+pkgbase=libnetfilter_conntrack
+pkgver=1.0.8
+pkgrel=1
+pkgdesc='Library providing an API to the in-kernel connection tracking state table'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+depends=('libnfnetlink' 'libmnl')
+url='https://www.netfilter.org/projects/libnetfilter_conntrack/'
+license=('GPL')
+validpgpkeys=('C09DB2063F1D7034BA6152ADAB4655A126D292E4') # Netfilter Core Team
+# 2016-11-03: https sources download is broken with curl
+source=("http://www.netfilter.org/projects/$pkgname/files/$pkgname-$pkgver.tar.bz2"{,.sig})
+md5sums=('7139c5f408dd9606ffecfd5dcda8175b'
+         'SKIP')
+
+build() {
+	cd $pkgbase-$pkgver
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd $pkgbase-$pkgver
+	make DESTDIR="$pkgdir" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

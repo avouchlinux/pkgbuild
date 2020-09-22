@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=remake
+pkgver=0.14
+pkgrel=1
+pkgdesc="Enhanced GNU Make - tracing, error reporting, debugging, profiling and more"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/silene/remake/"
+license=('GPL3')
+depends=('glibc' 'guile')
+source=("https://github.com/silene/remake/archive/remake-$pkgver.tar.gz")
+
+prepare() {
+  cd ${pkgname}-${pkgname}-${pkgver}
+  patch -Np0 -i ../remake-test.patch
+}
+
+build() {
+  cd ${pkgname}-${pkgname}-${pkgver}
+  g++ $CFLAGS $CPPFLAX -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -o remake remake.cpp
+  doxygen
+}
+
+check() {
+  cd ${pkgname}-${pkgname}-${pkgver}/testsuite
+  ./all.sh
+}
+
+package() {
+  cd ${pkgname}-${pkgname}-${pkgver}
+  # Install the binary
+  mkdir -p ${pkgdir}/usr/bin
+  install -pm 0755 remake ${pkgdir}/usr/bin/
+
+  # Install the doxygen documentation
+  mkdir -p ${pkgdir}/usr/share/doc/$pkgname
+  cp -a doxydoc/html ${pkgdir}/usr/share/doc/$pkgname
+}

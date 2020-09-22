@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-nettool
+pkgver=3.8.1
+pkgrel=1
+pkgdesc="Graphical interface for various networking tools"
+url="https://git.gnome.org/browse/gnome-nettool"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gtk3 libgtop ldns iputils dconf whois)
+makedepends=(nmap net-tools git meson itstool)
+optdepends=('nmap: Port scanning'
+            'net-tools: Network statistics')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-master build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

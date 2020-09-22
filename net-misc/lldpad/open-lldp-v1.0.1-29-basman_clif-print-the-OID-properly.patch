@@ -1,0 +1,49 @@
+From cf3f54d1883e5bc23e4c4006a63e1dde88684013 Mon Sep 17 00:00:00 2001
+From: Aaron Conole <aconole@redhat.com>
+Date: Thu, 21 Jun 2018 13:28:48 -0400
+Subject: [PATCH] basman_clif: print the OID properly
+
+When invoking the lldp tool to view the management information, the display
+for the OID is printed as the actual binary bits, rather than the
+OID dotted-notation form.
+
+This change will display the OID as expected.
+
+Signed-off-by: Aaron Conole <aconole@redhat.com>
+---
+ lldp_basman_clif.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+diff --git a/lldp_basman_clif.c b/lldp_basman_clif.c
+index 7dba9d2..abd152d 100644
+--- a/lldp_basman_clif.c
++++ b/lldp_basman_clif.c
+@@ -272,8 +272,15 @@ void print_mng_addr(u16 len, char *info)
+ 		memset(buf, 0, sizeof(buf));
+ 		if (hexstr2bin(info+offset, (u8 *)&buf, oidlen))
+ 			printf("\tOID: Error parsing OID\n");
+-		else
+-			printf("\tOID: %s\n", buf);
++		else {
++			printf("\tOID: 0.");
++			for (i = 0; i < oidlen; ++i) {
++				printf("%d", buf[i]);
++				if (i != (oidlen - 1))
++					printf(".");
++			}
++			printf("\n");
++		}
+ 	} else if (oidlen > 128) {
+ 		printf("\tOID: Invalid length = %d\n", oidlen);
+ 	}
+@@ -310,3 +317,10 @@ u32 basman_lookup_tlv_name(char *tlvid_str)
+ 	}
+ 	return INVALID_TLVID;
+ }
++
++/* Local Variables:    */
++/* c-indent-level: 8   */
++/* c-basic-offset: 8   */
++/* tab-width: 8        */
++/* indent-tabs-mode: t */
++/* End:                */

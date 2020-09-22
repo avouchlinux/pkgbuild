@@ -1,0 +1,62 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt5-webengine
+_qtver=5.15.0
+pkgver=${_qtver/-/}
+pkgrel=1
+_tarname="${pkgname/5-/}-everywhere-src"
+arch=('x86_64')
+groups=('dev-qt')
+url='https://www.qt.io'
+license=('LGPL3' 'LGPL2.1' 'BSD')
+pkgdesc='Provides support for web applications using the Chromium browser project'
+depends=('qt5-webchannel' 'qt5-location' 'libxcomposite' 'libxrandr' 'pciutils' 'libxss' 
+         'libevent' 'snappy' 'nss' 'libxslt' 'minizip' 'ffmpeg' 're2' 'libvpx')
+makedepends=('python2' 'gperf' 'jsoncpp' 'ninja' 'qt5-tools' 'poppler')
+_pkgfqn="${pkgname/5-/}-everywhere-src-${_qtver}"
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/submodules/${_pkgfqn}.tar.xz")
+
+prepare() {
+	mkdir -p build
+	cd ${_tarname}-${_qtver}
+
+	# Allow the pulseaudio library to be linked at build time, instead of run time. 
+	# This also prevents an issue with newer pulseaudio (From BLFS)
+	sed -e '/link_pulseaudio/s/false/true/' \
+    -i src/3rdparty/chromium/media/media_options.gni
+
+	# Fix build with ICU 67
+	patch -Np3 -d src/3rdparty/chromium/v8 < ../icu67.patch
+	
+	cd src/3rdparty/chromium
+	patch -p1 -i "$srcdir"/qt5-webengine-gcc10.patch
+
+	
+}
+
+build() {
+	cd "${srcdir}/build"
+
+	qmake ../${_tarname}-${_qtver} -- \
+		-proprietary-codecs \
+		-system-ffmpeg \
+		-webp \
+		-spellchecker \
+		-webengine-icu \
+		-webengine-kerberos
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/build"
+	make INSTALL_ROOT="$pkgdir" install
+
+	# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+	find "$pkgdir/usr/lib" -type f -name '*.prl' \
+		-exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+	install -Dm644 ${srcdir}/${_tarname}-${_qtver}/src/3rdparty/chromium/LICENSE "$pkgdir"/usr/share/licenses/${pkgname}/LICENSE.chromium
+}

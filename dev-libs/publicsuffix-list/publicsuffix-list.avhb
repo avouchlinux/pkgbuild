@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=publicsuffix-list
+pkgver=20200424.918.cbbba1
+pkgrel=1
+pkgdesc='Cross-vendor public domain suffix database'
+url='https://github.com/publicsuffix/list'
+arch=('any')
+groups=('dev-libs')
+license=('custom:MPL2')
+makedepends=('git')
+source=(${pkgname}::"git+https://github.com/publicsuffix/list#commit=${_gitcommit}")
+sha512sums=('SKIP')
+
+getsrc() {
+    git clone https://github.com/publicsuffix/list
+}
+pkgver() {
+  cd list
+  printf "%s.%s.%s" "$(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD)" \
+    "$(git rev-list --count HEAD)" \
+    "$(git rev-parse --short HEAD)"
+}
+
+package() {
+  cd list
+  install -Dm 644 public_suffix_list.dat tests/test_psl.txt -t "${pkgdir}/usr/share/publicsuffix"
+  ln -s public_suffix_list.dat "${pkgdir}/usr/share/publicsuffix/effective_tld_names.dat"
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

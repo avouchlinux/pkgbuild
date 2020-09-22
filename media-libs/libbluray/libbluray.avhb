@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libbluray
+pkgver=1.2.0
+pkgrel=1
+pkgdesc='Library to access Blu-Ray disks for video playback'
+arch=('x86_64')
+groups=('media-libs')
+url=https://www.videolan.org/developers/libbluray.html
+license=(LGPL2.1)
+depends=(fontconfig libfreetype libxml2)
+makedepends=(apache-ant git java-environment=8)
+optdepends=('java-runtime=8: BD-J library')
+provides=(libbluray.so)
+source=(ftp://ftp.videolan.org/pub/videolan/$pkgname/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --disable-bdjava-jar
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

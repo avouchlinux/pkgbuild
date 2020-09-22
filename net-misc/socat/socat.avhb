@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=socat
+pkgver=1.7.3.4
+pkgrel=1
+pkgdesc='Multipurpose relay'
+url='http://www.dest-unreach.org/socat/'
+license=('GPL2')
+arch=('x86_64')
+groups=('net-misc')
+depends=('readline' 'openssl')
+source=("http://www.dest-unreach.org/socat/download/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# patches from Gentoo
+	patch -Np1 -i ../socat-1.7.3.4-fno-common.patch
+
+	# patch from Koji Fedora
+	patch -Np1 -i ../socat-1.7.3.3-warn.patch
+
+	autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --mandir=/usr/share/man
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,63 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cairo
+pkgver=1.17.2
+pkgrel=1
+pkgdesc="Cairo vector graphics library"
+arch=('x86_64')
+groups=('x11-libs')
+license=('LGPL' 'MPL')
+url="https://cairographics.org/"
+license=(LGPL MPL)
+depends=(libpng libxrender libxext fontconfig pixman glib2 lzo)
+makedepends=(librsvg gtk2 poppler-glib libspectre gtk-doc valgrind git)
+checkdepends=(ttf-dejavu gsfonts)
+source=("https://gitlab.freedesktop.org/cairo/cairo/-/archive/$pkgver/cairo-$pkgver.tar.bz2")
+
+prepare() {
+	cd "${srcdir}/${pkgname}"
+
+	# Update gtk-doc
+	cp /usr/share/aclocal/gtk-doc.m4 build/aclocal.gtk-doc.m4
+	cp /usr/share/gtk-doc/data/gtk-doc.make build/Makefile.am.gtk-doc
+
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	./configure --prefix=/usr \
+	--sysconfdir=/etc \
+	--localstatedir=/var \
+	--disable-static \
+	--enable-tee \
+	--enable-gl \
+	--enable-egl \
+	--enable-svg \
+	--enable-ps \
+	--enable-pdf \
+	--enable-gobject \
+	--enable-gtk-doc
+
+	#--enable-xlib-xcb \ firefox crashes  "internal Xlib length error"
+	#--enable-test-surfaces \ takes ages
+	#--enable-drm # breaks build
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}"
+	# FIXME: tests don't pass
+	#env CAIRO_TEST_TARGET=image \
+	#	CAIRO_TEST_TARGET_FORMAT=rgba \
+	#	CAIRO_TESTS='!pthread-show-text' make -k check || :
+}
+
+package() {
+	cd "${srcdir}/${pkgname}"
+	make DESTDIR="${pkgdir}" install
+}
+

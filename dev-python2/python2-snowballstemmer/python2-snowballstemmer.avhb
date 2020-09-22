@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-snowballstemmer
+pkgname=('python-snowballstemmer' 'python2-snowballstemmer')
+_realname=snowballstemmer
+pkgver=2.0.0
+pkgrel=1
+arch=(any)
+pkgdesc="Snowball stemming library collection for Python"
+url='https://github.com/shibukawa/snowball_py'
+license=(BSD)
+makedepends=(python-setuptools python2-setuptools)
+source=("https://pypi.python.org/packages/source/s/snowballstemmer/snowballstemmer-${pkgver}.tar.gz")
+md5sums=('51f2ef829db8129dd0f2354f0b209970')
+
+prepare() {
+	cp -a ${_realname}-${pkgver} python-build
+	cp -a ${_realname}-${pkgver} python2-build
+}
+
+build() {
+	cd ${srcdir}/python-build
+	python setup.py build
+
+	cd ${srcdir}/python2-build
+	python2 setup.py build
+}
+
+package_python-snowballstemmer() {	
+	cd ${srcdir}/python-build
+	python setup.py install --root="$pkgdir" --optimize=1
+	# License
+	install -Dm644 LICENSE.rst "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
+
+package_python2-snowballstemmer() {	
+	cd ${srcdir}/python2-build
+	python2 setup.py install --root="$pkgdir" --optimize=1
+	# License
+	install -Dm644 LICENSE.rst "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

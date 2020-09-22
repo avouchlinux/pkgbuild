@@ -1,0 +1,107 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-systemd
+pkgbase=systemd
+pkgver=239
+pkgrel=1
+pkgdesc="system and service manager (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://www.github.com/systemd/systemd"
+license=('GPL2' 'LGPL2.1')
+depends=('lib32-gcc-libs' 'lib32-libcap' 'lib32-libgcrypt' 'lib32-xz' 'systemd')
+makedepends=('gcc-multilib' 'git' 'gperf' 'intltool' 'lib32-acl' 'lib32-bzip2'
+             'lib32-curl' 'lib32-dbus' 'lib32-gcc-libs' 'lib32-glib2'
+             'lib32-gnutls' 'lib32-libelf' 'lib32-libidn' 'lib32-pcre2'
+             'libxslt' 'meson')
+options=('strip')
+validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4')  # Lennart Poettering <lennart@poettering.net>
+source=('git://github.com/systemd/systemd-stable.git'
+        'git://github.com/systemd/systemd.git') # pull in for tags, backports & reverts
+sha256sums=('SKIP'
+         'SKIP')
+
+#_gitbranch=238
+
+if [ -n "${_gitbranch}" ]; then	
+	_basedir=${pkgbase}
+else
+	_basedir=${pkgbase}-${pkgver}
+fi
+
+#getsrc() {
+#	cd ${srcdir}
+#	git clone git://github.com/systemd/systemd.git
+#}
+
+pkgver() {
+	cd "${srcdir}/${_basedir}"
+	echo "$(git describe --tags)" | sed -e 's|v||g'
+}
+
+prepare() {
+    cd "${srcdir}/${_basedir}"
+    # Replace cdrom/dialout/tape groups with optical/uucp/storage
+    patch -Np1 -i ../0001-Use-Arch-Linux-device-access-groups.patch
+}
+
+build() {
+	
+	cd "${srcdir}"
+  local timeservers=({0..3}.avouch.pool.ntp.org)
+    
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  export LANG='en_US.UTF-8'
+  export LANGUAGE='en_US'
+
+    local meson_options=(
+    --buildtype='release' \
+    --prefix='/usr' \
+    --libdir='/usr/lib32' \
+    --libexecdir='/usr/lib32'
+    
+    -Daudit=false
+    -Dgnuefi=false
+    -Dselinux=false
+    -Dseccomp=false
+    -Dlibcryptsetup=false
+    -Dpam=false
+    -Dkmod=false
+    -Dima=false
+    -Dlz4=true
+    -Db_lto=true
+
+    -Ddbuspolicydir=/usr/share/dbus-1/system.d
+    -Ddefault-dnssec=no
+    # TODO(dreisner): consider changing this to unified
+    -Ddefault-hierarchy=hybrid
+    -Ddefault-kill-user-processes=false
+    -Dfallback-hostname='avouch'
+    -Dntp-servers="${timeservers[*]}"
+    -Drpmmacrosdir=no
+    -Dsysvinit-path=
+    -Dsysvrcnd-path=
+  )
+
+    meson "${_basedir}" build "${meson_options[@]}"
+
+    ninja -C build
+}
+
+
+
+package() {
+    cd "${srcdir}"
+    DESTDIR="$pkgdir" ninja -C build install
+    
+    rm -rf "${pkgdir}"/{etc,var}
+    rm -rf "${pkgdir}"/usr/{bin,include,lib,share}
+    rm -rf "${pkgdir}"/usr/lib32/libnss*
+}
+

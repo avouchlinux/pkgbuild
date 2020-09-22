@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-xml-xpath
+_realname=XML-XPath
+pkgver=1.44
+pkgrel=1
+arch=('any')
+groups=('dev-perl')
+url="https://metacpan.org/release/XML-XPath"
+license=('PerlArtistic' 'GPL')
+depends=('perl' 'perl-xml-parser')
+options=('!emptydirs')
+source=("https://cpan.metacpan.org/authors/id/M/MA/MANWAR/XML-XPath-$pkgver.tar.gz")
+
+build() {
+	cd "${srcdir}/XML-XPath-${pkgver}"
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/XML-XPath-${pkgver}"
+	#  make test
+}
+
+package() {
+	cd "${srcdir}/XML-XPath-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

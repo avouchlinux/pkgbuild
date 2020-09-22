@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=woff2
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="Web Open Font Format 2 reference implementation"
+url="https://github.com/google/woff2"
+arch=('x86_64')
+groups=('media-grafix')
+license=(custom:MIT)
+depends=(brotli)
+makedepends=(git cmake ninja)
+source=("https://github.com/google/woff2/archive/v$pkgver.tar.gz")
+sha512sums=('SKIP')
+
+prepare() {
+  cd $pkgname-$pkgver
+  sed -i 's/NOT BUILD_SHARED_LIBS/TRUE/' CMakeLists.txt
+}
+
+build() {
+  cd $pkgname-$pkgver
+  cmake -G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib .
+  ninja
+}
+
+package() {
+  cd $pkgname-$pkgver
+  DESTDIR="$pkgdir" ninja install
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE
+}

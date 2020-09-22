@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-video-effects
+pkgver=0.5.0
+pkgrel=1
+pkgdesc="A collection of GStreamer effects"
+arch=('any')
+groups=('gnome-base')
+url="http://www.gtk.org/"
+license=('GPL2')
+depends=(gst-plugins-good gst-plugins-bad frei0r-plugins)
+makedepends=(meson)
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+	meson test -C build --print-errorlogs
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

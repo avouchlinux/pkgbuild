@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pangox-compat
+pkgver=0.0.2
+pkgrel=1
+pkgdesc="X Window System font support for Pango"
+arch=('x86_64')
+groups=('x11-libs')
+license=('LGPL')
+depends=('pango')
+makedepends=(git)
+_commit=edb9e0904d04d1da02bba7b78601a2aba05aaa47  # master
+source=("https://gitlab.gnome.org/Archive/pangox-compat/-/archive/$pkgver/pangox-compat-$pkgver.tar.bz2"
+        0001-Re-add-pango_x_get_shaper_map-it-is-still-used-in-th.patch)
+url="http://www.pango.org/"
+
+prepare() {
+  cd $pkgname-$pkgver
+  #patch -Np1 -i ../0001-Re-add-pango_x_get_shaper_map-it-is-still-used-in-th.patch
+  patch -Np1 -i ../fix_ind_shaper_for_module-less_pango.patch
+  patch -Nup1 -i '../0002-disable-shaper.patch'
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-static
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make -j1 DESTDIR="${pkgdir}" install
+}

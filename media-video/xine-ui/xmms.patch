@@ -1,0 +1,14 @@
+--- src/post/goom/Makefile.orig 2010-04-16 16:37:01.000000000 +0300
++++ src/post/goom/Makefile      2010-04-16 16:37:29.000000000 +0300
+@@ -463,8 +463,8 @@
+
+ noinst_LTLIBRARIES = libpost_goom_asm.la
+ libpost_goom_asm_la_SOURCES = xmmx.c
+-libpost_goom_asm_la_CFLAGS = $(DEFAULT_OCFLAGS) $(AM_CFLAGS)
+-#libpost_goom_asm_la_CFLAGS = $(O1_CFLAGS) $(AM_CFLAGS)
++#libpost_goom_asm_la_CFLAGS = $(DEFAULT_OCFLAGS) $(AM_CFLAGS)
++libpost_goom_asm_la_CFLAGS = $(O1_CFLAGS) $(AM_CFLAGS)
+ xinepost_LTLIBRARIES = xineplug_post_goom.la
+ xineplug_post_goom_la_SOURCES = mmx.c xine_goom.c \
+        config_param.c convolve_fx.c cpu_info.c drawmethods.c filters.c 
+flying_stars_fx.c \

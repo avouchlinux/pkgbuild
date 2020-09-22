@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=folks
+pkgver=0.14.0
+pkgrel=1
+pkgdesc="Library to aggregates people into metacontacts"
+arch=(x86_64)
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/Folks"
+license=(LGPL2.1)
+depends=(telepathy-glib libgee libxml2 evolution-data-server)
+makedepends=(gobject-introspection gtk-doc vala git meson python2)
+checkdepends=(python-dbusmock)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D b_lto=false -D docs=true
+  ninja -C build
+}
+
+check() {
+  # ** (/build/folks/src/build/tests/eds/eds-add-persona:3157): ERROR **: 11:55:16.528: test-utils.vala:71: Timed out
+  meson test -C build --print-errorlogs || :
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

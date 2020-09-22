@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmusicbrainz3
+_realname=libmusicbrainz
+pkgver=3.0.3
+pkgrel=1
+pkgdesc="Library That Provides Access to the MusicBrainz Server"
+arch=('x86_64')
+groups=('media-libs')
+url="http://musicbrainz.org/"
+license=('LGPL2.1')
+depends=('neon' 'libdiscid')
+makedepends=('cmake')
+source=(ftp://ftp.musicbrainz.org/pub/musicbrainz/libmusicbrainz-$pkgver.tar.gz)
+
+prepare() {
+	mkdir build
+}
+
+build() {
+	cd build
+	cmake ../${_realname}-${pkgver} \
+	-DCMAKE_INSTALL_PREFIX:PATH=/usr \
+	-DBUILD_SHARED_LIBS:BOOL=ON \
+	-DBUILD_STATIC_LIBS:BOOL=OFF
+	make
+}
+
+package() {
+	cd build
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 ../libmusicbrainz-${pkgver}/COPYING.txt \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

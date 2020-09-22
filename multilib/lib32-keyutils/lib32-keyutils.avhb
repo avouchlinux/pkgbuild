@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-keyutils
+pkgbase=keyutils
+pkgver=1.6.1
+pkgrel=1
+pkgdesc="Linux Key Management Utilities (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.kernel.org"
+license=('GPL2' 'LGPL2.1')
+depends=(lib32-glibc $_pkgbasename)
+makedepends=(gcc-multilib)
+source=(http://people.redhat.com/~dhowells/$_pkgbasename/$_pkgbasename-$pkgver.tar.bz2)
+md5sums=('3c7f463039b83833c12a9414c2fcb389')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	# fix paths of binaries in /etc/request-key.conf
+	patch -Np0 -i ../request-key.conf.patch
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+  
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	sed -i -e 's/^\(USR\)\?LIBDIR\s*:=.*$/\1LIBDIR=\/usr\/lib32/' Makefile
+	make CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}"
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	rm -rf "${pkgdir}"/{usr/{include,share,bin,sbin},etc,{s,}bin}
+}

@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-cssselect
+pkgname=('python-cssselect' 'python2-cssselect')
+_realname=cssselect
+pkgver=0.9.1
+pkgrel=1
+license=('BSD')
+arch=('any')
+url="http://pypi.python.org/pypi/cssselect"
+makedepends=('python2' 'python')
+source=("http://pypi.python.org/packages/source/c/cssselect/cssselect-${pkgver}.tar.gz")
+md5sums=('c74f45966277dc7a0f768b9b0f3522ac')
+
+prepare() {
+	cp -a cssselect-${pkgver} python-build
+	cp -a cssselect-${pkgver} python2-build
+}
+
+package_python-cssselect() {
+	pkgdesc="A Python3 library that parses CSS3 Selectors and translates them to XPath 1.0"
+	depends=('python')
+
+	# python build
+	cd "${srcdir}/python-build"
+	python setup.py install --root="${pkgdir}/" --optimize=1
+	# license
+	install -Dm644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+
+package_python2-cssselect() {
+	pkgdesc="A Python2 library that parses CSS3 Selectors and translates them to XPath 1.0"
+	depends=('python2')
+
+	# python2 build
+	cd "${srcdir}/python2-build"
+
+	# Fix python2 shebang
+	sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python2|' cssselect/tests.py
+
+	python2 setup.py install --root="${pkgdir}/" --optimize=1
+	# license
+	install -Dm644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

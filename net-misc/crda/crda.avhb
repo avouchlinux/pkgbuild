@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=crda
+pkgver=4.14
+pkgrel=1
+pkgdesc="Central Regulatory Domain Agent for wireless networks"
+arch=('x86_64')
+groups=('net-misc')
+url="http://wireless.kernel.org/en/developers/Regulatory/CRDA"
+license=('custom')
+depends=('wireless-regdb' 'libnl' 'libgcrypt' 'systemd' 'iw')
+makedepends=('python2-m2crypto')
+install=crda.install
+source=("https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/crda.git/snapshot/crda-$pkgver.tar.gz"
+        set-wireless-regdom
+        0001-Makefile-Link-libreg.so-against-the-crypto-library.patch
+        0001-Makefile-Don-t-run-ldconfig.patch)
+validpgpkeys=('E4053F8D0E7C4B9A0A20AB27DC553250F8FE7407') #Luis R. Rodriguez
+
+prepare() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  sed 's|^#!/usr/bin/env python|#!/usr/bin/python2|' -i utils/key2pub.py
+  patch -p1 -i "${srcdir}"/0001-Makefile-Link-libreg.so-against-the-crypto-library.patch
+  patch -p1 -i "${srcdir}"/0001-Makefile-Don-t-run-ldconfig.patch
+}
+
+build() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  make
+}
+
+package() {
+  # Install crda, regdbdump and udev rules
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" UDEV_RULE_DIR=/usr/lib/udev/rules.d/ SBINDIR=/usr/bin/ install
+  # Adjust paths in udev rule file
+  sed 's|/sbin/crda|/usr/bin/crda|' -i "${pkgdir}"/usr/lib/udev/rules.d/85-regulatory.rules
+  # This rule automatically sets the regulatory domain when cfg80211 is loaded
+  echo 'ACTION=="add" SUBSYSTEM=="module", DEVPATH=="/module/cfg80211", RUN+="/usr/bin/set-wireless-regdom"' >> "${pkgdir}"/usr/lib/udev/rules.d/85-regulatory.rules
+
+  install -D -m644 "${srcdir}"/${pkgname}-${pkgver}/LICENSE "${pkgdir}"/usr/share/licenses/crda/LICENSE
+  
+  install -D -m755 "${srcdir}"/set-wireless-regdom "${pkgdir}"/usr/bin/set-wireless-regdom
+}

@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-zope-interface
+pkgname=('python-zope-interface' 'python2-zope-interface')
+_realname=zope.interface
+pkgver=4.1.3
+pkgrel=1
+license=('ZPL')
+arch=('any')
+url="http://pypi.python.org/pypi/zope.interface"
+makedepends=('python-distribute' 'python2-distribute')
+source=(http://pypi.python.org/packages/source/z/zope.interface/zope.interface-${pkgver}.tar.gz)
+md5sums=('d171f8f8a6997409c7680f1dbb3b7e45')
+
+prepare() {
+	cp -a zope.interface-${pkgver} python-build
+	cp -a zope.interface-${pkgver} python2-build
+}
+
+
+build() {
+	#build python3 module
+	cd "${srcdir}/python-build"
+	python setup.py build
+
+	#build python2 module
+	cd "${srcdir}/python2-build"
+	python2 setup.py build
+
+}
+
+package_python-zope-interface() {
+	pkgdesc=('Zope Interfaces for Python3')
+	depends=('python')
+
+	cd "${srcdir}/python-build"
+	python setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1
+	cp src/zope/__init__.py "${pkgdir}/usr/lib/python3.4/site-packages/zope/"
+}
+
+package_python2-zope-interface(){
+	pkgdesc=('Zope Interfaces for Python2')
+	depends=('python2')
+	replaces=('zope-interface')
+	provides=('zope-interface')
+
+	cd "${srcdir}/python2-build"
+	python2 setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1
+	cp src/zope/__init__.py "${pkgdir}/usr/lib/python2.7/site-packages/zope/"
+}
+

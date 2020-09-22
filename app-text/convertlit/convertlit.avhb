@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=convertlit
+_realname=clit18src
+pkgver=1.8
+pkgrel=1
+pkgdesc="An extractor/converter for .LIT eBooks"
+arch=('any')
+groups=('app-text')
+url="http://www.convertlit.com/"
+license=('GPL')
+depends=('glibc')
+makedepends=('libtommath')
+source=("http://www.convertlit.com/clit18src.zip")
+
+build() {
+  cd ${srcdir}/lib
+  make 
+
+  cd ../clit18
+  sed -i 's|../libtommath-0.30/|/usr/lib/|' Makefile
+  make
+}
+
+package() {
+  cd ${srcdir}/clit18
+
+  install -Dm755 clit "$pkgdir/usr/bin/clit"
+}

@@ -1,0 +1,106 @@
+diff -up openchange-openchange-2.3-VULCAN/configure.ac.drop-python openchange-openchange-2.3-VULCAN/configure.ac
+--- openchange-openchange-2.3-VULCAN/configure.ac.drop-python	2018-04-17 12:59:29.738652248 +0200
++++ openchange-openchange-2.3-VULCAN/configure.ac	2018-04-17 13:00:36.006651332 +0200
+@@ -376,36 +376,42 @@ AC_SUBST(PIDL)
+ dnl ---------------------------------------------------------------------------
+ dnl Check for Python
+ dnl ---------------------------------------------------------------------------
++dnl 
++dnl AC_PATH_PROG(PYTHON, python3)
++dnl if test x"$PYTHON" = x""; then
++dnl	AC_MSG_WARN([No version of python3 was found!])
++dnl	AC_MSG_ERROR([Please install python3])
++dnl fi
++dnl AC_SUBST(PYTHON)
++dnl
++dnl AC_PATH_PROG(PYTHON_CONFIG, python3-config)
++dnl if test x"$PYTHON_CONFIG" = x""; then
++dnl 	AC_MSG_WARN([No version of python3-config was found!])
++dnl 	AC_MSG_ERROR([Please install python3-dev 3.x])
++dnl fi
++dnl AC_SUBST(PYTHON_CONFIG)
++dnl
++dnl AC_MSG_CHECKING(python cflags)
++dnl PYTHON_CFLAGS=`$PYTHON_CONFIG --cflags`
++dnl AC_MSG_RESULT($PYTHON_CFLAGS)
++dnl AC_SUBST(PYTHON_CFLAGS)
++dnl
++dnl AC_MSG_CHECKING(python libs)
++dnl PYTHON_LIBS=`$PYTHON_CONFIG --libs`
++dnl AC_MSG_RESULT($PYTHON_LIBS)
++dnl AC_SUBST(PYTHON_LIBS)
++dnl
++dnl AC_MSG_CHECKING(python library directory)
++dnl pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1, 0, '\\${prefix}')"`
++dnl AC_MSG_RESULT($pythondir)
++dnl AC_SUBST(pythondir)
+ 
+-AC_PATH_PROG(PYTHON, python3)
+-if test x"$PYTHON" = x""; then
+-	AC_MSG_WARN([No version of python3 was found!])
+-	AC_MSG_ERROR([Please install python3])
+-fi
+-AC_SUBST(PYTHON)
+-
+-AC_PATH_PROG(PYTHON_CONFIG, python3-config)
+-if test x"$PYTHON_CONFIG" = x""; then
+-	AC_MSG_WARN([No version of python3-config was found!])
+-	AC_MSG_ERROR([Please install python3-dev 3.x])
+-fi
+-AC_SUBST(PYTHON_CONFIG)
+-
+-AC_MSG_CHECKING(python cflags)
+-PYTHON_CFLAGS=`$PYTHON_CONFIG --cflags`
+-AC_MSG_RESULT($PYTHON_CFLAGS)
++PYTHON_CFLAGS=
+ AC_SUBST(PYTHON_CFLAGS)
+ 
+-AC_MSG_CHECKING(python libs)
+-PYTHON_LIBS=`$PYTHON_CONFIG --libs`
+-AC_MSG_RESULT($PYTHON_LIBS)
++PYTHON_LIBS=
+ AC_SUBST(PYTHON_LIBS)
+ 
+-AC_MSG_CHECKING(python library directory)
+-pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1, 0, '\\${prefix}')"`
+-AC_MSG_RESULT($pythondir)
+-AC_SUBST(pythondir)
+-
+ dnl ----------------------------------------------------------------------------
+ dnl Check for MYSQL client libraries
+ dnl ----------------------------------------------------------------------------
+@@ -759,11 +765,11 @@ AC_SUBST(OC_SERVER_UNINSTALL)
+ dnl ##########################################################################
+ dnl mapiproxy server
+ dnl ##########################################################################
+-if test x$PYTHON != x; then
+-	if test "x$SAMDB_LIBS" != x -a "x$SAMBASERVER_LIBS" != x ; then
+-		mapiproxy=1
+-	fi
+-fi
++dnl if test x$PYTHON != x; then
++dnl	if test "x$SAMDB_LIBS" != x -a "x$SAMBASERVER_LIBS" != x ; then
++dnl		mapiproxy=1
++dnl	fi
++dnl fi
+ OC_RULE_ADD(mapiproxy, SERVER)
+ 
+ AC_ARG_WITH(modulesdir, 
+@@ -780,14 +786,15 @@ AC_ARG_ENABLE(pyopenchange, AC_HELP_STRI
+ 			   [build Python bindings for libmapi]),
+ 			   enable_pyopenchange="$enableval",
+ 			   enable_pyopenchange=no)
+-PYCDIR=`$PYTHON -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1, prefix='\\$(prefix)')"`
+-AC_SUBST(PYCDIR)
+ 
+ PYOPENCHANGEALL=
+ PYOPENCHANGEINSTALL=
+ PYOPENCHANGEUNINSTALL=
+ 
+ if test x$enable_pyopenchange = xyes ; then
++	PYCDIR=`$PYTHON -c "import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1, prefix='\\$(prefix)')"`
++	AC_SUBST(PYCDIR)
++
+ 	dnl Enable pyopenchange by default
+ 	PYOPENCHANGEALL="$PYOPENCHANGEALL pyopenchange"
+ 	PYOPENCHANGEINSTALL="$PYOPENCHANGEALLINSTALL pyopenchange-install"

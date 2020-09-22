@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dkms
+pkgver=2.8.2
+pkgrel=1
+pkgdesc='Dynamic Kernel Modules System'
+arch=('any')
+groups=('dev-utils')
+url='https://github.com/dell/dkms'
+license=('GPL2')
+depends=('bash' 'kmod' 'gcc' 'make' 'patch')
+makedepends=('git')
+optdepends=('linux-headers: build modules against the Arch kernel'
+            'linux-lts-headers: build modules against the LTS kernel'
+            'linux-zen-headers: build modules against the ZEN kernel'
+            'linux-hardened-headers: build modules against the HARDENED kernel')
+backup=('etc/dkms/framework.conf')
+install=$pkgname.install
+source=("git+https://github.com/dell/dkms.git#tag=v$pkgver"
+        'hook.install'
+        'hook.remove'
+        'hook.sh'
+        '0001-Revert-Make-newly-installed-modules-available-immedi.patch')
+
+prepare() {
+  cd dkms
+
+  # apply patch from the source array (should be a pacman feature)
+  local filename
+  for filename in "${source[@]}"; do
+    if [[ "$filename" =~ \.patch$ ]]; then
+      msg2 "Applying patch ${filename##*/}"
+      patch -p1 -N -i "$srcdir/${filename##*/}"
+    fi
+  done
+
+  # /usr move
+  msg2 '/usr move patching'
+  for i in dkms{,_framework.conf,.bash-completion,.8,_common.postinst}; do
+    sed -ri 's,/lib/modules,/usr/lib/modules,g' "$i"
+  done
+}
+
+package() {
+  # upstream installer
+  cd dkms
+  # we don't need kconf files, so we install them outside $pkgdir
+  make \
+    DESTDIR="$pkgdir" \
+    SBIN="$pkgdir/usr/bin" \
+    BASHDIR="$pkgdir/usr/share/bash-completion/completions" \
+    KCONF="$srcdir"/kconf \
+    install
+}

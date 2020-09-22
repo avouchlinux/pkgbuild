@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-xcb-util-keysyms
+pkgbase=xcb-util-keysyms
+pkgver=0.4.0
+pkgrel=1
+pkgdesc="Utility libraries for XC Binding - Standard X key constants and conversion to/from keycodes"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xcb.freedesktop.org"
+license=('custom')
+depends=('libxcb')
+makedepends=('xorg-util-macros')
+source=("http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
+        'LICENSE')
+sha256sums=('7be1acf053bd68a1910fc861b2cbcbad7637b5618590dd5484d43a96f7995c6e'
+            'ded299aa179dcf0d885bf89274a4db77a530e03f9f5e7cf1c3c4ef1d60e914b9')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static	
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

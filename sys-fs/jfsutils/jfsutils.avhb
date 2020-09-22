@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jfsutils
+pkgver=1.1.15
+pkgrel=1
+pkgdesc='JFS filesystem utilities'
+arch=('x86_64')
+groups=('sys-fs')
+url='http://jfs.sourceforge.net'
+license=('GPL')
+depends=('util-linux')
+source=("http://jfs.sourceforge.net/project/pub/${pkgname}-${pkgver}.tar.gz"
+        'inttypes.patch'
+        'sysmacros.patch')
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    patch -p1 -i ../inttypes.patch
+    patch -p1 -i ../sysmacros.patch
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    # GCC 10 fix
+    export CFLAGS+=' -fcommon'
+    ./configure --prefix=/usr --sbindir=/usr/bin
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
+

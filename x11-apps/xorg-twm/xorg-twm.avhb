@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-twm
+_pkgname=twm
+pkgver=1.0.10
+pkgrel=1
+pkgdesc="Tab Window Manager for the X Window System"
+arch=('x86_64')
+groups=('x11-apps')
+url="https://xorg.freedesktop.org/"
+backup=(usr/share/X11/twm/system.twmrc)
+license=('custom')
+depends=('libxmu')
+makedepends=('xorg-util-macros')
+options=('!emptydirs')
+source=(${url}/releases/individual/app/twm-${pkgver}.tar.bz2{,.sig})
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+  cd twm-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd twm-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -D -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

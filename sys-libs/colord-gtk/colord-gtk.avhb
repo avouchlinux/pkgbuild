@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=colord-gtk
+pkgver=0.2.0
+pkgrel=1
+pkgdesc="Additional GTK support code for colord"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://www.freedesktop.org/software/colord/"
+license=(GPL2)
+depends=(lcms2 gtk3 colord)
+makedepends=(intltool gobject-introspection vala gtk-doc meson
+             docbook-utils docbook-sgml perl-sgmls)
+source=("https://github.com/hughsie/colord-gtk/archive/COLORD_GTK_${pkgver//./_}.tar.gz")
+validpgpkeys=('163EB50119225DB3DF8F49EA17ACBA8DFA970E17')
+
+build() {
+    avouch-meson $pkgname-COLORD_GTK_${pkgver//./_} build -D docs=true
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

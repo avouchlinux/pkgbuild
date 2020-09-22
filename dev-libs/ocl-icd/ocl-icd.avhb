@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ocl-icd
+pkgver=2.2.12
+pkgrel=1
+pkgdesc="OpenCL ICD Bindings"
+arch=('x86_64')
+groups=('dev-libs')
+url="https://github.com/OCL-dev/ocl-icd"
+license=('BSD')
+depends=('glibc')
+makedepends=('ruby' 'mesa' 'xmlto' 'asciidoc' 'opencl-headers>=2.1')
+provides=('opencl-icd-loader')
+optdepends=('opencl-driver: packaged opencl driver')
+source=(https://github.com/OCL-dev/${pkgname}/archive/v${pkgver}.tar.gz)
+
+prepare() {
+  cd "$srcdir/$pkgname"
+  # from Gentoo
+  patch -p1 -i ../ocl-icd-2.2.12-gcc-10.patch
+
+  autoreconf -fiv
+}
+
+build() {
+  cd "$srcdir/$pkgname"
+  # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+  CFLAGS+=' -fcommon'
+  ./configure --prefix=/usr --enable-pthread-once
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname"
+  make -k check
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+  make DESTDIR="$pkgdir/" install
+
+  install -m755 -d "$pkgdir/usr/share/licenses/ocl-icd"
+  install -m644 "COPYING" "${pkgdir}/usr/share/licenses/ocl-icd/"
+}

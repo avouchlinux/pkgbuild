@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-control-center
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="GNOME's main interface to configure various aspects of the desktop"
+url="https://gitlab.gnome.org/GNOME/gnome-control-center"
+license=(GPL2)
+arch=(x86_64)
+groups=('gnome-base')
+depends=(accountsservice cups-pk-helper gnome-bluetooth gnome-desktop
+         gnome-online-accounts gnome-settings-daemon gsettings-desktop-schemas gtk3
+         libgtop nm-connection-editor sound-theme-freedesktop upower libpwquality
+         gnome-color-manager smbclient libmm-glib libgnomekbd grilo libibus
+         cheese libgudev bolt udisks2 libhandy gsound)
+makedepends=(docbook-xsl modemmanager git python meson)
+checkdepends=(python-dbusmock python-gobject xorg-server-xvfb)
+optdepends=('system-config-printer: Printer settings'
+            'gnome-user-share: Bluetooth and WebDAV file sharing'
+            'gnome-remote-desktop: screen sharing'
+            'rygel: media sharing'
+            'openssh: remote login')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D documentation=true
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+    install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+}

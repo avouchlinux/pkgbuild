@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxshmfence
+_realname=libxshmfence
+pkgver=1.3
+pkgrel=1
+pkgdesc="a library that exposes a event API on top of Linux futexes (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('GPL')
+#groups=()
+depends=('lib32-glibc' 'libxshmfence')
+makedepends=('xorg-util-macros' 'xproto' 'gcc-multilib')
+source=(${url}/releases/individual/lib/${_pkgbasename}-${pkgver}.tar.bz2)
+sha256sums=('dbc2db2925ca9f216fd1e9c63d0974db9f4d49aaf5877ffb606d2d8d7e58cebe')
+
+md5sums=('df64550d92afbffb4f67a434193ee165')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --libdir=/usr/lib32 \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make -k check
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="$pkgdir/" install
+	rm -r ${pkgdir}/usr/include
+}

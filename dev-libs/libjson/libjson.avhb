@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='libjson'
+pkgver='0.8'
+pkgrel='1'
+pkgdesc="libjson is a small C library and small codebase that packs an efficient parser and a configurable printer"
+arch=('x86_64')
+groups=('dev-libs')
+url="http://projects.snarc.org/libjson/"
+license=('LGPL')
+source=('http://projects.snarc.org/libjson/download/libjson-0.8.tar.gz')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make CFLAGS:='-Wall -Os -fPIC'
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+}
+

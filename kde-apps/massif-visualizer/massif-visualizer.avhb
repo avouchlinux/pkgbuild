@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=massif-visualizer
+pkgver=0.7.0
+pkgrel=1
+pkgdesc="Visualizer for Valgrind Massif data files"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.linux-apps.com/p/1127160/"
+license=(GPL)
+depends=(kparts kdiagram hicolor-icon-theme)
+makedepends=(extra-cmake-modules kgraphviewer)
+optdepends=('kgraphviewer: call graph tab')
+source=("https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(2D1D5B0588357787DE9EE225EC94D18F7F05997E) # Jonathan Riddell <jr@jriddell.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make
+}
+
+package() {
+  cd build
+
+  make DESTDIR="$pkgdir" install
+}

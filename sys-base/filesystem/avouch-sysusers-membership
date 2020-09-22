@@ -1,0 +1,5 @@
+# default membership
+m bin daemon
+m bin sys
+m daemon adm
+m daemon bin

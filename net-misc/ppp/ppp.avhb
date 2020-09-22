@@ -1,0 +1,82 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ppp
+pkgver=2.4.8
+pkgrel=1
+pkgdesc="A daemon which implements the Point-to-Point Protocol for dial-up networking"
+arch=('x86_64')
+groups=('net-misc')
+url="http://www.samba.org/ppp/"
+license=('custom:GPL/BSD')
+depends=('glibc' 'libpcap')
+backup=(etc/ppp/{chap-secrets,pap-secrets,options,ip-up,ip-down,ip-down.d/00-dns.sh,ip-up.d/00-dns.sh,ipv6-up.d/00-iface-config.sh})
+source=(ftp://ftp.samba.org/pub/ppp/ppp-${pkgver}.tar.gz{,.asc}
+        ppp-2.4.6-makefiles.patch
+        options
+        ip-up
+        ip-down
+        ip-up.d.dns.sh
+        ip-down.d.dns.sh
+        ipv6-up
+        ipv6-down
+        ipv6-up.d.iface-config.sh
+        ppp.systemd)
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    # Enable Microsoft proprietary Callback Control Protocol
+    sed -i "s:^#CBCP=y:CBCP=y:" pppd/Makefile.linux
+    # correct bin dir
+    sed -i "s:sbin:bin:g" chat/Makefile.linux
+    sed -i "s:sbin:bin:g" pppd/Makefile.linux
+    sed -i "s:sbin:bin:g" pppd/plugins/rp-pppoe/Makefile.linux
+    sed -i "s:sbin:bin:g" pppdump/Makefile.linux
+    sed -i "s:sbin:bin:g" pppstats/Makefile.linux
+}
+
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    # -D_GNU_SOURCE is needed for IPv6 to work apparently
+    CFLAGS="$CPPFLAGS $CFLAGS -D_GNU_SOURCE" LDFLAGS="$LDFLAGS" ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make INSTROOT="${pkgdir}" install
+
+    # remove empty directory
+    rmdir $pkgdir/usr/sbin
+
+    install -D -m644 ../options "${pkgdir}/etc/ppp/options"
+    install -D -m755 ../ip-up   "${pkgdir}/etc/ppp/ip-up"
+    install -D -m755 ../ip-down "${pkgdir}/etc/ppp/ip-down"
+    install -d -m755 "${pkgdir}/etc/ppp/ip-up.d"
+    install -d -m755 "${pkgdir}/etc/ppp/ip-down.d"
+    install -m755 ../ip-up.d.dns.sh   "${pkgdir}/etc/ppp/ip-up.d/00-dns.sh"
+    install -m755 ../ip-down.d.dns.sh "${pkgdir}/etc/ppp/ip-down.d/00-dns.sh"
+    install -D -m755 ../ipv6-up   "${pkgdir}/etc/ppp/ipv6-up"
+    install -D -m755 ../ipv6-down "${pkgdir}/etc/ppp/ipv6-down"
+    install -d -m755 "${pkgdir}/etc/ppp/ipv6-up.d"
+    install -d -m755 "${pkgdir}/etc/ppp/ipv6-down.d"
+    install -m755 ../ipv6-up.d.iface-config.sh "${pkgdir}/etc/ppp/ipv6-up.d/00-iface-config.sh"
+
+    install -D -m755 scripts/pon  "${pkgdir}/usr/bin/pon"
+    install -D -m755 scripts/poff "${pkgdir}/usr/bin/poff"
+    install -D -m755 scripts/plog "${pkgdir}/usr/bin/plog"
+    install -D -m644 scripts/pon.1 "${pkgdir}/usr/share/man/man1/pon.1"
+    install -D -m600 etc.ppp/pap-secrets  "${pkgdir}/etc/ppp/pap-secrets"
+    install -D -m600 etc.ppp/chap-secrets "${pkgdir}/etc/ppp/chap-secrets"
+    install -d -m755 "${pkgdir}/etc/ppp/peers" 
+    chmod 0755 "${pkgdir}/usr/lib/pppd/${pkgver}"/*.so
+
+    install -D -m644 "${srcdir}"/ppp.systemd "${pkgdir}"/usr/lib/systemd/system/ppp@.service
+
+    install -Dm644 "$srcdir"/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+}
+

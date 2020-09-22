@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-fonttools
+_realname=fonttools
+pkgver=4.6.0
+pkgrel=1
+pkgdesc="Converts OpenType and TrueType fonts to and from XML"
+url="https://github.com/fonttools/fonttools"
+license=("MIT")
+arch=('any')
+groups=('dev-python3')
+groups=('dev-python3')
+makedepends=("python3-setuptools" "python3-numpy")
+source=("https://github.com/fonttools/fonttools/archive/$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

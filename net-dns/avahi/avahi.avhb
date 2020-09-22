@@ -1,0 +1,74 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avahi
+pkgver=0.8
+pkgrel=1
+pkgdesc='Multicast/unicast DNS-SD framework'
+arch=('x86_64')
+groups=('net-dns')
+url='http://www.avahi.org/'
+license=('LGPL')
+depends=(expat libdaemon glib2 libcap gdbm dbus)
+makedepends=(git gobject-introspection gtk3 qt5-base xmltoman python-dbus
+             python-gobject doxygen graphviz libevent)
+optdepends=('gtk3: avahi-discover, avahi-discover-standalone, bshell, bssh, bvnc'
+            'qt5-base: qt5 bindings'
+            'libevent: libevent bindings'
+            'nss-mdns: NSS support for mDNS'
+            'python-twisted: avahi-bookmarks'
+            'python-gobject: avahi-bookmarks, avahi-discover'
+            'python-dbus: avahi-bookmarks, avahi-discover')
+provides=(libavahi-client.so libavahi-common.so libavahi-core.so
+          libavahi-glib.so libavahi-gobject.so libavahi-libevent.so
+          libavahi-qt5.so libavahi-ui-gtk3.so libdns_sd.so)
+backup=(etc/avahi/{hosts,avahi-daemon.conf,avahi-{autoip,dnsconf}d.action}
+        usr/lib/avahi/service-types.db)
+source=("git+https://github.com/lathiat/avahi#commit=$_commit")
+
+prepare() {
+  cd "${srcdir}/${pkgname}"
+  patch -Np0 -i ../add_avouch_distro.patch
+  autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--sbindir=/usr/bin \
+		with_dbus_sys=/usr/share/dbus-1/system.d \
+		--disable-mono \
+		--enable-compat-libdns_sd \
+		--with-distro=avouch \
+		--with-avahi-priv-access-group=network \
+		--with-autoipd-user=avahi \
+		--with-autoipd-group=avahi \
+		--with-systemdsystemunitdir=/usr/lib/systemd/system
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+	# parallel build failed
+  	make
+}
+package() {
+	cd "${srcdir}/${pkgname}"
+	make DESTDIR="${pkgdir}" install
+
+	rmdir "$pkgdir/run"
+
+	# mdnsresponder compat
+	ln -s avahi-compat-libdns_sd/dns_sd.h "$pkgdir/usr/include/dns_sd.h"
+
+	# move example services https://bugs.archlinux.org/task/47822
+	install -d "$pkgdir/usr/share/doc/$pkgname"
+	mv "$pkgdir"/etc/avahi/services/{,sftp-}ssh.service \
+		"$pkgdir/usr/share/doc/$pkgname/"
+
+	echo 'u avahi - "Avahi mDNS/DNS-SD daemon"' |
+		install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+
+}

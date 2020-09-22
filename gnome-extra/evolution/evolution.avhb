@@ -1,0 +1,62 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=evolution
+pkgname=(evolution evolution-bogofilter evolution-spamassassin)
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Manage your email, contacts and schedule"
+url="https://wiki.gnome.org/Apps/Evolution"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gnome-desktop evolution-data-server libcanberra libpst libytnef
+         dconf gtkspell3 libcryptui gnome-autoar)
+makedepends=(intltool itstool docbook-xsl networkmanager bogofilter
+             spamassassin highlight gtk-doc yelp-tools git cmake)
+url=http://www.gnome.org/projects/evolution/
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cmake -S $pkgbase-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIBEXEC_INSTALL_DIR=/usr/lib \
+    -DSYSCONF_INSTALL_DIR=/etc \
+    -DENABLE_SMIME=ON \
+    -DENABLE_GTK_DOC=ON
+  ninja -C build
+}
+
+package_evolution() {
+  optdepends=('highlight: text highlight plugin'
+              'evolution-spamassassin: Spamassassin spam check plugin'
+              'evolution-bogofilter: Bogofilter spam check plugin')
+  groups=(gnome-extra)
+
+  DESTDIR="$pkgdir" ninja -C build install
+
+### Split
+  local x
+  for x in bogofilter spamassassin; do
+    mkdir -p $x/usr/{lib/evolution/modules,share/metainfo}
+    mv {"$pkgdir",$x}/usr/lib/evolution/modules/module-$x.so
+    mv {"$pkgdir",$x}/usr/share/metainfo/org.gnome.Evolution-$x.metainfo.xml
+  done
+}
+
+
+package_evolution-bogofilter() {
+  pkgdesc="Spam filtering for Evolution, using Bogofilter"
+  depends=("evolution=$pkgver" bogofilter)
+
+  mv bogofilter/usr "$pkgdir"
+}
+
+package_evolution-spamassassin() {
+  pkgdesc="Spam filtering for Evolution, using SpamAssassin"
+  depends=("evolution=$pkgver" spamassassin)
+
+  mv spamassassin/usr "$pkgdir"
+}

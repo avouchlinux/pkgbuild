@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=klettres
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Learn The Alphabet"
+url="http://kde.org/applications/education/klettres/"
+arch=('x86_64')
+groups=('kde-apps')
+license=('GPL' 'LGPL' 'FDL')
+depends=('knewstuff' 'kemoticons' 'hicolor-icon-theme')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/klettres-${pkgver}.tar.xz")
+sha1sums=('d12df574755fe5c05fa76e98d87c71fa97802128')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/build
+  make DESTDIR="${pkgdir}" install
+}

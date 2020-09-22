@@ -1,0 +1,55 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=opencl-headers
+pkgver=2.2.20200313
+pkgrel=1
+epoch=2
+pkgdesc='OpenCL (Open Computing Language) header files'
+arch=('any')
+groups=('dev-libs')
+url='https://www.khronos.org/registry/cl/'
+license=('custom')
+makedepends=(git python)
+source=('git+https://github.com/KhronosGroup/OpenCL-Headers.git#commit=ec2566b'
+        'git+https://github.com/KhronosGroup/OpenCL-CLHPP.git#commit=e250e2e'
+        'LICENSE.txt')
+
+getsrc() {
+	cd "${srcdir}"
+	#git clone https://github.com/KhronosGroup/OpenCL-Headers.git
+	#git clone https://github.com/KhronosGroup/OpenCL-CLHPP.git
+	
+}
+
+prepare() {
+  bsdtar -xf $srcarchivedir/OpenCL-CLHPP-$pkgver.tar.xz
+  bsdtar -xf $srcarchivedir/OpenCL-Headers-$pkgver.tar.xz
+
+	cd "${srcdir}"/OpenCL-CLHPP
+	
+	#tar -xf $srcarchivedir/OpenCL-CLHPP-2.2.20170929.tar.xz
+}
+
+package() {
+  cd "${srcdir}"/OpenCL-Headers/CL
+
+  install -dm755 "${pkgdir}"/usr/include/CL
+
+  for h in *.h; do
+    install -m 644 ${h} "${pkgdir}"/usr/include/CL/
+  done
+
+  # remove useless headers
+  rm "${pkgdir}"/usr/include/CL/{cl_d3d,cl_dx9}*.h
+
+  cd "${srcdir}"/OpenCL-CLHPP
+
+  python gen_cl_hpp.py -i input_cl.hpp -o cl.hpp
+  install -m 644 cl.hpp "${pkgdir}"/usr/include/CL/
+  install -m 644 input_cl2.hpp "${pkgdir}"/usr/include/CL/cl2.hpp
+
+  install -D -m644 ../LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

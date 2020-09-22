@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=grilo
+pkgver=0.3.13
+pkgrel=1
+pkgdesc="Framework that provides access to various sources of multimedia content"
+url="http://www.gnome.org"
+arch=('x86_64')
+groups=('media-libs')
+license=('LGPL')
+depends=(gtk3 libxml2 libsoup liboauth totem-plparser)
+makedepends=(gobject-introspection gtk-doc vala git meson)
+optdepends=('grilo-plugins: Plugins for grilo')
+source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build -D enable-gtk-doc=true
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}
+

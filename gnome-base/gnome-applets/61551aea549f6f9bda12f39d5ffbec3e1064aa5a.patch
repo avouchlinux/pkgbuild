@@ -1,0 +1,56 @@
+From 61551aea549f6f9bda12f39d5ffbec3e1064aa5a Mon Sep 17 00:00:00 2001
+From: Dmitry Shachnev <mitya57@gmail.com>
+Date: Tue, 7 May 2019 18:08:35 +0300
+Subject: [PATCH] cpufreq: really fix build with kernel 5.1+
+
+https://gitlab.gnome.org/GNOME/gnome-applets/issues/9
+---
+ cpufreq/src/cpufreq-monitor.c                   | 5 +++--
+ cpufreq/src/cpufreq-selector/cpufreq-selector.c | 5 +++--
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/cpufreq/src/cpufreq-monitor.c b/cpufreq/src/cpufreq-monitor.c
+index 680c9dcbd..17971471e 100644
+--- a/cpufreq/src/cpufreq-monitor.c
++++ b/cpufreq/src/cpufreq-monitor.c
+@@ -30,13 +30,14 @@
+ #define CPUFREQ_MONITOR_INTERVAL 1
+ 
+ #ifdef HAVE_GET_FREQUENCIES
+-typedef struct cpufreq_frequencies cpufreq_available_frequencies;
++typedef struct cpufreq_frequencies CPUFreqFrequencyList;
+ #define cpufreq_get_available_frequencies(cpu) cpufreq_get_frequencies ("available", cpu)
+ #define cpufreq_put_available_frequencies(first) cpufreq_put_frequencies (first)
++#else
++typedef struct cpufreq_available_frequences CPUFreqFrequencyList;
+ #endif
+ 
+ typedef struct cpufreq_policy                CPUFreqPolicy;
+-typedef struct cpufreq_available_frequencies CPUFreqFrequencyList;
+ typedef struct cpufreq_available_governors   CPUFreqGovernorList;
+ 
+ struct _CPUFreqMonitor
+diff --git a/cpufreq/src/cpufreq-selector/cpufreq-selector.c b/cpufreq/src/cpufreq-selector/cpufreq-selector.c
+index 855f24762..6f49806b9 100644
+--- a/cpufreq/src/cpufreq-selector/cpufreq-selector.c
++++ b/cpufreq/src/cpufreq-selector/cpufreq-selector.c
+@@ -37,13 +37,14 @@ typedef enum
+ #define CPUFREQ_SELECTOR_ERROR cpufreq_selector_error_quark ()
+ 
+ #ifdef HAVE_GET_FREQUENCIES
+-typedef struct cpufreq_frequencies cpufreq_available_frequencies;
++typedef struct cpufreq_frequencies CPUFreqFrequencyList;
+ #define cpufreq_get_available_frequencies(cpu) cpufreq_get_frequencies ("available", cpu)
+ #define cpufreq_put_available_frequencies(first) cpufreq_put_frequencies (first)
++#else
++typedef struct cpufreq_available_frequences CPUFreqFrequencyList;
+ #endif
+ 
+ typedef struct cpufreq_policy                CPUFreqPolicy;
+-typedef struct cpufreq_available_frequencies CPUFreqFrequencyList;
+ typedef struct cpufreq_available_governors   CPUFreqGovernorList;
+ 
+ struct _CPUFreqSelector
+-- 
+2.21.0
+

@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=icu
+_realname=icu4c
+pkgver=66.1
+pkgrel=1
+pkgdesc="International Components for Unicode library"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://www.icu-project.org/"
+license=('custom:icu')
+depends=('gcc-libs' 'sh')
+makedepends=('python')
+provides=(libicu{data,i18n,io,test,tu,uc}.so)
+source=(https://github.com/unicode-org/icu/releases/download/release-${pkgver/./-}/icu4c-${pkgver/./_}-src.tgz)
+
+validpgpkeys=('BA90283A60D67BA0DD910A893932080F4FB419E3') #  "Steven R. Loomis (filfla-signing) <srloomis@us.ibm.com>" 
+validpgpkeys+=('9731166CD8E23A83BEE7C6D3ACA5DBE1FD8FABF1') #  "Steven R. Loomis (ICU Project) <srl@icu-project.org>" 
+validpgpkeys+=('FFA9129A180D765B7A5BEA1C9B432B27D1BA20D7') # "Fredrik Roubert <fredrik@roubert.name>"
+validpgpkeys+=('E4098B78AFC94394F3F49AA903996C7C83F12F11') # "keybase.io/srl295 <srl295@keybase.io>"
+
+build() {
+  cd icu/source
+  ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --sbindir=/usr/bin
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd icu/source
+  make  ${MAKEFLAGS} -k check
+}
+
+package() {
+  cd icu/source
+  make -j1 DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtranslator
+pkgver=3.38.0
+pkgrel=1
+pkgdesc='An enhanced gettext po file editor for the GNOME desktop environment'
+arch=('x86_64')
+groups=('gnome-extra')
+url='https://projects.gnome.org/gtranslator/'
+license=('GPL3')
+depends=('gtksourceview4' 'gspell' 'gettext' 'libgda' 'iso-codes' 'hicolor-icon-theme')
+makedepends=('meson' 'gobject-introspection' 'gtk-doc' 'yelp-tools')
+source=(https://ftp.acc.umu.se/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  avouch-meson $pkgname-$pkgver build -Dgtk_doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="${pkgdir}" meson install -C build
+}

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-documents
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="A document manager application for GNOME"
+url="https://wiki.gnome.org/Apps/Documents"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(evince gjs gtk3 gnome-desktop gnome-online-accounts libgdata tracker-miners libzapojit
+         webkit2gtk gnome-online-miners librsvg libgepub gnome-epub-thumbnailer)
+makedepends=(gobject-introspection git meson yelp-tools inkscape)
+optdepends=('libreoffice-fresh: Support for Libreoffice document types')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D getting_started=true
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

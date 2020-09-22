@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-calendar
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
+url="https://wiki.gnome.org/Apps/Calendar"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(evolution-data-server gsettings-desktop-schemas gnome-control-center libdazzle)
+makedepends=(python appstream-glib git meson gtk-doc)
+optdepends=('evolution: ICS file import')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2
+        null-icaltime.diff)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D documentation=true
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-books
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="Access and organize your e-books on GNOME"
+url="https://wiki.gnome.org/Apps/Books"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(evince gjs gtk3 gnome-desktop tracker-miners webkit2gtk libgepub
+         gnome-epub-thumbnailer)
+makedepends=(gobject-introspection git meson yelp-tools)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

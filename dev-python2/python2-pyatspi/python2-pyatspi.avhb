@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=pyatspi
+pkgname=(python-atspi python2-atspi)
+pkgver=2.36.0
+pkgrel=1
+arch=(any)
+groups=(dev-python)
+url="http://www.linuxfoundation.org/en/AT-SPI_on_D-Bus"
+license=('GPL2')
+makedepends=(python-gobject python2-gobject at-spi2-core)
+source=(http://download.gnome.org/sources/${pkgbase}/${pkgver%.*}/${pkgbase}-${pkgver}.tar.xz)
+sha256sums=('42f89ddb9a236448503573e4cd1ddb174e233e005316de9acdb957eb1aa9ad84')
+
+prepare() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+
+	sed '/AC_PATH_XTRA/d' -i configure.ac
+	autoreconf -fi
+
+	cd ${srcdir}
+	cp -a ${pkgbase}-${pkgver} python-build
+	cp -a ${pkgbase}-${pkgver} python2-build
+}
+
+build() {
+	# python2 build
+	cd ${srcdir}/python2-build
+	./configure --prefix=/usr --with-python=/usr/bin/python2
+	make
+
+
+	# python build
+	cd ${srcdir}/python-build
+	./configure --prefix=/usr --with-python=/usr/bin/python
+	make
+}
+
+package_python-atspi() {
+	pkgdesc="Python 3 bindings for at-spi"
+	depends=(python-gobject at-spi2-core)
+
+	cd ${srcdir}/python-build
+	make DESTDIR="$pkgdir" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
+}
+
+package_python2-atspi() {
+	pkgdesc="Python 2 bindings for at-spi"
+	depends=(python2-gobject at-spi2-core)
+	provides=("pyatspi=$pkgver")
+	replaces=(pyatspi)
+	conflicts=(pyatspi)
+
+	cd ${srcdir}/python2-build
+	make DESTDIR="$pkgdir" install
+}

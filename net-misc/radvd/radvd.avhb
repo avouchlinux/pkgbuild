@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=radvd
+pkgver=2.18
+pkgrel=1
+pkgdesc='IPv6 Router Advertisement Daemon'
+arch=('x86_64')
+groups=('net-misc')
+url='http://www.litech.org/radvd/'
+license=('custom')
+depends=('glibc')
+makedepends=('check')
+backup=('etc/radvd.conf')
+source=("http://www.litech.org/radvd/dist/${pkgname}-${pkgver}.tar.xz"{,.asc}
+        "${pkgname}.service")
+validpgpkeys=('10E2511038172B516DCA5BD36FE19F21451C9A2B') # Reuben Hawkins
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --sysconfdir=/etc \
+    --with-pidfile=/run/radvd.pid \
+    --with-check \
+    --mandir=/usr/share/man
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  # default config
+  install -D -m 644 radvd.conf.example "${pkgdir}/etc/radvd.conf"
+  # license
+  install -D -m 644 COPYRIGHT "${pkgdir}/usr/share/licenses/${pkgname}/COPYRIGHT"
+  # systemd
+  install -D -m 644 "${srcdir}/${pkgname}.service" \
+    "${pkgdir}/usr/lib/systemd/system/${pkgname}.service"
+}

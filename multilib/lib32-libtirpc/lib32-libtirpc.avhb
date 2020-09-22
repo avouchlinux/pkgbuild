@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libtirpc
+_realname=libtirpc
+pkgver=1.2.6
+pkgrel=1
+pkgdesc='Transport Independent RPC library (SunRPC replacement)'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://libtirpc.sourceforge.net/'
+license=('BSD')
+depends=('lib32-krb5' 'libtirpc')
+makedepends=('git')
+source=("git://git.linux-nfs.org/projects/steved/libtirpc.git#tag=libtirpc-${pkgver//./-}")
+sha256sums=('SKIP')
+
+prepare() {
+  cd libtirpc-$pkgver
+
+  chmod +x autogen.sh
+  ./autogen.sh
+}
+
+build() {
+  cd libtirpc-$pkgver
+
+  export CC='gcc -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  ./configure \
+    --prefix='/usr' \
+    --libdir='/usr/lib32' \
+    --sysconfdir='/etc'
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd libtirpc-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/{etc,usr/{include,share}}
+
+  install -dm 755 "${pkgdir}"/usr/share/licenses
+  ln -s libtirpc "${pkgdir}"/usr/share/licenses/${pkgname}
+}

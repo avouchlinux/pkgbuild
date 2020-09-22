@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kfloppy
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Floppy Formatter'
+url='http://kde.org/applications/utilities/kfloppy/'
+arch=('x86_64')
+groups=('kde-apps')
+license=(GPL LGPL FDL)
+depends=(kdelibs4support hicolor-icon-theme)
+makedepends=(extra-cmake-modules kdoctools python kdesignerplugin)
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+sha1sums=('26d4c134bb6d9c487b03172ce6474f4f6c297be7')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

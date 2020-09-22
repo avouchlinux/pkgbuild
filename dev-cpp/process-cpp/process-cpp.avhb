@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=process-cpp
+pkgver=3.0.1
+pkgrel=1
+pkgdesc="C++11 library for handling processes"
+arch=('x86_64')
+groups=('dev-cpp')
+url="https://launchpad.net/process-cpp"
+license=('LGPL3')
+depends=('boost-libs' 'gcc-libs')
+makedepends=('cmake' 'doxygen' 'boost' 'properties-cpp')
+source=("https://launchpad.net/ubuntu/+archive/primary/+files/process-cpp_3.0.1.orig.tar.gz")
+
+prepare() {
+  cd "$srcdir/${pkgname}-${pkgver}"
+  # Don't build tests
+  truncate -s 0 tests/CMakeLists.txt
+  truncate -s 0 doc/CMakeLists.txt
+}
+
+build() {
+  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    -DCMAKE_BUILD_TYPE=Release
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir/" ninja -C build install
+}

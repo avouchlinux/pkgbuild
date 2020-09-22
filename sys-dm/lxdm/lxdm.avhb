@@ -1,0 +1,109 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=lxdm
+pkgname=(lxdm lxdm-gtk3)
+pkgver=0.5.3
+pkgrel=1
+#_gittage=1ff8969
+pkgdesc='Lightweight X11 Display Manager'
+arch=('x86_64')
+groups=('sys-dev')
+url="https://sourceforge.net/projects/lxdm/"
+license=('GPL')
+groups=('lxde')
+depends=('gtk2' 'xorg-server')
+makedepends=('intltool' 'iso-codes')
+optdepends=('gtk-engines: default GTK+ theme'
+            'librsvg: display the default background')
+install=$pkgname.install
+backup=('etc/lxdm/lxdm.conf' 'etc/pam.d/lxdm' 'etc/lxdm/Xsession'
+        'etc/lxdm/PreLogin' 'etc/lxdm/LoginReady' 'etc/lxdm/PostLogin'
+        'etc/lxdm/PostLogout' 'etc/lxdm/PreReboot' 'etc/lxdm/PreShutdown')
+source=(http://downloads.sourceforge.net/lxdm/$pkgname-$pkgver.tar.xz
+        default-config.patch
+        lxdm.pam
+        Xsession)
+
+prepare() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+
+  # Don't overwrite PATH if already defined
+  # https://sourceforge.net/p/lxde/bugs/907/
+  patch -Np0 -i ../set-path.patch
+
+	# Apply fixes from git
+	patch -Np1 -i ../git-fixes.patch
+
+	# Adjust Avouch-specific settings
+	patch -Np1 -i ../default-config.patch
+
+	sed -i 's:sysconfig/i18n:profile.d/i18n.sh:g' data/lxdm.in
+	sed -i 's:/etc/xprofile:/etc/profile:g' data/Xsession
+
+	# Use our custom pam and Xsession files
+	cp ../lxdm.pam pam/lxdm
+	cp ../Xsession data/Xsession
+	
+	sed -e 's/^bg/#&/'        \
+    -e '/reset=1/ s/# //' \
+    -e 's/logou$/logout/' \
+    -e "/arg=/a arg=$XORG_PREFIX/bin/X" \
+    -i data/lxdm.conf.in
+
+	# Fix for pulseaudio
+	echo 'test -x /usr/bin/pax11publish && /usr/bin/pax11publish -r' >>data/PostLogout.in
+
+	autoreconf -fi
+	#./autogen.sh
+}
+
+build() {
+  # GTK+ 2 version
+  [ -d gtk2 ] || cp -r $pkgbase-$pkgver gtk2
+  cd gtk2
+  ./configure --prefix=/usr --sbindir=/usr/bin --libexecdir=/usr/lib/lxdm \
+              --sysconfdir=/etc --localstatedir=/var
+  make ${MAKFLAGS}
+
+  cd "$srcdir"
+  # GTK+ 3 version
+  [ -d gtk3 ] || cp -r $pkgbase-$pkgver gtk3
+  cd gtk3
+  ./configure --prefix=/usr --sbindir=/usr/bin --libexecdir=/usr/lib/lxdm \
+              --sysconfdir=/etc --localstatedir=/var --enable-gtk3
+  make ${MAKFLAGS}
+}
+
+package_lxdm() {
+  groups=('lxde')
+  depends=('gtk2' 'xorg-server')
+  optdepends+=('gnome-themes-standard: default GTK+ theme')
+
+  cd gtk2
+  make DESTDIR="$pkgdir" install
+  chmod 644 "$pkgdir/etc/lxdm/lxdm.conf"
+
+  # Setup system user and group
+  install -dm755 "$pkgdir"/usr/lib/{sysusers,tmpfiles}.d
+  echo 'u lxdm - "Lightweight X11 Display Manager" /var/lib/lxdm' > "$pkgdir/usr/lib/sysusers.d/$pkgbase.conf"
+  echo 'd /var/lib/lxdm 0700 lxdm lxdm - -' > "$pkgdir/usr/lib/tmpfiles.d/$pkgbase.conf"
+}
+
+package_lxdm-gtk3() {
+  groups=('lxde-gtk3')
+  pkgdesc+=' (GTK+ 3 version)'
+  depends=('gtk3' 'xorg-server')
+  conflicts=('lxdm')
+
+  cd gtk3
+  make DESTDIR="$pkgdir" install
+  chmod 644 "$pkgdir/etc/lxdm/lxdm.conf"
+
+  # Setup system user and group
+  install -dm755 "$pkgdir"/usr/lib/{sysusers,tmpfiles}.d
+  echo 'u lxdm - "Lightweight X11 Display Manager" /var/lib/lxdm' > "$pkgdir/usr/lib/sysusers.d/$pkgbase.conf"
+  echo 'd /var/lib/lxdm 0700 lxdm lxdm - -' > "$pkgdir/usr/lib/tmpfiles.d/$pkgbase.conf"
+}

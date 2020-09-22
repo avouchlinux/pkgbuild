@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwps
+pkgver=0.4.11
+pkgrel=1
+pkgdesc="a Microsoft Works file word processor format import filter library"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://sourceforge.net/projects/libwps/"
+license=('LGPL')
+depends=('libwpd' 'librevenge')
+makedepends=('boost' 'doxygen')
+source=("http://downloads.sourceforge.net/project/libwps/$pkgname/$pkgname-$pkgver/$pkgname-$pkgver.tar.xz")
+
+build() {
+	cd $pkgname-$pkgver
+	./configure  --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${pkgname}-${pkgver}
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="$pkgdir" install
+}

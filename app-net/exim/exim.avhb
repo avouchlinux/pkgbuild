@@ -1,0 +1,83 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=exim
+pkgver=4.93
+pkgrel=1
+pkgdesc='Message Transfer Agent'
+arch=('x86_64')
+groups=('app-net')
+url='https://www.exim.org/'
+license=('GPL')
+backup=('etc/mail/aliases' 'etc/mail/exim.conf' 'etc/logrotate.d/exim')
+depends=('gdbm' 'libldap' 'libidn' 'libidn2' 'libnsl' 'libspf2' 'openssl' 'pam' 'pcre' 'sqlite')
+provides=('smtp-server' 'smtp-forwarder')
+conflicts=('smtp-server' 'smtp-forwarder')
+source=("https://ftp.exim.org/pub/exim/exim4/exim-$pkgver.tar.bz2"{,.asc}
+        aliases
+        exim.logrotate
+        exim.Makefile
+        exim-submission@.service
+        exim.service
+        exim@.service
+        exim.socket
+        exim-submission.socket
+        exim.sysusers
+        exim.tmpfiles)
+validpgpkeys=('C693A034E1ED6EE954CAE2DA13DAD99C7E41519C'  # Phil Pennock <pdp@exim.org>
+              'ACBB4324393ADE3515DA2DDA4D1E900E14C1CC04'  # Phil Pennock <phil.pennock@spodhuis.org>
+              'E5CA331D44AB8E4C806FDBEE26101B62F69376CE'  # Heiko Schlittermann (Exim MTA Maintainer) <heiko@exim.org>
+              'A986F3A6BD6377D8730958DEBCE58C8CE41F32DF') # Jeremy Harris <jgh@wizmail.org>
+
+build() {
+  cd $pkgname-$pkgver
+
+  cp ../$pkgname.Makefile Local/Makefile
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  install -Dm0644 ../exim.logrotate "$pkgdir"/etc/logrotate.d/exim
+  install -Dm0644 doc/exim.8 "$pkgdir"/usr/share/man/man8/exim.8
+
+  install -Dm0644 ../exim.sysusers "$pkgdir"/usr/lib/sysusers.d/exim.conf
+  install -Dm0644 ../exim.tmpfiles "$pkgdir"/usr/lib/tmpfiles.d/exim.conf
+
+  cd build-Linux-*
+  for i in exicyclog exim_checkaccess exim_dumpdb exim_lock exim_tidydb \
+    exipick exiqsumm exigrep exim_dbmbuild exim exim_fixdb eximstats exinext \
+    exiqgrep exiwhat; do
+    install -Dm0755 "$i" "$pkgdir"/usr/bin/$i
+  done
+  chmod u+s "$pkgdir"/usr/bin/exim
+
+  cd ../src
+  sed -e "s|/etc/aliases|/etc/mail/aliases|g" \
+    -e "s|SYSTEM_ALIASES_FILE|/etc/mail/aliases|g" \
+    configure.default | install -Dm0644 /dev/stdin "$pkgdir"/etc/mail/exim.conf
+
+  install -Dm0644 "$srcdir"/aliases "$pkgdir"/etc/mail/aliases
+
+  cd "$pkgdir"/usr/bin
+  for i in mailq newaliases rmail rsmtp runq sendmail; do
+    ln -s exim "$i"
+  done
+
+  # fhs compliancy
+  ln -s ../bin/exim ../lib/sendmail
+
+  install -Dm0644 "$srcdir"/exim-submission@.service \
+    "$pkgdir"/usr/lib/systemd/system/exim-submission@.service
+  install -Dm0644 "$srcdir"/exim.service \
+    "$pkgdir"/usr/lib/systemd/system/exim.service
+  install -Dm0644 "$srcdir"/exim@.service \
+    "$pkgdir"/usr/lib/systemd/system/exim@.service
+  install -Dm0644 "$srcdir"/exim.socket \
+    "$pkgdir"/usr/lib/systemd/system/exim.socket
+  install -Dm0644 "$srcdir"/exim-submission.socket \
+    "$pkgdir"/usr/lib/systemd/system/exim-submission.socket
+}

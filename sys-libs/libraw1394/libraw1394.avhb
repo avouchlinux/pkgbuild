@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libraw1394
+pkgver=2.1.2
+pkgrel=1
+pkgdesc="Provides an API to the Linux IEEE1394 (FireWire) driver"
+arch=('x86_64')
+groups=('sys-libs')
+license=('LGPL2.1')
+depends=('glibc')
+makedepends=('pkgconfig')
+url="https://ieee1394.wiki.kernel.org/index.php/Main_Page"
+source=(https://www.kernel.org/pub/linux/libs/ieee1394/${pkgname}-${pkgver}.tar.{xz,sign})
+validpgpkeys=('955C0098E5C46EF9A152481479F36FB2545D79D0')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

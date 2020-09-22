@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=proj
+pkgver=7.0.0
+pkgrel=1
+pkgdesc='Cartographic Projections library'
+arch=('x86_64')
+groups=('media-grafix')
+url="https://trac.osgeo.org/proj/"
+license=('MIT')
+makedepends=('autoconf' 'sqlite')
+changelog=$pkgname.changelog
+source=(https://github.com/OSGeo/PROJ/releases/download/$pkgver/$pkgname-$pkgver.tar.gz
+        https://download.osgeo.org/proj/proj-datumgrid-1.8.zip)
+
+prepare(){
+  cd "${srcdir}"/$pkgname-$pkgver
+  bsdtar -xf $srcarchivedir/proj-datumgrid-1.8.zip
+
+  autoreconf -if
+}
+
+build(){
+  cd "${srcdir}"/$pkgname-$pkgver  
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/$pkgname-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm644 COPYING "${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+  bsdtar --no-same-owner -xzvf "${srcdir}"/proj-datumgrid-1.8.zip -C "${pkgdir}"/usr/share/$pkgname
+}

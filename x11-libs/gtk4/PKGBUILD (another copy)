@@ -1,0 +1,90 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk4
+pkgname=(gtk4-update-icon-cache gtk4 gtk4-print-backends)
+_realname=gtk+
+pkgver=3.92.1
+pkgrel=1
+pkgdesc="GObject-based multi-platform GUI toolkit (v3)"
+arch=(i686 x86_64)
+url="http://www.gtk.org/"
+install=gtk3.install
+depends=(atk cairo gtk-update-icon-cache libcups libxcursor libxinerama libxrandr libxi
+         libxcomposite libxdamage pango shared-mime-info colord at-spi2-atk wayland libxkbcommon)
+makedepends=(gobject-introspection)
+optdepends=('gnome-themes-standard: Default widget theme'
+            'gnome-icon-theme: Default icon theme')
+license=(LGPL)
+source=(http://ftp.gnome.org/pub/gnome/sources/gtk+/${pkgver%.*}/gtk+-$pkgver.tar.xz
+        settings.ini)
+sha256sums=('3c24c57fc5cb7a5ea39d3a3ff7b12be63d7f21a52fd6f20f7b983e19b7b0268a'
+            '14369dfd1d325c393e17c105d5d5cc5501663277bd4047ea04a50abb3cfbd119')
+
+prepare() {
+	mkdir build
+	#cp config.h.meson ${_realname}-${pkgver}/config.h.meson
+	#cp gdkconfig.h.meson ${_realname}-${pkgver}/gdk/gdkconfig.h.meson
+}
+ 
+build() {
+	cd build
+	avouch-meson ../${_realname}-${pkgver} \
+	-Denable-x11-backend=true \
+	-Denable-broadway-backend=true \
+	-Denable-wayland-backend=true \
+	-Denable-vulkan=yes
+	ninja
+}
+
+package_gtk4() {
+	depends+=(gtk-update-icon-cache)
+	install="gtk4.install"
+
+	cd build
+
+	DESTDIR="$pkgdir" ninja install
+
+	install -Dm644 "${srcdir}/settings.ini" "$pkgdir/usr/share/gtk-4.0/settings.ini" 
+  
+	rm "$pkgdir/usr/bin/gtk4-update-icon-cache"
+
+	cd "$pkgdir"
+	for _f in usr/lib/*/*/printbackends/*; do
+		case $_f in
+			*-file.so|*-lpr.so) continue;;
+		esac
+
+		mkdir -p "$srcdir/print-backends/${_f%/*}"
+		mv "$_f" "$srcdir/print-backends/$_f"
+	done
+  
+	# Remove conflicts with gtk3
+	rm -f "$pkgdir/usr/share/gettext/its/gtkbuilder.its"
+	rm -f "$pkgdir/usr/share/gettext/its/gtkbuilder.loc"
+	rm -f "$pkgdir/usr/share/glib-2.0/schemas/org.gtk.Demo.gschema.xml"
+	rm -f "$pkgdir/usr/share/glib-2.0/schemas/org.gtk.Settings.ColorChooser.gschema.xml"
+	rm -f "$pkgdir/usr/share/glib-2.0/schemas/org.gtk.Settings.Debug.gschema.xml"
+	rm -f "$pkgdir/usr/share/glib-2.0/schemas/org.gtk.Settings.FileChooser.gschema.xml"
+	rm -f "$pkgdir/usr/share/glib-2.0/schemas/org.gtk.exampleapp.gschema.xml"
+}
+
+package_gtk4-update-icon-cache() {
+	pkgdesc="GTK+ icon cache updater"
+	depends=(gdk-pixbuf2 hicolor-icon-theme)
+
+	cd build
+	install -D gtk/gtk4-update-icon-cache "$pkgdir/usr/bin/gtk4-update-icon-cache"
+	install -Dm644 ../gtk4-update-icon-cache.hook "$pkgdir/usr/share/libalpm/hooks/gtk4-update-icon-cache.hook"
+	install -D ../gtk4-update-icon-cache.script "$pkgdir/usr/share/libalpm/scripts/gtk4-update-icon-cache"
+}
+
+package_gtk4-print-backends() {
+	pkgdesc="Print backends for GTK4"
+	depends=(gtk4 rest colord libcups)
+	groups=(gnome)
+
+	cd $srcdir
+	mv print-backends/* "$pkgdir"
+}

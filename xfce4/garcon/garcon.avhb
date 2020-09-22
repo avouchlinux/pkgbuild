@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=garcon
+pkgver=0.6.4
+pkgrel=1
+pkgdesc="Implementation of the freedesktop.org menu specification"
+arch=('x86_64')
+groups=('xfce4')
+url="http://www.xfce.org/"
+license=('LGPL')
+depends=('libxfce4ui')
+makedepends=('intltool' 'python3')
+source=(https://archive.xfce.org/src/xfce/garcon/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --disable-static \
+        --disable-debug
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

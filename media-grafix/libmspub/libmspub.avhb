@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmspub
+pkgver=0.1.4
+pkgrel=1
+pkgdesc="Microsoft Publisher file format parser library (latest snapshot)"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://wiki.documentfoundation.org/DLP/Libraries/libmspub"
+license=('GPL2' 'LGPL2.1' 'MPL')
+depends=('libwpd' 'icu' 'librevenge')
+makedepends=('libwpg' 'boost' 'doxygen')
+source=(https://dev-www.libreoffice.org/src/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+
+prepare() {
+    cd ${pkgname}-${pkgver}
+    patch -p1 -i ../libmspub-0.1.4-gcc10.patch
+}
+
+build() {
+    cd ${pkgname}-${pkgver}
+    export CFLAGS+=' -std=c++14'
+    ./configure --prefix=/usr --with-docs
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${pkgname}-${pkgver}
+    make DESTDIR=$pkgdir install
+}

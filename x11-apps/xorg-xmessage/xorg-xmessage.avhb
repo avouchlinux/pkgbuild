@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xmessage
+_realname=xmessage
+pkgver=1.0.5
+pkgrel=1
+pkgdesc="Display a message or query in a window"
+arch=('x86_64')
+groups=('x11-apps')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxaw')
+makedepends=('xorg-util-macros')
+source=(http://xorg.freedesktop.org/archive/individual/app/xmessage-${pkgver}.tar.bz2)
+
+build() {
+  cd "${srcdir}/xmessage-${pkgver}"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/xmessage-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

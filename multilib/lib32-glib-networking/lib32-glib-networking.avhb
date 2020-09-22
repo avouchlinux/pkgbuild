@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-glib-networking
+pkgbase=glib-networking
+pkgver=2.64.2
+pkgrel=1
+pkgdesc="Network-related giomodules for glib"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.gtk.org/"
+license=(GPL2)
+depends=(glib2 libproxy gnutls ca-certificates gsettings-desktop-schemas)
+makedepends=(intltool)
+install=glib-networking.install
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('e8e2fe919d3236169c9bfaec807966ec81b844fc28b11bddc9f8256cfa949fc7')
+
+build() {
+    export CC='gcc -m32'
+    export CXX='g++ -m32'
+    export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+    avouch-meson $pkgbase-$pkgver build -D enable_docs=false --libdir=/usr/lib32
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    rm -r "$pkgdir"/{etc,usr/{include,lib,share}}
+}

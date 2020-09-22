@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lesstif
+pkgver=0.95.2
+pkgrel=1
+pkgdesc="LGPL'd re-implementation of Motif"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://sourceforge.net/projects/lesstif/"
+license=('LGPL' 'MIT')
+depends=('freetype2' 'libxt' 'libxp')
+options=('!makeflags' '!buildflags')
+source=("http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+        'LICENSE'
+        '040_fedora_XxxxProperty-64bit.diff')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	# https://bugs.archlinux.org/task/17712
+	patch -p1 -i "${srcdir}"/040_fedora_XxxxProperty-64bit.diff
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--enable-production \
+	--enable-nonstandard-conversions \
+	--enable-editres \
+	--with-xdnd \
+	--enable-build-21 \
+	--disable-debug
+
+	# fix linkage against already installed version
+	perl -pi -e 's/^(hardcode_into_libs)=.*/$1=no/' libtool
+
+	make ${MAKEFLAGS}
+
+	# fix linkage against already installed version
+	for f in $(find . -name \*.la -type f) ; do
+		perl -pi -e 's/^(relink_command=.*)/# $1/' $f
+	done
+
+	make -C lib/Mrm-2.1
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make -C lib/Mrm-2.1 DESTDIR="${pkgdir}" install
+	make DESTDIR="${pkgdir}" appdir=/usr/share/X11/app-defaults rootdir=/usr/share/doc/LessTif install
+	install -Dm644 "${srcdir}"/LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+

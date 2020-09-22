@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxau
+_realname=libXau
+pkgver=1.0.9
+pkgrel=1
+pkgdesc="X11 authorisation library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+depends=('lib32-glibc' $_pkgbasename)
+makedepends=('pkgconfig' 'xproto>=7.0.15' 'gcc-multilib')
+license=('custom')
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXau-${pkgver}.tar.bz2)
+sha1sums=('d9512d6869e022d4e9c9d33f6d6199eda4ad096b')
+md5sums=('df64550d92afbffb4f67a434193ee165')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --libdir=/usr/lib32 \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

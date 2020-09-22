@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=geany-plugins
+pkgver=1.36
+pkgrel=1
+pkgdesc="Pluins for geany"
+arch=('x86_64')
+groups=('dev-ide')
+url='https://plugins.geany.org/'
+license=(GPL)
+depends=("geany>=$pkgver" ctpl gpgme gtkspell3 lua51 python vte3 webkit2gtk libgit2)
+makedepends=(cppcheck intltool)
+source=("$url$pkgname/$pkgname-$pkgver.tar.bz2"{,.sig}
+        9497d829e1b207eb83575dc6f617feecfb89bc16.patch)
+validpgpkeys=(6D0E68FCE198824C27C90EB0B507ACD04BA283C9) # Frank Lanitz <frank@geany.org>
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # https://github.com/geany/geany-plugins/commit/9497d829e1b207eb83575dc6f617feecfb89bc16
+  patch -Np1 -i ../9497d829e1b207eb83575dc6f617feecfb89bc16.patch
+
+  autoreconf -fi
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  export PYTHON=/usr/bin/python
+  ./configure --prefix=/usr --libexecdir=/usr/lib -enable-all
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  make -C "$pkgname-$pkgver" DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vo-amrwbenc
+pkgver=0.1.3
+pkgrel=1
+pkgdesc="VisualOn Adaptive Multi Rate Wideband (AMR-WB) encoder"
+arch=('x86_64')
+groups=('media-libs')
+url="http://sourceforge.net/projects/opencore-amr/"
+license=('APACHE')
+depends=('glibc')
+options=('!emptydirs' '!libtool')
+source=(http://downloads.sourceforge.net/opencore-amr/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

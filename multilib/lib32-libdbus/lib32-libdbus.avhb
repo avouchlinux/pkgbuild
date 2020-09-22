@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libdbus
+pkgbase=dbus
+pkgver=1.12.16
+pkgrel=1
+pkgdesc="DBus library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.freedesktop.org/Software/dbus"
+license=('GPL' 'custom')
+depends=('lib32-glibc' 'lib32-expat' 'libdbus')
+makedepends=('gcc-multilib' 'lib32-libx11')
+provides=('lib32-dbus-core' 'lib32-dbus')
+conflicts=('lib32-dbus-core' 'lib32-dbus')
+replaces=('lib32-dbus-core' 'lib32-dbus')
+source=(http://dbus.freedesktop.org/releases/dbus/dbus-${pkgver}.tar.gz)
+md5sums=('059fbe84e39fc99c67a14f15b1f39dff')
+
+build() {
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--libexecdir=/usr/lib/dbus-1.0 \
+		--with-dbus-user=messagebus \
+		--with-system-pid-file=/run/dbus.pid \
+		--with-system-socket=/run/dbus/system_bus_socket \
+		--with-console-auth-dir=/run/console/ \
+		--enable-inotify \
+		--disable-verbose-mode \
+		--disable-static \
+		--disable-tests \
+		--disable-asserts \
+		--disable-systemd \
+		--disable-selinux
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make DESTDIR=${pkgdir} install
+
+	rm -rf "${pkgdir}"/usr/{bin,include,lib,share}
+	rm -rf "${pkgdir}"/{etc,var}
+}
+

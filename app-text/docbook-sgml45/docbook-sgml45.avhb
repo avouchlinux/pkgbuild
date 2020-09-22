@@ -1,0 +1,52 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=docbook-sgml45
+_realname=docbook
+pkgver=4.5
+pkgrel=1
+pkgdesc="A widely used XML scheme for writing documentation and help"
+arch=('any')
+groups=('app-text')
+url="http://www.oasis-open.org/docbook/"
+license=('MIT')
+depends=('libxml2')
+install=docbook-xml.install
+source=("https://www.docbook.org/sgml/${pkgver}/docbook-${pkgver}.zip")
+
+prepare() {
+	cd ${srcdir}
+
+  sed -i \
+        -e '/ISO 8879/d' \
+        -e '/gml/d' \
+        docbook.cat
+}
+
+package() {
+  cd ${srcdir}
+  install -v -d "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-4.5
+  chown -R root:root .
+  install -v docbook.cat "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-4.5/catalog
+  cp -v -af *.dtd *.mod *.dcl "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-4.5
+
+  # license
+  install -D -m644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+  # Use only the most current 4.x version of DocBook SGML DTD (from BLFS)
+  cat >> "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-4.5/catalog << "EOF"
+  -- Begin Single Major Version catalog changes --
+
+PUBLIC "-//OASIS//DTD DocBook V4.4//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.3//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.2//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.1//EN" "docbook.dtd"
+PUBLIC "-//OASIS//DTD DocBook V4.0//EN" "docbook.dtd"
+
+  -- End Single Major Version catalog changes --
+EOF
+
+}
+

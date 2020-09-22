@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pytest-flake8
+_realname=pytest-flake8
+pkgver=1.0.4
+pkgrel=1
+pkgdesc='pytest plugin to check FLAKE8 requirements'
+arch=('any')
+groups=('dev-python3')
+license=('MIT')
+url='http://github.com/tholo/pytest-flake8'
+depends=('python3-pytest' 'flake8')
+makedepends=('python3-pytest' 'flake8')
+source=("https://github.com/tholo/pytest-flake8/releases/download/$pkgver/pytest-flake8-$pkgver.tar.gz")
+md5sums=('SKIP')
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdatrie
+pkgver=0.2.12
+pkgrel=1
+pkgdesc="Implementation of double-array structure for representing trie, as proposed by Junichi Aoe."
+url="http://linux.thai.net/projects/datrie"
+license=('LGPL')
+arch=('x86_64')
+groups=('sys-libs')
+depends=('glibc')
+options=('!emptydirs')
+source=(https://linux.thai.net/pub/thailinux/software/libthai/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

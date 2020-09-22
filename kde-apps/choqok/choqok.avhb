@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=choqok
+pkgver=1.7.0
+pkgrel=1
+pkgdesc="A Twitter/Pump.io/GNU social client for KDE"
+url='http://choqok.gnufolks.org/'
+license=('GPL')
+arch=('x86_64')
+groups=('kde-apps')
+depends=('qoauth' 'knotifyconfig' 'kcmutils' 'kemoticons' 'kdewebkit' 'hicolor-icon-theme')
+makedepends=('extra-cmake-modules' 'telepathy-qt' 'kdoctools' 'python')
+optdepends=('telepathy-qt: IMstatus plugin')
+source=("http://download.kde.org/stable/${pkgname}/${pkgver%.*}/src/${pkgname}-${pkgver}.tar.xz"{,.sig})
+md5sums=('f61ff13a748a78bb01433c5419c7cc13'
+         'SKIP')
+validpgpkeys=('2C7849767F14C23890B12791918F7DDFFD8D0B6E') # Andrea Scarpino <me@andreascarpino.it>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../${pkgname}-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DKDE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

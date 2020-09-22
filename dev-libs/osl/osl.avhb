@@ -1,0 +1,37 @@
+# Maintainer: Harenome Ranaivoarivony-Razanajato
+#             <ranaivoarivony-razanajato@hareno.me>
+
+pkgname=osl
+_realname=openscop
+pkgver=0.9.2
+pkgrel=1
+pkgdesc="OpenScop Library"
+arch=('x86_64')
+groups=('dev-libs')
+url="http://icps.u-strasbg.fr/people/bastoul/public_html/development/openscop/index.html"
+license=('BSD')
+depends=("gmp")
+provides=("osl")
+source=(https://github.com/periscop/openscop/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz)
+
+prepare() {
+    cd "${srcdir}/${_realname}"
+    ./autogen.sh
+}
+
+build() {
+    cd "${srcdir}/${_realname}"
+    ./configure --prefix=/usr --with-gmp=system
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${_realname}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${_realname}"
+    make DESTDIR="${pkgdir}/" install
+    install -D -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

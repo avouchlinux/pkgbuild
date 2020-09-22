@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=convertall
+pkgver=0.8.0
+pkgrel=1
+pkgdesc="Unit conversion program (Qt)"
+arch=('any')
+groups=('app-office')
+url="http://convertall.bellz.org/"
+license=('GPL')
+depends=('python-pyqt5' 'desktop-file-utils')
+source=("https://github.com/doug-101/ConvertAll/releases/download/v$pkgver/convertall-$pkgver.tar.gz" 
+        'convertall.desktop')
+
+package() {
+  cd ConvertAll
+
+  python install.py -b "${pkgdir}" -p /usr -i /usr/share/pixmaps/convertall
+  rm "${pkgdir}/usr/share/doc/${pkgname}"/{INSTALL,LICENSE}
+
+  install -Dm644 icons/convertall.svg \
+    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/convertall.svg"
+  install -Dm644 icons/convertall_lg.png \
+    "${pkgdir}/usr/share/icons/hicolor/64x64/apps/convertall.png"
+  install -Dm644 icons/convertall_med.png \
+    "${pkgdir}/usr/share/icons/hicolor/32x32/apps/convertall.png"
+  install -Dm644 icons/convertall_sm.png \
+    "${pkgdir}/usr/share/icons/hicolor/16x16/apps/convertall.png"
+
+  install -Dm644 "${srcdir}/convertall.desktop" \
+    "${pkgdir}/usr/share/applications/convertall.desktop"
+}

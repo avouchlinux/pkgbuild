@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=flac
+pkgname=('flac' 'flac-doc')
+pkgver=1.3.3
+pkgrel=1
+arch=('x86_64')
+groups=('media-libs')
+url="http://flac.sourceforge.net/"
+license=('BSD' 'GPL')
+depends=('libogg')
+makedepends=('nasm' 'xmms' 'doxygen')
+options=('!makeflags')
+source=(http://downloads.xiph.org/releases/flac/${pkgbase}-${pkgver}.tar.xz)
+
+build() {
+  cd ${pkgbase}-${pkgver}
+  ./configure --prefix=/usr --disable-sse
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${pkgbase}-${pkgver}
+  make check
+}
+
+package_flac() {
+  options=('!docs')
+  provides=('libFLAC.so' 'libFLAC++.so')
+
+  cd ${pkgbase}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
+package_flac-doc() {
+  pkgdesc+=' documentation'
+  depends=('flac')
+
+  cd ${pkgbase}-${pkgver}
+  make DESTDIR="${pkgdir}" -C doc install
+  sed -i "s|${srcdir}/${pkgbase}-${pkgver}|/usr|" "${pkgdir}/usr/share/doc/${pkgbase}/FLAC.tag"
+  install -Dm 644 COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}

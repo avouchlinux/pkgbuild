@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sed
+pkgver=4.8
+pkgrel=1
+pkgdesc="GNU stream editor"
+arch=('x86_64')
+groups=('sys-base')
+url='https://www.gnu.org/software/sed/'
+license=('GPL3')
+depends=('glibc' 'acl' 'attr')
+makedepends=('gettext')
+source=("https://ftp.gnu.org/pub/gnu/sed/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=('155D3FC500C834486D1EEA677FD9FCCB000BEEEE') #Jim Meyering <jim@meyering.net>
+md5sums=('777ddfd9d71dd06711fe91f0925e1573'
+         'SKIP')
+
+prepare(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# test fails in root as tty is not ownd by root
+	# disable test
+	sed -i '/panic-tests.sh/d' testsuite/local.mk
+	autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

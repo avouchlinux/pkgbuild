@@ -1,0 +1,49 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vulkan-loader-layers
+_realname=Vulkan-ValidationLayers
+pkgver=1.2.140
+pkgrel=1
+pkgdesc="Vulkan Validation Layers"
+arch=('x86_64')
+groups=('dev-vulkan')
+url="https://www.khronos.org/vulkan/"
+license=('custom')
+depends=(gcc-libs vulkan-icd-loader vulkan-headers libx11)
+makedepends=(cmake python-lxml libx11 libxrandr wayland git)
+source=("https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/v$pkgver.tar.gz")
+
+build() {
+  cd "${srcdir}/$_realname-$pkgver"
+
+  rm -rf build ; mkdir build ; cd build
+  ../scripts/update_deps.py
+  cmake -C helper.cmake \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+    -DCMAKE_INSTALL_DATADIR=/share \
+    -DCMAKE_INSTALL_INCLUDEDIR="/usr/include/vulkan/" \
+    -DBUILD_LAYER_SUPPORT_FILES=ON \
+    -DCMAKE_SKIP_RPATH=True \
+    -DBUILD_TESTS=Off \
+    -DBUILD_WSI_XCB_SUPPORT=On \
+    -DBUILD_WSI_XLIB_SUPPORT=On \
+    -DBUILD_WSI_WAYLAND_SUPPORT=On \
+    -DCMAKE_BUILD_TYPE=Release \
+    ..
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/$_realname-$pkgver/build"
+  
+  make DESTDIR="${pkgdir}" install
+
+  install -dm755 "${pkgdir}"/usr/share/{licenses/,doc/}${pkgname}/
+  install -m644 ../docs/* "${pkgdir}"/usr/share/doc/${pkgname}/
+  install -m644 ../LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/
+}

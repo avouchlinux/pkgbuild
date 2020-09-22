@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxau
+_realname=libXau
+pkgver=1.0.9
+pkgrel=1
+pkgdesc="X11 authorisation library"
+arch=('x86_64')
+groups=('x11-libs')
+url="http://xorg.freedesktop.org/"
+depends=('glibc' 'xproto')
+makedepends=('pkgconfig')
+license=('custom')
+source=(${url}/releases/individual/lib/libXau-${pkgver}.tar.bz2)
+sha256sums=('fdd477320aeb5cdd67272838722d6b7d544887dfe7de46e1e7cc0c27c2bea4f2')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

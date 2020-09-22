@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telegram-qt
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Qt bindings for the Telegram protocol"
+arch=('x86_64')
+groups=('net-misc')
+url="https://github.com/Kaffeine/telegram-qt"
+license=(GPL)
+depends=(qt5-base)
+makedepends=(cmake)
+source=("https://github.com/Kaffeine/telegram-qt/archive/$pkgname-$pkgver.tar.gz")
+
+
+build() {
+  cmake -S $pkgname -B build -G Ninja\
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

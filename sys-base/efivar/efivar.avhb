@@ -1,0 +1,69 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="efivar"
+pkgver=37
+pkgrel=1
+pkgdesc="Tools and library to manipulate EFI variables"
+arch=('x86_64')
+groups=('sys-base')
+url="https://github.com/rhinstaller/efivar"
+license=('LGPL2.1')
+makedepends=('git')
+depends=('popt')
+conflicts=('libefivar')
+provides=("libefivar=${pkgver}")
+options=('strip' 'zipman' 'docs')
+source=("efivar::git+https://github.com/rhinstaller/efivar.git#tag=${pkgver}")
+
+#source=("efivar::git+https://github.com/rhinstaller/efivar.git#commit=8740389dded9202167007508670daefd33a7985f")
+
+# getsrc(){
+# 	git clone https://github.com/rhinstaller/efivar.git
+# }
+
+# pkgver() {
+# 	#cd "${srcdir}/$pkgname-$pkgver"
+# 	cd ${srcdir}/$pkgname
+# 	#git checkout $pkgver
+# 	echo "$(git describe --tags)" | sed -e 's|efivar-||g' -e 's|-|\.|g'
+# }
+
+prepare() {	
+	disable_ld_gold
+	mv -v "${pkgname}" "${pkgname}-${pkgver}"
+	cd "${pkgname}-${pkgver}"
+	# -Werror, not even once
+	sed -e 's/-Werror//g' -i src/include/gcc.specs
+	# remove insecure rpath in efivar-tester
+	sed 's|-rpath,$(TOPDIR)/src|-rpath,$(libdir)|g' -i src/test/Makefile
+}
+
+build() {
+	unset LIBS # Gentoo Bug 562004
+	cd "${pkgname}-${pkgver}"
+  	make libdir="/usr/lib/" \
+       bindir="/usr/bin/" \
+       mandir="/usr/share/man/" \
+       includedir="/usr/include/"
+	   
+  	# build efivar-tester
+  	make libdir="/usr/lib/" \
+       bindir="/usr/bin/" \
+       mandir="/usr/share/man/" \
+       includedir="/usr/include/" \
+       TOPDIR=${srcdir}/${pkgname}-${pkgver} \
+       -C src/test	
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}/" \
+       libdir="/usr/lib/" \
+       bindir="/usr/bin/" \
+       mandir="/usr/share/man/" \
+       includedir="/usr/include/" install -j1 V=1
+  install -vDm 755 "src/test/tester" "${pkgdir}/usr/bin/efivar-tester"
+  install -vDm 644 {README.md,TODO} -t "${pkgdir}/usr/share/doc/${pkgname}"
+}

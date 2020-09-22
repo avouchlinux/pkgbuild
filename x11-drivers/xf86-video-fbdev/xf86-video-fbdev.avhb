@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-fbdev
+pkgver=0.5.0
+pkgrel=1
+pkgdesc="X.org framebuffer video driver"
+arch=('x86_64')
+groups=('x11-drivers')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np0 -i ../gcc8.diff
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  # Since pacman 5.0.2-2, hardened flags are now enabled in makepkg.conf
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  export CFLAGS=${CFLAGS/-fno-plt}
+  export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  export LDFLAGS=${LDFLAGS/,-z,now}
+
+  ./configure --prefix=/usr
+  make ${MAKEFLGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make check
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

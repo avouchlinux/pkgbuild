@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=intel-tbb
+_realname=oneTBB
+pkgver=2020.2
+_tagname=${pkgver/./_U}
+pkgrel=1
+pkgdesc='High level abstract threading library'
+arch=('x86_64')
+groups=('dev-libs')
+url='https://www.threadingbuildingblocks.org/'
+license=(GPL)
+depends=(gcc-libs)
+source=(https://github.com/01org/tbb/archive/$_tagname.tar.gz)
+
+build() {
+  cd $_realname-$_tagname
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $_realname-$_tagname
+  install -d "$pkgdir"/usr/lib
+  install -m755 build/linux_*/*.so* "$pkgdir"/usr/lib
+  install -d "$pkgdir"/usr/include
+  cp -a include/tbb "$pkgdir"/usr/include
+}

@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+# 0bda:f179 Realtek Semiconductor Corp
+# Driver is intended for USB WIFI adapter available in Pakistan 
+# under the name of Alfa which have the above mentioned ID.
+pkgname=rtl8188fu
+pkgver=4.3.23.6_20964.20170110
+pkgrel=1
+_kernver="$(uname -r)"
+pkgdesc="Realtek 8188FU / 8188ESU USB WiFi device Wireless Lan Driver"
+arch=('x86_64')
+groups=('sys-drivers')
+url="https://github.com/ulli-kroll/rtl8188fu"
+license=('GPL')
+makedepends=('linux-headers' 'kmod' 'git' 'wget')
+install=rtl8188fu.install
+source=('https://codeload.github.com/ulli-kroll/rtl8188fu/zip/master')
+
+build() {
+  cd "${pkgname}"
+  export CFLAGS="$CFLAGS -fcommon"
+  make
+}
+
+package() {
+  cd "${pkgname}"
+  _kernver="$(</usr/src/linux/version)"
+
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
+  make \
+    MODDESTDIR="${pkgdir}/usr/lib/modules/${_kernver}/extramodules" install
+
+  # compress each module individually
+  find "$pkgdir" -name '*.ko' -exec xz -T1 {} +
+
+}
+

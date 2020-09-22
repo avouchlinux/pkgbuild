@@ -1,0 +1,51 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=remmina
+_realname=Remmina
+epoch=1
+pkgver=1.4.5
+pkgrel=1
+pkgdesc="remote desktop client written in GTK+"
+arch=('x86_64')
+groups=('app-net')
+url="http://www.remmina.org/"
+license=('GPL')
+depends=('gtk3' 'zlib' 'libjpeg' 'libssh' 'avahi' 'vte3'
+	 'libgcrypt' 'libxdmcp' 'libsecret' 'webkit2gtk')
+makedepends=('intltool' 'pkgconfig' 'cmake' 'libgnome-keyring'
+             'avahi' 'libxkbfile' 'freerdp' 'telepathy-glib'
+             'libvncserver')
+optdepends=('libxkbfile'
+            'freerdp'
+            'telepathy-glib'
+            'gnome-keyring'
+            'nxproxy'
+            'xorg-server-xephyr: XDMCP support'
+            'libvncserver: VNC client/server support')
+replaces=('remmina-plugins')
+provides=('remmina-plugins')
+source=("https://github.com/FreeRDP/Remmina/archive/v${pkgver/rc/-rc}.tar.gz"
+	"fix-freerdp-name.patch")
+
+prepare() {
+  cd "$srcdir"/Remmina-${pkgver/rc/-rc}/
+#  patch -p1 <"$srcdir"/fix-freerdp-name.patch
+}
+
+build() {
+  cd "$srcdir"/Remmina-${pkgver/rc/-rc}/
+  cmake \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    -DWITH_APPINDICATOR=OFF .
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir"/Remmina-${pkgver/rc/-rc}/
+  make DESTDIR="$pkgdir" install
+  rm -rf "$pkgdir"/build
+}

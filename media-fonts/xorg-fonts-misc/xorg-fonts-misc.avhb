@@ -1,0 +1,74 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-fonts-misc
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="X.org Type1 fonts"
+arch=(any)
+groups=('media-fonts')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=(xorg-fonts-encodings xorg-fonts-alias xorg-font-utils fontconfig)
+groups=('xorg')
+install=xfonts.install
+source=(${url}/releases/individual/font/font-arabic-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-cursor-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-daewoo-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-dec-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-isas-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-jis-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-micro-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-mutt-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-schumacher-misc-1.1.2.tar.bz2
+        ${url}/releases/individual/font/font-sony-misc-1.0.3.tar.bz2
+        ${url}/releases/individual/font/font-sun-misc-1.0.3.tar.bz2)
+
+prepare() {
+
+	tar -jxf "${srcarchivedir}/font-arabic-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-cursor-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-daewoo-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-dec-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-isas-misc-1.0.3.tar.bz2"	
+	tar -jxf "${srcarchivedir}/font-jis-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-micro-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-mutt-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-schumacher-misc-1.1.2.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-sony-misc-1.0.3.tar.bz2"
+	tar -jxf "${srcarchivedir}/font-sun-misc-1.0.3.tar.bz2"
+
+}
+
+build() {
+
+cd "${srcdir}"
+for dir in *; do
+    if [ -d "${dir}" ]; then
+      pushd "${dir}"
+      ./configure --prefix=/usr \
+          --with-fontdir=/usr/share/fonts/misc
+      make
+      popd
+    fi
+done
+
+}
+
+package() {
+
+cd "${srcdir}"
+install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+for dir in *; do
+    if [ -d "${dir}" ]; then
+      pushd "${dir}"
+      make DESTDIR="${pkgdir}" install
+      install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.${dir%-misc-*}"
+      popd
+    fi
+done
+rm -f "${pkgdir}"/usr/share/fonts/type1/fonts.*
+
+}
+

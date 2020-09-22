@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pyxdg
+_realname=pyxdg
+pkgver=0.26
+pkgrel=1
+pkgdesc="python3 library to access freedesktop.org standards"
+arch=('any')
+groups=('dev-python3')
+url="http://freedesktop.org/Software/pyxdg"
+license=("LGPL")
+depends=('python3')
+makedepends=('python3')
+source=("https://pypi.io/packages/source/p/$_realname/$_realname-${pkgver}.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

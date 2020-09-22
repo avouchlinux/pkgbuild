@@ -1,0 +1,16 @@
+pkgname=purple
+
+post_install() {
+
+/usr/sbin/gconfpkg --install ${pkgname}
+gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor
+
+}
+
+post_upgrade() {
+  post_install
+}
+
+post_remove() {
+  post_install
+}

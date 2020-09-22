@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-cloudpickle
+_realname=cloudpickle
+pkgver=1.3.0
+pkgrel=1
+pkgdesc='Extended pickling support for Python objects'
+arch=('any')
+groups=('dev-python3')
+url='https://github.com/cloudpipe/cloudpickle'
+license=('BSD')
+makedepends=('python3-setuptools')
+options=(!emptydirs)
+source=("https://pypi.io/packages/source/${_realname:0:1}/${_realname}/${_realname}-${pkgver}.tar.gz")
+sha256sums=('0390ecb3731ac035d74c34651460f4a683e9ef7443861712b8d56c20c2f92113')
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

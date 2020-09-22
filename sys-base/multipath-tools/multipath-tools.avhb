@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=multipath-tools
+pkgver=0.8.4
+pkgrel=1
+pkgdesc='Multipath tools for Linux (including kpartx)'
+arch=('x86_64')
+groups=('sys-base')
+url='http://christophe.varoqui.free.fr/'
+license=('GPL2')
+depends=('libaio' 'device-mapper' 'json-c' 'liburcu' 'systemd-libs')
+makedepends=('git')
+_commit=d4915917655b3d205aa0e339ca13080ed8182d0d
+_snapshot=d491591
+source=("https://git.opensvc.com/?p=multipath-tools/.git;a=snapshot;h=$_commit;sf=tgz")
+
+prepare() {
+  cd "${pkgname}-$_snapshot"
+
+  # Fix systemd version detection in Makefile
+  sed -i 's/sed -n .*$/head -n1 | cut -d" " -f2\)/g' Makefile.inc
+
+  # Fix bindir in Makefile
+  sed -i 's|$(exec_prefix)/sbin|$(exec_prefix)/bin|g' Makefile.inc
+}
+
+build() {
+	cd  "${srcdir}/${pkgname}-$_snapshot"
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-$_snapshot"
+	 make \
+       DESTDIR="${pkgdir}" \
+       exec_prefix="/usr" \
+       LIB="/usr/lib" \
+       install
+}
+

@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=liboil
+pkgver=0.3.17
+pkgrel=1
+pkgdesc="Library of simple functions that are optimized for various CPUs."
+arch=('x86_64')
+groups=('dev-libs')
+license=('custom')
+url="http://liboil.freedesktop.org/"
+depends=('glibc')
+makedepends=('glib2' 'pkgconfig' 'docbook-xsl')
+options=('!makeflags')
+source=(${url}/download/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+}

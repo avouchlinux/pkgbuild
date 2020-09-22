@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=upower
+_realname=upower-UPOWER
+pkgver=0.99.11
+_pkgver=${pkgver//./_}
+pkgrel=1
+pkgdesc="Abstraction for enumerating power devices, listening to device events and querying history and statistics"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://upower.freedesktop.org"
+license=('GPL')
+depends=(systemd libusb libimobiledevice libgudev)
+makedepends=(intltool docbook-xsl gobject-introspection python2 git gtk-doc)
+backup=('etc/UPower/UPower.conf')
+source=(https://gitlab.freedesktop.org/upower/upower/-/archive/UPOWER_0_99_11/upower-UPOWER_${pkgver//./_}.tar.bz2)
+
+prepare(){
+    cd "${srcdir}/${pkgname}-UPOWER_${pkgver//./_}"
+    ./autogen.sh
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-UPOWER_${pkgver//./_}"
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --libexecdir=/usr/lib \
+        --disable-static \
+        --enable-gtk-doc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-UPOWER_${pkgver//./_}"
+	make DESTDIR="$pkgdir" install
+}

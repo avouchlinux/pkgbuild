@@ -1,0 +1,12 @@
+pre_upgrade() {
+  cd /usr/share/webapps/mantisbt
+  cp mantis_offline.php.sample mantis_offline.php
+}
+
+post_upgrade() {
+  echo "Please follow the steps from 2.5.2 onwards at: https://mantisbt.org/docs/master/en-US/Admin_Guide/html-desktop/#admin.install.upgrade"
+  echo "After upgrading, bring MantisBT back to normal operation mode by deleting mantis_offline.php as follows:"
+  echo "rm /usr/share/webapps/mantisbt/mantis_offline.php"
+}
+
+# vim: ts=2 sw=2 et:

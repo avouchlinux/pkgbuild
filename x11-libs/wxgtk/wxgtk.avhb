@@ -1,0 +1,108 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=wxgtk
+pkgname=(wxgtk2 wxgtk3 wxgtk-common)
+_realname=wxWidgets
+pkgver=3.0.4
+pkgrel=1
+arch=('x86_64')
+groups=('x11-libs')
+url="https://wxwidgets.org"
+license=('custom:wxWindows')
+makedepends=('gst-plugins-base' 'gconf' 'glu' 'webkit2gtk' 'libnotify' 'gtk2')
+options=('!emptydirs')
+source=(https://github.com/wxWidgets/wxWidgets/releases/download/v$pkgver/wxWidgets-$pkgver.tar.bz2
+        make-abicheck-non-fatal.patch wxgtk-webkit2gtk.patch::"https://github.com/wxWidgets/wxWidgets/commit/ec6e54bc.patch"
+        wxgtk2-fix-webview.patch::"https://github.com/wxWidgets/wxWidgets/commit/fd247cca.patch"
+        wxgtk-filezilla-assert.patch::"https://github.com/wxWidgets/wxWidgets/commit/ce1dce11.patch")
+
+prepare() {
+    cd wxWidgets-${pkgver}
+
+    # C++ ABI check is too strict and breaks with GCC 5.1
+    # https://bugzilla.redhat.com/show_bug.cgi?id=1200611
+    patch -Np1 -i ../make-abicheck-non-fatal.patch
+
+    cd ..
+    cp -r wxWidgets-${pkgver} wxWidgets-${pkgver}-gtk3
+}
+
+build() {
+    cd wxWidgets-${pkgver}
+    ./autogen.sh
+    message "building for gtk2"
+    ./configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --with-gtk=2 \
+        --with-opengl \
+        --enable-unicode \
+        --enable-graphics_ctx \
+        --enable-mediactrl \
+        --with-regex=builtin \
+        --with-libpng=sys \
+        --with-libxpm=sys \
+        --with-libjpeg=sys \
+        --with-libtiff=sys \
+        --disable-precomp-headers
+        
+    make ${MAKEFLAGS}
+    make -C locale allmo
+
+    message "building for gtk2"
+    cd ../wxWidgets-${pkgver}-gtk3
+    ./autogen.sh
+    ./configure \
+        --prefix=/usr \
+        --libdir=/usr/lib \
+        --with-gtk=3 \
+        --with-opengl \
+        --enable-unicode \
+        --enable-graphics_ctx \
+        --enable-mediactrl \
+        --enable-webview \
+        --with-regex=builtin \
+        --with-libpng=sys \
+        --with-libxpm=sys \
+        --with-libjpeg=sys \
+        --with-libtiff=sys \
+        --disable-precomp-headers
+    make ${MAKEFLAGS}
+}
+
+package_wxgtk-common() {
+    pkgdesc='Common libraries and headers for wxgtk2 and wxgtk3'
+    depends=('zlib' 'gcc-libs' 'expat')
+
+    cd wxWidgets-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    rm -r "$pkgdir"/usr/{bin/wx-config,lib/{wx,libwx_gtk*}}
+
+    install -D -m644 docs/licence.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+package_wxgtk2() {
+    pkgdesc='GTK+2 implementation of wxWidgets API for GUI'
+    depends=('gtk2' 'gst-plugins-base-libs' 'libsm' 'libxxf86vm' 'wxgtk-common' 'libnotify')
+
+    cd wxWidgets-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    rm -r "$pkgdir"/usr/{include,share,lib/libwx_base*,bin/wxrc*}
+    
+    install -D -m644 docs/licence.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+package_wxgtk3() {
+    pkgdesc='GTK+3 implementation of wxWidgets API for GUI'
+    depends=('gtk3' 'gst-plugins-base-libs' 'libsm' 'libxxf86vm' 'wxgtk-common' 'libnotify')
+    optdepends=('webkit2gtk: for webview support')
+
+    cd wxWidgets-${pkgver}-gtk3
+    make DESTDIR="${pkgdir}" install  
+    rm -r "$pkgdir"/usr/{include,share,lib/libwx_base*,bin/wxrc*}
+    mv "$pkgdir"/usr/bin/wx-config{,-gtk3}
+    
+    install -D -m644 docs/licence.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

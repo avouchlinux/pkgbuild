@@ -1,0 +1,348 @@
+diff -up openchange-openchange-2.3-VULCAN/libmapi.pc.in.libmapi-conflict openchange-openchange-2.3-VULCAN/libmapi.pc.in
+--- openchange-openchange-2.3-VULCAN/libmapi.pc.in.libmapi-conflict	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi.pc.in	2015-05-18 07:00:01.718355270 +0200
+@@ -8,7 +8,7 @@ datadir=@datadir@
+ Name: MAPI
+ Description: MAPI Protocol Implementation
+ Version: @PACKAGE_VERSION@
+-Libs: -L${libdir} -lmapi
++Libs: -L${libdir} -lmapi-openchange
+ Libs.private: @LIBS@
+ Cflags: -I${includedir}
+ Requires: talloc dcerpc ndr tevent
+diff -up openchange-openchange-2.3-VULCAN/Makefile.libmapi-conflict openchange-openchange-2.3-VULCAN/Makefile
+--- openchange-openchange-2.3-VULCAN/Makefile.libmapi-conflict	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/Makefile	2015-05-18 07:01:57.737350354 +0200
+@@ -166,7 +166,7 @@ LIBMAPI_SO_VERSION = 0
+ 
+ libmapi:	idl					\
+ 		libmapi/version.h			\
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)	
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)	
+ 
+ libmapi-install:	libmapi			\
+ 			libmapi-installpc	\
+@@ -201,8 +201,8 @@ endif
+ 	rm -f *~
+ 	rm -f */*~
+ 	rm -f */*/*~
+-	rm -f libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi.$(SHLIBEXT).* \
+-		  libmapi.$(SHLIBEXT)
++	rm -f libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi-openchange.$(SHLIBEXT).* \
++		  libmapi-openchange.$(SHLIBEXT)
+ 
+ clean:: libmapi-clean
+ 
+@@ -219,10 +219,10 @@ libmapi-installpc:
+ libmapi-installlib:
+ 	@echo "[*] install: libmapi library"
+ 	$(INSTALL) -d $(DESTDIR)$(libdir)
+-	$(INSTALL) -m 0755 libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)
+-	ln -sf libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)/libmapi.$(SHLIBEXT)
++	$(INSTALL) -m 0755 libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)
++	ln -sf libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)/libmapi-openchange.$(SHLIBEXT)
+ ifeq ($(MANUALLY_CREATE_SYMLINKS), yes)
+-	ln -sf libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)/libmapi.$(SHLIBEXT).$(LIBMAPI_SO_VERSION)
++	ln -sf libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) $(DESTDIR)$(libdir)/libmapi-openchange.$(SHLIBEXT).$(LIBMAPI_SO_VERSION)
+ endif
+ 
+ libmapi-installheader:
+@@ -267,7 +267,7 @@ libmapi-uninstallpc:
+ 	rm -f $(DESTDIR)$(libdir)/pkgconfig/libmapi.pc
+ 
+ libmapi-uninstalllib:
+-	rm -f $(DESTDIR)$(libdir)/libmapi.*
++	rm -f $(DESTDIR)$(libdir)/libmapi-openchange.*
+ 
+ libmapi-uninstallheader:
+ 	rm -rf $(DESTDIR)$(includedir)/libmapi
+@@ -279,7 +279,7 @@ libmapi-uninstallscript:
+ 	rm -f $(DESTDIR)$(datadir)/setup/profiles/oc_profiles*
+ 	rm -rf $(DESTDIR)$(datadir)/setup/profiles
+ 
+-libmapi.$(SHLIBEXT).$(PACKAGE_VERSION): 		\
++libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION): 		\
+ 	libmapi/emsmdb.po				\
+ 	libmapi/async_emsmdb.po				\
+ 	libmapi/IABContainer.po				\
+@@ -326,10 +326,10 @@ libmapi.$(SHLIBEXT).$(PACKAGE_VERSION):
+ 	libmapi/socket/interface.po			\
+ 	libmapi/socket/netif.po				
+ 	@echo "Linking $@"
+-	@$(CC) $(DSOOPT) $(CFLAGS) $(LDFLAGS) -Wl,-soname,libmapi.$(SHLIBEXT).$(LIBMAPI_SO_VERSION) -o $@ $^ $(LIBS)
++	@$(CC) $(DSOOPT) $(CFLAGS) $(LDFLAGS) -Wl,-soname,libmapi-openchange.$(SHLIBEXT).$(LIBMAPI_SO_VERSION) -o $@ $^ $(LIBS)
+ 
+ 
+-libmapi.$(SHLIBEXT).$(LIBMAPI_SO_VERSION): libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++libmapi-openchange.$(SHLIBEXT).$(LIBMAPI_SO_VERSION): libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	ln -fs $< $@
+ 
+ libmapi/version.h: VERSION
+@@ -364,7 +364,7 @@ libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	libmapi++/src/object.po			\
+ 	libmapi++/src/profile.po		\
+ 	libmapi++/src/session.po \
+-	libmapi.$(SHLIBEXT).$(LIBMAPI_SO_VERSION)
++	libmapi-openchange.$(SHLIBEXT).$(LIBMAPI_SO_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CXX) $(DSOOPT) $(CXX11FLAGS) $(CXXFLAGS) $(LDFLAGS) -Wl,-soname,libmapipp.$(SHLIBEXT).$(LIBMAPIPP_SO_VERSION) -o $@ $^ $(LIBS) 
+ 
+@@ -445,7 +445,7 @@ clean:: libmapixx-tests-clean
+ 
+ bin/libmapixx-test:	libmapi++/tests/test.cpp	\
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking sample application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS) 
+ 
+@@ -460,7 +460,7 @@ libmapixx-attach-clean:
+ 
+ bin/libmapixx-attach: libmapi++/tests/attach_test.po	\
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking sample application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) -o $@ $^ $(LIBS)
+ 
+@@ -470,7 +470,7 @@ libmapixx-exception: bin/libmapixx-excep
+  
+ bin/libmapixx-exception: libmapi++/tests/exception_test.cpp \
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking exception test application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) -o $@ $^ $(LIBS)
+ 
+@@ -490,7 +490,7 @@ libmapixx-profiletest-clean:
+ 
+ bin/libmapixx-profiletest: libmapi++/tests/profile_test.po	\
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking profile test application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) -o $@ $^ $(LIBS)
+ 
+@@ -511,7 +511,7 @@ libmapixx-messages-clean:
+ 
+ libmapi++/examples/foldertree: libmapi++/examples/foldertree.cpp	\
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking foldertree example application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) -o $@ $^ $(LIBS)
+ 
+@@ -519,7 +519,7 @@ clean:: libmapixx-foldertree-clean
+ 
+ libmapi++/examples/messages: libmapi++/examples/messages.cpp	\
+ 		libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION) \
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking messages example application $@"
+ 	@$(CXX) $(CXX11FLAGS) $(CXXFLAGS) -o $@ $^ $(LIBS)
+ 
+@@ -586,7 +586,7 @@ libmapiadmin-uninstallheader:
+ libmapiadmin.$(SHLIBEXT).$(PACKAGE_VERSION):	\
+ 	libmapiadmin/mapiadmin_user.po		\
+ 	libmapiadmin/mapiadmin.po 		\
+-	libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++	libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(DSOOPT) $(LDFLAGS) -Wl,-soname,libmapiadmin.$(SHLIBEXT).$(LIBMAPIADMIN_SO_VERSION) -o $@ $^ $(LIBS) $(LIBMAPIADMIN_LIBS) 
+ 
+@@ -663,7 +663,7 @@ libocpf.$(SHLIBEXT).$(PACKAGE_VERSION):
+ 	libocpf/ocpf_dump.po			\
+ 	libocpf/ocpf_api.po			\
+ 	libocpf/ocpf_write.po			\
+-	libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++	libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(DSOOPT) $(LDFLAGS) -Wl,-soname,libocpf.$(SHLIBEXT).$(LIBOCPF_SO_VERSION) -o $@ $^ $(LIBS)
+ 
+@@ -740,7 +740,7 @@ mapiproxy/dcesrv_mapiproxy.$(SHLIBEXT):
+ 						gen_ndr/ndr_exchange.po				
+ 
+ 	@echo "Linking $@"
+-	@$(CC) -o $@ $(DSOOPT) $^ -L. $(LDFLAGS) $(LIBS) $(SAMBASERVER_LIBS) $(SAMDB_LIBS) -Lmapiproxy mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++	@$(CC) -o $@ $(DSOOPT) $^ -L. $(LDFLAGS) $(LIBS) $(SAMBASERVER_LIBS) $(SAMDB_LIBS) -Lmapiproxy mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 
+ mapiproxy/dcesrv_mapiproxy.c: gen_ndr/ndr_exchange_s.c gen_ndr/ndr_exchange.c
+ 
+@@ -748,7 +748,7 @@ mapiproxy/dcesrv_mapiproxy.c: gen_ndr/nd
+ mapiproxy/dcesrv_asyncemsmdb.$(SHLIBEXT):	mapiproxy/servers/default/asyncemsmdb/dcesrv_asyncemsmdb.po	\
+ 						gen_ndr/ndr_asyncemsmdb.po
+ 	@echo "Linking $@"
+-	@$(CC) -o $@ $(DSOOPT) $^ -L. $(LDFLAGS) $(LIBS) $(SAMBASERVER_LIBS) $(SAMDB_LIBS) $(NANOMSG_LIBS) -Lmapiproxy mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION) mapiproxy/libmapiserver.$(SHLIBEXT).$(PACKAGE_VERSION)		\
++	@$(CC) -o $@ $(DSOOPT) $^ -L. $(LDFLAGS) $(LIBS) $(SAMBASERVER_LIBS) $(SAMDB_LIBS) $(NANOMSG_LIBS) -Lmapiproxy mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION) libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION) mapiproxy/libmapiserver.$(SHLIBEXT).$(PACKAGE_VERSION)		\
+ 
+ 
+ mapiproxy/servers/default/asyncemsmdb/dcesrv_asyncemsmdb.c: gen_ndr/ndr_asyncemsmdb_s.c gen_ndr/ndr_asyncemsmdb.c
+@@ -808,7 +808,7 @@ mapiproxy/libmapiproxy.$(SHLIBEXT).$(PAC
+ 							mapiproxy/util/mysql.po					\
+ 							mapiproxy/util/schema_migration.po			\
+ 							mapiproxy/util/ccan/htable/htable.po			\
+-							libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++							libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $(DSOOPT) $(LDFLAGS) -Wl,-soname,libmapiproxy.$(SHLIBEXT).$(LIBMAPIPROXY_SO_VERSION) $^ -L. $(LIBS) $(TDB_LIBS) $(DL_LIBS) $(MYSQL_LIBS) $(PYTHON_LIBS)
+ 
+@@ -962,7 +962,7 @@ mapiproxy/libmapistore.$(SHLIBEXT).$(PAC
+ 							mapiproxy/util/ccan/htable/htable.po				\
+ 							mapiproxy/util/ccan/hash/hash.po				\
+ 							mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION)		\
+-							libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++							libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(DSOOPT) $(MEMCACHED_CFLAGS) $(CFLAGS) $(LDFLAGS) -Wl,-soname,libmapistore.$(SHLIBEXT).$(LIBMAPISTORE_SO_VERSION) -o $@ $^ $(LIBS) $(TDB_LIBS) $(DL_LIBS) $(MYSQL_LIBS) $(MEMCACHED_LIBS)
+ 
+@@ -984,7 +984,7 @@ mapistore_test: bin/mapistore_test
+ bin/mapistore_test: 	mapiproxy/libmapistore/tests/mapistore_test.o		\
+ 			mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+ 			mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) -lpopt
+ 
+@@ -1178,7 +1178,7 @@ clean:: openchangeclient-clean
+ 
+ bin/openchangeclient: 	utils/openchangeclient.o			\
+ 			utils/openchange-tools.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)		\
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)		\
+ 			libocpf.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -lpopt
+@@ -1207,7 +1207,7 @@ clean:: mapiprofile-clean
+ 
+ bin/mapiprofile: 	utils/mapiprofile.o 			\
+ 			utils/openchange-tools.o 		\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -lpopt
+ 
+@@ -1233,7 +1233,7 @@ clean:: ocnotify-clean
+ bin/ocnotify:		utils/ocnotify.o					\
+ 			mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+ 			mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(CFLAGS) $(NANOMSG_CFLAGS) -o $@ $^ $(LDFLAGS) $(NANOMSG_LIBS) $(LIBS) -lpopt
+ 
+@@ -1257,7 +1257,7 @@ rpcextract-clean::
+ clean:: rpcextract-clean
+ 
+ bin/rpcextract:		utils/rpcextract.o		\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(CFLAGS) $(PCAP_CFLAGS) -o $@ $^ $(LDFLAGS) $(PCAP_LIBS) $(LIBS) -lpopt -lndr
+ 
+@@ -1282,7 +1282,7 @@ mapipropsdump-clean::
+ clean:: mapipropsdump-clean
+ 
+ bin/mapipropsdump: 	utils/mapipropsdump.o				\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(SAMBA_LIBS) $(LIBS) $(DL_LIBS) -lpopt -lndr
+ 
+@@ -1309,7 +1309,7 @@ clean:: openchangepfadmin-clean
+ 
+ bin/openchangepfadmin:	utils/openchangepfadmin.o			\
+ 			utils/openchange-tools.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) 		\
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) 		\
+ 			libmapiadmin.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(LIBMAPIADMIN_LIBS) -lpopt			
+@@ -1341,7 +1341,7 @@ clean:: exchange2mbox-clean
+ 
+ bin/exchange2mbox:	utils/exchange2mbox.o				\
+ 			utils/openchange-tools.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LIBS) $(LDFLAGS) -lpopt  $(MAGIC_LIBS)
+ 
+@@ -1405,7 +1405,7 @@ bin/exchange2ical:	utils/exchange2ical_t
+ 			libexchange2ical/ical2exchange.o	\
+ 			libexchange2ical/ical2exchange_property.o	\
+ 			utils/openchange-tools.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) $(ICAL_LIBS) -lpopt
+ 
+@@ -1445,7 +1445,7 @@ bin/openchange-testsuite: 	testsuite/tes
+ 				mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+ 				mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+-	@$(CC) $(CFLAGS) $(CHECK_CFLAGS) $(TDB_CFLAGS) $(PYTHON_CFLAGS) -I. -Itestsuite/ -Imapiproxy -o $@ $^ $(LDFLAGS) $(LIBS) $(TDB_LIBS) $(CHECK_LIBS) $(MYSQL_LIBS) $(PYTHON_LIBS) -lpopt libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) $(MEMCACHED_LIBS)
++	@$(CC) $(CFLAGS) $(CHECK_CFLAGS) $(TDB_CFLAGS) $(PYTHON_CFLAGS) -I. -Itestsuite/ -Imapiproxy -o $@ $^ $(LDFLAGS) $(LIBS) $(TDB_LIBS) $(CHECK_LIBS) $(MYSQL_LIBS) $(PYTHON_LIBS) -lpopt libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) $(MEMCACHED_LIBS)
+ 
+ testsuite-check:	testsuite
+ 	@LD_LIBRARY_PATH=. PYTHONPATH=./python CK_XML_LOG_FILE_NAME=test_results.xml ./bin/openchange-testsuite
+@@ -1513,7 +1513,7 @@ bin/mapitest:	utils/mapitest/mapitest.o
+ 		utils/mapitest/modules/module_lcid.o		\
+ 		utils/mapitest/modules/module_mapidump.o	\
+ 		utils/mapitest/modules/module_lzxpress.o	\
+-		libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)		
++		libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)		
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) -lpopt $(SUBUNIT_LIBS)
+ 
+@@ -1574,7 +1574,7 @@ clean:: openchangemapidump-clean
+ bin/openchangemapidump:	utils/backup/openchangemapidump.o		\
+ 			utils/backup/openchangebackup.o			\
+ 			utils/openchange-tools.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) -lpopt
+ 
+@@ -1625,7 +1625,7 @@ check_fasttransfer-clean::
+ clean:: check_fasttransfer-clean
+ 
+ bin/check_fasttransfer:	testprogs/check_fasttransfer.o				\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)			\
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)			\
+ 			mapiproxy/libmapistore.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+ 			mapiproxy/libmapiproxy.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+@@ -1653,7 +1653,7 @@ test_asyncnotif-clean::
+ clean:: test_asyncnotif-clean
+ 
+ bin/test_asyncnotif:	testprogs/test_asyncnotif.o			\
+-			libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++			libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) -o $@ $^ $(LIBS) $(LDFLAGS) -lpopt
+ 
+@@ -1701,13 +1701,13 @@ pyopenchange: 	$(pythonscriptdir)/opench
+ 
+ $(pythonscriptdir)/openchange/mapi.$(SHLIBEXT):	pyopenchange/pymapi.c				\
+ 						pyopenchange/pymapi_properties.c		\
+-						libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++						libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"
+ 	@$(CC) $(PYTHON_CFLAGS) $(CFLAGS) -fno-strict-aliasing $(DSOOPT) $(LDFLAGS) -o $@ $^ $(PYTHON_LIBS) $(LIBS)
+ 
+ # $(pythonscriptdir)/openchange/ocpf.$(SHLIBEXT):	pyopenchange/pyocpf.c				\
+ # 						libocpf.$(SHLIBEXT).$(PACKAGE_VERSION)		\
+-# 						libmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
++# 						libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION)
+ # 	@echo "Linking $@"
+ # 	@$(CC) $(PYTHON_CFLAGS) $(CFLAGS) $(DSOOPT) $(LDFLAGS) -o $@ $^ $(PYTHON_LIBS) $(LIBS)
+ 
+@@ -1894,7 +1894,7 @@ libqtmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 
+ qt/demo/demoapp: qt/demo/demoapp.o 				\
+ 	qt/demo/main.o 					\
+-	libmapi.$(SHLIBEXT).$(PACKAGE_VERSION) 		\
++	libmapi-openchange.$(SHLIBEXT).$(PACKAGE_VERSION) 		\
+ 	libmapipp.$(SHLIBEXT).$(PACKAGE_VERSION)	\
+ 	libqtmapi.$(SHLIBEXT).$(PACKAGE_VERSION)
+ 	@echo "Linking $@"

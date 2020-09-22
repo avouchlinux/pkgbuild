@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libid3tag
+pkgver=0.15.1b
+pkgrel=1
+pkgdesc="library for id3 tagging"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.underbit.com/products/mad/"
+license=('GPL')
+depends=('zlib')
+makedepends=('gperf')
+source=("#ftp://ftp.mars.org/pub/mpeg/${pkgname}-${pkgver}.tar.gz
+https://github.com/nu774/libid3tag.git"
+	'id3tag.pc'
+	'10_utf16.diff' '11_unknown_encoding.diff' 'CVE-2008-2109.patch')
+
+getsrc (){
+    git clone https://github.com/nu774/libid3tag.git
+}
+prepare() {
+	cd ${srcdir}/${pkgname}
+    autoreconf -vi
+}
+
+build() {
+	cd ${srcdir}/${pkgname}
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}
+	make DESTDIR="${pkgdir}" install
+	install -D -m644 "${srcdir}/id3tag.pc" "${pkgdir}/usr/lib/pkgconfig/id3tag.pc"
+}
+

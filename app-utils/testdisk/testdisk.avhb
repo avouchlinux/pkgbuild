@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=testdisk
+_pkgver=7.2-WIP
+pkgver=7.2
+pkgrel=1
+pkgdesc="Checks and undeletes partitions + PhotoRec, signature based recovery tool"
+arch=('x86_64')
+groups=('app-utils')
+url="http://www.cgsecurity.org/index.html?testdisk.html"
+license=('GPL')
+depends=('libjpeg' 'openssl' 'progsreiserfs' 'ntfsprogs')
+source=(http://www.cgsecurity.org/$pkgname-$pkgver.tar.bz2)
+
+
+build() {
+	cd "${srcdir}/${pkgname}-${_pkgver}"
+	./configure --prefix=/usr --without-ewf --enable-sudo
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${_pkgver}"
+	make DESTDIR=${pkgdir} install
+	# license
+	install -D -m644 LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

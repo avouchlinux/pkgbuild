@@ -1,0 +1,41 @@
+diff -up openchange-openchange-2.3-VULCAN/exchange.idl.samba-4.11 openchange-openchange-2.3-VULCAN/exchange.idl
+--- openchange-openchange-2.3-VULCAN/exchange.idl.samba-4.11	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/exchange.idl	2019-08-30 07:23:02.172309353 +0200
+@@ -465,12 +465,12 @@ System Attendant Private Interface
+ 	   would otherwise break the data alignment on wire operations.
+ 	   However, they must be defined here as they make use of the same array types. */
+ 
+-	typedef [nopush,nopull,noprint] struct {
++	typedef [public] struct {
+ 		[range(0,100000)] uint32	cValues;
+ 		[size_is(cValues)] hyper	*lpui8; 
+ 	} UI8Array_r;
+ 
+-	typedef [switch_type(uint32),nopush,nopull,noprint] union {
++	typedef [switch_type(uint32)] union {
+ 		[case(PT_I2)]			uint16			i;
+ 		[case(PT_LONG)]			uint32			l;
+ 		[case(PT_DOUBLE)]		double			dbl;
+@@ -495,19 +495,19 @@ System Attendant Private Interface
+ 		[case(PT_OBJECT)]		uint32			object;
+ 	} SPropValue_CTR;
+ 
+-	typedef [public,noprint,nopush,nopull] struct {
++	typedef [public] struct {
+ 		MAPITAGS ulPropTag;
+ 		uint32 dwAlignPad;
+ 		[switch_is(ulPropTag & 0xFFFF)] SPropValue_CTR value; 
+ 	} SPropValue;
+ 	
+-	typedef [public,noprint,nopush,nopull] struct {
++	typedef [public] struct {
+ 		uint32			       	ulAdrEntryPad;
+ 		[range(0,100000)] uint32       	cValues;
+ 		[size_is(cValues)]SPropValue	*lpProps;
+ 	} SRow;
+ 
+-	typedef [public,noprint,nopush,nopull] struct {
++	typedef [public] struct {
+ 		[range(0,100000)] uint32	cRows;
+ 		[size_is(cRows)] SRow		aRow[];
+ 	} SRowSet;

@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-disk-utility
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Disk Management Utility for GNOME"
+url="https://gitlab.gnome.org/GNOME/gnome-disk-utility"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+groups=(gnome)
+depends=(udisks2 gtk3 libsecret libpwquality libcanberra libdvdread libnotify parted systemd-libs)
+makedepends=(docbook-xsl appstream-glib git meson)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

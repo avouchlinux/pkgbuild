@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-nibbles
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Guide a worm around a maze"
+url="https://wiki.gnome.org/Apps/Nibbles"
+arch=('x86_64')
+groups=('gnome-games')
+license=(GPL)
+depends=(clutter-gtk libcanberra librsvg libgnome-games-support libgee)
+makedepends=(intltool itstool gobject-introspection yelp-tools appstream-glib vala git)
+source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

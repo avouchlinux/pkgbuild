@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=bluefish
+pkgver=2.2.11
+pkgrel=1
+pkgdesc="A powerful HTML editor for experienced web designers and programmers"
+arch=('x86_64')
+groups=('dev-ide')
+url='http://bluefish.openoffice.nl/'
+license=('GPL3')
+depends=('gtk3' 'enchant' 'python')
+makedepends=('gucharmap' 'intltool')
+optdepends=('gucharmap: for using the charmap plugin')
+install=$pkgname.install
+source=("https://www.bennewitz.com/$pkgname/stable/source/$pkgname-$pkgver.tar.bz2"{,.sig})
+validpgpkeys=(64979277BAFF2D4CB637AC3B291C63A6B78DFBA1) # Olivier Sessink <olivier@bluefish.openoffice.nl>
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  autoreconf -vi
+}
+
+build() {
+  cd $pkgname-$pkgver
+
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-spell-check \
+    --disable-update-databases \
+    --disable-xml-catalog-update
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="$pkgdir" install
+}

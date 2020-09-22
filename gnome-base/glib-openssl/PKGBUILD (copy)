@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glib-openssl
+pkgver=2.50.6
+pkgrel=1
+pkgdesc="Network-related giomodule for glib using openssl"
+arch=(i686 x86_64)
+url="http://www.gtk.org/"
+license=(GPL2)
+depends=(glib2 libproxy gnutls ca-certificates gsettings-desktop-schemas)
+makedepends=(intltool)
+install=glib-networking.install
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('e8e2fe919d3236169c9bfaec807966ec81b844fc28b11bddc9f8256cfa949fc7')
+
+prepare() {
+	mkdir build
+}
+
+build() {
+	cd build
+	avouch-meson ../${pkgname}-${pkgver}
+	ninja
+}
+
+check() {
+	cd build
+	 ninja check
+}
+
+package() {
+	cd build
+	DESTDIR="$pkgdir" ninja install
+}

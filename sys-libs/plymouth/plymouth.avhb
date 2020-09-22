@@ -1,0 +1,75 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=plymouth
+pkgver=0.9.4
+pkgrel=1
+pkgdesc="A graphical boot splash screen with kernel mode-setting support"
+url="http://www.freedesktop.org/wiki/Software/Plymouth/"
+arch=('x86_64')
+groups=('sys-libs')
+license=('GPL')
+depends=('libdrm' 'pango' 'systemd')
+makedepends=('docbook-xsl')
+optdepends=('ttf-dejavu: For true type font support'
+	    'xf86-video-fbdev: Support special graphic cards on early startup')
+provides=('plymouth')
+conflicts=('plymouth-git' 'plymouth-legacy' 'plymouth-nosystemd')
+backup=('etc/plymouth/plymouthd.conf')
+source=('https://gitlab.freedesktop.org/plymouth/plymouth/-/archive/0.9.4/plymouth-0.9.4.tar.bz2'
+        'arch-logo.png'
+        'plymouth-quit.service.in.patch')        
+
+getsrc(){
+    git clone https://gitlab.freedesktop.org/plymouth/plymouth.git
+}
+
+prepare() {
+	#cd "$srcdir"/${pkgname}-${pkgver}
+    cd "$srcdir"/${pkgname}
+	patch -p1 -i $srcdir/plymouth-quit.service.in.patch
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	#cd "$srcdir"/${pkgname}-${pkgver}
+    cd "$srcdir"/${pkgname}
+    LDFLAGS="$LDFLAGS -ludev" ./configure --prefix=/usr \
+        --exec-prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --libdir=/usr/lib \
+        --libexecdir=/usr/lib \
+        --sbindir=/usr/bin \
+        --enable-systemd-integration \
+        --enable-drm \
+        --enable-tracing \
+        --enable-pango \
+        --enable-gtk=no \
+        --with-release-file=/etc/os-release \
+        --with-logo=/usr/share/plymouth/avouch-logo.png \
+        --with-background-color=0x000000 \
+        --with-background-start-color-stop=0x000000 \
+        --with-background-end-color-stop=0x4D4D4D \
+        --without-rhgb-compat-link \
+        --without-system-root-install
+    make ${MAKEFLAGS}
+}
+
+package() {
+	#cd "$srcdir"/${pkgname}-${pkgver}
+    cd "$srcdir"/${pkgname}
+    make DESTDIR="$pkgdir" install
+    install -Dm644 "$srcdir/avouch-logo.png"  "$pkgdir/usr/share/plymouth/avouch-logo.png"
+
+    #mkdir -p $pkgdir/var/lib/plymouth
+    #cp $srcdir/boot-duration $pkgdir/usr/share/plymouth/default-boot-duration
+    #cp $srcdir/boot-duration $pkgdir/var/lib/plymouth
+
+    cp "$pkgdir/usr/share/plymouth/plymouthd.defaults" "$pkgdir/etc/plymouth/plymouthd.conf"
+
+      install -Dm644 "${srcdir}"/plymouth.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/plymouth.conf
+
+    rm -r "$pkgdir"/var/run
+}

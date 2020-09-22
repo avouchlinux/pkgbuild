@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='geoip2-database'
+pkgver=20190625
+pkgrel=1
+pkgdesc="GeoLite2 IP geolocation databases compiled by MaxMind"
+arch=('any')
+groups=('net-misc')
+url="https://dev.maxmind.com/geoip/geoip2/geolite2/"
+license=('custom:OPEN DATA LICENSE')
+source=(https://geolite.maxmind.com/download/geoip/database/GeoLite2-City_$pkgver.tar.gz
+        https://geolite.maxmind.com/download/geoip/database/GeoLite2-Country_$pkgver.tar.gz
+        https://geolite.maxmind.com/download/geoip/database/GeoLite2-ASN_$pkgver.tar.gz)
+noextract=(GeoLite2-City_$pkgver.tar.gz
+           GeoLite2-Country_$pkgver.tar.gz
+           GeoLite2-ASN_$pkgver.tar.gz)
+
+prepare() {
+  cd "$srcdir"
+
+  for _db in GeoLite2-{City,Country,ASN}; do
+    tar --strip-components=1 -xf $srcarchivedir/${_db}_$pkgver.tar.gz --wildcards "*/$_db.mmdb"
+  done
+
+  tar --strip-components=1 -xf $srcarchivedir/GeoLite2-ASN_$pkgver.tar.gz --wildcards "*/COPYRIGHT.txt" "*/LICENSE.txt"
+}
+
+package() {
+  cd "$srcdir"
+
+  install -d "$pkgdir/usr/share/GeoIP"
+  install -m644 -t "$pkgdir/usr/share/GeoIP" GeoLite2-{City,Country,ASN}.mmdb
+
+  install -Dm644 COPYRIGHT.txt "$pkgdir/usr/share/licenses/$pkgname/COPYRIGHT.txt"
+  install -Dm644 LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+}

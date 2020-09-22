@@ -1,0 +1,61 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=doxygen
+pkgname=('doxygen' 'doxygen-docs')
+_realname=doxygen-Release
+pkgver=1.8.18
+_pkgver=${pkgver//./_}
+pkgrel=1
+pkgdesc='Documentation system for C++, C, Java, IDL and PHP'
+url='http://www.doxygen.org/'
+arch=('x86_64')
+groups=('dev-doc')
+license=('GPL')
+makedepends=('cmake' 'gcc-libs' 'flex' 'qt5-base' 'texlive-core' 'ghostscript'
+             'texlive-latexextra' 'graphviz' 'python3')
+
+source=(https://github.com/doxygen/doxygen/archive/Release_${pkgver//./_}.tar.gz)
+
+prepare() {
+  cd ${_realname}_${_pkgver}
+  # Install the man pages in the right place
+  sed -i 's:DESTINATION man/man1:DESTINATION "${CMAKE_INSTALL_PREFIX}/share/man/man1":g' \
+    doc/CMakeLists.txt
+}
+
+build() {
+  cmake -S ${_realname}_${_pkgver} -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DDOC_INSTALL_DIR:PATH=share/doc/doxygen \
+    -DPYTHON_EXECUTABLE:FILE=/usr/bin/python3 \
+    -Dbuild_wizard:BOOL=ON
+
+  ninja -C build
+}
+
+check(){
+  ninja -C build tests
+}
+
+package_doxygen() {
+  pkgdesc='Documentation system for C++, C, Java, IDL and PHP'
+  depends=('gcc-libs')
+  optdepends=('graphviz: for caller/callee graph generation'
+              'qt5-base: for doxywizard')
+
+  DESTDIR="${pkgdir}" ninja -C build install
+
+  # Docs are in 'doxygen-docs'
+  rm -rf "${pkgdir}/usr/share/doc"
+}
+
+package_doxygen-docs() {
+  pkgdesc='Developer documentation for doxygen'
+
+  DESTDIR="${pkgdir}" ninja -C build install
+
+  rm -rf "${pkgdir}/usr/bin"
+  rm -rf "${pkgdir}/usr/share/man"
+}

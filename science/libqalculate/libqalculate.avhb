@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libqalculate
+pkgver=3.9.0
+pkgrel=1
+pkgdesc="Multi-purpose desktop calculator"
+arch=('x86_64')
+groups=('science')
+url="http://qalculate.github.io/"
+license=('GPL')
+depends=('libxml2' 'curl' 'mpfr')
+makedepends=('intltool')
+optdepends=('gnuplot: for plotting support')
+options=('!makeflags')
+source=(https://github.com/Qalculate/libqalculate/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz)
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./autogen.sh
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

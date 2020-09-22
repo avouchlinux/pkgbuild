@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxres
+_realname=libXres
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="X11 Resource extension library"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org"
+license=('custom')
+depends=('libxext')
+makedepends=('resourceproto' 'damageproto' 'compositeproto' 'scrnsaverproto' 'xorg-util-macros')
+source=("${url}/releases/individual/lib/libXres-${pkgver}.tar.bz2")
+sha256sums=('26899054aa87f81b17becc68e8645b240f140464cf90c42616ebb263ec5fa0e5')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}
+

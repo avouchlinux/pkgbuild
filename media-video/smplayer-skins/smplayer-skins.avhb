@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=smplayer-skins
+pkgver=15.2.0
+pkgrel=1
+pkgdesc="Skins for smplayer"
+arch=('any')
+groups=('media-video')
+url="http://smplayer.sourceforge.net/"
+license=('GPL')
+depends=('smplayer')
+makedepends=('optipng')
+source=(http://downloads.sourceforge.net/smplayer/$pkgname-$pkgver.tar.bz2)
+md5sums=('4af3433f2fc7a4b543e576fb7985eb35')
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	sed -i "s:rcc:rcc-qt5:g" Makefile
+	sed -i "s:rcc:rcc-qt5:g" themes/Makefile
+
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make PREFIX=/usr
+}
+
+package() {	
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make PREFIX="$pkgdir/usr" install
+	# license
+	install -Dm644 COPYING_GPL.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

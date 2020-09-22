@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ark
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Archiving Tool'
+arch=('x86_64')
+groups=('kde-apps')
+url='http://kde.org/applications/utilities/ark/'
+license=(GPL)
+depends=(kparts kpty libarchive hicolor-icon-theme)
+makedepends=(extra-cmake-modules kdoctools python)
+optdepends=(p7zip zip unzip unrar)
+install=$pkgname.install
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"
+	bug357057.patch::"https://quickgit.kde.org/?p=ark.git&a=commitdiff&h=087e5a&o=plain")
+md5sums=('2fe131a931d51603eff33b80d45a73b7'
+         '4a3ae6fb4f3cce9a49f7b89812e547b3')
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	
+	# Fix opening rar files if unrar is installed but rar isn't http://bugs.kde.org/show_bug.cgi?id=357057
+	# patch -p1 -i ../git-087e5a.patch
+	
+	mkdir -p ${srcdir}/build
+}
+
+build() { 
+	cd ${srcdir}/build
+	cmake ../$pkgname-$pkgver \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLIB_INSTALL_DIR=lib \
+		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+		-DBUILD_TESTING=OFF
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+}

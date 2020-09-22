@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ladspa
+pkgver=1.15
+pkgrel=1
+pkgdesc="Linux Audio Developer's Simple Plugin API (LADSPA)"
+arch=('x86_64')
+groups=('media-libs')
+license=('LGPL')
+url="https://www.ladspa.org/"
+depends=('gcc-libs')
+source=("https://ladspa.org/download/ladspa_sdk_${pkgver}.tgz"
+        'fix-memleak-in-plugin-scanning.patch')
+
+prepare() {
+  mv -v ${pkgname}_sdk_${pkgver} ${pkgname}-${pkgver}
+  cd "${pkgname}-${pkgver}"
+  patch -Np0 -i "../fix-memleak-in-plugin-scanning.patch"
+  # add LDFLAGS for full RELRO
+  sed -e "s#-O2#${CFLAGS} ${LDFLAGS}#" -i src/Makefile
+}
+
+build() {
+  cd "${pkgname}-${pkgver}/src"
+  make targets
+}
+
+package() {
+  cd "${pkgname}-${pkgver}/src"
+  make INSTALL_PLUGINS_DIR="${pkgdir}/usr/lib/ladspa/" \
+       INSTALL_INCLUDE_DIR="${pkgdir}/usr/include/" \
+       INSTALL_BINARY_DIR="${pkgdir}/usr/bin/" install
+  install -vDm 644 ../doc/*.{html,txt} -t "${pkgdir}/usr/share/doc/${pkgname}"
+}

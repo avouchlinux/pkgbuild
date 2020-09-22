@@ -1,0 +1,38 @@
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IMSProvider.c.fix-connection-args openchange-openchange-2.3-VULCAN/libmapi/IMSProvider.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IMSProvider.c.fix-connection-args	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IMSProvider.c	2016-04-07 19:10:30.340959912 +0200
+@@ -91,6 +91,7 @@ static char *build_binding_string(struct
+ 				  struct mapi_profile *profile)
+ {
+ 	char	*binding;
++	bool	any_string_added = false;
+ 
+ 	/* Sanity Checks */
+ 	if (!profile) return NULL;
+@@ -101,15 +102,23 @@ static char *build_binding_string(struct
+ 
+ 	/* If dump-data option is enabled */
+ 	if (mapi_ctx->dumpdata == true) {
+-		binding = talloc_strdup_append(binding, "print,");
++		binding = talloc_strdup_append(binding, "print");
++		any_string_added = true;
+ 	}
+ 	/* If seal option is enabled in the profile */
+ 	if (profile->seal == true) {
+-		binding = talloc_strdup_append(binding, "seal,");
++		if (any_string_added) {
++			binding = talloc_strdup_append(binding, ",");
++		}
++		binding = talloc_strdup_append(binding, "seal");
++		any_string_added = true;
+ 	}
+ 	/* If localaddress parameter is available in the profile */
+ 	if (profile->localaddr) {
+-		binding = talloc_asprintf_append(binding, "localaddress=%s,", profile->localaddr);
++		if (any_string_added) {
++			binding = talloc_strdup_append(binding, ",");
++		}
++		binding = talloc_asprintf_append(binding, "localaddress=%s", profile->localaddr);
+ 	}
+ 	
+ 	binding = talloc_strdup_append(binding, "]");

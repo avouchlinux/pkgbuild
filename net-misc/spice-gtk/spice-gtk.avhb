@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=spice-gtk
+pkgver=0.38
+pkgrel=1
+pkgdesc="GTK+ client library for SPICE"
+arch=('x86_64')
+groups=('net-misc')
+url="https://www.spice-space.org/"
+license=('LGPL2.1')
+depends=('gtk3' 'libcacard' 'libjpeg-turbo' 'libpulse' 'opus' 'phodav' 'usbredir' 'gst-plugins-base-libs')
+makedepends=('gobject-introspection' 'spice-protocol' 'usbutils'  'vala')
+provides=("spice-glib=$pkgver" "spice-gtk3=$pkgver")
+replaces=('spice-glib' 'spice-gtk3')
+source=("https://www.spice-space.org/download/gtk/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

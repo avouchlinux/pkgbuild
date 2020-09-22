@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-more-itertools
+_realname=more-itertools
+pkgver=5.0.0
+pkgrel=1
+pkgdesc='More routines for operating on iterables, beyond itertools'
+arch=('any')
+groups=('dev/python')
+url='https://github.com/erikrose/more-itertools'
+#url='https://pypi.python.org/pypi/more-itertools'
+license=('MIT')
+depends=('python' 'python-six')
+makedepends=('python-setuptools')
+source=("https://github.com/more-itertools/more-itertools/releases/download/v5.0.0/more-itertools-$pkgver.tar.gz")
+sha512sums=('08b78a5a85a04296fad82857017ec2763250de0bd3159bc7bd8b23b54f90b363023b64e899e79603f2b4c8267d0bb2ed598d7e2910d541921252d66af656cba2')
+
+package() {
+  cd "$srcdir/more-itertools-$pkgver"
+  python2 setup.py install --root="$pkgdir/" --optimize=0
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

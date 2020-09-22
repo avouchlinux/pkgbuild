@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=openal
+pkgname=(openal openal-examples)
+pkgver=1.20.1
+pkgrel=1
+pkgdesc="Cross-platform 3D audio library, software implementation"
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/kcat/openal-soft"
+license=(LGPL)
+depends=(glibc)
+makedepends=(alsa-lib libpulse fluidsynth portaudio jack qt5-base sdl2 sdl_sound ffmpeg
+             git cmake ninja)
+source=("https://github.com/kcat/openal-soft/archive/openal-soft-$pkgver.tar.gz")
+
+prepare() {
+  mkdir examples
+}
+
+prepare() {
+  cd  openal-soft-openal-soft-$pkgver 
+  # Fix building some things with our old SDL_sound (and SDL1)
+  patch -Np1 -i ../sdl_sound.diff
+}
+
+build() {
+  cmake -S openal-soft-openal-soft-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  ninja -C build
+}
+
+package_openal() {
+  optdepends=('qt5-base: alsoft-config GUI Configurator'
+              'fluidsynth: MIDI rendering')
+
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dt "$pkgdir/usr/share/doc/openal" -m644 openal-soft/docs/*
+
+### Split openal-examples
+  cd "$pkgdir/usr/bin"
+  mv -vt "$srcdir/examples" alffplay alhrtf allatency alloopback almultireverb \
+    alplay alrecord alreverb alstream altonegen
+}
+
+package_openal-examples() {
+  pkgdesc+=" (example programs)"
+  depends=("openal=$pkgver-$pkgrel" sdl2 sdl_sound ffmpeg)
+
+  mkdir "$pkgdir/usr"
+  mv -v examples "$pkgdir/usr/bin"
+}

@@ -1,0 +1,123 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gdm
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Display manager and login screen"
+url="https://wiki.gnome.org/Projects/GDM"
+arch=(x86_64)
+groups=('sys-dm')
+license=(GPL)
+depends=(gnome-shell gnome-session upower xorg-xrdb xorg-server xorg-xhost)
+makedepends=(yelp-tools gobject-introspection git docbook-xsl)
+checkdepends=(check)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2"
+        0001-gdm-3.36.2-logo.patch
+        0002-Xsession-Don-t-start-ssh-agent-by-default.patch
+        gdm.sysusers)
+
+prepare() {
+    mkdir build
+    cd ${srcdir}/${pkgbase}-${pkgver}
+
+    # Avouch specific patches
+    patch -Np0 -i ../0001-gdm-3.36.2-logo.patch
+    patch -Np1 -i ../0002-Add-Avouch-Linux-PAM-config-files.patch
+    patch -Np0 -i ../0003-avouch-pam-config-for-mason.patch
+
+    # From Koji Fedora
+    patch -Np1 -i ../0006-data-disable-wayland-if-modesetting-is-disabled.patch
+    patch -Np1 -i ../0007-system-dconf.patch
+
+    
+
+    NOCONFIGURE=1 ./autogen.sh
+    autoreconf -vfi
+}
+
+build() {
+    # fix for an error in gdbus-codegen:51:<module>:ModuleNotFoundError: No module named 'codegen'
+    #export PYTHONPATH="/usr/share/glib-2.0"
+
+    cd build
+    ../${pkgbase}-${pkgver}/configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --sbindir=/usr/bin \
+        --libdir=/usr/lib \
+        --libexecdir=/usr/lib \
+        --disable-schemas-compile \
+        --disable-static \
+        --enable-gdm-xsession \
+        --enable-ipv6 \
+        --with-default-pam-config=avouch \
+        --with-default-path=/usr/local/bin:/usr/local/sbin:/usr/bin \
+        --with-plymouth \
+        --with-selinux \
+        --with-run-dir=/run/gdm \
+        --without-tcp-wrappers \
+        with_dbus_sys=/usr/share/dbus-1/system.d
+
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+check() {
+    make ${MAKEFLAGS} -C build check
+}
+
+package_gdm() {
+    depends+=(libgdm)
+    optdepends=('fprintd: fingerprint authentication')
+    backup=(etc/pam.d/gdm-autologin etc/pam.d/gdm-fingerprint etc/pam.d/gdm-launch-environment
+            etc/pam.d/gdm-password etc/pam.d/gdm-smartcard etc/gdm/custom.conf
+            etc/gdm/Xsession etc/gdm/PostSession/Default etc/gdm/PreSession/Default)
+    groups=(gnome-base)
+    install=gdm.install
+
+    DESTDIR="$pkgdir" make -C build install
+
+    # Unused or created at start
+    rm -r "$pkgdir"/var/{cache,log}
+
+    install -d $pkgdir/var/lib/gdm/{.cache,.color,.config,.dbus,.local}
+    # Workaround https://gitlab.freedesktop.org/pulseaudio/pulseaudio/merge_requests/10
+    # taken from Gentoo
+    install -p -m644 -D default.pa "$pkgdir"/var/lib/gdm/.config/pulse/default.pa
+
+    # work around bug introduced in gdm 3.0/fedora 15 that some users
+    # have been dragging along from release to release
+    # chown -Rc 80:80 "$pkgdir"/var/lib/gdm "$pkgdir"/var/lib/gdm/.local "$pkgdir"/var/lib/gdm/.local/share || :
+    chown -Rc 80:80 "$pkgdir/var/lib/gdm"
+    chown -Rc 80:80 $pkgdir/var/lib/gdm/{.cache,.color,.config,.dbus,.local}
+    
+
+    # Can't use sysusers as the greeter session cannot launch with an expired 'gdm' account
+    #install -Dm644 "$srcdir"/gdm.sysusers "$pkgdir/usr/lib/sysusers.d/gdm.conf"	
+    #install -Dm644 "$srcdir"/gdm.tmpfiles "$pkgdir/usr/lib/tmpfiles.d/gdm.conf"
+
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/gdm.conf" <<END
+g gdm 80 -
+u gdm 80 "Gnome Display Manager" /var/lib/gdm
+m gdm video
+END
+    # fix for libexecdir
+    #sed -i -e 's|libexec|lib|g' $pkgdir/usr/lib/udev/rules.d/61-gdm.rules
+
+
+    ### Split libgdm
+    mkdir -p libgdm/{lib,share}
+    mv -t libgdm       "$pkgdir"/usr/include
+    mv -t libgdm/lib   "$pkgdir"/usr/lib/{girepository-1.0,libgdm*,pkgconfig}
+    mv -t libgdm/share "$pkgdir"/usr/share/{gir-1.0,glib-2.0}
+}
+
+package_libgdm() {
+    pkgdesc="GDM support library"
+    depends=(systemd glib2 dconf)
+    mv libgdm "$pkgdir/usr"
+}

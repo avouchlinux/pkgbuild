@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=putty
+pkgver=0.73
+pkgrel=1
+pkgdesc="A terminal integrated SSH/Telnet client"
+arch=('x86_64')
+groups=('app-net')
+url="http://www.chiark.greenend.org.uk/~sgtatham/putty/"
+license=('MIT')
+depends=('gtk3')
+validpgpkeys=('0054DDAA8ADA15D2768A6DE79DFE2648B43434E4') # PuTTY Releases <putty@projects.tartarus.org>
+source=("https://the.earth.li/~sgtatham/putty/${pkgver}/${pkgname}-${pkgver}.tar.gz"
+        "putty-${pkgver}.tar.gz.sig::https://the.earth.li/~sgtatham/putty/${pkgver}/putty-${pkgver}.tar.gz.gpg")
+
+build() {
+  cd ${pkgname}-${pkgver}/unix
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}/unix
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 ../LICENCE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

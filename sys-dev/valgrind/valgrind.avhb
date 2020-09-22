@@ -1,0 +1,151 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=valgrind
+pkgver=3.15.0
+pkgrel=1
+pkgdesc='Tool to help find memory-management problems in programs'
+arch=('x86_64')
+groups=('sys-devel')
+license=('GPL')
+url='http://valgrind.org/'
+depends=('glibc=2.26' 'perl')
+makedepends=('gdb' 'openmpi' 'lib32-glibc' 'lib32-gcc-libs')
+checkdepends=('procps-ng')
+optdepends=('openmpi: MPI support'
+            'lib32-glibc: 32-bit ABI support')
+options=('!emptydirs' '!strip')
+source=(https://sourceware.org/pub/valgrind/valgrind-${pkgver}.tar.bz2
+        valgrind-fix-xml-socket.patch
+        valgrind-3.13.0-test-fixes.patch
+        valgrind-3.13.0-amd64-eflags-tests.patch
+        valgrind-3.13.0-gdb-8-testfix.patch
+        valgrind-3.7.0-respect-flags.patch)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  # We want all executables and libraries in libexec instead of lib
+# so they are only available for valgrind usage itself and so the
+# same directory is used independent of arch.
+  #patch -Np1 < ../valgrind-3.15.0-pkglibexecdir.patch
+
+# KDE#398649 s390x z13 support doesn't build with older gcc/binutils
+# Disable z13 support (on rhel6)
+  #patch -Np1 < ../valgrind-3.15.0-disable-s390x-z13.patch
+
+# Add some stack-protector
+  #patch -Np1 < ../valgrind-3.15.0-some-stack-protector.patch
+
+# KDE#406561  mcinfcallWSRU gdbserver_test fails on ppc64
+  patch -Np1 < ../valgrind-3.15.0-ppc64-filter_gdb.patch
+
+# KDE#407218 Add support for the copy_file_range syscall
+  patch -Np1 < ../valgrind-3.15.0-copy_file_range.patch
+
+# KDE#407307 Intercept stpcpy also in ld.so for arm64
+  patch -Np1 < ../valgrind-3.15.0-arm64-ld-stpcpy.patch
+
+# commit 59784c aarch64 (arm64) isn't a supported architecture for exp-sgcheck.
+  patch -Np1 < ../valgrind-3.15.0-exp-sgcheck-no-aarch64.patch
+
+# commit 917e42 Make memcheck/tests/arm64-linux/scalar work under root
+  patch -Np1 < ../valgrind-3.15.0-scalar-arm64.patch
+
+# commit abc09f Make memcheck/tests/x86-linux/scalar test work under root.
+  patch -Np1 < ../valgrind-3.15.0-scalar-x86.patch
+
+# KDE#407764 s390x: drd fails on z13 due to function wrapping issue
+  patch -Np1 < ../valgrind-3.15.0-s390x-wrap-drd.patch
+
+# Add some -Wl,z,now.
+  #patch -Np1 < ../valgrind-3.15.0-some-Wl-z-now.patch
+
+# KDE#408009 Expose rdrand and f16c even on avx if host cpu supports them
+  patch -Np1 < ../valgrind-3.15.0-avx-rdrand-f16c.patch
+
+# KDE#408091 Missing pkey syscalls
+  #patch -Np1 < ../valgrind-3.15.0-pkey.patch
+
+# KDE#408414 Add support for preadv2 and pwritev2 syscalls
+  #patch -Np1 < ../valgrind-3.15.0-preadv2-pwritev2.patch
+
+# Upstream commit 9616e9bc9a1950f70ab1abd1c6ca9abc3f26eb7f
+  patch -Np1 < ../valgrind-3.15.0-arm-membarrier.patch
+
+# KDE#404406 s390x: z14 miscellaneous instructions not implemented
+  #patch -Np1 < ../valgrind-3.15.0-z14-misc.patch
+
+  patch -Np1 < ../valgrind-3.7.0-respect-flags.patch
+
+  sed -i 's|sgml/docbook/xsl-stylesheets|xml/docbook/xsl-stylesheets-1.79.2|' docs/Makefile.am
+  
+  ./autogen.sh
+  autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	
+	# valgrind does not like some of our flags
+  CPPFLAGS=${CPPFLAGS/-D_FORTIFY_SOURCE=2/}
+  CFLAGS=${CFLAGS/-fno-plt/}
+  CXXFLAGS=${CXXFLAGS/-fno-plt/}
+    
+	./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/lib \
+    --mandir=/usr/share/man
+	make ${MAKEFLAGS}
+  make -C docs man-pages
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # Make sure a basic binary runs. There should be no errors.
+  ./vg-in-place --error-exitcode=1 /bin/true
+
+  # Make sure no extra CFLAGS, CXXFLAGS or LDFLAGS leak through,
+  # the testsuite sets all flags necessary. See also configure above.
+  make ${MAKEFLAGS} check CFLAGS="" CXXFLAGS="" LDFLAGS=""
+
+  # XXX: run full regtest but only report issues some tests fail duo
+  # current toolchain and expectations, take a manual look if its fine
+  echo ===============TESTING===================
+  make regtest || :
+
+  # Make sure test failures show up in build.log
+  # Gather up the diffs (at most the first 20 lines for each one)
+  MAX_LINES=20
+  diff_files=$(find . -name '*.diff' | sort)
+  if [ z"${diff_files}" = z ] ; then
+    echo "Congratulations, all tests passed!"
+  else
+    warning "Some tests failed!"
+    for f in ${diff_files} ; do
+        echo "=================================================" >> diffs
+        echo "${f}"                                              >> diffs
+        echo "=================================================" >> diffs
+        if [ "$(wc -l < "${f}")" -le ${MAX_LINES} ] ; then
+          cat "${f}"                                             >> diffs
+        else
+          head -n ${MAX_LINES} "${f}"                            >> diffs
+          echo "<truncated beyond ${MAX_LINES} lines>"           >> diffs
+        fi
+    done
+  fi
+  cat diffs
+  echo ===============END TESTING===============
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  if check_option 'debug' n; then
+    find "${pkgdir}/usr/bin" -type f -executable -exec strip $STRIP_BINARIES {} + || true
+  fi
+}

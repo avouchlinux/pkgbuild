@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-beaker
+_realname=Beaker
+pkgver=1.11.0
+pkgrel=1
+arch=('any')
+license=('custom')
+pkgdesc="Caching and sessions WSGI middleware for use with web applications and stand-alone Python scripts and applications"
+url="http://beaker.groovie.org/"
+makedepends=('python2-setuptools')
+checkdepends=('python2-nose' 'python2-mock' 'python2-sqlalchemy'
+              'python2-crypto' 'python2-coverage' 'python2-webtest'
+              'python2-beautifulsoup4')
+source=("https://files.pythonhosted.org/packages/04/7b/a3eb9939d931a55c69e4bcaa82dbc64f6df9612c374e782f4ab3c176910e/Beaker-1.11.0.tar.gz")
+
+prepare() {    
+	sed -i "s#/usr/bin/python#/usr/bin/python2#" ${_realname}-${pkgver}/beaker/crypto/pbkdf2.py
+}
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

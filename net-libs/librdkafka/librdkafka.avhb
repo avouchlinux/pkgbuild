@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=librdkafka
+pkgver=1.4.2
+pkgrel=1
+pkgdesc='The Apache Kafka C/C++ library'
+arch=(x86_64)
+groups=('net-lib')
+url='https://github.com/edenhill/librdkafka'
+license=(BSD)
+depends=(libsasl zstd)
+makedepends=(python openssl lz4 rapidjson cmake)
+source=(https://github.com/edenhill/librdkafka/archive/v$pkgver.tar.gz)
+
+build() {
+  cmake -S librdkafka-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr 
+  ninja -C build
+}
+
+check() {
+  # TODO: figure out why the tests timeout
+  # cmake --build build --target test
+  true
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

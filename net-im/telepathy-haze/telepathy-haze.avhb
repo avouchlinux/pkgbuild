@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telepathy-haze
+pkgver=0.8.0
+pkgrel=1
+pkgdesc="A telepathy-backend to use libpurple (Pidgin) protocols."
+arch=('x86_64')
+groups=('net-im')
+url="http://telepathy.freedesktop.org"
+license=('GPL')
+depends=('telepathy-glib' 'libpurple')
+makedepends=('libxslt' 'python2')
+replaces=('telepathy-butterfly')
+install=telepathy-haze.install
+source=(http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.gz)
+md5sums=('b9ee3638833fb50db6276d1b771820b0')
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	# select the TCP protocol active, passive or so
+	# here we select active one
+	patch -Np0 -i ../tcp_protocol_set_to_active.patch
+	autoreconf -vi
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	PYTHON=/usr/bin/python2 ./configure --prefix=/usr \
+		--libexecdir=/usr/lib/telepathy
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+

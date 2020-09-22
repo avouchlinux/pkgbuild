@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=texinfo
+pkgver=6.7
+pkgrel=1
+pkgdesc="Tools needed to create Texinfo format documentation files"
+arch=('x86_64')
+groups=('sys-base')
+url='https://www.gnu.org/software/texinfo/'
+license=(GPL3)
+depends=(ncurses gzip perl sh)
+source=(https://ftp.gnu.org/pub/gnu/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
+md5sums=('5231da3e6aa106cd0532b8609e5b3702'
+         'SKIP'
+         '9a98fb162650ff3065f9a4ebec22db36'
+         '5590fb3ef9ec309c98f5a4d85eca49da')
+validpgpkeys=('EAF669B31E31E1DECBD11513DDBC579DAB37FBA9') # Gavin Smith
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make  ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

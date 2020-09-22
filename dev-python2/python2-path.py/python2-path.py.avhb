@@ -1,0 +1,57 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-path.py
+pkgname=('python-path.py' 'python2-path.py')
+_realname=path.py
+pkgver=11.4.1
+pkgrel=1
+pkgdesc='A module wrapper for os.path'
+arch=('any')
+groups=('dev-python')
+license=('MIT')
+url='https://github.com/jaraco/path.py'
+makedepends=('python-setuptools-scm' 'python2-setuptools-scm' 'python-importlib-metadata'
+             'python2-importlib-metadata' 'python2-backports.os')
+checkdepends=('python-pytest-runner' 'python2-pytest-runner' 'python-pytest-flake8' 'python2-pytest-flake8')
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/jaraco/path.py/archive/$pkgver.tar.gz")
+sha512sums=('6f4dd3b3c0d81b62a59d80ce807aa971c0266e7d4ebab1c1254fa5b4d81247deda6f589429330a6041042961b372acb809a2b1a8e472704918eca40289314ce3')
+
+prepare() {
+  cp -a path.py-$pkgver{,-py2}
+
+  export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+}
+
+build() {
+  cd "$srcdir"/path.py-$pkgver
+  python setup.py build
+
+  cd "$srcdir"/path.py-$pkgver-py2
+  python2 setup.py build
+}
+
+check() {
+  cd "$srcdir"/path.py-$pkgver
+  python setup.py pytest
+
+  cd "$srcdir"/path.py-$pkgver-py2
+  python2 setup.py pytest
+}
+
+package_python-path.py() {
+  depends=('python-importlib-metadata')
+
+  cd path.py-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1
+}
+
+package_python2-path.py() {
+  depends=('python2-importlib-metadata' 'python2-backports.os')
+
+  cd path.py-$pkgver-py2
+  python2 setup.py install --root="$pkgdir" --optimize=1
+}
+
+# vim:set ts=2 sw=2 et:

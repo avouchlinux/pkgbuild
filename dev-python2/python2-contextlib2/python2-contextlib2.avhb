@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-contextlib2
+_realname=contextlib2
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="contextlib2 is a backport of the standard library’s contextlib module to earlier Python versions"
+arch=('any')
+groups=('dev-python2')
+url="http://pypi.python.org/pypi/${_realname}"
+license=('PSF')
+depends=('python2')
+makedepends=('python2-setuptools')
+source=("https://pypi.io/packages/source/${_realname:0:1}/${_realname}/${_realname}-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}.post1
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}.post1
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}.post1
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

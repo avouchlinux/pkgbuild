@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-sqlite
+pkgbase=sqlite
+_srcver=3310100
+_docver=${_srcver}
+pkgver=3.31.1
+pkgrel=1
+pkgdesc="A C library that implements an SQL database engine (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('custom')
+url="http://www.sqlite.org/"
+depends=(lib32-glibc $_pkgbasename)
+makedepends=('tcl' 'gcc-multilib' 'lib32-readline')
+source=(http://www.sqlite.org/2014/sqlite-autoconf-${_amalgamationver}.tar.gz)
+sha1sums=('c2a21d71d0c7dc3af71cf90f04dfd22ecfb280c2')
+provides=("lib32-sqlite3=$pkgver")
+replaces=("lib32-sqlite3")
+conflicts=("lib32-sqlite3")
+
+build() {
+    cd ${srcdir}/${pkgbase}-src-${_srcver}
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    export CPPFLAGS="$CPPFLAGS -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+                             -DSQLITE_ENABLE_UNLOCK_NOTIFY \
+                             -DSQLITE_ENABLE_DBSTAT_VTAB=1 \
+                             -DSQLITE_ENABLE_FTS3_TOKENIZER=1 \
+                             -DSQLITE_SECURE_DELETE \
+                             -DSQLITE_MAX_VARIABLE_NUMBER=250000 \
+                             -DSQLITE_MAX_EXPR_DEPTH=10000"
+
+    ./configure --prefix=/usr \
+        --libdir=/usr/lib32 \
+        --disable-static \
+        --disable-tcl
+    make ${MAKEFLAGS}
+}
+
+
+package() {
+    cd ${srcdir}/${pkgbase}-src-${_srcver}
+    make DESTDIR=${pkgdir} install
+    rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

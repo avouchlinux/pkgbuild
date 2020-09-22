@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmatroska
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="Matroska library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://dl.matroska.org/downloads/libmatroska/"
+license=('LGPL')
+depends=('libebml')
+source=("http://dl.matroska.org/downloads/${pkgname}/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+  mkdir build
+  cmake -S${pkgname}-${pkgver} -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_SHARED_LIBS=ON
+  make ${MAKEFLAGS} -C build
+}
+
+package() {
+	make DESTDIR="${pkgdir}" -C build install
+}

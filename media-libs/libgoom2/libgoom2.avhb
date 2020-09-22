@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgoom2
+_realname=goom
+pkgver=2k4
+pkgrel=1
+pkgdesc="Shared library part of the Goom visualization plugin"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.fovea.cc/?page=details_produits&id=goom"
+license=('LGPL')
+depends=('glibc')
+options=('!emptydirs')
+source=("http://downloads.sourceforge.net/project/goom/goom2k4/0/goom-2k4-0-src.tar.gz")
+
+build() {
+	cd "${srcdir}/goom2k4-0"
+	./configure --prefix=/usr --without-xmms --without-sdl
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/goom2k4-0"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/bin
+}

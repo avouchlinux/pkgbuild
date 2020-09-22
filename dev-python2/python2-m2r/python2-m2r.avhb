@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-m2r
+_realname=m2r
+pkgver=0.2.1
+pkgrel=1
+pkgdesc="Markdown to reStructuredText converter"
+arch=('any')
+groups=('dev-python2')
+url="https://github.com/miyakogi/m2r"
+license=('MIT')
+depends=('python2-mistune' 'python2-docutils' 'python2-setuptools')
+makedepends=('python2-setuptools' 'python2-setuptools' 'python2-mistune' 'python2-mistune'
+             'python-docutils' 'python2-docutils')
+checkdepends=('python2-mock' 'python2-pygments' 'python2-pygments' 'python2-pytest-runner'
+              'python2-pytest-runner')
+source=("https://github.com/miyakogi/m2r/archive/v$pkgver.tar.gz")
+
+build() {
+	cd ${_realname}-${pkgver}
+  python2 setup.py build
+}
+
+check() {
+	cd ${_realname}-${pkgver}
+  python2 setup.py pytest
+}
+
+package() {
+	cd ${_realname}-${pkgver}
+  python2 setup.py install --root="$pkgdir" --prefix=/usr --optimize=1
+  mv "$pkgdir"/usr/bin/m2r{,-python2}
+  install -D -m644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

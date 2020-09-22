@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libytnef
+_realname=ytnef
+pkgver=1.9.3
+pkgrel=1
+pkgdesc="Yerase's TNEF Stream Reader library (decode winmail.dat)"
+arch=('x86_64')
+groups=('net-libs')
+url="https://github.com/Yeraze/ytnef"
+license=('GPL')
+depends=('glibc')
+makedepends=('perl')
+optdepends=('perl: ytnefprocess.pl script')
+source=(https://github.com/Yeraze/ytnef/archive/v${pkgver}.tar.gz)
+
+build() {
+  cd ytnef-${pkgver}
+  ./autogen.sh
+  autoreconf -fi
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ytnef-${pkgver}
+  make DESTDIR="$pkgdir" install
+}

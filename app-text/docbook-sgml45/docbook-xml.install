@@ -1,0 +1,28 @@
+post_install() {
+
+install-catalog --add /etc/sgml/sgml-docbook-dtd-4.5.cat \
+/usr/share/sgml/docbook/sgml-dtd-4.5/catalog
+
+install-catalog --add /etc/sgml/sgml-docbook-dtd-4.5.cat \
+/etc/sgml/sgml-docbook.cat
+
+}
+
+# arg 1:  the new package version
+# arg 2:  the old package version
+pre_upgrade() {
+  if [ $(vercmp $2 4.5) -lt 0 ]; then
+    xmlcatalog --del "file:///etc/xml/docbook" etc/xml/catalog > etc/xml/catalog.preserve
+  fi
+}
+
+post_upgrade() {
+  if [ $(vercmp $2 4.5) -ge 0 ]; then
+    post_remove
+  fi
+  post_install
+}
+
+post_remove() {
+  xmlcatalog --noout --del file:///etc/xml/docbook-xml etc/xml/catalog
+}

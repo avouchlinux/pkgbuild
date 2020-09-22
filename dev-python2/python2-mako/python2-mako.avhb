@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-mako
+pkgname=('python-mako' 'python2-mako')
+_realname=Mako
+pkgver=1.1.2
+pkgrel=1
+pkgdesc="Hyperfast and lightweight templating for the Python2 platform"
+arch=('any')
+groups=('dev-python2')
+url="http://www.makotemplates.org/"
+license=('MIT')
+depends=('python2-markupsafe' 'python2-beaker')
+makedepends=('python-setuptools' 'python2-setuptools' 'python-markupsafe' 'python2-markupsafe'
+             'python-beaker' 'python2-beaker')
+checkdepends=('python-nose' 'python2-nose' 'python-mock' 'python2-mock'
+              'python-babel' 'python2-babel' 'python-pygments' 'python2-pygments'
+              'python-dogpile.cache' 'python2-dogpile.cache')
+source=(https://pypi.python.org/packages/source/M/Mako/Mako-$pkgver.tar.gz{,.asc})
+validpgpkeys=('83AF7ACE251C13E6BB7DEFBD330239C1C4DAFEE1')  # Michael Bayer
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	mv "$pkgdir/usr/bin/mako-render" "$pkgdir/usr/bin/mako-render2"
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

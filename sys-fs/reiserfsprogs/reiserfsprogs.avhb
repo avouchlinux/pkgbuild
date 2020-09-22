@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=reiserfsprogs
+pkgver=3.6.27
+pkgrel=1
+pkgdesc="Reiserfs utilities"
+arch=('x86_64')
+groups=('sys-fs')
+url="https://www.kernel.org/"
+license=('GPL')
+depends=('util-linux')
+source=("https://www.kernel.org/pub/linux/kernel/people/jeffm/reiserfsprogs/v${pkgver}/${pkgname}-${pkgver}.tar.xz"
+        reiserfsprogs-3.6.27-loff_t.patch)
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  patch -p1 -i $srcdir/reiserfsprogs-3.6.27-loff_t.patch
+  autoreconf -i
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	CFLAGS+=' -fgnu89-inline'
+	./configure --prefix=/usr --sbindir=/usr/bin
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

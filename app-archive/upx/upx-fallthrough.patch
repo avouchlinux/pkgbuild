@@ -1,0 +1,10 @@
+--- src/snprintf.cpp~	2017-01-29 10:53:00.000000000 -0600
++++ src/snprintf.cpp	2017-03-30 09:58:02.174784526 -0500
+@@ -629,6 +629,7 @@
+                 break;
+             case 'X':
+                 flags |= DP_F_UP;
++                break;
+             case 'x':
+                 flags |= DP_F_UNSIGNED;
+                 if (cflags == DP_C_SHORT)

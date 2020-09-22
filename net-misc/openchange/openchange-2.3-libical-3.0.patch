@@ -1,0 +1,88 @@
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.libical-3.0 openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.libical-3.0	2017-11-08 14:45:06.494302213 +0100
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c	2017-11-08 14:47:33.465300181 +0100
+@@ -515,7 +515,7 @@ void ical_property_EXDATE(struct exchang
+ 				icalproperty_add_parameter(prop, tzid);
+ 			} else {
+ 				/*Get time from dtstart*/
+-				icaltime.is_utc = 1;
++				icaltime.zone = icaltimezone_get_utc_timezone ();
+ 				if (exchange2ical->apptEndWhole){
+ 					dttime = get_icaltime_from_FILETIME_UTC(exchange2ical->apptStartWhole);
+ 					icaltime.hour   = dttime.hour;
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c.libical-3.0 openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c.libical-3.0	2017-11-08 14:45:43.123301706 +0100
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c	2017-11-08 14:47:31.873300203 +0100
+@@ -241,10 +241,9 @@ struct icaltimetype get_icaltimetype_fro
+ 	tt.minute = tm->tm_min;
+ 	tt.second = tm->tm_sec;
+ 
+-	tt.is_utc      = 0;
+ 	tt.is_date     = 0;
+ 	tt.is_daylight = 0;
+-	tt.zone        = 0;
++	tt.zone        = icaltimezone_get_utc_timezone ();
+ 
+ 	return tt;
+ }
+@@ -254,7 +253,6 @@ struct icaltimetype get_icaltimetype_fro
+ 	struct icaltimetype tt;
+ 	
+ 	tt = get_icaltimetype_from_tm(tm);
+-	tt.is_utc      = 1;
+ 	
+ 	return tt;
+ }
+@@ -270,10 +268,8 @@ struct icaltimetype get_icaldate_from_tm
+ 	tt.minute = 0;
+ 	tt.second = 0;
+ 
+-	tt.is_utc      = 1;
+ 	tt.is_date     = 1;
+ 	tt.is_daylight = 0;
+-	tt.zone        = NULL;
+ 
+ 	return tt;
+ }
+@@ -313,7 +309,6 @@ struct icaltimetype get_icaltime_from_FI
+ 	tt.minute = tm->tm_min;                                                
+ 	tt.second = tm->tm_sec;
+ 	tt.is_date = 0;
+-	tt.is_utc = 0;
+ 	tt.is_daylight = 0;
+ 	tt.zone = NULL;
+ 
+@@ -339,9 +334,8 @@ struct icaltimetype get_icaltime_from_FI
+ 	tt.minute = tm->tm_min;                                                
+ 	tt.second = tm->tm_sec;
+ 	tt.is_date = 0;
+-	tt.is_utc = 1;
+ 	tt.is_daylight = 0;
+-	tt.zone = NULL;
++	tt.zone = icaltimezone_get_utc_timezone ();
+ 
+ 	return tt;
+ }
+@@ -371,9 +365,8 @@ struct icaltimetype get_icaldate_from_FI
+ 	tt.minute = 0;                                                
+ 	tt.second = 0;
+ 	tt.is_date = 1;
+-	tt.is_utc = 1;
+ 	tt.is_daylight = 0;
+-	tt.zone = NULL;
++	tt.zone = icaltimezone_get_utc_timezone ();
+ 
+ 	return tt;
+ }
+@@ -390,10 +383,9 @@ struct icaltimetype get_icaldate_from_Gl
+ 	tt.minute = 0;
+ 	tt.second = 0;
+ 
+-	tt.is_utc      = 1;
+ 	tt.is_date     = 1;
+ 	tt.is_daylight = 0;
+-	tt.zone        = NULL;
++	tt.zone        = icaltimezone_get_utc_timezone ();
+ 
+ 	return tt;
+ }

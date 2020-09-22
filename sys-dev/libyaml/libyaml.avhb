@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libyaml
+_realname=yaml
+pkgver=0.2.2
+pkgrel=1
+pkgdesc="YAML 1.1 library"
+arch=('x86_64')
+groups=('sys-devel')
+url="http://pyyaml.org/wiki/LibYAML"
+license=('MIT')
+source=(http://pyyaml.org/download/libyaml/yaml-$pkgver.tar.gz)
+md5sums=('36c852831d02cf90508c29852361d01b')
+
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --disable-static
+	make
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+	# license
+	install -m644 -D LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+}

@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=zvbi
+pkgver=0.2.35
+pkgrel=1
+pkgdesc="VBI capture and decoding library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://zapping.sourceforge.net/cgi-bin/view/ZVBI/WebHome"
+depends=('libpng' 'libx11')
+license=('GPL')
+source=(http://downloads.sourceforge.net/sourceforge/zapping/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --sbindir=/usr/bin
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

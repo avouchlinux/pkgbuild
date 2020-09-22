@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-json-c
+pkgbase=json-c
+pkgver=0.13.1-20180305
+pkgrel=1
+pkgdesc="A JSON implementation in C (32-bit)"
+url="https://github.com/json-c/json-c/wiki"
+license=(MIT)
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+depends=(lib32-glibc $_pkgbasename)
+makedepends=(gcc-multilib libtool-multilib)
+options=(!libtool !makeflags)
+source=(https://s3.amazonaws.com/${_pkgbasename}_releases/releases/$_pkgbasename-${pkgver}.tar.gz)
+sha256sums=('28dfc65145dc0d4df1dfe7701ac173c4e5f9347176c8983edbfac9149494448c')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgbase}-${pkgver}"
+
+	# This instruction removes a flag that prevents one file from compiling.
+	sed -i s/-Werror// Makefile.in
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgbase}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	rm -r "$pkgdir/usr/include"
+}
+

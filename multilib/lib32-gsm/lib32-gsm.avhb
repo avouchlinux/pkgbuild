@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-gsm
+pkgbase=gsm
+pkgver=1.0.19
+pkgrel=1
+pkgdesc="Shared libraries for GSM 06.10 lossy speech compression"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.quut.com/gsm/"
+license=('custom')
+depends=('glibc')
+source=("http://www.quut.com/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        'gsm.patch')
+md5sums=('c1ba392ce61dc4aff1c29ea4e92f6df4'
+         '30f46c92d0a5e5654258e707a9e8b5a6')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver%.*}-pl${pkgver##*.}/"
+
+	patch -Np0 -i "${srcdir}/gsm.patch"
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver%.*}-pl${pkgver##*.}/"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	# flags for shared lib
+	CFLAGS="${CFLAGS} -fPIC"
+	make CCFLAGS="-c ${CFLAGS}"
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver%.*}-pl${pkgver##*.}/"
+	
+	# Prepare directories
+	install -m755 -d "${pkgdir}"/usr/{bin,lib32,include/gsm,share/{licenses/${pkgname},man/man{1,3}}}
+
+	make -j1 INSTALL_ROOT="${pkgdir}/usr" \
+	GSM_INSTALL_LIB="${pkgdir}/usr/lib32" \
+	GSM_INSTALL_INC="${pkgdir}/usr/include/gsm" \
+	GSM_INSTALL_MAN="${pkgdir}/usr/share/man/man3" \
+	TOAST_INSTALL_MAN="${pkgdir}/usr/share/man/man1" \
+	install
+
+	rm -rf "${pkgdir}"/{etc,usr/{bin,include,share}}
+}

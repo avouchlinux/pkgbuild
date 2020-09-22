@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgbasename=libpcap
+pkgname=lib32-$_pkgbasename
+pkgver=1.9.1
+pkgrel=1
+pkgdesc="A system-independent interface for user-level packet capture"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.tcpdump.org/"
+license=('BSD')
+depends=('glibc' 'libnl' 'sh' 'libusbx')
+makedepends=('flex')
+source=(http://www.tcpdump.org/release/libpcap-${pkgver}.tar.gz{,.sig})
+sha256sums=('259db4fe1e9f0b6b9c43a057ec5916dec7d0a821b00d6d6c4dff7db2445fa7e4'
+            'SKIP')
+
+prepare() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+
+	mkdir -p ${srcdir}/include/bluetooth
+	cp ${srcdir}/mgmt.h ${srcdir}/include/bluetooth/
+}
+
+build() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+	
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	
+	CFLAGS="$CFLAGS -I${srcdir}/include $(pkg-config libnl-genl-3.0 --cflags)" \
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--enable-ipv6 \
+		--enable-bluetooth
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_pkgbasename}-${pkgver}"
+	install -d -m755 ${pkgdir}/usr/bin
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{etc,include,share,bin}
+}
+

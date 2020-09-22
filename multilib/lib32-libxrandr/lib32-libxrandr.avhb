@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxrandr
+_realname=libXrandr
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="X11 RandR extension library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('lib32-libxext' 'lib32-libxrender' 'libxrandr')
+makedepends=('xorg-util-macros' gcc-multilib)
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXrandr-${pkgver}.tar.bz2)
+sha256sums=('caa7b31ac769be51a532343c65376f1d4df3f307afaed58e34fb5e82e8b825ad')
+md5sums=('df64550d92afbffb4f67a434193ee165')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --libdir=/usr/lib32 \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

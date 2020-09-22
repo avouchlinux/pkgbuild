@@ -1,0 +1,61 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxml2
+pkgver=2.9.10
+pkgrel=1
+pkgdesc="XML parsing library, version 2"
+arch=('x86_64')
+groups=('sys-base')
+url='http://www.xmlsoft.org/'
+arch=(x86_64)
+license=(MIT)
+depends=(zlib readline ncurses xz icu)
+makedepends=(python2 python git)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.bz2"
+        https://www.w3.org/XML/Test/xmlts20130923.tar.gz)
+
+pkgver() {
+    cd "${pkgname}-v${pkgver}"
+    git describe --long | sed -e 's/-/+/g' -e 's/^v//'
+}
+
+prepare() {
+    mkdir build-py{2,3}
+
+    cd "${pkgname}-v${pkgver}"
+
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+_build() (
+    cd build-py$1
+    ../"${pkgname}-v${pkgver}"/configure \
+        --prefix=/usr \
+        --with-threads \
+        --with-history \
+        --with-python=/usr/bin/python$1 \
+        --with-icu
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0 /g' libtool
+    PYTHONHASHSEED=0 make ${MAKEFLAGS}
+    find doc -type f -exec chmod 0644 {} +
+)
+
+build() {
+    _build 2
+    _build 3
+}
+
+check() {
+    cd build-py2
+    ln -s ../xmlconf
+    make check
+}
+
+package() {
+    make -C build-py2 DESTDIR="$pkgdir" install
+    make -C build-py3/python DESTDIR="$pkgdir" install
+    install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 build-py2/COPYING
+}

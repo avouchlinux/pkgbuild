@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nss-mdns
+pkgver=0.14.1
+pkgrel=1
+pkgdesc="glibc plugin providing host name resolution via mDNS"
+arch=('x86_64')
+groups=('net-dns')
+url="http://0pointer.de/lennart/projects/nss-mdns/"
+license=('LGPL')
+depends=('glibc' 'avahi')
+source=("https://github.com/lathiat/nss-mdns/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}
+

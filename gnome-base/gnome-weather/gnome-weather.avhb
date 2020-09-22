@@ -1,0 +1,25 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-weather
+pkgver=3.36.1
+pkgrel=1
+pkgdesc="Access current weather conditions and forecasts"
+url="https://wiki.gnome.org/Apps/Weather"
+arch=(any)
+groups=('gnome-base')
+license=(GPL)
+depends=(gtk3 gjs libgweather geoclue2 gnome-desktop)
+makedepends=(gobject-introspection appstream-glib git meson)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

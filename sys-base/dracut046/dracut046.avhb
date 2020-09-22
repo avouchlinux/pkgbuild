@@ -1,0 +1,183 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dracut
+pkgver=046
+pkgrel=1
+pkgdesc="Generic, modular, cross-distribution initramfs generation tool"
+arch=('x86_64')
+groups=('sys-base')
+repo=('core')
+url="http://www.kernel.org/pub/linux/utils/boot/dracut/dracut.html"
+license=('GPL')
+depends=('cpio' 'dash' 'kbd' 'kmod' 'util-linux' 'systemd' 'bash')
+optdepends=('cryptsetup' 'dmraid' 'lvm2' 'mdadm'
+	'bash: For Bash cmpletion')
+makedepends=('docbook-xsl' 'asciidoc')
+backup=('etc/dracut.conf')
+install='dracut.install'
+source=(http://www.kernel.org/pub/linux/utils/boot/$pkgname/$pkgname-$pkgver.tar.xz
+git clone git://git.kernel.org/pub/scm/boot/dracut/dracut.git)
+md5sums=('8afdca5b30b98ae8ce603fbb7894068e')
+
+getsrc() {
+	cd ${srcdir}
+	#git clone git://git.kernel.org/pub/scm/boot/dracut/dracut.git
+}
+
+prepare() {	
+	cd ${srcdir}/${pkgname}-${pkgver}
+	# For it to work with current dependencies # as arch command is depricated
+	sed -i 's|$(arch)|$(uname -m)|g' "modules.d/90crypt/module-setup.sh"
+	
+	#patch -Np0 -i ../arch_command_is_depricted.patch
+	patch -Np1 -i ../0001.patch
+	patch -Np1 -i ../0002.patch
+	patch -Np1 -i ../0003.patch
+	patch -Np1 -i ../0004.patch
+	patch -Np1 -i ../0005.patch
+	patch -Np1 -i ../0006.patch
+	patch -Np1 -i ../0007.patch
+	patch -Np1 -i ../0008.patch
+	patch -Np1 -i ../0009.patch
+	patch -Np1 -i ../0010.patch
+	patch -Np1 -i ../0011.patch
+	patch -Np1 -i ../0012.patch
+	patch -Np1 -i ../0013.patch
+	patch -Np1 -i ../0014.patch
+	patch -Np1 -i ../0015.patch
+	patch -Np1 -i ../0017.patch
+	patch -Np1 -i ../0018.patch
+	patch -Np1 -i ../0019.patch
+	patch -Np1 -i ../0020.patch
+	patch -Np1 -i ../0021.patch
+	patch -Np1 -i ../0023.patch
+	patch -Np1 -i ../0024.patch
+	patch -Np1 -i ../0025.patch
+	patch -Np1 -i ../0026.patch
+	patch -Np1 -i ../0027.patch
+	patch -Np1 -i ../0028.patch
+	patch -Np1 -i ../0029.patch
+	patch -Np1 -i ../0030.patch
+	patch -Np1 -i ../0031.patch
+	patch -Np1 -i ../0032.patch
+	patch -Np1 -i ../0033.patch
+	patch -Np1 -i ../0034.patch
+	patch -Np1 -i ../0035.patch
+	patch -Np1 -i ../0036.patch
+	patch -Np1 -i ../0037.patch
+	patch -Np1 -i ../0038.patch
+	patch -Np1 -i ../0039.patch
+	patch -Np1 -i ../0040.patch
+	patch -Np1 -i ../0041.patch
+	patch -Np1 -i ../0042.patch
+	patch -Np1 -i ../0043.patch
+	patch -Np1 -i ../0044.patch
+	patch -Np1 -i ../0045.patch
+	patch -Np1 -i ../0046.patch
+	patch -Np1 -i ../0047.patch
+	patch -Np1 -i ../0048.patch
+	patch -Np1 -i ../0049.patch
+	patch -Np1 -i ../0050.patch
+	patch -Np1 -i ../0051.patch
+	patch -Np1 -i ../0052.patch
+	patch -Np1 -i ../0054.patch
+	patch -Np1 -i ../0055.patch
+	patch -Np1 -i ../0056.patch
+	patch -Np1 -i ../0057.patch
+	patch -Np1 -i ../0058.patch
+	patch -Np1 -i ../0059.patch
+	patch -Np1 -i ../0060.patch
+	patch -Np1 -i ../0061.patch
+	patch -Np1 -i ../0062.patch ### This patch is the culprit making hdd unable to mount
+	patch -Np1 -i ../0064.patch
+	patch -Np1 -i ../0065.patch
+	patch -Np1 -i ../0066.patch
+	patch -Np1 -i ../0068.patch
+	patch -Np1 -i ../0069.patch
+	patch -Np1 -i ../0070.patch
+	patch -Np1 -i ../0071.patch
+	patch -Np1 -i ../0072.patch
+	patch -Np1 -i ../0073.patch
+	patch -Np1 -i ../0074.patch
+	patch -Np1 -i ../0075.patch
+	patch -Np1 -i ../0076.patch
+	patch -Np1 -i ../0077.patch
+	patch -Np1 -i ../0078.patch
+	patch -Np1 -i ../0079.patch
+	patch -Np1 -i ../0080.patch
+	patch -Np1 -i ../0081.patch
+	patch -Np1 -i ../0082.patch
+	patch -Np1 -i ../0083.patch
+	patch -Np1 -i ../0084.patch
+	patch -Np1 -i ../0085.patch
+	patch -Np1 -i ../0086.patch
+	patch -Np1 -i ../0087.patch
+	patch -Np1 -i ../0088.patch
+	patch -Np1 -i ../0089.patch
+	patch -Np1 -i ../0090.patch
+	patch -Np1 -i ../0091.patch
+	patch -Np1 -i ../0092.patch
+	patch -Np1 -i ../0093.patch
+	patch -Np1 -i ../0094.patch
+
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--sbindir=/usr/bin \
+		--libdir=/usr/lib \
+		--systemdsystemunitdir=/usr/lib/systemd/system \
+		--bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+
+	sed -i 's/libexec/lib/g' "${pkgdir}"/usr/lib/dracut/modules.d/50plymouth/module-setup.sh
+	
+	# install update-initramfs
+	install -m755 ../update-initramfs "${pkgdir}"/usr/bin/update-initramfs
+
+	# for systemd, better use systemd-bootchart
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00bootchart
+	# systemd-bootchart droped in systemd-229
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00systemd-bootchart
+	
+	# systemd-bootchart droped in systemd-229
+	#rm -fr ${pkgdir}/usr/lib/dracut/modules.d/02caps
+
+	# we do not support dash in the initramfs
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00dash
+
+	# remove gentoo specific modules
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/50gensplash
+
+	rm -fr ${pkgdir}/usr/lib/systemd/system/multipathd.service
+
+	# with systemd IMA and selinux modules do not make sense
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/96securityfs
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/97masterkey
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/98integrity
+
+
+	cp "${srcdir}/01-common.conf" "${pkgdir}/etc/dracut.conf.d"
+	cp "${srcdir}/02-dist.conf" "${pkgdir}/etc/dracut.conf.d"
+	cp "${srcdir}/03-generic-image.conf" "${pkgdir}/etc/dracut.conf.d"
+	#cp "${srcdir}/04-livecd.conf" "${pkgdir}/etc/dracut.conf.d"
+
+	
+	mkdir -p ${pkgdir}/boot/dracut
+	mkdir -p ${pkgdir}/var/lib/initramfs
+	mkdir -p ${pkgdir}/var/lib/dracut/overlay
+	mkdir -p ${pkgdir}/var/log
+
+	touch ${pkgdir}/var/log/dracut.log
+}
+

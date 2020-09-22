@@ -1,0 +1,51 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nodejs
+_realname=node
+pkgver=13.13.0
+pkgrel=1
+pkgdesc='Evented I/O for V8 javascript'
+arch=('x86_64')
+groups=('net-libs')
+url='https://nodejs.org/'
+license=('MIT')
+depends=('openssl' 'zlib' 'icu' 'libuv' 'c-ares' 'libnghttp2') # 'http-parser' 'v8')
+makedepends=('python' 'procps-ng')
+optdepends=('npm: nodejs package manager')
+source=("https://github.com/nodejs/node/archive/v$pkgver.tar.gz")
+
+build() {
+  cd node-$pkgver
+
+  ./configure \
+    --prefix=/usr \
+    --with-intl=system-icu \
+    --without-npm \
+    --shared-openssl \
+    --shared-zlib \
+    --shared-libuv \
+    --experimental-http-parser \
+    --shared-cares \
+    --shared-nghttp2
+    # --shared-v8
+    # --shared-http-parser
+
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd node-$pkgver
+  # Expected failure: https://github.com/nodejs/node/issues/11627
+  make test || warning "Tests failed"
+}
+
+package() {
+  cd node-$pkgver
+
+  make DESTDIR="$pkgdir" install
+
+  install -D -m644 LICENSE \
+    "$pkgdir"/usr/share/licenses/nodejs/LICENSE
+}

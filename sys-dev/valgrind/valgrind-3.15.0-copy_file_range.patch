@@ -1,0 +1,374 @@
+commit 5f00db054a6f59502e9deeeb59ace2261207ee31
+Author: Alexandra Hajkova <ahajkova@redhat.com>
+Date:   Thu May 2 08:24:02 2019 -0400
+
+    Add support for the copy_file_range syscall
+    
+    Support amd64, x86, arm64, ppc64, ppc32 and s390x architectures.
+    Also add sys-copy_file_range test case.
+
+diff --git a/configure.ac b/configure.ac
+index d043ce3..3528925 100755
+--- a/configure.ac
++++ b/configure.ac
+@@ -4172,6 +4172,7 @@ AC_CHECK_FUNCS([     \
+         utimensat    \
+         process_vm_readv  \
+         process_vm_writev \
++        copy_file_range \
+         ])
+ 
+ # AC_CHECK_LIB adds any library found to the variable LIBS, and links these
+@@ -4187,6 +4188,8 @@ AM_CONDITIONAL([HAVE_PTHREAD_SPINLOCK],
+                [test x$ac_cv_func_pthread_spin_lock = xyes])
+ AM_CONDITIONAL([HAVE_PTHREAD_SETNAME_NP],
+                [test x$ac_cv_func_pthread_setname_np = xyes])
++AM_CONDITIONAL([HAVE_COPY_FILE_RANGE],
++               [test x$ac_cv_func_copy_file_range = xyes])
+ 
+ if test x$VGCONF_PLATFORM_PRI_CAPS = xMIPS32_LINUX \
+      -o x$VGCONF_PLATFORM_PRI_CAPS = xMIPS64_LINUX ; then
+diff --git a/coregrind/m_syswrap/priv_syswrap-linux.h b/coregrind/m_syswrap/priv_syswrap-linux.h
+index f76191a..1edf9eb 100644
+--- a/coregrind/m_syswrap/priv_syswrap-linux.h
++++ b/coregrind/m_syswrap/priv_syswrap-linux.h
+@@ -379,6 +379,7 @@ DECL_TEMPLATE(linux, sys_getsockname);
+ DECL_TEMPLATE(linux, sys_getpeername);
+ DECL_TEMPLATE(linux, sys_socketpair);
+ DECL_TEMPLATE(linux, sys_kcmp);
++DECL_TEMPLATE(linux, sys_copy_file_range);
+ 
+ // Some arch specific functions called from syswrap-linux.c
+ extern Int do_syscall_clone_x86_linux ( Word (*fn)(void *), 
+diff --git a/coregrind/m_syswrap/syswrap-amd64-linux.c b/coregrind/m_syswrap/syswrap-amd64-linux.c
+index 30e7d0e..0c1d8d1 100644
+--- a/coregrind/m_syswrap/syswrap-amd64-linux.c
++++ b/coregrind/m_syswrap/syswrap-amd64-linux.c
+@@ -863,6 +863,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINXY(__NR_statx,             sys_statx),             // 332
+ 
+    LINX_(__NR_membarrier,        sys_membarrier),        // 324
++
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 326
+ };
+ 
+ SyscallTableEntry* ML_(get_linux_syscall_entry) ( UInt sysno )
+diff --git a/coregrind/m_syswrap/syswrap-arm64-linux.c b/coregrind/m_syswrap/syswrap-arm64-linux.c
+index 290320a..f66be2d 100644
+--- a/coregrind/m_syswrap/syswrap-arm64-linux.c
++++ b/coregrind/m_syswrap/syswrap-arm64-linux.c
+@@ -819,7 +819,7 @@ static SyscallTableEntry syscall_main_table[] = {
+    //   (__NR_userfaultfd,       sys_ni_syscall),        // 282
+    LINX_(__NR_membarrier,        sys_membarrier),        // 283
+    //   (__NR_mlock2,            sys_ni_syscall),        // 284
+-   //   (__NR_copy_file_range,   sys_ni_syscall),        // 285
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 285
+    //   (__NR_preadv2,           sys_ni_syscall),        // 286
+    //   (__NR_pwritev2,          sys_ni_syscall),        // 287
+    //   (__NR_pkey_mprotect,     sys_ni_syscall),        // 288
+diff --git a/coregrind/m_syswrap/syswrap-linux.c b/coregrind/m_syswrap/syswrap-linux.c
+index 73ef98d..cd0ee74 100644
+--- a/coregrind/m_syswrap/syswrap-linux.c
++++ b/coregrind/m_syswrap/syswrap-linux.c
+@@ -12093,6 +12093,36 @@ POST(sys_bpf)
+    }
+ }
+ 
++PRE(sys_copy_file_range)
++{
++  PRINT("sys_copy_file_range (%lu, %lu, %lu, %lu, %lu, %lu)", ARG1, ARG2, ARG3,
++        ARG4, ARG5, ARG6);
++
++  PRE_REG_READ6(vki_size_t, "copy_file_range",
++                int, "fd_in",
++                vki_loff_t *, "off_in",
++                int, "fd_out",
++                vki_loff_t *, "off_out",
++                vki_size_t, "len",
++                unsigned int, "flags");
++
++  /* File descriptors are "specially" tracked by valgrind.
++     valgrind itself uses some, so make sure someone didn't
++     put in one of our own...  */
++  if (!ML_(fd_allowed)(ARG1, "copy_file_range(fd_in)", tid, False) ||
++      !ML_(fd_allowed)(ARG3, "copy_file_range(fd_in)", tid, False)) {
++     SET_STATUS_Failure( VKI_EBADF );
++  } else {
++     /* Now see if the offsets are defined. PRE_MEM_READ will
++        double check it can dereference them. */
++     if (ARG2 != 0)
++        PRE_MEM_READ( "copy_file_range(off_in)", ARG2, sizeof(vki_loff_t));
++     if (ARG4 != 0)
++        PRE_MEM_READ( "copy_file_range(off_out)", ARG4, sizeof(vki_loff_t));
++  }
++}
++
++
+ #undef PRE
+ #undef POST
+ 
+diff --git a/coregrind/m_syswrap/syswrap-ppc32-linux.c b/coregrind/m_syswrap/syswrap-ppc32-linux.c
+index f812f1f..71f208d 100644
+--- a/coregrind/m_syswrap/syswrap-ppc32-linux.c
++++ b/coregrind/m_syswrap/syswrap-ppc32-linux.c
+@@ -1021,6 +1021,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINXY(__NR_getrandom,         sys_getrandom),        // 359
+    LINXY(__NR_memfd_create,      sys_memfd_create),     // 360
+ 
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),  // 379
++
+    LINXY(__NR_statx,             sys_statx),            // 383
+ };
+ 
+diff --git a/coregrind/m_syswrap/syswrap-ppc64-linux.c b/coregrind/m_syswrap/syswrap-ppc64-linux.c
+index eada099..1a42c1f 100644
+--- a/coregrind/m_syswrap/syswrap-ppc64-linux.c
++++ b/coregrind/m_syswrap/syswrap-ppc64-linux.c
+@@ -1007,6 +1007,8 @@ static SyscallTableEntry syscall_table[] = {
+ 
+    LINX_(__NR_membarrier,        sys_membarrier),       // 365
+ 
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),  // 379
++
+    LINXY(__NR_statx,             sys_statx),            // 383
+ };
+ 
+diff --git a/coregrind/m_syswrap/syswrap-s390x-linux.c b/coregrind/m_syswrap/syswrap-s390x-linux.c
+index ad78384..41ada8d 100644
+--- a/coregrind/m_syswrap/syswrap-s390x-linux.c
++++ b/coregrind/m_syswrap/syswrap-s390x-linux.c
+@@ -854,6 +854,8 @@ static SyscallTableEntry syscall_table[] = {
+    LINXY(__NR_recvmsg, sys_recvmsg),                                  // 372
+    LINX_(__NR_shutdown, sys_shutdown),                                // 373
+ 
++   LINX_(__NR_copy_file_range, sys_copy_file_range),                  // 375
++
+    LINXY(__NR_statx, sys_statx),                                      // 379
+ };
+ 
+diff --git a/coregrind/m_syswrap/syswrap-x86-linux.c b/coregrind/m_syswrap/syswrap-x86-linux.c
+index f05619e..f8d97ea 100644
+--- a/coregrind/m_syswrap/syswrap-x86-linux.c
++++ b/coregrind/m_syswrap/syswrap-x86-linux.c
+@@ -1608,6 +1608,8 @@ static SyscallTableEntry syscall_table[] = {
+ 
+    LINX_(__NR_membarrier,        sys_membarrier),       // 375
+ 
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),   // 377
++
+    LINXY(__NR_statx,             sys_statx),            // 383
+ 
+    /* Explicitly not supported on i386 yet. */
+diff --git a/memcheck/tests/linux/Makefile.am b/memcheck/tests/linux/Makefile.am
+index d7515d9..00e99a5 100644
+--- a/memcheck/tests/linux/Makefile.am
++++ b/memcheck/tests/linux/Makefile.am
+@@ -20,6 +20,7 @@ EXTRA_DIST = \
+ 	stack_switch.stderr.exp stack_switch.vgtest \
+ 	syscalls-2007.vgtest syscalls-2007.stderr.exp \
+ 	syslog-syscall.vgtest syslog-syscall.stderr.exp \
++	sys-copy_file_range.vgtest sys-copy_file_range.stderr.exp \
+ 	sys-openat.vgtest sys-openat.stderr.exp sys-openat.stdout.exp \
+ 	sys-statx.vgtest sys-statx.stderr.exp \
+ 	timerfd-syscall.vgtest timerfd-syscall.stderr.exp \
+@@ -49,6 +50,10 @@ if HAVE_AT_FDCWD
+ check_PROGRAMS += sys-openat
+ endif
+ 
++if HAVE_COPY_FILE_RANGE
++        check_PROGRAMS += sys-copy_file_range
++endif
++
+ AM_CFLAGS   += $(AM_FLAG_M3264_PRI)
+ AM_CXXFLAGS += $(AM_FLAG_M3264_PRI)
+ 
+diff --git a/memcheck/tests/linux/sys-copy_file_range.c b/memcheck/tests/linux/sys-copy_file_range.c
+new file mode 100644
+index 0000000..83981c6
+--- /dev/null
++++ b/memcheck/tests/linux/sys-copy_file_range.c
+@@ -0,0 +1,67 @@
++#define _GNU_SOURCE
++#include <fcntl.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/stat.h>
++#include <sys/syscall.h>
++#include <unistd.h>
++
++int main(int argc, char **argv)
++{
++    int fd_in, fd_out;
++    struct stat stat;
++    loff_t len, ret;
++
++    fd_in = open("copy_file_range_source", O_CREAT | O_RDWR);
++    if (fd_in == -1) {
++        perror("open copy_file_range_source");
++        exit(EXIT_FAILURE);
++    }
++
++    if (write(fd_in, "foo bar\n", 8) != 8) {
++        perror("writing to the copy_file_range_source");
++        exit(EXIT_FAILURE);
++    }
++    lseek(fd_in, 0, SEEK_SET);
++
++    if (fstat(fd_in, &stat) == -1) {
++        perror("fstat");
++        exit(EXIT_FAILURE);
++    }
++
++    len = stat.st_size;
++
++    fd_out = open("copy_file_range_dest", O_CREAT | O_WRONLY | O_TRUNC, 0644);
++    if (fd_out == -1) {
++        perror("open copy_file_range_dest");
++        exit(EXIT_FAILURE);
++    }
++
++    /* Check copy_file_range called with the correct arguments works. */
++    do {
++        ret = copy_file_range(fd_in, NULL, fd_out, NULL, len, 0);
++        if (ret == -1) {
++            perror("copy_file_range");
++            exit(EXIT_FAILURE);
++        }
++
++        len -= ret;
++    } while (len > 0);
++
++    /* Check valgrind will produce expected warnings for the
++       various wrong arguments. */
++    do {
++        void *t;
++        void *z = (void *) -1;
++
++        ret = copy_file_range(fd_in, t, fd_out, NULL, len, 0);
++        ret = copy_file_range(fd_in, NULL, fd_out, z, len, 0);
++        ret = copy_file_range(- 1, NULL, - 1, NULL, len, 0);
++    } while (0);
++
++    close(fd_in);
++    close(fd_out);
++    unlink("copy_file_range_source");
++    unlink("copy_file_range_dest");
++    exit(EXIT_SUCCESS);
++}
+diff --git a/memcheck/tests/linux/sys-copy_file_range.stderr.exp b/memcheck/tests/linux/sys-copy_file_range.stderr.exp
+new file mode 100644
+index 0000000..1aa4dc2
+--- /dev/null
++++ b/memcheck/tests/linux/sys-copy_file_range.stderr.exp
+@@ -0,0 +1,21 @@
++
++Syscall param copy_file_range("off_in") contains uninitialised byte(s)
++   ...
++   by 0x........: main (sys-copy_file_range.c:57)
++
++Syscall param copy_file_range(off_out) points to unaddressable byte(s)
++   ...
++   by 0x........: main (sys-copy_file_range.c:58)
++ Address 0x........ is not stack'd, malloc'd or (recently) free'd
++
++Warning: invalid file descriptor -1 in syscall copy_file_range(fd_in)()
++
++HEAP SUMMARY:
++    in use at exit: 0 bytes in 0 blocks
++  total heap usage: 0 allocs, 0 frees, 0 bytes allocated
++
++For a detailed leak analysis, rerun with: --leak-check=full
++
++Use --track-origins=yes to see where uninitialised values come from
++For lists of detected and suppressed errors, rerun with: -s
++ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+diff --git a/memcheck/tests/linux/sys-copy_file_range.vgtest b/memcheck/tests/linux/sys-copy_file_range.vgtest
+new file mode 100644
+index 0000000..b7741e8
+--- /dev/null
++++ b/memcheck/tests/linux/sys-copy_file_range.vgtest
+@@ -0,0 +1,2 @@
++prereq: test -e sys-copy_file_range
++prog: sys-copy_file_range
+commit bd27ad3ff31555484b7fdb310c4b033620882e44
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Sun May 5 16:01:41 2019 +0200
+
+    Hook linux copy_file_range syscall on arm.
+
+diff --git a/coregrind/m_syswrap/syswrap-arm-linux.c b/coregrind/m_syswrap/syswrap-arm-linux.c
+index 9f1bdab..9ba0665 100644
+--- a/coregrind/m_syswrap/syswrap-arm-linux.c
++++ b/coregrind/m_syswrap/syswrap-arm-linux.c
+@@ -1016,6 +1016,8 @@ static SyscallTableEntry syscall_main_table[] = {
+    LINXY(__NR_getrandom,         sys_getrandom),        // 384
+    LINXY(__NR_memfd_create,      sys_memfd_create),     // 385
+ 
++   LINX_(__NR_copy_file_range,   sys_copy_file_range),  // 391
++
+    LINXY(__NR_statx,             sys_statx),            // 397
+ };
+ 
+commit c212b72a63e43be323a4e028bbdbe8b023c22be8
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Wed May 15 21:30:00 2019 +0200
+
+    Explicitly make testcase variable for sys-copy_file_range undefined.
+    
+    On some systems an extra warning could occur when a variable in
+    the memcheck/tests/linux/sys-copy_file_range testcase was undefined,
+    but (accidentially) pointed to known bad memory. Fix by defining the
+    variable as 0, but then marking it explicitly undefined using memcheck
+    VALGRIND_MAKE_MEM_UNDEFINED.
+    
+    Followup for https://bugs.kde.org/show_bug.cgi?id=407218
+
+diff --git a/memcheck/tests/linux/sys-copy_file_range.c b/memcheck/tests/linux/sys-copy_file_range.c
+index 83981c6..589399c 100644
+--- a/memcheck/tests/linux/sys-copy_file_range.c
++++ b/memcheck/tests/linux/sys-copy_file_range.c
+@@ -3,8 +3,8 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <sys/stat.h>
+-#include <sys/syscall.h>
+ #include <unistd.h>
++#include "../../memcheck.h"
+ 
+ int main(int argc, char **argv)
+ {
+@@ -51,7 +51,7 @@ int main(int argc, char **argv)
+     /* Check valgrind will produce expected warnings for the
+        various wrong arguments. */
+     do {
+-        void *t;
++        void *t = 0; VALGRIND_MAKE_MEM_UNDEFINED (&t, sizeof (void *));
+         void *z = (void *) -1;
+ 
+         ret = copy_file_range(fd_in, t, fd_out, NULL, len, 0);
+commit 033d013bebeb3471c0da47060deb9a5771e6c913
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Fri May 24 21:51:31 2019 +0200
+
+    Fix memcheck/tests/linux/sys-copy_file_range open call (mode).
+    
+    sys-copy_file_range.c calls open with O_CREAT flag and so must provide
+    a mode argument. valgrind memcheck actually caught this ommission on
+    some arches (fedora rawhide i686 specifically).
+    
+    This is a small additional fixup for
+    https://bugs.kde.org/show_bug.cgi?id=407218
+
+diff --git a/memcheck/tests/linux/sys-copy_file_range.c b/memcheck/tests/linux/sys-copy_file_range.c
+index 589399c..3022fa1 100644
+--- a/memcheck/tests/linux/sys-copy_file_range.c
++++ b/memcheck/tests/linux/sys-copy_file_range.c
+@@ -12,7 +12,7 @@ int main(int argc, char **argv)
+     struct stat stat;
+     loff_t len, ret;
+ 
+-    fd_in = open("copy_file_range_source", O_CREAT | O_RDWR);
++    fd_in = open("copy_file_range_source", O_CREAT | O_RDWR, 0644);
+     if (fd_in == -1) {
+         perror("open copy_file_range_source");
+         exit(EXIT_FAILURE);

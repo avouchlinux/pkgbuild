@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=virglrenderer
+pkgver=0.8.2
+pkgrel=1
+pkgdesc='A virtual 3D GPU library, that allows the guest operating system to use the host GPU to accelerate 3D rendering'
+arch=('x86_64')
+groupss=('media-libs')
+url='https://virgil3d.github.io/'
+license=(MIT)
+depends=(libepoxy mesa)
+source=(https://www.freedesktop.org/software/virgl/virglrenderer-$pkgver.tar.bz2{,.sig})
+validpgpkeys=(10A6D91DA1B05BD29F6DEBAC0C74F35979C486BE) # David Airlie <airlied@redhat.com>
+
+build() {
+    avouch-meson ${pkgname} build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=faad2
+pkgver=2.8.8
+pkgrel=1
+pkgdesc="ISO AAC audio decoder"
+arch=('x86_64')
+groups=('media-libs')
+url="http://faac.sourceforge.net/"
+license=('GPL')
+depends=('glibc')
+options=('!makeflags')
+source=(https://downloads.sourceforge.net/sourceforge/faac/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

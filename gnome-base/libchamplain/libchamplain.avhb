@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libchamplain
+_realname=libchamplain-LIBCHAMPLAIN
+pkgver=0.12.20
+pkgrel=1
+pkgdesc="A map widget"
+url="https://wiki.gnome.org/Projects/libchamplain"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL)
+depends=(clutter-gtk libsoup cairo sqlite)
+makedepends=(gobject-introspection gtk-doc vala meson)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson ${_realname}_${pkgver//./_} build -D gtk_doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

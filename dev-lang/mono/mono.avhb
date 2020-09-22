@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mono
+pkgver=6.8.0.105
+pkgrel=1
+pkgdesc="Free implementation of the .NET platform including runtime and compiler"
+arch=('x86_64')
+groups=('dev-lang')
+license=('GPL' 'LGPL2.1' 'MPL')
+url="http://www.mono-project.com/"
+depends=('zlib' 'libgdiplus' 'sh' 'python' 'ca-certificates')
+makedepends=('cmake')
+install="${pkgname}.install"
+source=(https://download.mono-project.com/sources/mono/${pkgname}-${pkgver}.tar.bz2
+        mono.binfmt.d)
+       
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./autogen.sh --prefix=/usr \
+		--sysconfdir=/etc \
+		--bindir=/usr/bin \
+		--sbindir=/usr/bin \
+		--with-mcs-docs=no \
+		--disable-rpath 
+
+	export LD_LIBRARY_PATH=`pwd`/mono/native/.libs
+	make ${MAKEFLAGS}
+
+	# build jay
+	make -C mcs/jay
+
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+	# install jay
+	make -C mcs/jay DESTDIR="${pkgdir}" prefix=/usr INSTALL=../../install-sh install
+
+	# install binfmt conf file and pathes
+	install -D -m644 "${srcdir}"/mono.binfmt.d "${pkgdir}"/usr/lib/binfmt.d/mono.conf
+
+	#install license
+	mkdir -p "${pkgdir}"/usr/share/licenses/${pkgname}
+	install -m644 mcs/MIT.X11 "${pkgdir}"/usr/share/licenses/${pkgname}/
+}
+

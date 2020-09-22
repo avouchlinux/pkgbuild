@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcdr
+pkgver=0.1.6
+pkgrel=1
+pkgdesc="CorelDraw file format importer library for LibreOffice"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://wiki.documentfoundation.org/DLP/Libraries/libcdr"
+license=('GPL2' 'LGPL2.1' 'MPL')
+depends=('libwpd' 'lcms2' 'icu' 'librevenge')
+makedepends=('libwpg' 'boost' 'doxygen' 'cppunit')
+source=(https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} -k check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

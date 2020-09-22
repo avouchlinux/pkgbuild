@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iputils
+pkgver=s20190515
+pkgrel=1
+pkgdesc="Network monitoring tools, including ping"
+arch=('x86_64')
+groups=('net-misc')
+license=('GPL')
+url="http://www.skbuff.net/iputils/"
+depends=('openssl' 'sysfsutils' 'libcap' 'libidn2')
+optdepends=('xinetd: for tftpd')
+makedepends=('docbook-utils' 'perl-sgmls' 'git')
+conflicts=('netkit-base' 'arping' 'netkit-tftpd')
+replaces=('netkit-base')
+backup=(etc/xinetd.d/tftp)
+install=${pkgname}.install
+source=("git+https://github.com/iputils/iputils.git#commit=${_rev}"
+        tftp.xinetd)
+sha1sums=('SKIP'
+          'fc2ae26f5609725e3f4aeaf4ab82dfa6d2e378fd')
+
+prepare() {
+    mkdir -p build
+}
+
+build() {
+    cd ${srcdir}/build	
+    avouch-meson ../${pkgname}-${pkgver}
+    ninja
+
+    make -C ../${pkgname}-${pkgver} /doc
+}
+
+package() {
+    cd ${srcdir}/build
+    install -dm755 "${pkgdir}"/usr/bin
+    install -m755 arping clockdiff ping rarpd rdisc tftpd tracepath traceroute6 "${pkgdir}"/usr/bin/
+
+    cd ../${pkgname}
+    install -dm755 "${pkgdir}"/usr/share/man/man8
+    install -m644 doc/{arping,clockdiff,ping,rarpd,rdisc,tftpd,tracepath,traceroute6}.8 \
+     "${pkgdir}"/usr/share/man/man8/    
+
+    install -dm755 "${pkgdir}"/usr/share/doc/iputils
+    install -m644 doc/{arping,clockdiff,ping,rarpd,rdisc,tftpd,tracepath,traceroute6}.html \
+     "${pkgdir}"/usr/share/doc/iputils
+
+    # FS#24768
+    install -dm755 "${pkgdir}"/etc/xinetd.d/
+    install -m644 "${srcdir}"/tftp.xinetd "${pkgdir}"/etc/xinetd.d/tftp
+    
+}

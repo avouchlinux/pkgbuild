@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libseccomp
+pkgver=2.4.3
+pkgrel=1
+pkgdesc='Enhanced seccomp library'
+arch=('x86_64')
+groups=('sys-libs')
+url="https://github.com/seccomp/libseccomp"
+depends=('glibc')
+checkdepends=('valgrind')
+provides=('libseccomp.so')
+source=(https://github.com/seccomp/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz{,.asc})
+validpgpkeys=('7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A') # Paul Moore <paul@paul-moore.com>
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

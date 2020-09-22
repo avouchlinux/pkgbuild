@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xdg-user-dirs-gtk
+pkgver=0.10
+pkgrel=1
+pkgdesc="Creates user dirs and asks to relocalize them"
+arch=('x86_64')
+groups=('x11-misc')
+license=('GPL')
+depends=('gtk3' 'xdg-user-dirs')
+makedepends=('intltool' gnome-common git)
+options=('!emptydirs')
+url="https://www.gnome.org"
+groups=('gnome')
+source=("https://gitlab.gnome.org/GNOME/xdg-user-dirs-gtk.git"
+        show-in-mate.patch)
+
+getsrc(){
+	git clone $source
+}
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  patch -Np1 -i ../show-in-mate.patch
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure --prefix=/usr --sysconfdir=/etc --disable-more-warnings
+  make
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}

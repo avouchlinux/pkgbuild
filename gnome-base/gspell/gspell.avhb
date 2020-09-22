@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gspell
+pkgver=1.8.4
+pkgrel=1
+pkgdesc="A flexible API to implement the spell checking in a GTK+ application"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/gspell"
+license=('GPL2')
+depends=('gtk3' 'enchant' 'libxml2' 'iso-codes')
+makedepends=('intltool' 'gobject-introspection' 'vala')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd "$pkgname-$pkgver"
+	./configure  --prefix=/usr --enable-gtk-doc
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+package(){
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}

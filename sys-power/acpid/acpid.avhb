@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=acpid
+pkgver=2.0.32
+pkgrel=1
+pkgdesc='A daemon for delivering ACPI power management events with netlink support'
+arch=('x86_64')
+groups=('sys-power')
+url='https://sourceforge.net/projects/acpid2/'
+license=('GPL')
+depends=('bash')
+optdepends=('perl: use perl based examples')
+replaces=('acpid2')
+backup=('etc/acpi/handler.sh' 'etc/acpi/events/anything')
+source=("https://downloads.sourceforge.net/sourceforge/acpid2/$pkgname-$pkgver.tar.xz"
+        'acpid.service'
+        'anything'
+        'handler.sh')
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  # default config
+  install -Dm644 ../anything "$pkgdir/etc/acpi/events/anything"
+  install -Dm755 ../handler.sh "$pkgdir/etc/acpi/handler.sh"
+
+  # systemd
+  install -Dm644 ../acpid.service "$pkgdir/usr/lib/systemd/system/acpid.service"
+}

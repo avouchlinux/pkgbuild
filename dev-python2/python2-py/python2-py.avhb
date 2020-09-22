@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-py
+_realname=py
+pkgver=1.8.1
+pkgrel=1
+pkgdesc="library with cross-python path, ini-parsing, io, code, log facilities"
+arch=('any')
+groups=('dev-python2')
+license=('MIT')
+url="https://py.readthedocs.io/"
+depends=('python2-iniconfig' 'python2-apipkg')
+makedepends=( 'python2-setuptools'  'python2-setuptools-scm' 'python2-iniconfig' 'python2-apipkg')
+checkdepends=('python2-pytest-runner')
+source=("https://github.com/pytest-dev/py/archive/$pkgver.tar.gz"
+        py-pytest-4.patch::https://github.com/pytest-dev/py/pull/222.patch)
+
+export LC_CTYPE=en_US.UTF-8
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  patch -p1 -i ../py-pytest-4.patch
+  rm -r py/_vendored_packages
+}
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

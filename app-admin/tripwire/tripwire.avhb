@@ -1,0 +1,69 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tripwire
+_realname=tripwire-open-source
+pkgver=2.4.3.7
+pkgrel=1
+pkgdesc="An intrusion detection system"
+arch=('x86_64')
+groups=('app-admin')
+url="http://sourceforge.net/projects/tripwire/"
+license=('GPL')
+depends=('openssl')
+backup=('etc/tripwire/twpol.txt' 'etc/tripwire/twcfg.txt')
+install=$pkgname.install
+#options=('!makeflags')
+source=(https://github.com/Tripwire/tripwire-open-source/releases/download/2.4.3.7/tripwire-open-source-2.4.3.7.tar.gz
+        twpol.txt twcfg.txt)
+
+build() {
+	cd $_realname-$pkgver
+    autoreconf --force --install
+    ./autogen.sh
+}
+
+build() {
+	cd $_realname-$pkgver
+	./configure --prefix=/usr --sysconfdir=/etc/tripwire
+	make ${MAKEFLAGS}
+}
+
+package () {
+
+	cd $_realname-$pkgver
+
+	# This package doesn't have a typical make install, so we do it by hand.
+	#make DESTDIR=${pkgdir} install
+	 
+	#create var/lib directories
+	install -d ${pkgdir}/var/lib
+	install -d -m700 ${pkgdir}/var/lib/tripwire
+	install -d -m700 ${pkgdir}/var/lib/tripwire/report
+
+	#install binaries
+	install -d ${pkgdir}/usr/bin
+	install -m755 bin/siggen ${pkgdir}/usr/bin/
+	install -m755 bin/tripwire ${pkgdir}/usr/bin/
+	install -m755 bin/twadmin ${pkgdir}/usr/bin/
+	install -m755 bin/twprint ${pkgdir}/usr/bin/
+
+	#copy install files for use by user after install, and fix a path
+	install -d ${pkgdir}/usr/share/$pkgname
+	install -m755 installer/install.sh ${pkgdir}/usr/share/$pkgname/
+	install -m644 installer/install.cfg ${pkgdir}/usr/share/$pkgname/
+	sed -i 's#./install/install.cfg#./install.cfg#' ${pkgdir}/usr/share/$pkgname/install.sh
+
+	#install man pages - FS#13766 fixed
+	install -d ${pkgdir}/usr/share/man/{man4,man5,man8}
+	install -m644 man/man4/*.4 ${pkgdir}/usr/share/man/man4/
+	install -m644 man/man5/*.5 ${pkgdir}/usr/share/man/man5/
+	install -m644 man/man8/*.8 ${pkgdir}/usr/share/man/man8/
+
+	#install configuration files
+	install -d ${pkgdir}/etc/$pkgname
+	install -m644 ${srcdir}/twpol.txt ${pkgdir}/etc/tripwire/twpol.txt
+	install -m644 ${srcdir}/twcfg.txt ${pkgdir}/etc/tripwire/twcfg.txt
+}

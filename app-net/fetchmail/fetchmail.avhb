@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fetchmail
+pkgver=6.4.5
+pkgrel=1
+pkgdesc="A remote-mail retrieval utility"
+arch=('x86_64')
+groups=('app-net')
+url="http://www.fetchmail.info"
+license=('GPL')
+depends=('openssl')
+makedepends=('python')
+optdepends=('tk: for using fetchmailconf'
+            'python-future: for using fetchmailconf')
+options=('!makeflags')
+source=("https://sourceforge.net/projects/fetchmail/files/branch_${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"
+        'fetchmail.tmpfiles' 'fetchmail.sysusers' 'fetchmail.service')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --with-ssl=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  cd "${srcdir}"
+  install -D -m644 fetchmail.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/fetchmail.conf
+  install -D -m644 fetchmail.sysusers "${pkgdir}"/usr/lib/sysusers.d/fetchmail.conf
+  install -D -m644 fetchmail.service "${pkgdir}"/usr/lib/systemd/system/fetchmail.service
+}

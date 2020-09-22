@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xxhash
+_realname=xxHash
+pkgver=0.8.0
+pkgrel=1
+pkgdesc='Extremely fast non-cryptographic hash algorithm'
+arch=('x86_64')
+groups=('app-crypt')
+url=https://cyan4973.github.io/xxHash/
+license=(
+  GPL2
+  BSD
+)
+makedepends=(git)
+provides=(libxxhash.so)
+source=(https://github.com/Cyan4973/xxHash/archive/v$pkgver.tar.gz)
+
+
+build() {
+  make PREFIX=/usr -C xxHash-$pkgver
+}
+
+package() {
+  make PREFIX=/usr DESTDIR="${pkgdir}" -C xxHash-$pkgver install
+  install -Dm 644 xxHash-$pkgver/LICENSE -t "${pkgdir}"/usr/share/licenses/xxhash
+}

@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pbr
+_realname=pbr
+pkgver=5.4.4
+pkgrel=1
+pkgdesc="Python Build Reasonableness"
+arch=('any')
+groups=('dev-python2')
+url='https://pypi.python.org/pypi/pbr'
+license=('Apache')
+depends=('python2-setuptools')
+makedepends=('python2-setuptools' 'python-setuptools' 'git')
+checkdepends=('python2-testscenarios' 'python2-testrepository' 'python2-testresources' 'python2-mock' 'python2-virtualenv' 'python2-wheel' 'python2-sphinx')
+source=("https://github.com/openstack-dev/pbr/archive/$pkgver.tar.gz")
+
+export PBR_VERSION=$pkgver
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+
+  mv "$pkgdir"/usr/bin/pbr{,2}
+
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

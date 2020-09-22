@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=popt
+pkgver=1.16
+pkgrel=1
+pkgdesc="A commandline option parser"
+arch=('x86_64')
+groups=('sys-base')
+url="http://rpm5.org"
+license=('custom')
+depends=('glibc')
+options=('staticlibs')
+source=("${pkgname}-${pkgver}.tar.gz::https://deb.debian.org/debian/pool/main/p/${pkgname}/${pkgname}_${pkgver}.orig.tar.gz")
+sha1sums=('cfe94a15a2404db85858a81ff8de27c8ff3e235e')
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --build=x86_64-pc-linux-gnu
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

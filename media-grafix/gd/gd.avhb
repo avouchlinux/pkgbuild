@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gd
+_realname=libgd
+pkgver=2.3.0
+pkgrel=1
+pkgdesc="Library for the dynamic creation of images by programmers"
+arch=('x86_64')
+groups=('media-grafix')
+url="http://www.libgd.org/"
+license=('custom')
+depends=('fontconfig' 'libxpm' 'libwebp')
+optdepends=('perl: bdftogd script')
+checkdepends=('ttf-liberation')
+source=("https://github.com/libgd/libgd/releases/download/gd-${pkgver}/libgd-${pkgver}.tar.xz"
+        'gd-CVE-2018-1000222.patch' 'gd-CVE-2018-5711.patch'
+        'gd-CVE-2019-6977.patch' 'gd-CVE-2019-6978.patch')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --disable-rpath
+	make ${MAKFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make check
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	install -D -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

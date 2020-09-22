@@ -1,0 +1,390 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>docbook2man-spec.pl</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="DocBook Utils"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Helper programs"
+HREF="helpers.html"><LINK
+REL="PREVIOUS"
+TITLE="Helper programs"
+HREF="helpers.html"><LINK
+REL="NEXT"
+TITLE="docbook2texi-spec.pl"
+HREF="docbook2texi.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook Utils</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="helpers.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="docbook2texi.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="DOCBOOK2MAN"
+></A
+>docbook2man-spec.pl</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN660"
+></A
+><H2
+>Name</H2
+>docbook2man-spec.pl&nbsp;--&nbsp;convert DocBook RefEntries to man pages</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN663"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>sgmlspl</B
+>  {docbook2man-spec.pl}</P
+><P
+><B
+CLASS="COMMAND"
+>nsgmls</B
+>  [<TT
+CLASS="REPLACEABLE"
+><I
+>sgml document</I
+></TT
+>]<BR><B
+CLASS="COMMAND"
+>| sgmlspl</B
+>  {docbook2man-spec.pl}</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN673"
+></A
+><H2
+>Description</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>docbook2man</SPAN
+> is a sgmlspl spec file that produced man
+pages (using the -man macros) from DocBook RefEntry markup.</P
+><P
+>The program reads ESIS produced by nsgmls (or other SGML parsers) from
+standard input.  Markup not found in RefEntry is discarded.</P
+><P
+>Its output, the converted man pages, are written to the current directory.  If
+<CODE
+CLASS="SGMLTAG"
+>RefMeta</CODE
+> information is not specified in a
+<CODE
+CLASS="SGMLTAG"
+>RefEntry</CODE
+>, then the man page will be written to standard
+output.</P
+><P
+>The file <TT
+CLASS="FILENAME"
+>manpage.links</TT
+> will also be created, which contains
+any aliases of the manpages generated.  This file is in the format:
+
+<PRE
+CLASS="SYNOPSIS"
+><SPAN
+CLASS="TOKEN"
+><TT
+CLASS="REPLACEABLE"
+><I
+>man page</I
+></TT
+></SPAN
+> <SPAN
+CLASS="TOKEN"
+><TT
+CLASS="REPLACEABLE"
+><I
+>alias
+manpage</I
+></TT
+></SPAN
+></PRE
+></P
+><P
+>The <TT
+CLASS="FILENAME"
+>manpage.refs</TT
+> file keeps track of
+<CODE
+CLASS="SGMLTAG"
+>XRef</CODE
+> references.  Note that if the input document has any
+forward references, then <SPAN
+CLASS="APPLICATION"
+>docbook2man</SPAN
+> may have to be
+invoked twice (the first time updating <TT
+CLASS="FILENAME"
+>manpage.refs</TT
+>) to
+resolve them.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN693"
+></A
+><H2
+>Requirements</H2
+><P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+>The SGMLSpm package from CPAN.  This package includes the sgmlspl script
+that is also needed.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN697"
+></A
+><H2
+>Limitations</H2
+><P
+>Trying <SPAN
+CLASS="APPLICATION"
+>docbook2man</SPAN
+> on non-DocBook or non-conformant
+SGML results in undefined behavior. :-)</P
+><P
+>This program is a slow, dodgy Perl script.</P
+><P
+>This program does not come close to supporting all the possible markup
+in DocBook, and may produce wrong output in some cases with supported
+markup.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN703"
+></A
+><H2
+>To do</H2
+><P
+>Obvious stuff:
+
+<P
+></P
+><UL
+><LI
+><P
+> Fix <SPAN
+CLASS="APPLICATION"
+>docbook2man</SPAN
+> breakages found in
+the test documents, especially
+<TT
+CLASS="FILENAME"
+>weird.sgml</TT
+>.</P
+></LI
+><LI
+><P
+>Add new element handling and fix existing handling.  
+Be robust.  </P
+></LI
+><LI
+><P
+> Produce cleanest, readable man output as possible (unlike some
+other converters).  Follow Linux
+<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>man</SPAN
+>(7)</SPAN
+>
+convention.  As conversion to man pages is usually not done very often, it is
+better to be slower/more complicated than to produce wrong output.  Also if
+someone wants to give up using DocBook for whatever reason, the last-converted
+man pages can then be maintained manually.  </P
+></LI
+><LI
+><P
+>Make it faster. I think most of the speed problems so far is with parsing
+ESIS.  Rewrite <TT
+CLASS="FILENAME"
+>SGMLS.pm</TT
+> with C and/or get input directly
+from <SPAN
+CLASS="APPLICATION"
+>SP</SPAN
+>.</P
+></LI
+><LI
+><P
+>Support other (human) languages.  But what to do with non-ASCII charsets?
+SGMLSpm doesn't report them and <SPAN
+CLASS="APPLICATION"
+>roff</SPAN
+> does not grok them.</P
+></LI
+></UL
+>
+
+
+If we do this, more people can use DocBook.</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN726"
+></A
+><H2
+>Copyright</H2
+><P
+>Copyright (C) 1998-1999 Steve Cheng <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:steve@ggi-project.org"
+>steve@ggi-project.org</A
+>&#62;</CODE
+></P
+><P
+>This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2, or (at your option) any
+later version.</P
+><P
+>You should have received a copy of the GNU General Public License along with
+this program; see the file <TT
+CLASS="FILENAME"
+>COPYING</TT
+>.  If not, please write
+to the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="helpers.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="docbook2texi.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Helper programs</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="helpers.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>docbook2texi-spec.pl</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

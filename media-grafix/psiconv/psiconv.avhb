@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=psiconv
+pkgver=0.9.9
+pkgrel=1
+pkgdesc="Converts Psion 5(MX) files to more commonly used file formats"
+arch=('x86_64')
+groups=('media-grafix')
+url="http://software.frodo.looijaard.name/psiconv/"
+license=('GPL')
+depends=('graphicsmagick')
+makedepends=('bc')
+backup=('etc/psiconv/psiconv.conf')
+source=("http://www.frodo.looijaard.name/system/files/software/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../psiconv-0.8.3-gcc10-fno-common.patch
+  sed -e 's|Magick-config|GraphicsMagick-config|g' -i configure.in
+  autoreconf -vi
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+              --sysconfdir=/etc \
+              --mandir=/usr/share/man
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

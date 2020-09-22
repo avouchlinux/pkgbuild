@@ -1,0 +1,44 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cloog
+pkgver=0.20.0
+pkgrel=1
+pkgdesc="Library that generates loops for scanning polyhedra"
+arch=('x86_64')
+groups=('dev-libs')
+url="http://www.bastoul.net/cloog/"
+license=('GPL')
+depends=('osl' 'isl')
+makedepends=('texlive-core' 'texlive-bin')
+source=(https://github.com/periscop/cloog/releases/download/$pkgname-$pkgver/$pkgname-$pkgver.tar.gz)
+
+prepare() {
+    cd ${srcdir}/${pkgname}
+    # Make sure we always use the system isl.
+	./autogen.sh
+    
+    # disable doc as texi2dvi does not generate output
+    # temp fix
+    sed -i '/--pdf/d' Makefile.am
+
+}
+build() {
+    cd ${srcdir}/${pkgname}
+    ./configure --prefix=/usr --with-isl=system --with-osl=system    
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd ${srcdir}/${pkgname}
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd ${srcdir}/${pkgname}
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

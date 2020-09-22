@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=networkmanager-openvpn
+_realname=NetworkManager-openvpn
+pkgver=1.8.12
+pkgrel=1
+pkgdesc="NetworkManager VPN plugin for OpenVPN"
+url="https://wiki.gnome.org/Projects/NetworkManager"
+arch=('x86_64')
+groups=('net-misc')
+license=(GPL)
+depends=(libnm libsecret openvpn)
+makedepends=(libnma intltool python git)
+optdepends=('libnma: GUI support')
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2"
+        0001-build-disable-libnm-glib-support-by-default.patch)
+
+prepare() {
+  cd NetworkManager-openvpn-$pkgver
+
+  intltoolize --automake --copy
+  autoreconf -fvi
+}
+
+build() {
+  cd NetworkManager-openvpn-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --libexecdir=/usr/lib --libexecdir=/usr/lib/NetworkManager --disable-static
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd NetworkManager-openvpn-$pkgver
+  make DESTDIR="$pkgdir" install dbusservicedir=/usr/share/dbus-1/system.d
+  echo 'u nm-openvpn - "NetworkManager OpenVPN"' |
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+}

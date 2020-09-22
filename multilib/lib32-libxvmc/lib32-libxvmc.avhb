@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxvmc
+_realname=libXvMC
+pkgver=1.0.12
+pkgrel=1
+pkgdesc="X11 Video Motion Compensation extension library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('lib32-libxv' 'libxvmc')
+makedepends=('pkgconfig' gcc-multilib)
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXvMC-${pkgver}.tar.bz2)
+sha256sums=('5e1a401efa433f959d41e17932b8c218c56b931348f494b8fa4656d7d798b204')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32 
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+
+}

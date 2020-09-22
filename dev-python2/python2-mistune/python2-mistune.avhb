@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-mistune
+pkgname=('python-mistune' 'python2-mistune')
+_realname=mistune
+pkgver=0.8.4
+pkgrel=1
+pkgdesc="The fastest markdown parser in pure Python with renderer feature."
+arch=('any')
+groups=('dev-python')
+url="https://github.com/lepture/mistune"
+license=('BSD')
+depends=('python')
+makedepends=('python-setuptools' 'python2-setuptools')
+source=("$pkgbase-$pkgver.tgz::https://github.com/lepture/mistune/archive/v${pkgver}.tar.gz")
+md5sums=('2f2cc1d1d6d58460a52e22778ef86d44')
+
+prepare() {
+  cd "$srcdir"
+  cp -r "$srcdir/$_realname-$pkgver" "$srcdir/${_realname}2-$pkgver"
+}
+
+package_python-mistune() {
+  cd "$srcdir/${_realname}-$pkgver"
+  python setup.py install --root="$pkgdir/"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/python-mistune/LICENSE"
+}
+
+package_python2-mistune() {
+  depends=('python2')
+  cd "$srcdir/${_realname}2-$pkgver"
+  python2 setup.py install --root="$pkgdir/"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/python2-mistune/LICENSE"
+}

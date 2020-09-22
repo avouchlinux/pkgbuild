@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=attica
+pkgver=5.74.0
+pkgrel=1
+arch=('x86_64')
+groups=('kde-frameworks')
+pkgdesc='Qt5 library that implements the Open Collaboration Services API'
+url='https://projects.kde.org/projects/frameworks/attica'
+license=('LGPL')
+depends=('qt5-base')
+makedepends=('extra-cmake-modules')
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-urdufonts
+_realname=UrduFonts
+pkgdesc="Urdu fonts (Jameel Noori Nastaleeq (+kasheeda), Nafees Web Naskh, PDMS Saleem Quran Font) and font configuration to set Jameel Noori Nastaleeq as default font for Urdu"
+license=('custom')
+pkgver=1.2
+pkgrel=1
+arch=('any')
+groups=('media-fonts')
+depends=('fontconfig' 'xorg-font-utils')
+#url="http://urdu.ca"
+"http://www.urdujahan.com/font.html"
+source=("
+        #http://urdu.ca/UrduFonts.zip"
+        "http://www.urdujahan.com/urdu-fonts/Pak%20Nastaleeq%20(Beta%20Release).ttf"
+        "http://www.urdujahan.com/urdu-fonts/Fajer%20Noori%20Nastalique%2015-12-2006.ttf"
+        "http://www.urdujahan.com/urdu-fonts/asunaskh.ttf"
+        "http://www.urdujahan.com/urdu-fonts/Jameel%20Noori%20Nastaleeq.zip"
+        "http://www.urdujahan.com/ur.txt"
+        "90-fonts-urdu.conf" "LICENSE")
+install=$pkgname.install
+
+package() {
+    install -D -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    install -d "$pkgdir/usr/share/fonts/TTF"
+    cp -dpr --no-preserve=ownership *.ttf "$pkgdir/usr/share/fonts/TTF/"
+    install -D -m644 90-fonts-urdu.conf "$pkgdir/etc/fonts/conf.d/90-fonts-urdu.conf"
+    
+    # add urdu key board
+    install -D ur.txt "$pkgdir/usr/share/X11/xkb/symbols/ur"
+    
+}
+

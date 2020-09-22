@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libpagemaker
+pkgver=0.0.4
+pkgrel=1
+pkgdesc="a library that parses the file format of Aldus/Adobe PageMaker documents"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://wiki.documentfoundation.org/DLP/Libraries/libpagemaker"
+license=('MPL')
+depends=('librevenge')
+makedepends=('boost' 'doxygen')
+source=(https://dev-www.libreoffice.org/src/${pkgname}/${pkgname}-${pkgver}.tar.xz
+        libpagemaker-0.0.4-const-ref-exception.patch)
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -Np1 -i ../libpagemaker-0.0.4-const-ref-exception.patch
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+

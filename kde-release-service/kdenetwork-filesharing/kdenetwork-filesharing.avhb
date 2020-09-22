@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdenetwork-filesharing
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Properties dialog plugin to share a directory with the local network'
+url='https://www.kde.org/applications/internet/'
+arch=('x86_64')
+groups=('kde-apps')
+license=(GPL LGPL FDL)
+depends=(kio)
+makedepends=(extra-cmake-modules kdoctools python)
+optdepends=('samba: folder sharing')
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+sha1sums=('c3dbae3204cbef9b5c29bb8fdedb0b90b75a0940')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

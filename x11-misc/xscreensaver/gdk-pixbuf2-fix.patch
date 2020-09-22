@@ -1,0 +1,14 @@
+--- driver/xscreensaver-getimage.c	2016-04-09 00:30:46.732798968 +0000
++++ ../xscreensaver-getimage.c	2016-04-09 00:29:32.692796291 +0000
+@@ -53,9 +53,9 @@
+ #ifdef HAVE_GDK_PIXBUF
+ # undef HAVE_JPEGLIB
+ # ifdef HAVE_GTK2
+-#  include <gdk-pixbuf-xlib/gdk-pixbuf-xlib.h>
++#  include <gdk-pixbuf-2.0/gdk-pixbuf-xlib/gdk-pixbuf-xlib.h>
+ # else  /* !HAVE_GTK2 */
+-#  include <gdk-pixbuf/gdk-pixbuf-xlib.h>
++#  include <gdk-pixbuf-2.0/gdk-pixbuf-xlib/gdk-pixbuf-xlib.h>
+ # endif /* !HAVE_GTK2 */
+ #endif /* HAVE_GDK_PIXBUF */
+ 

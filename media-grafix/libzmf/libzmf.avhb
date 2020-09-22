@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libzmf
+pkgver=0.0.2
+pkgrel=1
+pkgdesc="a library for import of Zoner drawing and bitmap files"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://wiki.documentfoundation.org/DLP/Libraries/libzmf"
+license=('MPL')
+depends=('librevenge' 'libpng')
+makedepends=('boost' 'cppunit' 'doxygen')
+source=(https://dev-www.libreoffice.org/src/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-werror
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+

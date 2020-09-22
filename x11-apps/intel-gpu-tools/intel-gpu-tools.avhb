@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=intel-gpu-tools
+_realname=igt-gpu-tools
+pkgver=1.25
+pkgrel=1
+pkgdesc="Tools for development and testing of the Intel DRM driver"
+arch=('x86_64')
+groups=('x11-apps')
+license=(MIT)
+url='https://gitlab.freedesktop.org/drm/igt-gpu-tools'
+depends=(libdrm libpciaccess cairo python xorg-xrandr procps-ng kmod libxv libunwind peg systemd)
+makedepends=(swig gtk-doc xorg-util-macros dri2proto meson)
+source=(https://xorg.freedesktop.org/releases/individual/app/${_pkgname}-$pkgver.tar.xz{,.sig})
+validpgpkeys=('669AC671793B22350E46960F045DBC54CFE49C2E')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  meson ../$_realname-$pkgver \
+    --prefix=/usr \
+    --libexecdir=/usr/lib
+
+  ninja
+}
+
+check() {
+  cd build
+  ninja test
+}
+
+package() {
+  cd build
+  DESTDIR="$pkgdir" ninja install
+
+  cd ../$_realname-$pkgver
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/${pkgname}/COPYING"
+}

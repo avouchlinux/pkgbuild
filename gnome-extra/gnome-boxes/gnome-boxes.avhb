@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-boxes
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Simple GNOME application to access remote or virtual systems"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Apps/Boxes"
+license=('LGPL')
+depends=('cdrtools' 'gtk-vnc' 'libarchive' 'libgovirt' 'libgudev' 'libosinfo' 'libsecret'
+         'libvirt-glib' 'mtools' 'qemu' 'spice-gtk3' 'tracker' 'webkit2gtk' 'freerdp')
+makedepends=('git' 'gobject-introspection' 'yelp-tools' 'meson' 'spice-protocol' 'vala')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build -D gtk_doc=true
+	ninja -C build
+}
+
+check() {
+	meson test -C build --print-errorlogs
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

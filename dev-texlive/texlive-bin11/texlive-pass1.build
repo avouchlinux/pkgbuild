@@ -1,0 +1,108 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=texlive
+pkgver=20140525
+avhver=1
+pkgrel=1
+pkgdate=20140525
+pkgdesc="The TeX Live package is a comprehensive TeX document production system"
+license=('GPL')
+arch=('i686' 'x86_64')
+depends=('cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler>=0.24.4'
+         'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
+         'icu' 'harfbuzz' 'harfbuzz-icu')
+makedepends=('perl' 'clisp' 'ffcall')
+optdepends=('ed: for texconfig')
+provides=('lcdf-typetools' 'kpathsea' 'xindy' 'pdfjam')
+conflicts=('pdfjam')
+options=('!strip')
+url='http://tug.org/texlive/'
+install="texlive.install"
+source=('fix-fontforge-encoding.patch'
+        "http://mirrors.kernel.org/archlinux/other/texlive/texlive-bin-source-${pkgver}.tar.xz"
+        "http://downloads.sourceforge.net/project/biblatex-biber/biblatex-biber/${_biber_ver}/binaries/Linux/biber-linux_x86_64.tar.gz"
+        "http://downloads.sourceforge.net/project/biblatex-biber/biblatex-biber/${_biber_ver}/binaries/Linux/biber-linux_x86_32.tar.gz"
+)
+noextract=(biber-linux_x86_64.tar.gz
+           biber-linux_x86_32.tar.gz)
+md5sums=('bfb9716aa00c86c08cd31e5b32edeb98'
+         '0a8ffd5c0002a080a4202057b1f106c6'
+         'e9764676c37b820caaba5d3270567e18'
+         '92cd2a292a27c40ea09f77d135d850ad')
+
+prepare() {
+
+srcdir=/build/${pkgname}
+cd ${srcdir}
+tar -Jxf ${srcdir}/${pkgname}-${pkgver}-source.tar.xz
+tar -zxf ${srcdir}/biber-linux_x86_64.tar.gz
+cd ${srcdir}/${pkgname}-${pkgver}-source
+
+mkdir texlive-build
+cd texlive-build
+
+}
+
+build() {
+
+cd ${srcdir}/${pkgname}-${pkgver}-source/texlive-build
+
+export TEXARCH=$(uname -m | sed -e 's/i.86/i386/' -e 's/$/-linux/')
+
+../configure --prefix=/usr -C  \
+--sysconfdir=/etc \
+--datarootdir=/usr/share \
+--datadir=/usr/share \
+--mandir=/usr/share/man \
+--disable-native-texlive-build \
+--disable-native-texlive-build \
+--disable-static \
+--enable-shared \
+--with-banner-add=" - Avouch Linux" \
+--with-system-cairo \
+--with-system-fontconfig \
+--with-system-freetype2 \
+--with-system-graphite2  \
+--with-system-harfbuzz \
+--with-system-icu \
+--with-system-libgs \
+--with-system-libpng \
+--with-system-pixman \
+--with-system-poppler \
+--with-system-xpdf \
+--with-system-zlib
+make
+   
+
+}
+
+
+package() {
+
+cd ${srcdir}/${pkgname}-${pkgver}-source/texlive-build
+make DESTDIR="${pkgdir}" texmf="$pkgdir"/usr/share/texmf install
+
+# install biber
+tar -xf ${srcdir}/biber-linux_x86_64.tar.gz -C "$pkgdir"/usr/bin --strip-components=1
+
+
+tar -xf texlive-20140525-texmf.tar.xz -C "$pkgdir"/usr/share/texmf --strip-components=1
+
+## install Perl libraries
+mkdir -p "$pkgdir"/usr/share/tlpkg/TeXLive
+install -m644 ${srcdir}/${pkgname}-${pkgver}-source/utils/biber/TeXLive/*.pm \
+"${pkgdir}/usr/share/tlpkg/TeXLive"
+
+}
+
+makepkg() {
+
+# make avouch package
+apm ${pkgname} ${pkgver} ${avhver} ${pkgrel}
+
+# install avouch package
+api ${pkgname} ${pkgver} ${avhver} ${pkgrel}
+
+}
+

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gsound
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="Small library for playing system sounds"
+url="https://wiki.gnome.org/Projects/GSound"
+arch=('x86_64')
+groups=('gnome-base')
+license=('LGPL')
+depends=(glib2 libcanberra)
+makedepends=(gobject-introspection vala git gtk-doc autoconf-archive)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --disable-static \
+        --enable-gtk-doc \
+        --enable-compile-warnings=yes
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,390 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libreoffice
+pkgname=('libreoffice-sdk' 'libreoffice')
+_LOver=6.4.4.2
+pkgver=6.4.4
+pkgrel=1
+arch=('x86_64')
+groups=('app-office')
+license=('LGPL3')
+url="http://www.libreoffice.org/"
+makedepends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.7' 'libwpd>=0.9.2' 'libwps'
+	'neon>=0.28.6' 'pango' 'nspr' 'libjpeg' 'libxrandr' 'libgl' 'dbus-glib'
+	'libxslt' 'redland' 'hyphen' 'lpsolve' 'gcc-libs' 'sh' 'graphite' 'icu' 
+	'lcms2' 'poppler>=0.24.0' 'libvisio' 'libetonyek' 'libodfgen' 'libcdr'
+	'libmspub' 'harfbuzz-icu' 'nss' 'hicolor-icon-theme'
+	'desktop-file-utils' 'shared-mime-info' 'gtk2' 'gst-plugins-base-libs'
+	'sane' 'perl-archive-zip' 'zip' 'unzip' 'unixodbc' 'ant'
+	'gperf' 'gtk3' 'qt5-base' 'plasma-framework' 'cppunit' 'beanshell' 'clucene'
+	'junit' 'libmythes' 'libwpg'  'java-environment=8' 'postgresql-libs' 'mariadb-libs' 'libgl'
+	'bluez-libs' 'gdb' 'doxygen'  'libatomic_ops'  'mdds'
+	'apr' 'serf' 'ttf-liberation' 'ttf-dejavu' 'ttf-carlito' 'libxinerama' 'libpagemaker' 'glm'
+	'libabw' 'libmwaw' 'libe-book' 'coin-or-mp' 'liblangtag' 'liborcus' 
+	'libexttextcat' 'libcmis' 'gobject-introspection' # 'libfbclient'
+	'libtommath' 'libzmf' 'gpgme' 'xmlsec' 'rxvt-unicode' 
+	'libepubgen' 'libfreehand' 'libqxp' 'libstaroffice'  'boost' 'libnumbertext'
+)
+_mirror="https://download.documentfoundation.org/libreoffice/src/${pkgver}"
+#_mirror="https://dev-builds.libreoffice.org/pre-releases/src"
+_additional_source_url="http://dev-www.libreoffice.org/src"
+_additional_source_url2="http://dev-www.libreoffice.org/extern"
+source=(${_mirror}/libreoffice{,-help,-translations}-${_LOver}.tar.xz{,.asc}
+	${_additional_source_url}/35c94d2df8893241173de1d16b6034c0-swingExSrc.zip
+	${_additional_source_url}/798b2ffdc8bcfe7bca2cf92b62caf685-rhino1_5R5.zip # keep old bundled version, new system version ftbs
+	${_additional_source_url}/a7983f859eafb2677d7ff386a023bc40-xsltml_2.1.2.zip
+	${_additional_source_url}/0168229624cfac409e766913506961a8-ucpp-1.3.2.tar.gz
+	${_additional_source_url}/language-subtag-registry-2019-04-03.tar.bz2
+	${_additional_source_url}/17410483b5b5f267aa18b7e00b65e6e0-hsqldb_1_8_0.zip
+	${_additional_source_url}/d8bd5eed178db6e2b18eeed243f85aa8-flute-1.1.6.zip
+	${_additional_source_url}/ba2930200c9f019c2d93a8c88c651a0f-flow-engine-0.9.4.zip
+	${_additional_source_url}/pdfium-3963.tar.bz2
+	${_additional_source_url}/lxml-4.1.1.tgz
+	${_additional_source_url}/Firebird-3.0.0.32483-0.tar.bz2
+	${_additional_source_url}/QR-Code-generator-1.4.0.tar.gz
+	${_additional_source_url2}/8249374c274932a21846fa7629c2aa9b-officeotron-0.7.4-master.jar  # for test suite
+	${_additional_source_url2}/odfvalidator-1.2.0-incubating-SNAPSHOT-jar-with-dependencies-971c54fd38a968f5860014b44301872706f9e540.jar # for test suite
+	${_additional_source_url2}/884ed41809687c3e168fc7c19b16585149ff058eca79acbf3ee784f6630704cc-opens___.ttf
+	${_additional_source_url2}/185d60944ea767075d27247c3162b3bc-unowinreg.dll
+	make-pyuno-work-with-system-wide-module-install.diff
+	soffice-template.desktop.in 
+	libreoffice-fresh.sh libreoffice-fresh.csh
+        libreoffice-poppler-0.86.patch
+        disable-latest-c++.diff)
+noextract=(35c94d2df8893241173de1d16b6034c0-swingExSrc.zip
+           798b2ffdc8bcfe7bca2cf92b62caf685-rhino1_5R5.zip
+           a7983f859eafb2677d7ff386a023bc40-xsltml_2.1.2.zip
+           0168229624cfac409e766913506961a8-ucpp-1.3.2.tar.gz
+           language-subtag-registry-2019-04-03.tar.bz2
+           17410483b5b5f267aa18b7e00b65e6e0-hsqldb_1_8_0.zip
+           d8bd5eed178db6e2b18eeed243f85aa8-flute-1.1.6.zip
+           ba2930200c9f019c2d93a8c88c651a0f-flow-engine-0.9.4.zip
+           pdfium-3963.tar.bz2
+           lxml-4.1.1.tgz
+           Firebird-3.0.0.32483-0.tar.bz2
+           QR-Code-generator-1.4.0.tar.gz
+           8249374c274932a21846fa7629c2aa9b-officeotron-0.7.4-master.jar  # for test suite
+           odfvalidator-1.2.0-incubating-SNAPSHOT-jar-with-dependencies-971c54fd38a968f5860014b44301872706f9e540.jar  # for test suite
+           884ed41809687c3e168fc7c19b16585149ff058eca79acbf3ee784f6630704cc-opens___.ttf
+           185d60944ea767075d27247c3162b3bc-unowinreg.dll
+)
+
+# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+# Note: These are for Avouch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact qurbanullah@avouch.org for
+# more information.
+_google_default_client_id=1062054956701.apps.googleusercontent.com
+_google_default_client_secret=vNghxOz1TWXC7uE9-p4uTUPk
+
+prepare() {
+
+    cd ${srcdir}/${pkgbase}-${_LOver}
+
+	patch -p1 -i ../libreoffice-poppler-0.86.patch # Fix build with poppler 0.86
+
+    # fix build with recent toolchain
+    # https://cgit.freedesktop.org/libreoffice/core/commit/?h=libreoffice-6-4&id=f0b74640137f07ed74027f98fbf6d1c0d98939bf
+    patch -Np1 -i ../disable-latest-c++.diff
+
+    # move external sources into place
+    #mkdir ${srcdir}/ext_sources
+	cp -r $srcarchivedir/ext_sources ${srcdir}
+    #pushd ${srcdir}/ext_sources
+        #for source in "${noextract[@]}"; do
+            #ln -s ${srcarchivedir}/$source .
+        #done
+    #popd
+
+	# disable tests
+	#sed -i '/CppunitTest_chart2_export/d' chart2/Module_chart2.mk
+	#sed -i '/CppunitTest_chart2_pivot_chart_test/d' chart2/Module_chart2.mk
+
+	#sed -i '/CppunitTest_sc_filters_test/d' sc/Module_sc.mk
+	#sed -i '/CppunitTest_sc_pivottable_filters_test/d' sc/Module_sc.mk
+	#sed -i '/CppunitTest_sc_subsequent_export_test/d' sc/Module_sc.mk
+	
+	#sed -i '/CppunitTest_sd_misc_tests/d' sd/Module_sd.mk
+	#sed -i '/CppunitTest_sd_import_tests/d' sd/Module_sd.mk
+	#sed -i '/CppunitTest_sd_export_tests/d' sd/Module_sd.mk
+	#sed -i '/CppunitTest_sd_export_ooxml2/d' sd/Module_sd.mk
+
+	#sed -i '/CppunitTest_sw_odfexport/d' sw/Module_sw.mk
+	#sed -i '/CppunitTest_sw_uiwriter/d' sw/Module_sw.mk
+
+    # unowinreg.dll must be a file not a symlink or the result will become a broken symlink
+    # /usr/share/libreoffice/sdk/classes/win/unowinreg.dll -> /build/libreoffice/src/185d60944ea767075d27247c3162b3bc-unowinreg.dll
+    #rm ${srcdir}/ext_sources/185d60944ea767075d27247c3162b3bc-unowinreg.dll
+    #cp -f ${srcarchivedir}/185d60944ea767075d27247c3162b3bc-unowinreg.dll ${srcdir}/ext_sources
+
+    # fix not upstreamable pyuno paths - patch taken from Debian
+    patch -Np1 -i ${srcdir}/make-pyuno-work-with-system-wide-module-install.diff
+
+    sed -e "/gzip -f/d"   \
+        -e "s|.1.gz|.1|g" \
+        -i bin/distro-install-desktop-integration
+
+    # fix permission error
+    #chmod -v +x bin/unpack-sources
+}
+
+build() {
+
+    #export CXXFLAGS="$CXXFLAGS -fno-lifetime-dse"
+    #export MDDS_CFLAGS=`pkg-config --cflags mdds-1.0`
+    #aclocal -I m4
+    #autoconf
+
+    # http://site.icu-project.org/download/61#TOC-Migration-Issues
+    CPPFLAGS+=' -DU_USING_ICU_NAMESPACE=1'
+
+    cd ${srcdir}/${pkgbase}-${_LOver}
+./autogen.sh --prefix=/usr \
+--exec-prefix=/usr \
+--sysconfdir=/etc \
+--libdir=/usr/lib \
+--mandir=/usr/share/man \
+--with-build-version="${_LOver} Avouch build-${pkgrel}" \
+--with-vendor="Avouch" \
+--with-lang="fr en-GB" \
+--with-external-tar="${srcdir}/ext_sources" \
+--with-gdrive-client-id=${_google_default_client_id} \
+--with-gdrive-client-secret=${_google_default_client_secret} \
+--with-help \
+--with-myspell-dicts \
+--with-system-librevenge \
+--with-system-libwpd \
+--with-system-libwpg \
+--with-system-libwps \
+--with-system-libcdr \
+--with-system-libvisio \
+--with-system-libmspub \
+--with-system-libpng \
+--with-system-libxml \
+--with-system-libatomic-ops \
+--with-system-libexttextcat \
+--with-system-liblangtag \
+--with-system-libodfgen \
+--with-system-libmwaw \
+--with-system-libebook \
+--with-system-libabw \
+--with-system-apr \
+--with-system-zlib \
+--with-system-cairo \
+--with-system-poppler \
+--with-system-curl \
+--with-system-expat \
+--with-system-graphite \
+--with-system-harfbuzz \
+--with-system-icu \
+--with-system-jpeg \
+--with-system-lcms2 \
+--with-system-neon \
+--with-system-nss \
+--with-system-odbc \
+--with-system-openldap \
+--with-system-openssl \
+--with-system-redland \
+--with-system-cppunit \
+--with-system-serf \
+--with-system-graphite \
+--with-system-dicts \
+--with-system-libetonyek \
+--with-system-clucene \
+--with-system-gpgmepp \
+--with-system-hunspell \
+--with-system-libstaroffice \
+--with-external-dict-dir="/usr/share/hunspell" \
+--with-external-hyph-dir="/usr/share/hyphen" \
+--with-external-thes-dir="/usr/share/mythes" \
+--with-jdk-home="/usr/lib/jvm/default" \
+--with-ant-home="/usr/share/ant" \
+--with-parallelism=$(getconf _NPROCESSORS_ONLN) \
+--enable-release-build \
+--enable-python=system \
+--enable-split-app-modules \
+--enable-gtk3 \
+--enable-odk \
+--enable-dbus \
+--enable-gio \
+--enable-evolution2 \
+--enable-introspection \
+--enable-openssl \
+--enable-python=system \
+--enable-scripting-beanshell \
+--enable-scripting-javascript \
+--enable-ext-wiki-publisher \
+--enable-ext-nlpsolver \
+--without-system-boost \
+--without-system-firebird \
+--without-junit \
+--without-system-jfreereport \
+--without-system-apache-commons \
+--without-system-libstaroffice \
+--without-system-hsqldb \
+--disable-avahi \
+--disable-dconf \
+--disable-postgresql-sdbc \
+--disable-dependency-tracking
+                     
+	make build-nocheck
+
+	# fake installation
+	mkdir ${srcdir}/fakeinstall
+	make DESTDIR=${srcdir}/fakeinstall distro-pack-install
+	#rm ${srcdir}/fakeinstall/gid*
+
+}
+
+package_libreoffice-sdk() {
+	pkgdesc="Software Development Kit for LibreOffice"
+	depends=('libreoffice' 'gcc-libs' 'sh' 'make' 'zip' 'gcc' 'java-environment')
+	provides=('libreoffice-sdk')
+
+	for dir in $(grep -h ^%dir libreoffice-$_LOver/file-lists/sdk{,_doc}_list.txt); do
+		install -dm755 "${pkgdir}"/${dir/\%dir/}
+	done
+
+	for file in $(grep -h -v ^%dir libreoffice-$_LOver/file-lists/sdk{,_doc}_list.txt); do
+		dirname=$(dirname $file)
+		[[ -d "${pkgdir}"/$dirname ]] || install -dm755 "${pkgdir}"/$dirname
+		mv "${srcdir}"/fakeinstall/${file} "${pkgdir}"/$file
+	done
+
+	# fix environment path to keep compatibility with other java-environments
+	sed -i -e "s:\/usr\/lib\/jvm\/java-7-openjdk:\$J2SDKDIR:" \
+		"${pkgdir}"/usr/lib/libreoffice/sdk/setsdkenv_unix.sh
+
+	# fix permissions
+	find "${pkgdir}"/usr/lib/libreoffice/sdk/examples -type f -exec chmod -x {} +
+	
+	# add LibreOfficeKit headers; FS#48066
+	install -dm755 "${pkgdir}"/usr/include/LibreOfficeKit
+	install -v -m644 "${srcdir}"/libreoffice-$_LOver/include/LibreOfficeKit/* "${pkgdir}"/usr/include/LibreOfficeKit
+
+	# install license
+	install -Dm644 ${srcdir}/${pkgbase}-${_LOver}/COPYING \
+		${pkgdir}/usr/share/licenses/libreoffice-sdk/LICENSE
+	
+	# remove the empty sdk directory
+	find fakeinstall/usr/lib/libreoffice/sdk -depth -print0 | xargs -0 rmdir
+
+}
+
+package_libreoffice() {
+	pkgdesc="LibreOffice branch which contains new features and program enhancements"
+	depends=('curl>=7.20.0' 'hunspell>=1.2.8' 'python>=3.7' 'libwpd>=0.9.2' 'libwps'
+		'neon>=0.28.6' 'pango' 'nspr' 'libjpeg' 'libxrandr' 'libgl'
+		'libxslt' 'redland' 'hyphen' 'lpsolve' 'gcc-libs' 'sh' 'graphite' 'icu' 
+		'lcms2' 'poppler>=0.24.0' 'libvisio' 'libetonyek' 'libodfgen' 'libcdr'
+		'libmspub' 'harfbuzz-icu' 'nss' 'clucene' 'hicolor-icon-theme'
+		'desktop-file-utils' 'shared-mime-info' 'libpagemaker'
+		'libxinerama' 'libabw' 'libmwaw' 'libe-book' 'libcups'
+		'liblangtag' 'libexttextcat' 'libcmis' 'liborcus' # 'libfbclient'
+		'libtommath' 'libzmf' 'libatomic_ops' 'xmlsec' 'gpgme' 'libnumbertext'
+		'libfreehand' 'libstaroffice' 'libepubgen' 'libqxp' 'libepoxy')
+	optdepends=('java-runtime:     adds java support'
+		'java-environment: required by extension-wiki-publisher and extension-nlpsolver'
+		'pstoedit:         translates PostScript and PDF graphics into other vector formats'
+		'libmythes:        for use in thesaurus'
+		'beanshell:       interactive java -- good for prototyping/macros'
+		'libwpg:           library for importing and converting WordPerfect Graphics format'
+		'sane:             for scanner access'
+		'unixodbc:         adds ODBC database support'
+		'gst-plugins-base-libs: for multimedia content, e.g. in Impress'
+		'libpaper:         takes care of papersize'
+		'postgresql-libs:  for postgresql-connector'
+		'mariadb-libs:     for mysql-connector'
+		'coin-or-mp:	   required by the Calc solver'
+		#'gtk2:             for GTK2 integration'
+		'gtk3:             for GTK3 integration'
+		'kio:              for KF5 KDE desktop integration')
+	backup=(etc/libreoffice/sofficerc
+		etc/libreoffice/bootstraprc
+		etc/libreoffice/psprint.conf
+		etc/profile.d/libreoffice-fresh.sh
+		etc/profile.d/libreoffice-fresh.csh)
+	provides=('libreoffice' 'libreoffice-en-US')
+
+	mv fakeinstall/* ${pkgdir}/
+
+	# put configuration files into place
+	install -dm755 "${pkgdir}"/etc/libreoffice
+	install -m644 "${pkgdir}"/usr/lib/libreoffice/program/{bootstraprc,sofficerc} \
+		"${pkgdir}"/etc/libreoffice/
+	install -m644 "${pkgdir}"/usr/lib/libreoffice/share/psprint/psprint.conf \
+	   	"${pkgdir}"/etc/libreoffice/
+
+	# install dummy links to make them found by LibO
+	cd "${pkgdir}"/usr/lib/libreoffice/program/
+	ln -vsf /etc/libreoffice/{bootstraprc,sofficerc} .
+	cd "${pkgdir}"/usr/lib/libreoffice/share/psprint/
+	ln -vsf /etc/libreoffice/psprint.conf .
+
+	# allow to preset desired VLC
+	install -dm755 "${pkgdir}"/etc/profile.d
+	install -m644 "${srcdir}"/libreoffice.{sh,csh} "${pkgdir}"/etc/profile.d/
+
+	# make pyuno find its modules
+	install -dm755 "${pkgdir}"/usr/lib/python3.8/site-packages
+	ln -svf /usr/lib/libreoffice/program/uno.py \
+		"${pkgdir}"/usr/lib/python3.8/site-packages/uno.py
+	ln -svf /usr/lib/libreoffice/program/unohelper.py \
+		"${pkgdir}"/usr/lib/python3.8/site-packages/unohelper.py
+		
+	# add a symlink required for gnome-documents; FS#51887
+	# https://lists.freedesktop.org/archives/libreoffice/2016-March/073787.html
+	ln -svf /usr/lib/libreoffice/program/liblibreofficekitgtk.so \
+		"${pkgdir}"/usr/lib/liblibreofficekitgtk.so  
+
+	# cleanup
+	rm -rf "${pkgdir}"/usr/share/libreoffice/sdk
+
+	# add application descriptions
+	install -dm755 "${pkgdir}"/usr/share/metainfo
+	install -v -m644 "${srcdir}"/libreoffice-$_LOver/sysui/desktop/appstream-appdata/*.xml \
+		"${pkgdir}"/usr/share/metainfo
+
+	# add kde filemanager templates; FS#61662 - file taken from Debian
+	install -dm755 "${pkgdir}"/usr/share/templates/.source
+	install -v -m644 "${srcdir}"/libreoffice-$_LOver/extras/source/shellnew/soffice.* \
+		"${pkgdir}"/usr/share/templates/.source
+
+	cat "${srcdir}"/soffice-template.desktop.in \
+                | sed -e "s/@APP@/Writer/" \
+                | sed -e "s/@EXT@/odt/" \
+                | sed -e "s/@TYPE@/text/" \
+                > "${pkgdir}"/usr/share/templates/soffice.odt.desktop
+        cat "${srcdir}"/soffice-template.desktop.in \
+                | sed -e "s/@APP@/Calc/" \
+                | sed -e "s/@EXT@/ods/" \
+                | sed -e "s/@TYPE@/spreadsheet/" \
+                > "${pkgdir}"/usr/share/templates/soffice.ods.desktop
+        cat "${srcdir}"/soffice-template.desktop.in \
+                | sed -e "s/@APP@/Impress/" \
+                | sed -e "s/@EXT@/odp/" \
+                | sed -e "s/@TYPE@/presentation/" \
+                > "${pkgdir}"/usr/share/templates/soffice.odp.desktop
+        cat "${srcdir}"/soffice-template.desktop.in \
+                | sed -e "s/@APP@/Draw/" \
+                | sed -e "s/@EXT@/odg/" \
+                | sed -e "s/@TYPE@/drawing/" \
+                > "${pkgdir}"/usr/share/templates/soffice.odg.desktop
+
+	# make all i18n lang packages with help section ('1') available to
+	# fix "F1" not opening translated offline help opening in browser
+	# see also /usr/lib/libreoffice/help/en-US/langnames.js
+	echo "var languagesSet = new Set(['en-US','am','ar','ast','bg','bn',\
+	'bn-IN','bo','bs','ca','ca-valencia','cs','da','de','dz','el',\
+	'en-GB','en-ZA','eo','es','et','eu','fi','fr','gl','gu','he',\
+	'hi','hr','hu','id','is','it','ja','ka','km','ko','lo','lt','lv',\
+	'mk','nb','ne','nl','nn','om','pl','pt','pt-BR','ro','ru','si',\
+	'sid','sk','sl','sq','sv','ta','tg','tr','ug','uk','vi','zh-CN','zh-TW'])" \
+		> "${pkgdir}"/usr/lib/libreoffice/help/languages.js
+
+	# install license
+	install -Dm644 ${srcdir}/${pkgbase}-${_LOver}/COPYING \
+		${pkgdir}/usr/share/licenses/libreoffice/LICENSE
+}

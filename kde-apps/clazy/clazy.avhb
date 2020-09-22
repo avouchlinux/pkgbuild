@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=clazy
+pkgver=1.6
+pkgrel=1
+pkgdesc="Qt oriented code checker based on clang framework"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.kdab.com/"
+license=(GPL2)
+depends=(clang)
+makedepends=(cmake llvm)
+source=(https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
+        clazy-llvm-10.patch::"https://cgit.kde.org/clazy.git/patch/?id=df41bd29"
+        clazy-clang-cpp.patch::"https://cgit.kde.org/clazy.git/patch/CMakeLists.txt?id=0e295e5a")
+validpgpkeys=(949014B23D24354DFD548E5457416A0ADCEF0EFE) # Sergio Martins <sergio.martins@kdab.com>
+
+prepare() {
+  mkdir -p build
+
+  cd $pkgname-$pkgver
+  patch -p1 -i ../clazy-llvm-10.patch # Fix build with LLVM 10
+  patch -p1 -i ../clazy-clang-cpp.patch # link to libclang-cpp
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCLANG_CLANG-CPP_LIB=ON
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

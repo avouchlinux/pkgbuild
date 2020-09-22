@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lxtask
+pkgver=0.1.9
+pkgrel=1
+pkgdesc="Task manager of the LXDE Desktop"
+arch=("x86_64")
+groups=('lxqt')
+license=('GPL2')
+url="http://lxde.org/"
+depends=('gtk2')
+makedepends=('pkgconfig' 'intltool')
+source=(http://downloads.sourceforge.net/sourceforge/lxde/${pkgname}-${pkgver}.tar.gz)
+md5sums=('c4ab47d03d41a88696d64d3f1e78cf7f')
+
+prepare() {
+    cd $pkgname-$pkgver
+    patch -p1 -i ../lxtask-0.1.7-fix-no-common.patch
+
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr --sysconfdir=/etc
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+}

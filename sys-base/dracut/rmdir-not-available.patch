@@ -1,0 +1,9 @@
+--- modules.d/90dmsquash-live/iso-scan.sh	2020-09-18 07:51:49.000000000 +0000
++++ ../iso-scan.sh	2020-09-22 07:51:02.014884737 +0000
+@@ -32,5 +32,5 @@
+ 
+ do_iso_scan
+ 
+-rmdir "/run/initramfs/isoscan"
++rm -r "/run/initramfs/isoscan"
+ exit 1

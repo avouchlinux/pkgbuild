@@ -1,0 +1,11 @@
+# include it in /etc/httpd/conf/httpd.conf:
+# phpmyadmin configuration
+echo "Include conf/extra/phpmyadmin.conf" >> /etc/httpd/conf/httpd.conf
+
+# in /etc/php/php.ini change
+open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/
+changed to
+
+echo "open_basedir = /srv/http/:/home/:/tmp/:/usr/share/pear/:/usr/share/webapps/:/etc/webapps/" >>  /etc/php/php.ini 
+
+

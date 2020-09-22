@@ -1,0 +1,194 @@
+# include it in /etc/httpd/conf/httpd.conf:
+# perl configuration
+echo "LoadModule cgi_module modules/mod_cgi.so" >> /etc/httpd/conf/httpd.conf
+echo "Include conf/extra/cgi.conf" >> /etc/httpd/conf/httpd.conf
+
+sed -i "s:#LoadModule rewrite_module modules/mod_rewrite.so:LoadModule rewrite_module modules/mod_rewrite.so:g" /etc/httpd/conf/httpd.conf
+sed -i "s:#LoadModule expires_module modules/mod_expires.so:LoadModule expires_module modules/mod_expires.so:g" /etc/httpd/conf/httpd.conf
+
+
+
+
+* This is Bugzilla 4.4.8 on perl 5.20.1
+* Running on Linux 3.18.9-avouch #1 SMP PREEMPT Sat Mar 14 04:32:01 PKT 2015
+
+Checking perl modules...
+CGI will be removed from the Perl core distribution in the next major release. Please install it from CPAN. It is being used at (eval 11), line 1.
+CGI::Util will be removed from the Perl core distribution in the next major release. Please install it from CPAN. It is being used at /usr/share/perl5/core_perl/CGI.pm, line 29.
+Checking for               CGI.pm (v3.51)     ok: found v3.65 
+Checking for           Digest-SHA (any)       ok: found v5.88 
+Checking for             TimeDate (v2.23)     ok: found v2.24 
+Checking for             DateTime (v0.28)     not found 
+Checking for    DateTime-TimeZone (v0.71)     not found 
+Checking for                  DBI (v1.614)    ok: found v1.631 
+Checking for     Template-Toolkit (v2.22)     not found 
+Checking for           Email-Send (v2.04)     not found 
+Checking for           Email-MIME (v1.904)    not found 
+Checking for                  URI (v1.37)     ok: found v1.60 
+Checking for       List-MoreUtils (v0.32)     ok: found v0.33 
+Checking for    Math-Random-ISAAC (v1.0.1)    not found 
+
+Checking available perl DBD modules...
+Checking for            DBD-mysql (v4.001)    not found 
+Checking for           DBD-SQLite (v1.29)     not found 
+Checking for               DBD-Pg (v2.7.0)    not found 
+Checking for           DBD-Oracle (v1.19)     not found 
+
+The following Perl modules are optional:
+Checking for                   GD (v1.20)     not found 
+Checking for                Chart (v2.1.0)    not found 
+Checking for          Template-GD (any)       not found 
+Checking for           GDTextUtil (any)       not found 
+Checking for              GDGraph (any)       not found 
+Checking for           MIME-tools (v5.406)    not found 
+Checking for          libwww-perl (any)       ok: found v6.05 
+Checking for             XML-Twig (any)       not found 
+Checking for          PatchReader (v0.9.6)    not found 
+Checking for            perl-ldap (any)       not found 
+Checking for          Authen-SASL (any)       not found 
+Checking for         Net-SMTP-SSL (v1.01)     not found 
+Checking for           RadiusPerl (any)       not found 
+Checking for            SOAP-Lite (v0.712)    not found 
+Checking for          XMLRPC-Lite (v0.712)    not found 
+Checking for             JSON-RPC (any)       not found 
+Checking for              JSON-XS (v2.0)      not found 
+Checking for           Test-Taint (any)       not found 
+Checking for          HTML-Parser (v3.67)     ok: found v3.71 
+Checking for        HTML-Scrubber (any)       not found 
+Checking for               Encode (v2.21)     ok: found v2.60 
+Checking for        Encode-Detect (any)       not found 
+Checking for          Email-Reply (any)       not found 
+Checking for HTML-FormatText-WithLinks (v0.13)     not found 
+Checking for          TheSchwartz (v1.07)     not found 
+Checking for       Daemon-Generic (any)       not found 
+Checking for           File-Slurp (v9999.13)  not found 
+Checking for             mod_perl (v1.999022) not found 
+Checking for     Apache-SizeLimit (v0.96)     not found 
+Checking for        File-MimeInfo (any)       not found 
+Checking for           IO-stringy (any)       not found 
+Checking for          mod_expires (any)       not found 
+Checking for          mod_headers (any)       ok 
+Checking for              mod_env (any)       ok 
+***********************************************************************
+* REQUIRED MODULES                                                    *
+***********************************************************************
+* Bugzilla requires you to install some Perl modules which are either *
+* missing from your system, or the version on your system is too old. *
+* See below for commands to install these modules.                    *
+***********************************************************************
+* DATABASE ACCESS                                                     *
+***********************************************************************
+* In order to access your database, Bugzilla requires that the        *
+* correct "DBD" module be installed for the database that you are     *
+* running. See below for the correct command to run to install the    *
+* appropriate module for your database.                               *
+***********************************************************************
+* OPTIONAL MODULES                                                    *
+***********************************************************************
+* Certain Perl modules are not required by Bugzilla, but by           *
+* installing the latest version you gain access to additional         *
+* features.                                                           *
+*                                                                     *
+* The optional modules you do not have installed are listed below,    *
+* with the name of the feature they enable. Below that table are the  *
+* commands to install each module.                                    *
+***********************************************************************
+*               MODULE NAME * ENABLES FEATURE(S)                      *
+***********************************************************************
+*                        GD * Graphical Reports, New Charts, Old Charts *
+*                     Chart * New Charts, Old Charts                  *
+*               Template-GD * Graphical Reports                       *
+*                GDTextUtil * Graphical Reports                       *
+*                   GDGraph * Graphical Reports                       *
+*                MIME-tools * Move Bugs Between Installations         *
+*                  XML-Twig * Move Bugs Between Installations, Automatic Update Notifications *
+*               PatchReader * Patch Viewer                            *
+*                 perl-ldap * LDAP Authentication                     *
+*               Authen-SASL * SMTP Authentication                     *
+*              Net-SMTP-SSL * SSL Support for SMTP                    *
+*                RadiusPerl * RADIUS Authentication                   *
+*                 SOAP-Lite * XML-RPC Interface                       *
+*               XMLRPC-Lite * XML-RPC Interface                       *
+*                  JSON-RPC * JSON-RPC Interface                      *
+*                   JSON-XS * Make JSON-RPC Faster                    *
+*                Test-Taint * JSON-RPC Interface, XML-RPC Interface   *
+*             HTML-Scrubber * More HTML in Product/Group Descriptions *
+*             Encode-Detect * Automatic charset detection for text attachments *
+*               Email-Reply * Inbound Email                           *
+* HTML-FormatText-WithLinks * Inbound Email                           *
+*               TheSchwartz * Mail Queueing                           *
+*            Daemon-Generic * Mail Queueing                           *
+*                File-Slurp * Mail Queueing                           *
+*                  mod_perl * mod_perl                                *
+*          Apache-SizeLimit * mod_perl                                *
+*             File-MimeInfo * Sniff MIME type of attachments          *
+*                IO-stringy * Sniff MIME type of attachments          *
+***********************************************************************
+* APACHE MODULES                                                      *
+***********************************************************************
+* Normally, when Bugzilla is upgraded, all Bugzilla users have to     *
+* clear their browser cache or Bugzilla will break. If you enable     *
+* certain modules in your Apache configuration (usually called        *
+* httpd.conf or apache2.conf) then your users will not have to clear  *
+* their caches when you upgrade Bugzilla. The modules you need to     *
+* enable are:                                                         *
+*                                                                     *
+*    mod_expires                                                      *
+*                                                                     *
+***********************************************************************
+COMMANDS TO INSTALL OPTIONAL MODULES:
+
+             GD: /usr/bin/perl install-module.pl GD
+          Chart: /usr/bin/perl install-module.pl Chart::Lines
+    Template-GD: /usr/bin/perl install-module.pl Template::Plugin::GD::Image
+     GDTextUtil: /usr/bin/perl install-module.pl GD::Text
+        GDGraph: /usr/bin/perl install-module.pl GD::Graph
+     MIME-tools: /usr/bin/perl install-module.pl MIME::Parser
+       XML-Twig: /usr/bin/perl install-module.pl XML::Twig
+    PatchReader: /usr/bin/perl install-module.pl PatchReader
+      perl-ldap: /usr/bin/perl install-module.pl Net::LDAP
+    Authen-SASL: /usr/bin/perl install-module.pl Authen::SASL
+   Net-SMTP-SSL: /usr/bin/perl install-module.pl Net::SMTP::SSL
+     RadiusPerl: /usr/bin/perl install-module.pl Authen::Radius
+      SOAP-Lite: /usr/bin/perl install-module.pl SOAP::Lite
+    XMLRPC-Lite: /usr/bin/perl install-module.pl XMLRPC::Lite
+       JSON-RPC: /usr/bin/perl install-module.pl JSON::RPC
+        JSON-XS: /usr/bin/perl install-module.pl JSON::XS
+     Test-Taint: /usr/bin/perl install-module.pl Test::Taint
+  HTML-Scrubber: /usr/bin/perl install-module.pl HTML::Scrubber
+  Encode-Detect: /usr/bin/perl install-module.pl Encode::Detect
+    Email-Reply: /usr/bin/perl install-module.pl Email::Reply
+HTML-FormatText-WithLinks: /usr/bin/perl install-module.pl HTML::FormatText::WithLinks
+    TheSchwartz: /usr/bin/perl install-module.pl TheSchwartz
+ Daemon-Generic: /usr/bin/perl install-module.pl Daemon::Generic
+     File-Slurp: /usr/bin/perl install-module.pl File::Slurp
+       mod_perl: /usr/bin/perl install-module.pl mod_perl2
+Apache-SizeLimit: /usr/bin/perl install-module.pl Apache2::SizeLimit
+  File-MimeInfo: /usr/bin/perl install-module.pl File::MimeInfo::Magic
+     IO-stringy: /usr/bin/perl install-module.pl IO::Scalar
+
+YOU MUST RUN ONE OF THE FOLLOWING COMMANDS (depending on which database
+you use):
+
+PostgreSQL: /usr/bin/perl install-module.pl DBD::Pg
+    Oracle: /usr/bin/perl install-module.pl DBD::Oracle
+     MySQL: /usr/bin/perl install-module.pl DBD::mysql
+    SQLite: /usr/bin/perl install-module.pl DBD::SQLite
+
+COMMANDS TO INSTALL REQUIRED MODULES (You *must* run all these commands
+and then re-run checksetup.pl):
+
+    /usr/bin/perl install-module.pl DateTime
+    /usr/bin/perl install-module.pl DateTime::TimeZone
+    /usr/bin/perl install-module.pl Template
+    /usr/bin/perl install-module.pl Email::Send
+    /usr/bin/perl install-module.pl Email::MIME
+    /usr/bin/perl install-module.pl Math::Random::ISAAC
+
+To attempt an automatic install of every required and optional module
+with one command, do:
+
+/usr/bin/perl install-module.pl --all
+
+*** Installation aborted. Read the messages above. ***
+

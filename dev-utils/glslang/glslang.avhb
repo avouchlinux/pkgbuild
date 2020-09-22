@@ -1,0 +1,48 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glslang
+pkgver=8.13.3559
+pkgrel=1
+pkgdesc='An OpenGL and OpenGL ES shader front end and validator'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://github.com/KhronosGroup/glslang'
+license=('BSD')
+depends=('gcc-libs' 'spirv-tools' 'python')
+makedepends=('cmake' 'ninja')
+source=("https://github.com/KhronosGroup/glslang/archive/$pkgver.tar.gz")
+
+build() {
+  cd ${pkgname}-${pkgver}
+  mkdir -p build-{shared,static}
+  
+  (cd build-shared
+    cmake .. -G Ninja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_SHARED_LIBS=ON
+    ninja
+  )
+  (cd build-static
+    cmake .. -G Ninja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_SHARED_LIBS=OFF
+    ninja
+  )
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  DESTDIR="${pkgdir}" ninja -C build-shared install
+  DESTDIR="${pkgdir}" ninja -C build-static install
+  cd "${pkgdir}"/usr/lib
+  for lib in *.so; do
+    ln -sf "${lib}" "${lib}.0"
+  done
+}

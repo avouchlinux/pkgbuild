@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-cdparanoia
+pkgbase=cdparanoia
+pkgver=10.2
+pkgrel=1
+pkgdesc="Compact Disc Digital Audio extraction tool"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.xiph.org/paranoia/"
+license=('GPL')
+depends=("${pkgname#*-}" 'lib32-glibc')
+makedepends=('gcc-multilib')
+options=('!makeflags')
+source=("http://downloads.xiph.org/releases/${pkgname#*-}/${pkgname#*-}-III-${pkgver}.src.tgz"
+        'gcc.patch')
+sha256sums=('005db45ef4ee017f5c32ec124f913a0546e77014266c6a1c50df902a55fe64df'
+            '9a3f3802856e96080fb30562a10899ef3378723e85f289fa29619b21d6051575')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-III-${pkgver}"
+
+	patch -p0 -i ${srcdir}/gcc.patch
+	autoreconf
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-III-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-III-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

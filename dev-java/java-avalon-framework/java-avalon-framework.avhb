@@ -1,0 +1,21 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-avalon-framework
+_tarname=avalon-framework
+pkgver=4.2.0
+pkgrel=1
+pkgdesc='Reusable components for J2SE applications.'
+arch=('any')
+groups=('dev-java')
+url='https://excalibur.apache.org/'
+license=(APACHE)
+depends=('java-runtime')
+source=("https://archive.apache.org/dist/excalibur/avalon-framework/binaries/avalon-framework-$pkgver.tar.gz")
+
+package() {
+	install -Dm644 "$srcdir/avalon-framework/jars/avalon-framework-${pkgver}.jar" \
+	  "$pkgdir/usr/share/java/avalon-framework/avalon-framework.jar"
+}

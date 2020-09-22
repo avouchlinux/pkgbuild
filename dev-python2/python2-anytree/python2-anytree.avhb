@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-anytree
+_realname=anytree
+pkgver=2.8.0
+pkgrel=1
+pkgdesc="Powerful and Lightweight Python Tree Data Structure"
+url="https://anytree.readthedocs.io/"
+arch=(any)
+groups=('dev-python2')
+license=(Apache)
+makedepends=(python{,2}-{six,setuptools} git)
+source=("+https://github.com/c0fec0de/anytree#commit=$_commit")
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mypaint-brushes
+pkgver=1.3.0
+pkgrel=1
+pkgdesc='Brushes used by MyPaint and other software using libmypaint.'
+arch=('any')
+groups=('media-grafix')
+url='https://github.com/Jehan/mypaint-brushes'
+license=('CC0')
+depends=('libmypaint')
+source=("https://github.com/Jehan/mypaint-brushes/archive/v${pkgver}.tar.gz")
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  autoreconf -fiv
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+  install -D -m644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=grilo-plugins
+pkgver=0.3.12
+pkgrel=1
+pkgdesc="Plugins for Grilo"
+url="http://www.gnome.org"
+arch=('x86_64')
+groups=('media-libs')
+license=(LGPL)
+depends=(grilo sqlite libgcrypt)
+makedepends=(gupnp-av libgdata gmime rest libtracker-sparql totem-plparser libdmapsharing
+             json-glib intltool)
+optdepends=('gupnp-av: uPnP plugin'
+            'libgdata: Youtube plugin'
+            'gmime: Podcasts plugin'
+            'rest: Blip.tv plugin'
+            'libtracker-sparql: Tracker plugin'
+            'totem-plparser: Youtube plugin, Vimeo plugin, Optical media plugin'
+            'libdmapsharing: DMAP sharing plugin'
+            'json-glib: TMDb plugin')
+options=('!emptydirs')
+source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+    avouch-meson $pkgname-$pkgver build
+    ninja -C build
+}
+
+check() {
+    # Unreliable tests using websites...
+    meson test -C build || :
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}
+

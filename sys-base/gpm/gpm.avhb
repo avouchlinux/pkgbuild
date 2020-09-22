@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gpm
+pkgver=1.20.7
+pkgrel=1
+pkgdesc="A mouse server for the console and xterm"
+arch=('x86_64')
+groups=('sys-base')
+url="http://www.nico.schottelius.org/software/gpm/"
+license=('GPL')
+depends=('bash')
+options=('!makeflags')
+install=gpm.install
+source=(http://www.nico.schottelius.org/software/gpm/archives/${pkgname}-${pkgver}.tar.lzma \
+        gpm.sh gpm.service)
+
+prepare(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	
+	# patches from fedora
+    patch -Np1 -i ../gpm-format-security.patch
+    # Include patch from upstream pull request: https://github.com/telmich/gpm/pull/12
+    patch -Np1 -i ../gpm-1.20.7-sysmacros.patch
+    # Include patch from upstream pull request: https://github.com/telmich/gpm/pull/20
+    patch -Np1 -i ../gpm-1.20.7-sigemptyset.patch
+	# Gentoo
+	patch -Np1 -i ../gpm-1.20.7-gcc-10.patch
+    
+    ./autogen.sh
+
+}
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --sbindir=/usr/bin
+	 make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+
+	install -D -m755 ../gpm.sh "${pkgdir}/etc/profile.d/gpm.sh"
+	install -D -m644 ../gpm.service "${pkgdir}/usr/lib/systemd/system/gpm.service"
+
+	# library fixes
+	cd "${pkgdir}/usr/lib/"
+	ln -s libgpm.so.2.* libgpm.so
+	chmod 755 "${pkgdir}"/usr/lib/libgpm.so.*
+}
+

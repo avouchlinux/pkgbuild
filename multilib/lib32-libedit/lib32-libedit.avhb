@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libedit
+pkgname=lib32-libedit
+_pkgver=20190324-3.1
+pkgver=${_pkgver/-/_}
+pkgrel=1
+pkgdesc='Command line editor library providing generic line editing, history, and tokenization functions'
+url='http://www.thrysoee.dk/editline/'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('BSD')
+depends=('ncurses')
+source=("http://www.thrysoee.dk/editline/libedit-${pkgver/_/-}.tar.gz")
+sha1sums=('58b73e529b2361c172a57c9a4bbecb0633efca30')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${_pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --disable-static \
+	--enable-widec --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${_pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin,sbin}
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libvdpau-va-gl
+pkgver=0.4.2
+pkgrel=1
+pkgdesc='VDPAU driver with OpenGL/VAAPI backend'
+arch=('x86_64')
+groups=('x11-libs')
+url='https://github.com/i-rinat/libvdpau-va-gl'
+license=('LGPL3')
+epends=('gcc-libs' 'glibc' 'libgl' 'libvdpau' 'libx11'
+         'libva.so' 'libva-x11.so')
+makedepends=('cmake')
+source=("https://github.com/i-rinat/libvdpau-va-gl/archive/v${pkgver}.tar.gz")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {	
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

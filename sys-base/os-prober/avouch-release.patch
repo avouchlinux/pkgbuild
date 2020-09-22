@@ -1,0 +1,12 @@
+--- os-probes/mounted/common/90linux-distro	2016-04-27 00:26:44.209887255 +0000
++++ ../90linux-distro	2016-04-27 00:28:21.993220097 +0000
+@@ -40,6 +40,9 @@
+ 	elif [ -e "$dir/etc/arch-release" ]; then
+ 		short="Arch"
+ 		long="$(cat "$dir/etc/arch-release")"
++	elif [ -e "$dir/etc/avouch-release" ]; then
++		short="Avouch"
++		long="$(cat "$dir/etc/avouch-release")"
+ 	elif [ -e "$dir/etc/asplinux-release" ]; then
+ 		short="ASPLinux"
+ 		long="$(cat "$dir/etc/asplinux-release")"

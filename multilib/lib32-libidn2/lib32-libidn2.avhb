@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libidn2
+pkgbase=libidn2
+pkgver=2.3.0
+pkgrel=1
+pkgdesc="Implementation of the Stringprep, Punycode and IDNA specifications (32 bit)"
+url="http://www.gnu.org/software/libidn/"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL3' 'LGPL')
+depends=('lib32-glibc' "$_pkgbasename>=$pkgver")
+makedepends=('gcc-multilib')
+options=('!libtool')
+source=(http://ftp.gnu.org/gnu/${_pkgbasename}/${_pkgbasename}-${pkgver}.tar.gz)
+sha1sums=('725587211b229c156e29fa2ad116b0ef71a7ca17')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf ${pkgdir}/usr/{bin,include,share}
+	rm -f ${pkgdir}/usr/lib32/Libidn.dll
+}
+

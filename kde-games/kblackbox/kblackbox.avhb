@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kblackbox
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="A game of hide and seek played on a grid of boxes"
+url="http://kde.org/applications/games/kblackbox/"
+arch=('x86_64')
+groups=('kde-games')
+license=('GPL' 'LGPL' 'FDL')
+depends=('libkdegames' 'hicolor-icon-theme')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/kblackbox-${pkgver}.tar.xz")
+sha1sums=('492e20d8eb3e9d45dc3d59f264872ac6e3feff1a')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

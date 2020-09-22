@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ccache
+pkgver=3.6
+pkgrel=1
+pkgdesc="A compiler cache"
+arch=('x86_64')
+groups=('dev-utils')
+url="http://ccache.samba.org/"
+license=('GPL3')
+depends=('zlib')
+source=("http://samba.org/ftp/${pkgname}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  install -Dm 755 ccache ${pkgdir}/usr/bin/ccache
+  install -Dm 644 doc/ccache.1 ${pkgdir}/usr/share/man/man1/ccache.1
+
+  install -d ${pkgdir}/usr/lib/ccache/bin
+
+  local _prog
+  for _prog in gcc g++ c++; do
+    ln -s /usr/bin/ccache ${pkgdir}/usr/lib/ccache/bin/$_prog
+    ln -s /usr/bin/ccache ${pkgdir}/usr/lib/ccache/bin/${CHOST}-$_prog
+  done
+  for _prog in cc clang clang++; do
+    ln -s /usr/bin/ccache ${pkgdir}/usr/lib/ccache/bin/$_prog
+  done
+}

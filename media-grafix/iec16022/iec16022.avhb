@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iec16022
+pkgver=0.3.0
+pkgrel=1
+pkgdesc="Produce 2D barcodes often also referenced as DataMatrix"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://rdoeffinger.github.io/"
+license=('GPL')
+depends=('popt' 'zlib')
+source=(https://github.com/rdoeffinger/$pkgname/releases/download/v$pkgver/$pkgname-$pkgver.tar.xz{,.asc})
+validpgpkeys=('C61D16E59E2CD10C895838A40899A2B906D4D9C7') # Reimar Döffinger
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

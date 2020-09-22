@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fontforge
+pkgver=20200314
+pkgrel=1
+pkgdesc='Outline and bitmap font editor'
+url='https://fontforge.github.io/'
+arch=('x86_64')
+groups=('dev-utils')
+license=('BSD')
+makedepends=('git')
+depends=('libtool' 'pango' 'giflib' 'libtiff' 'libxml2' 'libspiro' 'python'
+         'potrace' 'woff2' 'gtk3' 'libuninameslist')
+source=("https://github.com/${pkgname}/${pkgname}/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+
+prepare(){
+	cd ${pkgname}-${pkgver} 
+	# from gentoo
+	patch -Np1 -i ../20200314-stylemap.patch
+	patch -Np1 -i ../20200314-tilepath.patch
+}
+
+build() {
+  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+	-DENABLE_MAINTAINER_TOOLS=TRUE \
+	-DENABLE_FONTFORGE_EXTRAS=TRUE \
+	-DUNIX=TRUE \
+	-DENABLE_TILE_PATH=ON \
+	-DENABLE_DOCS=OFF # help build failed with ON
+  ninja -C build
+}
+
+check() {
+  ninja -C build test
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

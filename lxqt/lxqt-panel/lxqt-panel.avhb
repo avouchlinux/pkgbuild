@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lxqt-panel
+pkgver=0.15.1
+pkgrel=1
+pkgdesc="The LXQt desktop panel"
+arch=("x86_64")
+groups=('lxqt')
+url="http://lxqt.org"
+license=("LGPL2.1")
+depends=(
+	"libdbusmenu-qt5" "libxcomposite" "lxmenu-data" "lxqt-common"
+	"lxqt-globalkeys" "menu-cache" "solid"
+)
+optdepends=(
+	"libpulse: Volume control plugin"
+	"libstatgrab: CPU monitor and Network monitor plugins"
+	"libsysstat: System Statistics plugin"
+	"lm_sensors: Sensors plugin"
+)
+makedepends=(
+	"lxqt-build-tools" "libpulse" "libstatgrab" "libsysstat"
+	"lm_sensors"
+)
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+validpgpkeys=(
+	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
+	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+)
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

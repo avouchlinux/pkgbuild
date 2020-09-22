@@ -1,0 +1,54 @@
+From 3e104448c4f532802dfaf30a42618bc09be99159 Mon Sep 17 00:00:00 2001
+From: Carlos Garcia Campos <carlosgc@gnome.org>
+Date: Sat, 3 Nov 2012 10:54:36 +0100
+Subject: build: Use CPPFLAGS instead of CFLAGS for compiling flags
+
+https://bugs.freedesktop.org/show_bug.cgi?id=56481
+
+diff --git a/libspectre/Makefile.am b/libspectre/Makefile.am
+index 1cee4e3..b2a6b38 100644
+--- a/libspectre/Makefile.am
++++ b/libspectre/Makefile.am
+@@ -41,10 +41,7 @@ libspectre_la_SOURCES = 		\
+ 	spectre-utils.c			\
+ 	$(gv_sources)
+ 
+-libspectre_la_CFLAGS = 		\
+-	-I$(top_builddir)       \
+-	-I$(srcdir)             \
+-	-I$(top_srcdir)         \
++libspectre_la_CPPFLAGS = 		\
+ 	$(SPECTRE_CFLAGS)
+ 
+ libspectre_la_LIBADD = $(LIB_GS)
+diff --git a/test/Makefile.am b/test/Makefile.am
+index eaadec2..f078626 100644
+--- a/test/Makefile.am
++++ b/test/Makefile.am
+@@ -2,9 +2,8 @@ noinst_PROGRAMS = spectre-test parser-test
+ 
+ spectre_test_SOURCES = spectre-test.c
+ 
+-spectre_test_CFLAGS = 			\
+-	-I$(top_srcdir)                 \
+-	-I$(top_srcdir)/libspectre      \
++spectre_test_CPPFLAGS =			\
++	-I$(top_srcdir)/libspectre	\
+ 	$(SPECTRE_CFLAGS)		\
+ 	$(CAIRO_CFLAGS)
+ 
+@@ -14,9 +13,8 @@ spectre_test_LDADD =                         		\
+ 
+ parser_test_SOURCES = parser-test.c
+ 
+-parser_test_CFLAGS = 			\
+-	-I$(top_srcdir)                 \
+-	-I$(top_srcdir)/libspectre      \
++parser_test_CPPFLAGS = 			\
++	-I$(top_srcdir)/libspectre	\
+ 	$(SPECTRE_CFLAGS)
+ 
+ parser_test_LDADD = $(top_builddir)/libspectre/libspectre.la
+-- 
+cgit v0.10.2
+

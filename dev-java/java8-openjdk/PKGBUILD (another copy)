@@ -1,0 +1,353 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+# TODO
+# once icedtea:
+#   pulse
+#   add policytool desktop files
+
+pkgbase=java8-openjdk
+pkgname=('jre8-openjdk-headless' 'jre8-openjdk' 'jdk8-openjdk' 'openjdk8-src' 'openjdk8-doc')
+_java_ver=8
+# Found @ http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+_jdk_update=131
+_jdk_build=11
+pkgver=${_java_ver}.u${_jdk_update}
+_repo_ver=jdk${_java_ver}u${_jdk_update}-b${_jdk_build}
+_icedtea_ver=1.6.2
+pkgrel=1
+arch=('i686' 'x86_64')
+url='http://openjdk.java.net/'
+license=('custom')
+makedepends=('jdk7-openjdk' 'ccache' 'cpio' 'unzip' 'zip'
+             'libxrender' 'libxtst' 'fontconfig' 'libcups' 'alsa-lib')
+_url_src=http://hg.openjdk.java.net/jdk8u/jdk8u
+
+source=(jdk8u-${_repo_ver}.tar.gz::${_url_src}/archive/${_repo_ver}.tar.gz
+        corba-${_repo_ver}.tar.gz::${_url_src}/corba/archive/${_repo_ver}.tar.gz
+        hotspot-${_repo_ver}.tar.gz::${_url_src}/hotspot/archive/${_repo_ver}.tar.gz
+        jdk-${_repo_ver}.tar.gz::${_url_src}/jdk/archive/${_repo_ver}.tar.gz
+        jaxws-${_repo_ver}.tar.gz::${_url_src}/jaxws/archive/${_repo_ver}.tar.gz
+        jaxp-${_repo_ver}.tar.gz::${_url_src}/jaxp/archive/${_repo_ver}.tar.gz
+        langtools-${_repo_ver}.tar.gz::${_url_src}/langtools/archive/${_repo_ver}.tar.gz
+        nashorn-${_repo_ver}.tar.gz::${_url_src}/nashorn/archive/${_repo_ver}.tar.gz        
+        001_adjust-mflags-for-gmake-4.patch
+        003_nonreparenting-wm.patch
+        
+        http://hg.openjdk.java.net/jdk8u/jdk8u/archive/jdk8u152-b04.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/corba/archive/jdk8u152-b04.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/hotspot/archive/jdk8u66-b17.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/jaxp/archive/jdk8u66-b17.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/jaxws/archive/jdk8u66-b17.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/jdk/archive/jdk8u66-b17.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/langtools/archive/jdk8u66-b17.tar.bz2
+        http://hg.openjdk.java.net/jdk8u/jdk8u/nashorn/archive/jdk8u66-b17.tar.bz2)
+
+sha256sums=('824b28c554ce32edbdaa77cc4f21f8ed57542c74c8748b89cd06be43a1537b34'
+            '47b07945d3f534e6b87dc273676b8bcb493292e8769667493bb5febfb5c9f347'
+            '485b1a88b4b44b468e96211de238a5eed80f7472f91977fc27e2f443a8ab8ed3'
+            'b3801935199973cc02df02ac2f2587ff0f1989f98af5bf6fe46520a8108c8d6a'
+            '04bb35fd8b071f65014fa1d3b9816886b88e06548eeda27181993b80efb6a0bf'
+            '74bb7a376fa706e4283e235caebbcf9736974a6a4cf97b8c8335d389581965e2'
+            '3e09a644d2fb38970acf78c72bc201c031d43574b5a3f7e00bec1b11bffec9c4'
+            '2fbdcb016506de4e86db5813c78b28382df5b601f0e73ffd5465c12519b75fd3'
+            '682104f7723c5c543c47b53f51cc5577e273a12343bd04bebd1bcd70dd72ded9'
+            'c41cec7415ace2f68a5f9529e6df7e87a8c21993ab9d040b0f8b395f6173d478')
+
+case "${ARCH}" in
+  'x86_64') _JARCH=amd64 ; _DOC_ARCH=x86_64 ;;
+  'i686'  ) _JARCH=i386  ; _DOC_ARCH=x86    ;;
+esac
+
+_jdkname=openjdk8
+_jvmdir=/usr/lib/jvm/java-8-openjdk
+_prefix="jdk8u-${_repo_ver}/image"
+_imgdir="${_prefix}/jvm/openjdk-1.8.0_$(printf '%.2d' ${_jdk_update})"
+_nonheadless=(bin/policytool
+              lib/${_JARCH}/libjsound.so
+              lib/${_JARCH}/libjsoundalsa.so
+              lib/${_JARCH}/libsplashscreen.so)
+              
+getsrc(){
+	cd ${srcdir}
+#for subproject in corba hotspot jaxp jaxws langtools jdk nashorn; do
+#wget -c http://hg.openjdk.java.net/jdk8u/jdk8u/${subproject}/archive/jdk8u131-b11.tar.bz2 \
+#-O ${subproject}.tar.bz2
+#done
+
+}
+prepare() {
+
+	cd ${srcdir}
+	bsdtar -xf "${srcarchivedir}"/jdk8u-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/icedtea-web-${_icedtea_ver}.tar.gz
+
+	bsdtar -xf "${srcarchivedir}"/corba-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/hotspot-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/jaxp-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/jaxws-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/jdk-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/langtools-${_repo_ver}.tar.bz2
+	bsdtar -xf "${srcarchivedir}"/nashorn-${_repo_ver}.tar.bz2
+
+	cd "${srcdir}/jdk8u-${_repo_ver}"
+	
+	patch -p1 < ../build_with_gcc6.patch
+
+	tar -xf $srcarchivedir/jtreg-4.2-b07-816.tar.gz
+
+# Avouch config.sub
+cp /usr/share/apm/config-x86_64.guess common/autoconf/build-aux/config.guess
+
+for subrepo in corba hotspot jdk jaxws jaxp langtools nashorn
+  do
+    ln -s ../${subrepo}-${_repo_ver} ${subrepo}
+done
+
+	
+  
+}
+
+build() {
+
+cd "${srcdir}/jdk8u-${_repo_ver}"
+
+install -d -m 755 "${srcdir}/${_prefix}/"
+
+  unset JAVA_HOME
+  # http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=1346
+  export MAKEFLAGS=${MAKEFLAGS/-j*}
+  # https://hydra.nixos.org/build/41230444/log
+  export CFLAGS="-Wno-error=deprecated-declarations"
+
+sh ./configure --prefix="${srcdir}/${_prefix}" \
+--with-milestone=fcs \
+--with-update-version="${_jdk_update}" \
+--with-build-number="b${_jdk_build}" \
+--with-debug-level=release \
+--enable-unlimited-crypto \
+--with-zlib=system \
+--with-extra-cflags="-std=c++98 -Wno-error -fno-delete-null-pointer-checks -fno-lifetime-dse" \
+--with-extra-cxxflags="-std=c++98 -fno-delete-null-pointer-checks -fno-lifetime-dse" 
+
+make DEBUG_BINARIES=true SCTP_WERROR= all
+
+# These help to debug builds:
+#LOG=trace HOTSPOT_BUILD_JOBS=1
+
+make docs
+
+# FIXME sadly 'DESTDIR' is not used here!
+make install
+
+cd "${srcdir}/${_imgdir}"
+
+# A lot of build stuff were directly taken from
+# http://pkgs.fedoraproject.org/cgit/java-1.8.0-openjdk.git/tree/java-1.8.0-openjdk.spec
+
+# http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=1437
+find . -iname '*.jar' -exec chmod ugo+r {} \;
+chmod ugo+r lib/ct.sym
+
+# remove redundant *diz and *debuginfo files
+find . -iname '*.diz' -exec rm {} \;
+find . -iname '*.debuginfo' -exec rm {} \;
+
+}
+
+#check() {
+#  cd "${srcdir}/${pkgname}-${pkgver}"
+#  make -k check
+#}
+
+package_jre8-openjdk-headless() {
+  pkgdesc='OpenJDK Java 8 headless runtime environment'
+  depends=('java-runtime-common' 'ca-certificates-utils' 'nss')
+  optdepends=('java-rhino: for some JavaScript support')
+  provides=('java-runtime-headless=8' 'java-runtime-headless-openjdk=8')
+  # Upstream config files that should go to etc and get backup
+  _backup_etc=(etc/java-8-openjdk/${_JARCH}/jvm.cfg
+               etc/java-8-openjdk/calendars.properties
+               etc/java-8-openjdk/content-types.properties
+               etc/java-8-openjdk/flavormap.properties
+               etc/java-8-openjdk/images/cursors/cursors.properties
+               etc/java-8-openjdk/logging.properties
+               etc/java-8-openjdk/management/jmxremote.access
+               etc/java-8-openjdk/management/jmxremote.password
+               etc/java-8-openjdk/management/management.properties
+               etc/java-8-openjdk/management/snmp.acl
+               etc/java-8-openjdk/net.properties
+               etc/java-8-openjdk/psfont.properties.ja
+               etc/java-8-openjdk/psfontj2d.properties
+               etc/java-8-openjdk/security/java.policy
+               etc/java-8-openjdk/security/java.security
+               etc/java-8-openjdk/sound.properties)
+  replaces=('jre8-openjdk-headless-wm')
+  backup=(${_backup_etc[@]})
+  install=install_jre8-openjdk-headless.sh
+
+cd "${srcdir}/${_imgdir}/jre"
+
+install -d -m 755 "${pkgdir}${_jvmdir}/jre/"
+cp -a bin lib "${pkgdir}${_jvmdir}/jre"
+
+# Set config files
+mv "${pkgdir}${_jvmdir}"/jre/lib/management/jmxremote.password{.template,}
+mv "${pkgdir}${_jvmdir}"/jre/lib/management/snmp.acl{.template,}
+
+# Remove 'non-headless' lib files
+for f in ${_nonheadless[@]}; do
+    rm "${pkgdir}${_jvmdir}/jre/${f}"
+done
+
+# Man pages
+pushd "${pkgdir}${_jvmdir}/jre/bin"
+install -d -m 755 "${pkgdir}"/usr/share/man/{,ja/}man1/
+for file in *; do
+    install -m 644 "${srcdir}/${_imgdir}/man/man1/${file}.1" \
+      "${pkgdir}/usr/share/man/man1/${file}-${_jdkname}.1"
+    install -m 644 "${srcdir}/${_imgdir}/man/ja/man1/${file}.1" \
+      "${pkgdir}/usr/share/man/ja/man1/${file}-${_jdkname}.1"
+done
+popd
+
+# Link JKS keystore from ca-certificates-utils
+rm -f "${pkgdir}${_jvmdir}/jre/lib/security/cacerts"
+ln -sf /etc/ssl/certs/java/cacerts "${pkgdir}${_jvmdir}/jre/lib/security/cacerts"
+
+# Install license
+install -d -m 755 "${pkgdir}/usr/share/licenses/${pkgbase}/"
+install -m 644 ASSEMBLY_EXCEPTION LICENSE THIRD_PARTY_README \
+                 "${pkgdir}/usr/share/licenses/${pkgbase}"
+ln -sf /usr/share/licenses/${pkgbase} "${pkgdir}/usr/share/licenses/${pkgname}"
+
+# Move config files that were set in _backup_etc from ./lib to /etc
+for file in ${_backup_etc[@]}; do
+    _filepkgpath=${_jvmdir}/jre/lib/${file#etc/java-8-openjdk/}
+    install -D -m 644 "${pkgdir}${_filepkgpath}" "${pkgdir}/${file}"
+    ln -sf /${file} "${pkgdir}${_filepkgpath}"
+done
+
+}
+
+package_jre8-openjdk() {
+  pkgdesc='OpenJDK Java 8 full runtime environment'
+  depends=("jre8-openjdk-headless=${pkgver}-${pkgrel}" "xdg-utils" "hicolor-icon-theme")
+  optdepends=('icedtea-web: web browser plugin + Java Web Start'
+              'alsa-lib: for basic sound support'
+              'gtk2: for the Gtk+ look and feel - desktop usage')
+  # TODO when adding IcedTea: 'giflib: for gif format support'
+  # TODO when adding IcedTea: 'libpulse: for advanced sound support'
+  provides=('java-runtime=8' 'java-runtime-openjdk=8')
+  install=install_jre8-openjdk.sh
+  replaces=('jre8-openjdk-wm')
+
+cd "${srcdir}/${_imgdir}/jre"
+
+# TODO? Should /usr/lib/jvm/java-8-openjdk/jre/lib/sound.properties belong to jre?
+for f in ${_nonheadless[@]}; do
+    install -D ${f} "${pkgdir}${_jvmdir}/jre/${f}"
+done
+
+# Man pages
+pushd "${pkgdir}${_jvmdir}/jre/bin"
+install -d -m 755 "${pkgdir}"/usr/share/man/{,ja/}man1/
+for file in *; do
+    install -m 644 "${srcdir}/${_imgdir}/man/man1/${file}.1" \
+      "${pkgdir}/usr/share/man/man1/${file}-${_jdkname}.1"
+    install -m 644 "${srcdir}/${_imgdir}/man/ja/man1/${file}.1" \
+      "${pkgdir}/usr/share/man/ja/man1/${file}-${_jdkname}.1"
+done
+popd
+
+# Desktop files
+# TODO add these when switching to IcedTea
+#install -D -m 644 "${srcdir}/icedtea-web-${_icedtea_ver}/policytool.desktop" \
+#"${pkgdir}/usr/share/applications/policytool.desktop"
+
+mkdir -pv ${pkgdir}/usr/share/applications
+
+cat > ${pkgdir}/usr/share/applications/openjdk-8-policytool.desktop << "EOF"
+[Desktop Entry]
+Name=OpenJDK Java Policy Tool
+Name[pt_BR]=OpenJDK Java - Ferramenta de Política
+Comment=OpenJDK Java Policy Tool
+Comment[pt_BR]=OpenJDK Java - Ferramenta de Política
+Exec=/usr/lib/jvm/java-8-openjdk/jre/bin/policytool
+Terminal=false
+Type=Application
+Icon=javaws
+Categories=Settings;
+EOF
+
+install -v -Dm644 ${srcdir}/icedtea-web-${_icedtea_ver}/javaws.png \
+${pkgdir}/usr/share/pixmaps/javaws.png
+
+# Install license
+install -d -m 755 "${pkgdir}/usr/share/licenses/${pkgbase}/"
+ln -sf /usr/share/licenses/${pkgbase} "${pkgdir}/usr/share/licenses/${pkgname}"
+
+}
+
+package_jdk8-openjdk() {
+  pkgdesc='OpenJDK Java 8 development kit'
+  depends=('java-environment-common' "jre8-openjdk=${pkgver}-${pkgrel}")
+  provides=('java-environment=8' 'java-environment-openjdk=8')
+  replaces=('jdk8-openjdk-wm')
+  install=install_jdk8-openjdk.sh
+
+cd "${srcdir}/${_imgdir}"
+
+# Main files
+install -d -m 755 "${pkgdir}${_jvmdir}"
+
+cp -a include lib "${pkgdir}${_jvmdir}"
+
+# 'bin' files
+pushd bin
+
+# 'java-rmi.cgi' will be handled separately as it should not be in the PATH and has no man page
+for b in $(ls | grep -v java-rmi.cgi); do
+    if [ -e ../jre/bin/${b} ]; then
+      # Provide a link of the jre binary in the jdk/bin/ directory
+      ln -s ../jre/bin/${b} "${pkgdir}${_jvmdir}/bin/${b}"
+    else
+      # Copy binary to jdk/bin/
+      install -D -m 755 ${b} "${pkgdir}${_jvmdir}/bin/${b}"
+      # Copy man page
+      install -D -m 644 ../man/man1/${b}.1 "${pkgdir}/usr/share/man/man1/${b}-${_jdkname}.1"
+      install -D -m 644 ../man/ja/man1/${b}.1 "${pkgdir}/usr/share/man/ja/man1/${b}-${_jdkname}.1"
+    fi
+done
+popd
+
+# Handling 'java-rmi.cgi' separately
+install -D -m 755 bin/java-rmi.cgi "${pkgdir}${_jvmdir}/bin/java-rmi.cgi"
+
+# Desktop files.
+# TODO add these when switching to IcedTea
+#install -m 644 "${srcdir}/icedtea-${_icedtea_ver}/jconsole.desktop" \
+#  "${pkgdir}/usr/share/applications"
+
+# link license
+install -d -m 755 "${pkgdir}/usr/share/licenses/"
+ln -sf /usr/share/licenses/${pkgbase} "${pkgdir}/usr/share/licenses/${pkgname}"
+
+}
+
+package_openjdk8-src() {
+  pkgdesc='OpenJDK Java 8 sources'
+
+install -D "${srcdir}/${_imgdir}/src.zip" "${pkgdir}${_jvmdir}/src.zip"
+
+}
+
+package_openjdk8-doc() {
+  pkgdesc='OpenJDK Java 8 documentation'
+
+install -d -m 755 "${pkgdir}/usr/share/doc/${pkgbase}/"
+cp -r "${srcdir}"/jdk8u-${_repo_ver}/build/linux-${_DOC_ARCH}-normal-server-release/docs/* \
+"${pkgdir}/usr/share/doc/${pkgbase}/"
+
+}

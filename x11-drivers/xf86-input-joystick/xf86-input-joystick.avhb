@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-input-joystick
+pkgver=1.6.3
+pkgrel=1
+pkgdesc="X.Org Joystick input driver"
+arch=('x86_64')
+groups=('x11-drivers')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('glibc')
+makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.0' 'resourceproto' 'scrnsaverproto')
+backup=('etc/X11/xorg.conf.d/50-joystick.conf')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2
+        50-joystick.conf)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+
+	install -m755 -d "${pkgdir}/etc/X11/xorg.conf.d"
+	install -m644 "${srcdir}/50-joystick.conf" "${pkgdir}/etc/X11/xorg.conf.d/"
+
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+

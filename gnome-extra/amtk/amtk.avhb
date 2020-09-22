@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=amtk
+pkgver=5.2.0
+pkgrel=1
+pkgdesc="Actions, Menus and Toolbars Kit for GTK+ applications"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Projects/Amtk"
+license=(LGPL2.1)
+depends=(gtk3)
+makedepends=(autoconf-archive git gobject-introspection gtk-doc)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --enable-gtk-doc --disable-Werror
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

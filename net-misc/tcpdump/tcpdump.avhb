@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tcpdump
+pkgver=4.9.3
+pkgrel=1
+pkgdesc="A tool for network monitoring and data acquisition"
+arch=('x86_64')
+groups=('net-misc')
+url="http://www.tcpdump.org"
+license=('BSD')
+depends=('libpcap' 'openssl')
+source=("http://www.tcpdump.org/release/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sbindir=/usr/bin --enable-ipv6
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -D -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	rm -f "${pkgdir}"/usr/bin/tcpdump.${pkgver}
+}
+

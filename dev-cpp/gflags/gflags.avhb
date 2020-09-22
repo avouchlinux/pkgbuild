@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gflags
+pkgver=2.2.2
+pkgrel=1
+pkgdesc='C++ Library for commandline flag processing'
+arch=('x86_64')
+groups=('dev-cpp')
+url='https://github.com/schuhschuh/gflags'
+license=('BSD')
+depends=('gcc-libs')
+makedepends=('cmake')
+options=('staticlibs')
+source=("https://github.com/schuhschuh/gflags/archive/v${pkgver}.tar.gz")
+
+build() {
+  cd "gflags-${pkgver}"
+  cmake . \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DREGISTER_INSTALL_PREFIX=OFF \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_STATIC_LIBS=ON \
+    -DBUILD_TESTING=ON
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "gflags-${pkgver}"
+  make test
+}
+
+package() {
+  cd "gflags-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 COPYING.txt "${pkgdir}"/usr/share/licenses/${pkgname}/COPYING.txt
+}

@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=zstd
+pkgver=1.4.5
+pkgrel=1
+pkgdesc='Zstandard - Fast real-time compression algorithm'
+arch=('x86_64')
+groups=('app-archive')
+url='http://www.zstd.net/'
+license=(BSD GPL2)
+depends=(zlib xz lz4)
+makedepends=(gtest)
+source=(https://github.com/facebook/zstd/archive/v${pkgver}.tar.gz)
+
+build() {
+  cd $pkgname-$pkgver
+  make
+  make zstdmt
+  make -C contrib/pzstd
+}
+
+check() {
+  cd $pkgname-$pkgver
+  #make -C tests test-zstd
+  #make -C contrib/pzstd test
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make PREFIX=/usr DESTDIR="$pkgdir/" install
+  install -Dm755 zstdmt "$pkgdir/usr/bin/zstdmt"
+  install -Dm755 contrib/pzstd/pzstd "$pkgdir/usr/bin/pzstd"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

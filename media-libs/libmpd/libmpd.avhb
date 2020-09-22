@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmpd
+pkgver=11.8.17
+pkgrel=1
+pkgdesc='Signal based wrapper around libmpdclient'
+arch=('x86_64')
+groups=('media-libs')
+url='https://gmpc.wikia.com/wiki/Gnome_Music_Player_Client'
+license=('GPL')
+depends=('glib2')
+source=("http://download.sarine.nl/Programs/gmpc/${pkgver%.*}/${pkgname}-${pkgver}.tar.gz"
+        '0001-fix-return-value.patch'
+        '0002-include-config.h.patch'
+        '0003-fix-comparison.patch')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 < "${srcdir}"/0001-fix-return-value.patch
+  patch -Np1 < "${srcdir}"/0002-include-config.h.patch
+  patch -Np1 < "${srcdir}"/0003-fix-comparison.patch
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

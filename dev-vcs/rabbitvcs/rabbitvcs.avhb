@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rabbitvcs
+pkgver=0.18
+pkgrel=1
+pkgdesc="A project with the goal of developing a collection of utilities to allow for better client integration with some of the popular version control systems (core)"
+arch=('any')
+groups=('dev-vcs')
+#url="http://rabbitvcs.org/"
+url="https://github.com/rabbitvcs/rabbitvcs"
+install=${pkgname}.install
+changelog=${pkgname}.changelog
+depends=('git' 'gtk3' 'python3-pysvn' 'python3-dulwich' 'python3-gobject' 'python3-configobj' 'python3-simplejson' 'python3-gtkspellcheck' 'tk')
+optdepends=('meld: graphical diff viewer')
+makedepends=('python3-setuptools')
+license=('GPL')
+source=("https://github.com/rabbitvcs/rabbitvcs/archive/v$pkgver.tar.gz")
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+	sed -i "s#0.18#${pkgver}#" ./rabbitvcs/__init__.py
+	sed -i "s#0.18#${pkgver}#" setup.py
+	python setup.py build 
+}
+	
+package(){
+	cd "$srcdir/$pkgname-$pkgver"
+	python setup.py install --prefix=/usr --root="$pkgdir" --optimize=1
+}

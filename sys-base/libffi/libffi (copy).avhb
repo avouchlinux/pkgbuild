@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libffi
+pkgver=3.3
+pkgrel=1
+pkgdesc="Portable, high level programming interface to various calling conventions"
+arch=('x86_64')
+groups=('sys-base')
+url='https://sourceware.org/libffi/'
+license=('MIT')
+depends=('glibc')
+checkdepends=('dejagnu')
+source=(ftp://sourceware.org/pub/libffi/libffi-$pkgver.tar.gz)
+sha1sums=('280c265b789e041c02e5c97815793dfc283fb1e6')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	# Make package install headers into /usr/include instead of /usr/lib/libffi-3.2.1/include.
+	sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
+	-i include/Makefile.in &&
+
+	sed -e '/^includedir/ s/=.*$/=@includedir@/' \
+	-e 's/^Cflags: -I${includedir}/Cflags:/' \
+	-i libffi.pc.in
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static --enable-pax_emutramp
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}
+

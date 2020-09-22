@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libwnck3
+_realname=libwnck
+pkgver=3.36.0
+pkgrel=1
+pkgdesc="Library to manage X windows and workspaces (via pagers, tasklists, etc.)"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://gitlab.gnome.org/GNOME/libwnck"
+arch=(x86_64)
+license=(LGPL)
+depends=(gtk3 startup-notification libxres)
+makedepends=(gobject-introspection gtk-doc git meson)
+source=("https://gitlab.gnome.org/GNOME/libwnck/-/archive/3.32.0/libwnck-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+    avouch-meson libwnck-$pkgver build -D gtk_doc=true
+    ninja -C build
+}
+
+check() {
+    meson test -C build --print-errorlogs
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

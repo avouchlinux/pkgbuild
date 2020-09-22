@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xine-ui
+pkgver=0.99.12
+pkgrel=1
+pkgdesc="A free video player for Unix"
+arch=('x86_64')
+groups=('media-video')
+license=('GPL')
+url="http://www.xine-project.org"
+depends=('xine-lib' 'curl' 'libpng' 'libjpeg' 'libxft' 'libxxf86vm'
+	 'xdg-utils' 'shared-mime-info' 'hicolor-icon-theme'
+	 'desktop-file-utils' 'lirc-utils')
+makedepends=('libxt')
+options=('!strip')
+install=xine-ui.install
+source=(http://downloads.sourceforge.net/xine/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+		--mandir=/usr/share/man \
+		--with-x \
+		--enable-lirc \
+		--without-aalib \
+		--enable-debug
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" desktopdir=/usr/share/applications install
+}

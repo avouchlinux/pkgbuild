@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxrandr
+_realname=libXrandr
+pkgver=1.5.2
+pkgrel=1
+pkgdesc="X11 RandR extension library"
+arch=('x86_64')
+groups=('x11-libs')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('libxext' 'libxrender')
+makedepends=('xorg-util-macros' 'xorgproto')
+source=(${url}/releases/individual/lib/libXrandr-${pkgver}.tar.bz2{,.sig})
+validpgpkeys=('10A6D91DA1B05BD29F6DEBAC0C74F35979C486BE') # Dave Airlie <airlied@redhat.com> 
+validpgpkeys+=('C41C985FDCF1E5364576638B687393EE37D128F8') # Matthieu Herrb <matthieu.herrb@laas.fr>
+validpgpkeys+=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

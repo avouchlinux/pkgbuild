@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ffmpegthumbs
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='FFmpeg-based thumbnail creator for video files'
+url='https://projects.kde.org/ffmpegthumbs'
+arch=('x86_64')
+groups=('kde-apps')
+license=(GPL LGPL FDL)
+depends=(kio ffmpeg)
+makedepends=(extra-cmake-modules git)
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+md5sums=('2e0f2da2d7e0ca9209968aff279267fb')
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+	cd ${srcdir}/build
+	cmake ../$pkgname-$pkgver \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_TESTING=OFF \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+	# License
+	install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

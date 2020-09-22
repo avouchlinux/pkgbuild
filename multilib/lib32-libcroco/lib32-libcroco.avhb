@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libcroco
+pkgbase=libcroco
+pkgver=0.6.13
+pkgrel=1
+pkgdesc="A CSS parsing library"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+depends=('glib2' 'libxml2')
+makedepends=('intltool')
+license=('LGPL')
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/0.6/$pkgname-$pkgver.tar.xz)
+url="http://www.gnome.org"
+sha256sums=('ea6e1b858c55219cefd7109756bff5bc1a774ba7a55f7d3ccd734d6b871b8570')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	./autogen.sh
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static	
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

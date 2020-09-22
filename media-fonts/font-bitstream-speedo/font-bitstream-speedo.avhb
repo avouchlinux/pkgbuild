@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=font-bitstream-speedo
+pkgver=1.0.2
+pkgrel=1
+pkgdesc="Bitstream Speedo fonts"
+arch=('any')
+groups=('media-fonts')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('xorg-mkfontdir' 'xorg-mkfontscale' 'fontconfig')
+install=xfonts.install
+source=(http://xorg.freedesktop.org/releases/individual/font/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --with-fontdir=/usr/share/fonts/speedo
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    rm -f "${pkgdir}/usr/share/fonts"/*/fonts.*
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+

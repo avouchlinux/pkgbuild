@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxi
+_realname=libXi
+pkgver=1.7.10
+pkgrel=1
+pkgdesc="X11 Input extension library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org"
+depends=('lib32-libxext' 'lib32-libxfixes' 'inputproto' 'libxi')
+makedepends=('pkgconfig' 'xorg-util-macros' gcc-multilib automake)
+options=(!libtool)
+license=('custom')
+source=(${url}/releases/individual/lib/libXi-${pkgver}.tar.bz2)
+sha256sums=('df24781dc63645e2b561cd0b20bd8a0e7aff02e426a8d2a7641159004d4cb20e')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

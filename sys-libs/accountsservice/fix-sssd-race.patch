@@ -1,0 +1,37 @@
+From 3d6d125917073b06849c336c93e475a5a43c0dd9 Mon Sep 17 00:00:00 2001
+From: Stephen Gallagher <sgallagh@redhat.com>
+Date: Fri, 17 Oct 2014 11:43:39 -0400
+Subject: systemd: ensure that accounts service starts after NSS initializes
+
+The various NSS calls don't give accurate results in some configurations
+until midway through boot up.  This is because SSSD or winbind (or
+whatever) needs to initialize.
+
+In order to prevent accounts service from using NSS prematurely, we need
+to add an ordering constraint between the nss-user-lookup.target and
+accountsservice.
+
+This commit accomplishes this by adding the appropriate Wants= and
+After= directives to the accountsservice systemd unit file.
+
+diff --git a/data/accounts-daemon.service.in b/data/accounts-daemon.service.in
+index 105bf6a..feedf3e 100644
+--- a/data/accounts-daemon.service.in
++++ b/data/accounts-daemon.service.in
+@@ -1,6 +1,12 @@
+ [Unit]
+ Description=Accounts Service
+ 
++# In order to avoid races with identity-providing services like SSSD or
++# winbind, we need to ensure that Accounts Service starts after
++# nss-user-lookup.target
++After=nss-user-lookup.target
++Wants=nss-user-lookup.target
++
+ [Service]
+ Type=dbus
+ BusName=org.freedesktop.Accounts
+-- 
+cgit v0.10.2
+
+

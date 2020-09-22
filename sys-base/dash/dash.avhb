@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dash
+pkgver=0.5.10.2
+pkgrel=1
+pkgdesc="A POSIX compliant shell that aims to be as small as possible"
+arch=('x86_64')
+groups=('sys-base')
+url="http://gondor.apana.org.au/~herbert/dash/"
+license=('BSD')
+depends=('glibc')
+install=dash.install
+source=(http://gondor.apana.org.au/~herbert/dash/files/${pkgname}-${pkgver}.tar.gz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# GCC 10 fix (Gentoo)
+	patch -p1 -i ../dash-0.5.20.2-gcc-fno-common.patch
+	patch -p1 -i ../dash-0.5.9.1-format-security.patch
+}
+
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+		--bindir=/usr/bin \
+		--mandir=/usr/share/man \
+		--exec-prefix="" \
+		--with-libedit
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

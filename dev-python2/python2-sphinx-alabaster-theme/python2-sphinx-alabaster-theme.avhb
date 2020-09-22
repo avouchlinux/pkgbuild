@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-sphinx-alabaster-theme
+pkgname=(python-sphinx-alabaster-theme python2-sphinx-alabaster-theme)
+_realname=alabaster
+pkgver=0.7.12
+pkgrel=1
+arch=(any)
+pkgdesc="Sphinx default theme"
+url='https://github.com/bitprophet/alabaster'
+arch=('any')
+license=('custom:BSD')
+
+makedepends=('python-setuptools' 'python2-setuptools')
+
+source=("https://pypi.org/packages/source/a/alabaster/alabaster-$pkgver.tar.gz")
+
+md5sums=('7934dccf38801faa105f6e7b4784f493')
+
+prepare() {
+
+	cp -a ${_realname}-${pkgver} python-build
+	cp -a ${_realname}-${pkgver} python2-build
+}
+
+build() {  
+	cd ${srcdir}/python-build
+	python setup.py build
+
+	cd ${srcdir}/python2-build
+	python2 setup.py build
+}
+
+package_python-sphinx-alabaster-theme() {	
+	cd ${srcdir}/python-build
+	python setup.py install --root="$pkgdir" --optimize=1
+	# License
+	install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
+
+package_python2-sphinx-alabaster-theme() {
+	cd ${srcdir}/python2-build
+	python2 setup.py install --root="$pkgdir" --optimize=1
+	# License
+	install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
+

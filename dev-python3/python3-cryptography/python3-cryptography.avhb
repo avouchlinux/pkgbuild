@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-cryptography
+_realname=cryptography
+pkgver=2.9.2
+pkgrel=1
+pkgdesc="A package designed to expose cryptographic recipes and primitives to python3 developers"
+arch=('x86_64')
+groups=('dev-python3')
+license=('Apache')
+url="http://pypi.python3.org/pypi/cryptography"
+depends=('python3-six' 'python3-cffi' 'python33-idna' 'python3-setuptools' 'python3-asn1crypto')
+makedepends=('python3-setuptools' 'python3-six' 'python3-cffi' 'python3-pyasn1'  'python3-idna'  'python3-asn1crypto' )
+checkdepends=('python3-pytest-runner' "python3-cryptography-vectors" 'python3-iso8601'
+              'python3-pretend' 'python3-hypothesis' 'python3-pytz')
+source=("https://pypi.io/packages/source/c/cryptography/cryptography-$pkgver.tar.gz")
+sha512sums=('815e9c09366935f8603a3e6e74c28ce79175596d00dbcd19d3792505237bd1cf953a4f401c2b97e4beaa7f2bbdcf9d7f95c4753d001a07fa816830af97cdd24e')
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py test
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

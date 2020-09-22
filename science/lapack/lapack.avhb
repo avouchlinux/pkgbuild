@@ -1,0 +1,81 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=lapack
+pkgname=('lapack' 'blas' 'cblas' 'lapacke' 'lapack-doc')
+pkgver=3.9.0
+pkgrel=1
+pkgdesc="Linear Algebra PACKage"
+arch=('x86_64')
+groups=('science')
+url="https://www.netlib.org/lapack"
+makedepends=('gcc-fortran' 'cmake' 'python' 'doxygen')
+license=("custom")
+source=(https://www.netlib.org/${pkgbase}/${pkgbase}-${pkgver}.tar.gz LICENSE.blas)
+
+build() {
+  cmake -S ${pkgname}-${pkgver} -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_Fortran_COMPILER=gfortran \
+    -DLAPACKE_WITH_TMG=ON \
+    -DCBLAS=ON \
+    -DBUILD_DEPRECATED=ON
+  make ${MAKEFLAGS} -C build
+
+  # Build man pages
+  cd $pkgname-$pkgver
+  doxygen DOCS/Doxyfile_man
+}
+
+package_lapack() {
+  depends=("blas")
+  
+  cd build
+  make DESTDIR="$pkgdir" install
+
+  rm -r "$pkgdir"/usr/lib/{libblas.*,libcblas.*,liblapacke.*}
+  rm -r "$pkgdir"/usr/lib/pkgconfig/{blas.*,cblas.*,lapacke.*}
+  rm -r "$pkgdir"/usr/lib/cmake/{cblas*,lapacke*}
+  rm -r "$pkgdir"/usr/include
+}
+
+package_blas() {
+  pkgdesc="Basic Linear Algebra Subprograms"
+  depends=('gcc-libs')
+
+  cd build/BLAS
+  make DESTDIR="$pkgdir" install
+  
+  install -m755 -d "${pkgdir}/usr/share/licenses/blas"
+  install -m644 "${srcdir}/LICENSE.blas" \
+    "${pkgdir}/usr/share/licenses/blas/"
+}
+
+package_cblas() {
+  pkgdesc="C interface to BLAS"
+  depends=("blas")
+
+  cd build/CBLAS
+  make DESTDIR="$pkgdir" install
+}
+
+package_lapacke() {
+  pkgdesc="C interface to LAPACK"
+  depends=("lapack")
+
+  cd build/LAPACKE
+  make DESTDIR="$pkgdir" install
+}
+
+package_lapack-doc() {
+  pkgdesc="Man pages for BLAS/LAPACK"
+
+  mkdir -p "$pkgdir"/usr/share
+  cp -r lapack-$pkgver/DOCS/man "$pkgdir"/usr/share
+}

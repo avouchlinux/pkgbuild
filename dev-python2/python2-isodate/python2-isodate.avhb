@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-isodate
+pkgname=('python-isodate' 'python2-isodate')
+_realname=isodate
+pkgver=0.5.4
+pkgrel=1
+pkgdesc="This module implements ISO 8601 date, time and duration parsing"
+arch=('any')
+url='http://pypi.python.org/pypi/isodate/'
+license=('LGPL2.1')
+makedepends=('python' 'python-setuptools' 'python2' 'python2-setuptools' 'python2-sphinx')
+source=("http://pypi.python.org/packages/source/i/isodate/isodate-${pkgver}.tar.gz")
+md5sums=('95d6d32b9d6b029c3c65674bd9e7eabe')
+
+prepare() {
+	cp -a ${_realname}-${pkgver} python-build
+	cp -a ${_realname}-${pkgver} python2-build
+}
+
+
+package_python-isodate() {
+	depends=('python' 'python-setuptools')
+
+	cd ${srcdir}/python-build
+	python3 setup.py install --prefix=/usr --root="${pkgdir}"
+}
+
+package_python2-isodate() {
+	depends=('python2' 'python2-setuptools')
+	  
+	cd ${srcdir}/python2-build
+	python2 setup.py install --prefix=/usr --root="${pkgdir}"
+}

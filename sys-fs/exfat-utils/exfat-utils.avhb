@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=exfat-utils
+pkgver=1.3.0
+pkgrel=1
+pkgdesc="Utilities for exFAT file system"
+arch=('x86_64')
+groups=('sys-fs')
+url='https://github.com/relan/exfat'
+license=('GPL2')
+depends=('glibc' 'fuse2')
+source=(https://github.com/relan/exfat/archive/v${pkgver}.tar.gz)
+
+build() {
+  cd $pkgname-$pkgver
+
+  autoreconf -i
+    ./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin
+
+  make CCFLAGS="${CFLAGS} -std=c99" LINKFLAGS="${LDFLAGS}"
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+
+  # Install man pages
+  install -d "${pkgdir}/usr/share/man/man8/"
+  install -Dm 644 */*.8 -t "${pkgdir}/usr/share/man/man8"
+}

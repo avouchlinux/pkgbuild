@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-mail-dkim
+_realname=Mail-DKIM
+pkgver=0.40
+pkgrel=1
+pkgdesc="Implements DomainKeys Identified Mail (DKIM)"
+arch=('any')
+url="http://search.cpan.org/dist/Mail-DKIM"
+license=('GPL' 'PerlArtistic')
+depends=('perl-crypt-openssl-rsa>=0.24' 'perl-digest-sha1' 'perl-mailtools' 'perl-net-dns')
+options=('!emptydirs')
+source=(http://www.cpan.org/authors/id/J/JA/JASLONG/Mail-DKIM-$pkgver.tar.gz)
+md5sums=('9ceb8a0397aff83928e7a9760b1b190f')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

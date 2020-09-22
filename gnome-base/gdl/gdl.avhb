@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gdl
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="GNOME Docking Library"
+arch=('x86_64')
+groups=('gnome-base')
+license=('GPL')
+url="https://www.gnome.org/"
+depends=('gtk3')
+makedepends=('gtk-doc' 'intltool' 'gobject-introspection' gnome-common git)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --disable-static --enable-gtk-doc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

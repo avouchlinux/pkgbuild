@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-backports.functools_lru_cache
+_realname=backports.functools_lru_cache
+pkgver=1.6.1
+pkgrel=1
+pkgdesc="Backport of functools.lru_cache from Python 3.3"
+arch=('any')
+groups=('dev-python')
+url="https://github.com/jaraco/backports.functools_lru_cache"
+license=('MIT')
+depends=('python2-backports')
+makedepends=('python2-setuptools-scm')
+checkdepends=('python2-pytest')
+optdepends=('python2-ipaddress: for IPAddress ServerAltnames support')
+source=("https://github.com/jaraco/backports.functools_lru_cache/archive/v$pkgver.tar.gz")
+
+# Set version for setuptools_scm
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+prepare() {
+  cd ${_realname}-${pkgver}
+  # Style or coverage checks are not relevant for us
+  sed -i 's/--flake8 --black --cov//' pytest.ini
+}
+
+build() {
+  cd ${_realname}-${pkgver}
+  python2 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python2 -m pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python2 setup.py install --root="$pkgdir" --optimize=1
+
+  rm "$pkgdir"/usr/lib/python2.7/site-packages/backports/__init__.py*
+}

@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-bit-vector
+_realname=Bit-Vector
+pkgver=7.2
+pkgrel=1
+pkgdesc='Efficient bit vector, set of integers and "big int" math library'
+arch=('i686' 'x86_64')
+license=('GPL' 'LGPL' 'PerlArtistic')
+url="http://search.cpan.org/dist/${_cpanname}/"
+depends=('perl-carp-clan' 'perl')
+options=('!emptydirs')
+source=(http://search.cpan.org/CPAN/authors/id/A/AN/ANDK/${_cpanname}-${pkgver}.tar.gz)
+md5sums=('bc6ae34738b8f889290bf50099ff8aed')
+
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export  PERL_AUTOINSTALL=--skipdeps
+	unset PERL5LIB PERL_MM_OPT
+
+	# install module in vendor directories.
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export PERL_MM_USE_DEFAULT=1
+	unset PERL5LIB
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+	# license
+	install -D -m644 README "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

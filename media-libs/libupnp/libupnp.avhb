@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libupnp
+pkgver=1.12.1
+pkgrel=1
+pkgdesc="Portable Open Source UPnP Development Kit"
+arch=('x86_64')
+groups=('media-libs')
+url="http://pupnp.sourceforge.net/"
+license=('BSD')
+depends=('glibc')
+makedepends=('pkgconfig')
+source=("http://downloads.sourceforge.net/sourceforge/pupnp/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	# license
+	install -Dm644 LICENSE ${pkgdir}/usr/share/licenses/custom/${pkgname}/LICENSE
+}

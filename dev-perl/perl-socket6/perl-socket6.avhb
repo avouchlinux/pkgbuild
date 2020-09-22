@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-socket6
+_realname=Socket6
+pkgver=0.25
+pkgrel=1
+pkgdesc="getaddrinfo/getnameinfo support module"
+arch=('i686' 'x86_64')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl')
+makedepends=()
+url='http://search.cpan.org/dist/Socket6'
+source=('http://search.cpan.org/CPAN/authors/id/U/UM/UMEMOTO/Socket6-0.25.tar.gz')
+md5sums=('2c02adb13c449d48d232bb704ddbd492')
+sha512sums=('39ced223ecdef89e6fa241031019bb5a73e63d2dfdaf3edb55bfea0cb81b91bea09f1cc26b2d15fa28d32227cc13cdb093c70f0ba346c9bdb523359de53d96f9')
+_distdir="${srcdir}/Socket6-0.23"
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export PERL_MM_USE_DEFAULT=1 PERL5LIB=""
+	make test
+}
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=umockdev
+pkgver=0.14.1
+pkgrel=1
+pkgdesc="Record/mock hardware devices for bug reports and regression tests"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/martinpitt/umockdev/"
+license=('LGPL')
+depends=('systemd' 'libgudev')
+makedepends=('gobject-introspection' 'gtk-doc' 'vala')
+source=(https://github.com/martinpitt/$pkgname/archive/$pkgver.tar.xz)
+
+build() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+
+  ./configure --prefix=/usr --enable-gtk-doc --enable-introspection
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+}

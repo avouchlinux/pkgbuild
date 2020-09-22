@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=laptop-detect
+_realname=laptop-detect-debian
+pkgver=0.16
+pkgrel=1
+pkgdesc='Attempts to detect a laptop'
+arch=('any')
+groups=('app-admin')
+url='https://packages.qa.debian.org/l/laptop-detect.html'
+license=('BSD')
+depends=('dmidecode' 'sh')
+source=("https://gitlab.com/debiants/laptop-detect/-/archive/debian/$pkgver/laptop-detect-debian-$pkgver.tar.bz2")
+
+prepare() {
+  cd $pkgname-debian-$pkgver
+  sed -e "s/@VERSION@/$pkgver/g" < laptop-detect.in > laptop-detect
+}
+
+package() {
+  cd $pkgname-debian-$pkgver
+  install -Dm755 laptop-detect -t "$pkgdir"/usr/bin/
+  install -Dm644 laptop-detect.1 -t "$pkgdir"/usr/share/man/man1/
+  install -Dm644 debian/copyright -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

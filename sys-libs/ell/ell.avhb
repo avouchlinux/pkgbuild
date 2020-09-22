@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ell
+pkgver=0.30
+pkgrel=1
+arch=('x86_64')
+groups=('sys-libs')
+pkgdesc="Embedded Linux library"
+url="https://01.org/ell"
+#url="https://git.kernel.org/pub/scm/libs/ell/ell.git/"
+license=('LGPL2.1')
+depends=('glibc')
+source=(https://mirrors.edge.kernel.org/pub/linux/libs/$pkgname/$pkgname-$pkgver.tar.{xz,sign})
+validpgpkeys=('E932D120BC2AEC444E558F0106CA9F5D1DCF2659') # "Marcel Holtmann <marcel@holtmann.org>"
+
+build() {
+  cd "$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  make ${MAKEFLAGS} -k check
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}
+

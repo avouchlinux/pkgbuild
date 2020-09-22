@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=evolution-ews
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="MS Exchange integration through Exchange Web Services"
+url="https://wiki.gnome.org/Apps/Evolution/EWS"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(LGPL2.1)
+depends=(libmspack evolution)
+makedepends=(git cmake intltool python)
+source=(http://ftp.gnome.org/pub/gnome/sources/evolution-ews/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+  cmake -H$pkgname-$pkgver -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIBEXEC_INSTALL_DIR=/usr/lib \
+    -DSYSCONF_INSTALL_DIR=/etc
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --build build --target install
+}

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glib-openssl
+pkgver=2.50.8
+pkgrel=1
+pkgdesc="Network-related giomodule for glib using openssl"
+arch=('x86_64')
+groups=('gnome-base')
+url="http://www.gtk.org/"
+license=(GPL2)
+depends=(glib2 libproxy gnutls ca-certificates gsettings-desktop-schemas)
+makedepends=(intltool)
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    patch -Np0 -i ../build_fix.patch
+}
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,39 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="libspf2"
+pkgver=1.2.10
+pkgrel=5
+pkgdesc="Sender Policy Framework record checking library"
+arch=('x86_64')
+groups=('net-libs')
+url="https://www.libspf2.org/"
+license=('LGPL')
+depends=('glibc' 'libnsl')
+makedepends=('libmilter' 'glibc' 'libnsl')
+source=("https://www.libspf2.org/spf/${pkgname}-${pkgver}.tar.gz"
+        'fix-variadic-macros.patch')
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    patch -p1 -i "$srcdir/fix-variadic-macros.patch"
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make check
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix='/usr'
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}/" install
+    rm -v "${pkgdir}"/usr/bin/*_static "${pkgdir}/usr/bin/spfd" "${pkgdir}/usr/bin/spf_example" "${pkgdir}/usr/bin/spftest"
+}

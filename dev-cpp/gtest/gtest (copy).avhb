@@ -1,0 +1,96 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gtest
+pkgname=('gtest' 'gmock')
+_realname=googletest
+pkgver=1.10.0
+pkgrel=1
+pkgdesc='Google Test - C++ testing utility'
+arch=('x86_64')
+groups=('dev-cpp')
+url='https://github.com/google/googletest/'
+license=('BSD')
+makedepends=('python2' 'cmake' 'gcc-libs' 'sh')
+options=(!makeflags)
+source=(https://github.com/google/googletest/archive/release-${pkgver}.tar.gz
+        gtest-pkgconfig.patch
+        gtest.pc.in
+        gmock-install.patch
+        gmock.pc.in)
+
+prepare() {
+  cd googletest-release-${pkgver}
+  find -name '*.py' -exec sed -i 's|env python|env python2|g' {} \;
+
+  info_msg "Preparing googletest..."
+  (cd googletest
+    autoreconf -fvi
+    cp "${srcdir}/gtest.pc.in" .
+    sed -r "s|(Version:) .+|\1 ${pkgver}|" -i gtest.pc.in
+    patch -p1 < "${srcdir}/gtest-pkgconfig.patch"
+    mkdir build
+  )
+
+  info_msg "Preparing googlemock..."
+  patch -p1 < "${srcdir}/gmock-install.patch"
+  (cd googlemock
+    cp "${srcdir}/gmock.pc.in" .
+    autoreconf -fvi
+  )
+}
+
+build() {
+  cd googletest-release-${pkgver}
+
+  msg2 "Building googletest..."
+  (cd googletest
+    # this is odd but needed only to generate gtest-config.
+    ./configure --prefix=/usr
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DBUILD_SHARED_LIBS=ON \
+      -DCMAKE_SKIP_RPATH=ON ..
+    make
+  )
+
+  msg2 "Building googlemock..."
+  (cd googlemock
+    ./configure --prefix=/usr --with-gtest --enable-external-gtest
+    make
+  )
+}
+
+package_gtest() {
+  pkgdesc='Google Test - C++ testing utility based on the xUnit framework (like JUnit)'
+  depends=('gcc-libs' 'sh')
+
+  cd googletest-release-${pkgver}/googletest
+  make -C build DESTDIR="${pkgdir}" install
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md CHANGES CONTRIBUTORS -t "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 755 scripts/gtest-config -t "${pkgdir}/usr/bin"
+  install -Dm 644 build/libgtest{,_main}.so -t "${pkgdir}/usr/lib"
+  install -Dm 644 m4/gtest.m4 -t "${pkgdir}/usr/share/aclocal"
+  install -Dm 644 cmake/* -t "${pkgdir}/usr/src/gtest/cmake"
+  install -Dm 644 src/* -t "${pkgdir}/usr/src/gtest/src"
+  install -d "${pkgdir}/usr/include"
+  cp -r include/gtest -t "${pkgdir}/usr/include"
+
+  # undo pkg-config patch so subprojects including this don't try to generate it
+  patch -Rp1 < "${srcdir}/gtest-pkgconfig.patch"
+  install -Dm 644 CMakeLists.txt -t "${pkgdir}/usr/src/gtest"
+}
+
+package_gmock() {
+  pkgdesc='Google Mock - A library for writing and using C++ mock classes'
+  depends=('python2' 'gtest' 'gcc-libs' 'sh')
+
+  cd googletest-release-${pkgver}/googlemock
+  make --trace -w -j1 DESTDIR="${pkgdir}" install
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md CHANGES CONTRIBUTORS -t "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 755 scripts/gmock-config -t "${pkgdir}/usr/bin"
+  install -Dm 644 include/gmock/internal/custom/* -t "${pkgdir}/usr/include/gmock/internal/custom"
+}

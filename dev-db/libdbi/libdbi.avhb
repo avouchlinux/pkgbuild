@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdbi
+pkgver=0.9.0
+pkgrel=1
+pkgdesc="A database independant abstraction layer for C"
+arch=('x86_64')
+grous=('dev-db')
+url="http://libdbi.sourceforge.net"
+license=('LGPL')
+depends=('glibc')
+install=libdbi.install
+source=("http://downloads.sourceforge.net/project/${pkgname}/${pkgname}/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr
+  make CFLAGS="-fno-fast-math"
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR=${pkgdir} install
+}

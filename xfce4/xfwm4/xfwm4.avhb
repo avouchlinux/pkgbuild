@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfwm4
+pkgver=4.14.5
+pkgrel=1
+pkgdesc="Xfce window manager"
+arch=('x86_64')
+groups=('xfce4')
+url="http://www.xfce.org/"
+license=('GPL2')
+depends=('libxfce4ui' 'libwnck' 'libdrm' 'hicolor-icon-theme')
+makedepends=('intltool')
+source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --disable-static \
+        --enable-startup-notification \
+        --enable-randr \
+        --enable-compositor \
+        --enable-xsync \
+        --disable-debug
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

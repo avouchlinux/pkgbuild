@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-qxl
+pkgver=0.1.5
+pkgrel=1
+pkgdesc='Xorg X11 qxl video driver'
+arch=('x86_64')
+groups=('x11-drivers')
+url='https://www.x.org'
+license=('MIT')
+groups=('xorg-drivers')
+depends=('spice')
+optdepends=('python2: for Xspice')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0' 'spice-protocol'
+	'xorgproto' 'git' 'libcacard')
+validpgpkeys=('94A9F75661F77A6168649B23A9D8C21429AC6C82')
+source=("https://xorg.freedesktop.org/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2"{,.sig})
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	# this is python 2.x
+	sed -i '1c #!/usr/bin/python2' scripts/Xspice
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	# Since avouch, hardened flags are now enabled in apm.conf
+	# With them, module fail to load with undefined symbol.
+    export CFLAGS=${CFLAGS/-fno-plt}
+    export CXXFLAGS=${CXXFLAGS/-fno-plt}
+    export LDFLAGS=${LDFLAGS/ -z now}
+
+	autoreconf -fi
+	./configure --enable-xspice --prefix=/usr
+	make ${MAKEFLGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	make DESTDIR="${pkgdir}/" install
+
+	install -v -D -m0755 scripts/Xspice "${pkgdir}"/usr/bin/Xspice
+}
+

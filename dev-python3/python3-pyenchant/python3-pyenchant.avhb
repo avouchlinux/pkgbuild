@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pyenchant
+_realname=pyenchant
+pkgver=3.0.1
+pkgrel=1
+pkgdesc="PyEnchant is a spellchecking library for Python3 based on the Enchant library"
+arch=('any')
+groups=('dev-python3')
+url="https://pypi.python.org/pypi/pyenchant"
+license=('LGPL')
+depends=('python' 'enchant')
+makedepends=('python3-setuptools' 'enchant')
+source=("https://github.com/rfk/pyenchant/archive/v${pkgver}.tar.gz"
+        "enchant-2.patch")
+
+prepare() {
+  cd $_realname-${pkgver}
+
+  patch -Np1 -i "${srcdir}/enchant-2.patch"
+}
+
+build() {
+  cd $_realname-${pkgver}
+  python3 setup.py build
+
+}
+
+package() {
+  cd $_realname-${pkgver}  
+  python3 setup.py install --root=${pkgdir} --optimize=1
+}

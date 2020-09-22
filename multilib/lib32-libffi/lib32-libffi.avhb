@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libffi
+pkgbase=libffi
+pkgver=3.3
+pkgrel=1
+pkgdesc="Portable, high level programming interface to various calling conventions"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://sourceware.org/libffi/"
+license=('MIT')
+depends=('glibc')
+checkdepends=('dejagnu')
+install=libffi.install
+source=(ftp://sourceware.org/pub/libffi/libffi-${pkgver}.tar.gz)
+sha1sums=('f5230890dc0be42fb5c58fbf793da253155de106')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	# Make package install headers into /usr/include instead of /usr/lib/libffi-3.2.1/include.
+	sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
+	-i include/Makefile.in
+
+	sed -e '/^includedir/ s/=.*$/=@includedir@/' \
+	-e 's/^Cflags: -I${includedir}/Cflags:/' \
+	-i libffi.pc.in
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+
+	./configure --prefix=/usr \
+	--libdir=/usr/lib32 \
+	--libexecdir=/usr/lib32 \
+	--disable-static \
+	--enable-pax_emutramp
+	make
+}
+
+check() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make check
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	rm -r "${pkgdir}"/usr/{include,share}
+}

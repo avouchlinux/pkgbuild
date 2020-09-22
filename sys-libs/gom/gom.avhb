@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gom
+pkgver=0.4
+pkgrel=1
+pkgdesc="A GObject to SQLite object mapper"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://wiki.gnome.org/Projects/Gom"
+license=(LGPL2.1)
+depends=(glib2 sqlite)
+makedepends=(gtk-doc gobject-introspection gdk-pixbuf2 git meson python-gobject)
+provides=(libgom-1.0.so)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver::4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D enable-gtk-doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

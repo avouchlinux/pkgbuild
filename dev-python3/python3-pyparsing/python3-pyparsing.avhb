@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pyparsing
+_realname=pyparsing
+pkgver=2.4.7
+pkgrel=1
+pkgdesc='General parsing module for python3'
+arch=('any')
+roups=('dev-python3')
+url='http://pyparsing.wikispaces.com/'
+depends=('python3')
+makedepends=('python3-setuptools')
+license=('MIT')
+source=("https://pypi.io/packages/source/p/$_realname/$_realname-$pkgver.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

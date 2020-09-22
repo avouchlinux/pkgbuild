@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nanomsg
+pkgver=1.1.5
+pkgrel=1
+pkgdesc='Simple high-performance implementation of several "scalability protocols"'
+arch=('x86_64')
+groups=('net-libs')
+url='https://nanomsg.org/'
+license=(MIT)
+depends=(glibc)
+makedepends=(cmake)
+source=(https://github.com/nanomsg/nanomsg/archive/$pkgver.tar.gz)
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  ninja -C build
+}
+
+check() {
+  cd build
+  ctest
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+  install -Dm644 $pkgname-$pkgver/COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

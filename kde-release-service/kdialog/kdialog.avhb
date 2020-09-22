@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdialog
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="A utility for displaying dialog boxes from shell scripts"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.kde.org/"
+license=(LGPL)
+depends=(kdelibs4support)
+makedepends=(extra-cmake-modules kdoctools kdesignerplugin python)
+source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+sha256sums=('5c15be232239e47d7150066a68a78cf39fdcbfe0e86ab2698e3a920da5f28ea0'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

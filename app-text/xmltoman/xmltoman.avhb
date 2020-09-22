@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xmltoman
+pkgver=0.4
+pkgrel=1
+pkgdesc='Convert xml to man pages in groff format or html'
+arch=('any')
+groups=('app-text')
+url='http://xmltoman.sourceforge.net/'
+license=('GPL')
+depends=('perl-xml-parser')
+source=("http://downloads.sourceforge.net/project/${pkgname}/${pkgname}/${pkgname}-${pkgver}.tar.gz/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make PREFIX=/usr
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make install PREFIX=/usr DESTDIR="${pkgdir}"
+}
+

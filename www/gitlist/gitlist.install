@@ -1,0 +1,13 @@
+post_install() {
+    echo "==> See https://github.com/klaussilveira/gitlist/"
+    echo "==> for instructions about configuring GitList."
+    
+    # include it in /etc/httpd/conf/httpd.conf:
+    # gitlist configuration
+    # Include conf/extra/gitlist.conf
+    echo "Include conf/extra/gitlist.conf" >> /etc/httpd/conf/httpd.conf
+    
+    # creat symlink
+    ln -s /usr/share/webapps/gitlist/ /srv/http/gitlist
+}
+

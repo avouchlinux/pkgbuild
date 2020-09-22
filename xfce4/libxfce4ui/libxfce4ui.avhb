@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxfce4ui
+pkgver=4.14.1
+pkgrel=1
+pkgdesc="Commonly used Xfce widgets among Xfce applications"
+arch=('x86_64')
+groups=('xfce4')
+url="http://www.xfce.org/"
+license=('GPL2')
+depends=('libxfce4util' 'gtk2' 'gtk3' 'xfconf' 'libsm' 'startup-notification' 'hicolor-icon-theme')
+makedepends=('intltool' 'gtk-doc')
+install=$pkgname.install
+source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --disable-gtk-doc \
+        --disable-static \
+        --disable-debug \
+        --with-vendor-info='Avouch'
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
+

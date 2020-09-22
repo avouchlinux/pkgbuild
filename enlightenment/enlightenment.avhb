@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=enlightenment
+pkgver=0.22.3
+pkgrel=1
+pkgdesc="Enlightenment window manager"
+arch=('x86_64')
+url="http://www.enlightenment.org"
+license=('BSD')
+depends=('efl' 'xcb-util-keysyms' 'hicolor-icon-theme' 'pixman' 'mesa'
+         'desktop-file-utils' 'udisks2' 'ttf-font' 'bluez-libs')
+optdepends=('connman: network module'
+            'acpid: power events on laptop lid close'
+	        'geoip-database: geolocation module'
+            'xorg-server-xwayland: xwayland support')
+makedepends=('xorg-server-xwayland')
+groups=(enlightenment)
+repo=(extra)
+backup=('etc/enlightenment/sysactions.conf'
+        'etc/xdg/menus/e-applications.menu')
+source=("http://download.enlightenment.org/rel/apps/${pkgname}/$pkgname-$pkgver.tar.gz")
+sha1sums=('650f66c51bc4db0aa2d1016609455d3c07febc34')
+
+build() {
+	mkdir build
+	cd build
+
+	export CFLAGS="$CFLAGS -fvisibility=hidden"
+  
+	avouch-meson "${srcdir}/${pkgname}-${pkgver}" \
+		-Denable_xwayland=true \
+		-Denable_wayland=true \
+		-Denable_wl-weekeyboard=false	
+	ninja
+}
+
+package() {
+	cd build
+	DESTDIR="$pkgdir" ninja install
+}

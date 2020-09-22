@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdesdk-thumbnailers
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Plugins for the thumbnailing system'
+url='https://www.kde.org/applications/development/'
+arch=('x86_64')
+groups=('kde-apps')
+license=(GPL LGPL FDL)
+depends=(kio gettext)
+makedepends=(extra-cmake-modules python)
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+sha1sums=('de781fe67a98941287afb08679ad43b3526b893b')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

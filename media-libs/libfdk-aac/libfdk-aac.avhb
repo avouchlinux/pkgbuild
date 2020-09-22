@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libfdk-aac
+_realname=fdk-aac
+pkgver=2.0.1
+pkgrel=1
+pkgdesc='Fraunhofer FDK AAC codec library'
+arch=('x86_64')
+groups=('media-libs')
+url='https://sourceforge.net/projects/opencore-amr/'
+license=(custom)
+makedepends=(git)
+provides=(libfdk-aac.so)
+source=(https://github.com/mstorsjo/fdk-aac/archive/v$pkgver.tar.gz)
+
+prepare() {
+  cd fdk-aac-$pkgver
+
+  ./autogen.sh
+}
+
+build() {
+  cd fdk-aac-$pkgver
+  ./configure --prefix='/usr' --disable-static
+  make ${MAKEFLAGS}
+}
+
+package () {
+  cd fdk-aac-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 NOTICE -t "${pkgdir}"/usr/share/licenses/libfdk-aac/
+}

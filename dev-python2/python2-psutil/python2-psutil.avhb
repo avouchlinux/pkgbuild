@@ -1,0 +1,61 @@
+# $Id$
+# Maintainer: Sébastien Luttringer
+
+pkgbase=python-psutil
+pkgname=('python-psutil' 'python2-psutil')
+_realname=psutil-release
+pkgver=5.3.1
+pkgrel=1
+arch=('i686' 'x86_64')
+url='https://github.com/giampaolo/psutil'
+license=('custom: BSD')
+makedepends=('python' 'python-setuptools' 'python2' 'python2-setuptools')
+checkdepends=('net-tools' 'procps-ng' 'python2-nose' 'python-nose')
+source=("https://github.com/giampaolo/psutil/archive/release-$pkgver.tar.gz")
+md5sums=('da35aa0ec7b79f6b5f7f43eaa4927f6a')
+
+build() {
+  cd psutil-release-$pkgver
+
+  info_msg python
+  python setup.py build --build-lib=build/python
+
+  info_msg python2
+  python2 setup.py build --build-lib=build/python2
+  find build/python2 -type f -exec \
+    sed -i '1s,^#! \?/usr/bin/\(env \|\)python$,#!/usr/bin/python2,' {} \;
+}
+
+check() {
+  cd psutil-release-$pkgver
+
+  info_msg python
+  export PYTHONPATH="$PWD/build/python"
+  cd psutil/tests/
+  # FIXME: dynamic loading so
+
+
+  info_msg python2
+  export PYTHONPATH="$PWD/build/python2"
+  #python2 psutil/tests/runner.py
+}
+
+package_python-psutil() {
+  pkgdesc='A cross-platform process and system utilities module for Python'
+  depends=('glibc' 'python')
+
+  cd psutil-release-$pkgver
+  python setup.py build --build-lib=build/python \
+                  install --root="$pkgdir" --optimize=1
+  install -D -m 644 LICENSE "$pkgdir/"usr/share/licenses/$pkgname/LICENSE
+}
+
+package_python2-psutil() {
+  pkgdesc='A cross-platform process and system utilities module for Python2'
+  depends=('glibc' 'python2')
+
+  cd psutil-release-$pkgver
+  python2 setup.py build --build-lib=build/python2 \
+                   install --root="$pkgdir" --optimize=1
+  install -D -m 644 LICENSE "$pkgdir/"usr/share/licenses/$pkgname/LICENSE
+}

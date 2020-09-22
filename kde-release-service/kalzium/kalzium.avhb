@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kalzium
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Periodic Table of Elements"
+url="http://kde.org/applications/education/kalzium/"
+arch=('x86_64')
+groups=('kde-apps')
+license=('GPL' 'LGPL' 'FDL')
+depends=('kdebase-runtime' 'avogadro' 'chemical-mime-data')
+makedepends=('cmake' 'automoc4' 'mesa' 'eigen' 'facile' 'ocaml')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/kalzium-${pkgver}.tar.xz")
+sha1sums=('ca68516e652e5adeb74ea11f51c3ed71859dd42c')
+
+build() {
+  mkdir -p build
+  cd build
+  cmake ../kalzium-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DKDE4_BUILD_TESTS=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DKDE_INSTALL_LIBDIR=lib
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

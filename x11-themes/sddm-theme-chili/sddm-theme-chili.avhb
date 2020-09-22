@@ -1,0 +1,21 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sddm-theme-chili
+_realname=sddm-chili
+pkgver=0.1.5
+pkgrel=1
+pkgdesc='Breeze theme for sddm extracted from plasma workspace'
+arch=('x86_64')
+arch=('x11-themes')
+url='https://github.com/MarianArlt/sddm-chili'
+license=('GPLv3')
+depends=('sddm' 'qt5-base' 'qt5-quickcontrols' 'qt5-graphicaleffects')
+source=(https://github.com/MarianArlt/sddm-chili/archive/$pkgver.tar.gz)
+
+package() {
+    mkdir -p "${pkgdir}"/usr/share/sddm/themes
+    cp -a $_realname-$pkgver "${pkgdir}"/usr/share/sddm/themes/chili
+}

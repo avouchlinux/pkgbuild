@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-xmlschema
+_realname=xmlschema
+pkgver=1.1.2
+pkgrel=1
+pkgdesc="An XML Schema validator and decoder"
+url="https://github.com/sissaschool/xmlschema"
+license=('MIT')
+arch=('any')
+groups=('dev-python3')
+depends=('python3-elementpath')
+makedepends=('python3-setuptools')
+checkdepends=('python3-lxml')
+source=("https://github.com/sissaschool/xmlschema/archive/v$pkgver.tar.gz")
+
+prepare() {
+  sed -i 's/~=/>=/' cd ${_realname}-${pkgver}/setup.py
+}
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

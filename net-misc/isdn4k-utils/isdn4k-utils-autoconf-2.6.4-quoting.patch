@@ -1,0 +1,13 @@
+--- isdn4k-utils/isdnlog/configure.in.quote	2013-11-23 13:24:33.093608335 +0100
++++ isdn4k-utils/isdnlog/configure.in	2013-11-23 13:24:33.101608142 +0100
+@@ -140,8 +140,8 @@
+     AC_MSG_RESULT(Using 'cdb' as database)
+ else
+ AC_CHECK_LIB(gdbm, gdbm_open, DBMLIB=-lgdbm; AC_DEFINE(HAVE_LIBGDBM, 1, [Use libgdbm]),
+-	AC_CHECK_LIB(dbm, dbm_open, DBMLIB=-ldbm; AC_DEFINE(HAVE_LIBDBM, 1, [Use libdbm]),
+-		AC_CHECK_LIB(db, dbm_open, DBMLIB=-ldb; AC_DEFINE(HAVE_LIBDB, 1, [use libdb]))))
++	[AC_CHECK_LIB(dbm, dbm_open, DBMLIB=-ldbm; AC_DEFINE(HAVE_LIBDBM, 1, [Use libdbm]),
++		[AC_CHECK_LIB(db, dbm_open, DBMLIB=-ldb; AC_DEFINE(HAVE_LIBDB, 1, [use libdb]))])])
+ fi
+ AC_DEFINE_UNQUOTED(RDBEXT,"$RDBEXT",[rdb extension])
+ 

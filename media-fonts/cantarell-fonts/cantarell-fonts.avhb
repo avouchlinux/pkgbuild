@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cantarell-fonts
+pkgver=0.201
+pkgrel=1
+epoch=1
+pkgdesc="Humanist sans serif font"
+url="https://gitlab.gnome.org/GNOME/cantarell-fonts"
+arch=(any)
+groups=('media-fonts')
+license=(custom:SIL)
+makedepends=(meson appstream-glib git)
+source=("https://download.gnome.org/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz")
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D useprebuilt=true
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver/COPYING
+}

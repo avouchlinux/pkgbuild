@@ -1,0 +1,11 @@
+--- isdn4k-utils/ipppd/main.c.sh-support	2013-11-23 13:19:37.218825637 +0100
++++ isdn4k-utils/ipppd/main.c	2013-11-23 13:21:21.585279930 +0100
+@@ -1298,7 +1298,7 @@
+     case 'r':
+         f = va_arg(args, char *);
+         a = va_arg(args, va_list);
+-#ifdef __alpha__       /* always do this? */
++#if defined(__alpha__) || defined(__sh__) || defined ( __arm__)       /* always do this? */
+ 	n = fmtmsg(buf, buflen + 1, f, a);
+ #else
+ 	n = vfmtmsg(buf, buflen + 1, f, a);

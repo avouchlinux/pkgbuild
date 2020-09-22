@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdvdcss
+pkgver=1.4.2
+pkgrel=1
+pkgdesc="Portable abstraction library for DVD decryption"
+url="https://www.videolan.org/developers/libdvdcss.html"
+arch=('x86_64')
+groups=('media-libs')
+license=('GPL')
+depends=('glibc')
+options=('!docs' '!emptydirs')
+source=(https://download.videolan.org/pub/$pkgname/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

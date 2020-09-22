@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=icon-naming-utils
+pkgver=0.8.90
+pkgrel=1
+pkgdesc="Maps the new names of icons for Tango to the legacy names used by the GNOME and KDE desktops."
+arch=(any)
+groups=('sys-libs')
+license=('GPL')
+url="http://tango.freedesktop.org/"
+depends=('perl-xml-simple')
+source=(ftp://ftp.archlinux.org/other/$pkgname/$pkgname-$pkgver.tar.gz
+        remove-legacy-calc.patch)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	patch -Np1 -i "$srcdir/remove-legacy-calc.patch"
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--libexecdir=/usr/lib/icon-naming-utils \
+	--localstatedir=/var
+	make ${MAKEFLAGS}
+}
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}
+

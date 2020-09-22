@@ -1,0 +1,49 @@
+sudo gdisk /dev/sdc
+
+Command (? for help): r
+Recovery/transformation command (? for help): h
+Type from one to three GPT partition numbers, separated by spaces, to be added to the hybrid MBR, in sequence: 1 2 3
+Place EFI GPT (0xEE) partition first in MBR (good for GRUB)? (Y/N): N
+
+Creating entry for GPT partition #1 (MBR partition #2)
+Enter an MBR hex code (default EF): 
+Set the bootable flag? (Y/N): N
+
+Creating entry for GPT partition #2 (MBR partition #3)
+Enter an MBR hex code (default EF): 
+Set the bootable flag? (Y/N): N
+
+Creating entry for GPT partition #3 (MBR partition #4)
+Enter an MBR hex code (default 83): 
+Set the bootable flag? (Y/N): Y
+
+Recovery/transformation command (? for help): x
+Expert command (? for help): h
+Expert command (? for help): w
+
+Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+PARTITIONS!!
+
+Do you want to proceed? (Y/N): Y
+
+EFI_MOUNTPOINT=/run/media/avouch/EFS
+DATA_MOUNTPOINT=/run/media/avouch/Backup
+
+DISK=/dev/sdc
+EFI_DRIVE=/dev/sdc2
+DATA_DRIVE=/dev/sdc3
+
+
+sudo mount -t vfat $EFI_DRIVE $EFI_MOUNTPOINT
+sudo mount -t vfat $DATA_DRIVE $DATA_MOUNTPOINT
+
+
+sudo mkdir -p $DATA_MOUNTPOINT/boot/grub
+
+sudo grub-install --target=x86_64-efi --efi-directory=$EFI_MOUNTPOINT --boot-directory=$DATA_MOUNTPOINT/boot --removable --recheck
+
+sudo grub-install --target=i386-pc --boot-directory=$DATA_MOUNTPOINT/boot --recheck $DISK
+
+
+
+

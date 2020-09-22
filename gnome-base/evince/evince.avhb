@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=evince
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Document viewer (PDF, Postscript, djvu, tiff, dvi, XPS, SyncTex support with gedit, comics books (cbr,cbz,cb7 and cbt))"
+url="https://wiki.gnome.org/Apps/Evince"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(gtk3 libgxps libspectre gsfonts poppler-glib djvulibre t1lib dconf libsecret libsynctex
+         gsettings-desktop-schemas gnome-desktop libarchive gst-plugins-base-libs gspell)
+makedepends=(libnautilus-extension texlive-bin gobject-introspection docbook-xsl python gtk-doc git
+             meson appstream-glib yelp-tools)
+optdepends=('texlive-bin: DVI support'
+            'gvfs: bookmark support and session saving')
+groups=(gnome)
+options=('!emptydirs')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build \
+    -D ps=enabled \
+    -D gtk_doc=false \
+    -D user_doc=false
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

@@ -1,0 +1,54 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnucash
+pkgver=3.10
+pkgrel=1
+pkgdesc="A personal and small-business financial-accounting application"
+arch=('x86_64')
+groups=('app-office')
+url="http://www.gnucash.org"
+license=("GPL")
+depends=('libmariadbclient' 'postgresql-libs' 'aqbanking' 'webkit2gtk' 'boost-libs' 'libsecret' 'libdbi-drivers' 'guile')
+makedepends=('boost' 'gmock' 'gwenhywfar' 'cmake')
+optdepends=(
+	'gnucash-docs: for documentation'
+	'iso-codes: for translation of currency names'
+	'perl-finance-quote: for stock information lookups'
+	'perl-date-manip: for stock information lookups'
+)
+source=(http://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.bz2)
+backup=('etc/gnucash/environment')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # Fix build
+  patch -Np1 -i ../06033c19cdff0abf4849ecc96e3ce0b0690fcd13.diff
+  patch -Np1 -i ../e1b014035753beb111388c8468460b0c61d816bc.diff
+
+  # Do not treat warnings as errors
+  sed -e 's|-Werror||g' -i CMakeLists.txt
+}
+
+build() {
+    cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=/usr/lib \
+        -DCOMPILE_GSCHEMAS=NO \
+        -DWITH_OFX=ON \
+        -DWITH_AQBANKING=ON
+    ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+  
+  # Delete the gnucash-valgrind executable because the source files
+  # are not included with the package and the executable is hardlinked
+  # to the location that it was built at.
+  rm -f "${pkgdir}"/usr/bin/gnucash-valgrind
+
+}

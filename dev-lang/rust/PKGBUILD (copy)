@@ -1,0 +1,93 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rust
+epoch=1
+pkgver=1.10.0
+pkgrel=1
+arch=('x86_64' 'i686')
+pkgdesc='Systems programming language focused on safety, speed and concurrency'
+url='http://www.rust-lang.org/'
+license=('MIT' 'Apache')
+makedepends=('libffi' 'perl' 'python2' 'curl' 'jemalloc')
+depends=('gcc')
+source=("http://static.rust-lang.org/dist/rustc-$pkgver-src.tar.gz"{,.asc})
+sha256sums=('a4015aacf4f6d8a8239253c4da46e7abaa8584f8214d1828d2ff0a8f56176869'
+            'SKIP')
+options=('staticlibs' '!strip')
+validpgpkeys=('108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE') # Rust Language (Tag and Release Signing Key) <rust-key@rust-lang.org>
+#gpg --keyserver hkp://keys.gnupg.net --recv-keys 108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE
+
+prepare() {
+	cd "${srcdir}/${pkgname}c-${pkgver}"
+	
+	# merged for 1.11.0: https://github.com/rust-lang/rust/pull/33787
+	patch -Np1 -i ../rust-pr33787-enable-local-rebuild.patch
+
+	# merged for 1.11.0: https://github.com/rust-lang/rust/pull/33798
+	patch -Np1 -i ../rust-pr33798-miniz-misleading-indentation.patch
+
+	# merged for 1.11.0: https://github.com/rust-lang/hoedown/pull/6
+	# via https://github.com/rust-lang/rust/pull/33988
+	# (but eventually we should ditch this bundled hoedown)
+	patch -Np1 -i ../rust-hoedown-pr6-misleading-indentation.patch
+		
+	# unbundle
+	#rm -rf src/llvm/ src/jemalloc/
+	
+	# These tests assume that alloc_jemalloc is present
+	sed -i.jemalloc -e '1i // ignore-test jemalloc is disabled' \
+	src/test/compile-fail/allocator-dylib-is-system.rs \
+	src/test/compile-fail/allocator-rust-dylib-is-jemalloc.rs \
+	src/test/run-pass/allocator-default.rs
+
+	# Avouch's LLVM doesn't support any mips targets -- see "llc -version"
+	sed -i.nomips -e '/target=mips/,+1s/^/# unsupported /' \
+	src/test/run-make/atomic-lock-free/Makefile
+	
+	# copy avouch configuration file
+	#cp ../x86_64-avouch-linux-gnu.mk  mk/cfg/x86_64-avouch-linux-gnu.mk
+	
+	#if with bootstrap
+	mkdir -p dl/
+	cp -t dl/ ${srcarchivedir}/rustc-1.9.0-x86_64-unknown-linux-gnu.tar.gz
+
+}
+build() {
+	cd "${srcdir}/${pkgname}c-${pkgver}"
+
+	./configure --prefix=/usr \
+	--libdir=/usr/lib \
+	--datadir=/usr/share \
+	--infodir=/usr/share/info \
+	--build=x86_64-unknown-linux-gnu \
+	--host=x86_64-unknown-linux-gnu \
+	--target=x86_64-unknown-linux-gnu \
+	--enable-extended \
+	--enable-vendor \
+	--disable-option-checking \
+	--release-channel=stable \
+	--disable-codegen-tests \
+	--disable-docs \
+	--disable-jemalloc \
+	--disable-rpath
+	
+	#--llvm-root=/usr \
+	#make CFLAGS="$CFLAGS -fPIC -w"
+	make VERBOSE=1
+}
+
+package() {
+	cd "${srcdir}/${pkgname}c-${pkgver}"
+
+	make DESTDIR="$pkgdir" install
+
+	install -Dm644 LICENSE-APACHE \
+	"$pkgdir/usr/share/licenses/$pkgname/LICENSE-APACHE"
+	install -Dm644 LICENSE-MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
+
+	cd "$pkgdir/usr/lib"
+	rm rustlib/{components,manifest-rustc,rust-installer-version}
+	ln -sf rustlib/$CARCH-avouch-linux-gnu/lib/*.so .
+}

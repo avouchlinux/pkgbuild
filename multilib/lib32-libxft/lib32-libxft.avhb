@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libxft
+_realname=libXft
+pkgver=2.3.3
+pkgrel=1
+pkgdesc="FreeType-based font drawing library for X (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('lib32-fontconfig' 'lib32-libxrender')
+makedepends=('gcc-multilib')
+options=('!libtool')
+source=(${url}/releases/individual/lib/libXft-${pkgver}.tar.bz2)
+sha256sums=('7fce32b92dcb7b2869bed567af2abc7bbad0d5d6fcf471b8a3e137964a31bbbd')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

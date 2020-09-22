@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=stunnel
+pkgver=5.56
+pkgrel=1
+pkgdesc="A program that allows you to encrypt arbitrary TCP connections inside SSL"
+arch=('x86_64')
+groups=('net-misc')
+url="https://www.stunnel.org/"
+license=('GPL')
+depends=('openssl' 'libnsl')
+makedepends=('systemd')
+source=("https://www.stunnel.org/downloads/archive/5.x/$pkgname-$pkgver.tar.gz"{,.asc}
+        'Makefile.patch'
+        'stunnel.sysusers.conf'
+        'stunnel.tmpfiles.conf')
+validpgpkeys=('AC915EA30645D9D3D4DAE4FEB1048932DD3AAAA3') # Michał Trojnara
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  # don't create a certificate...
+  patch -p0 <"$srcdir/Makefile.patch"
+
+  ./configure --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-ipv6 \
+    --disable-libwrap
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+
+    install -Dm644 tools/stunnel.service "$pkgdir/usr/lib/systemd/system/stunnel.service"
+    install -Dm644 "${srcdir}"/${pkgname}.sysusers "${pkgdir}"/usr/lib/sysusers.d/${pkgname}.conf
+    install -Dm644 "$srcdir/stunnel.tmpfiles.conf" "$pkgdir/usr/lib/tmpfiles.d/stunnel.conf"
+
+  sed -e "s:/usr/var/lib/stunnel/:/var/run/stunnel:g" \
+      -e "s:/usr/etc/stunnel/:/etc/stunnel/:g" \
+      -e "s:no\(body\|group\):stunnel:g" \
+      -i "$pkgdir/etc/stunnel/stunnel.conf-sample"
+}

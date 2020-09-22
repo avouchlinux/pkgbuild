@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dleyna-server
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="Library to discover, browse and manipulate Digital Media Servers"
+arch=('x86_64')
+groups=('net-misc')
+url="http://01.org/dleyna"
+license=(LGPL2.1)
+depends=(dleyna-connector-dbus gupnp-av gupnp-dlna libsoup)
+makedepends=(git)
+source=("https://github.com/intel/dleyna-server/archive/$pkgver.tar.gz"
+        gupnp-1.2.diff)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i ../gupnp-1.2.diff
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+  CFLAGS+=" -Wno-deprecated-declarations"
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-static --libexecdir=/usr/lib
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

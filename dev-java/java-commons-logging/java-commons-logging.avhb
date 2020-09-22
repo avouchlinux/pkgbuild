@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-commons-logging
+_tarname=commons-logging
+pkgver=1.2
+pkgrel=1
+pkgdesc="Wrapper interface for logging APIs in Java"
+arch=('any')
+groups=('dev-java')
+url="https://commons.apache.org/logging/"
+license=(APACHE)
+depends=('java-runtime')
+source=("https://downloads.apache.org/commons/logging/binaries/commons-logging-$pkgver-bin.tar.gz"
+	      "https://downloads.apache.org/commons/logging/source/commons-logging-$pkgve-src.tar.gz")
+
+build() {
+  # TODO: build from sources
+  true
+}
+
+package() {
+  cd "$srcdir"/commons-logging-$pkgver/
+  install -d "$pkgdir"/usr/share/java/commons-logging/
+  install -m0644 commons-logging-$pkgver.jar \
+    "$pkgdir"/usr/share/java/commons-logging/commons-logging.jar
+}

@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-applets
+pkgver=3.36.4
+pkgrel=1
+pkgdesc="Small applications for the GNOME Panel"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/GnomeApplets"
+license=('GPL')
+depends=('dbus-glib' 'gnome-panel' 'libgtop' 'tracker' 'cpupower' 'upower')
+makedepends=('autoconf-archive' 'git' 'gnome-settings-daemon' 'intltool' 'python' 'yelp-tools')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	# Use correct D-Bus config location
+	sed -i '/^dbus_confdir =/ s/sysconfdir/datadir/' cpufreq/src/cpufreq-selector/Makefile.am
+
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+		--sysconfdir=/etc --localstatedir=/var \
+		--libexecdir=/usr/lib/$pkgname \
+		--with-cpufreq-lib=cpupower \
+		--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make  DESTDIR="${pkgdir}" install
+}

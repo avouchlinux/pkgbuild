@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-logs
+pkgver=3.36.0
+pkgrel=1
+pkgdesc="A log viewer for the systemd journal"
+arch=('x86_64')
+groups=('gnome-base')
+license=('GPL' 'LGPL')
+depends=('gtk3' 'gcr' 'libcap-ng')
+makedepends=('intltool' 'gtk-doc')
+options=('!emptydirs')
+url="http://www.gnome.org"
+install=gnome-keyring.install
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    avouch-meson build -D gtk_doc=true
+    ninja -C build
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    DESTDIR="$pkgdir" ninja -C build install
+}

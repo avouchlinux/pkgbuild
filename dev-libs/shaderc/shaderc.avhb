@@ -1,0 +1,62 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=shaderc
+pkgver=2020.3
+pkgrel=1
+pkgdesc='Collection of tools, libraries and tests for shader compilation'
+url='https://github.com/google/shaderc'
+arch=('x86_64')
+groups=('dev-libs')
+license=('Apache')
+depends=('glibc' 'gcc-libs' 'glslang' 'spirv-tools')
+makedepends=('asciidoctor' 'cmake' 'ninja' 'python')
+provides=('libshaderc_shared.so')
+source=(https://github.com/google/shaderc/archive/v${pkgver}.tar.gz
+        'fix-glslang-link-order.patch::https://github.com/google/shaderc/pull/463/commits/21c8be385b3fab5edcb934a6d99f69fd389c4e67.patch'
+        'shaderc-2019.0-fix-build-against-new-glslang.patch')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  # cd ${pkgname}
+  #patch -Np1 < ../fix-glslang-link-order.patch
+  #patch -Np1 < ../shaderc-2019.0-fix-build-against-new-glslang.patch
+
+  # Unbundle glslang, spirv-headers, spirv-tools
+  sed -i \
+		-e "s|\$<TARGET_FILE:spirv-dis>|/usr/bin/spirv-dis|" \
+		glslc/test/CMakeLists.txt || die
+
+  # de-vendor libs and disable git versioning
+  sed '/examples/d;/third_party/d' -i CMakeLists.txt
+  sed '/build-version/d' -i glslc/CMakeLists.txt
+
+  # Manually create build-version.inc as we disabled git versioning
+  cat <<- EOF > glslc/src/build-version.inc
+"${pkgver}\\n"
+"2020.2\n"
+"8.13.3559\n"
+EOF
+}
+
+build() {
+  export CFLAGS+=" ${CPPFLAGS}"
+  export CXXFLAGS+=" ${CPPFLAGS}"
+  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DSHADERC_SKIP_TESTS=ON
+  ninja -C build
+
+  #cd ../glslc
+  #asciidoctor -b manpage README.asciidoc -o glslc.1
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  DESTDIR="${pkgdir}" ninja -C build install
+  install -Dm 644 glslc/glslc.1 -t "${pkgdir}/usr/share/man/man1"
+}

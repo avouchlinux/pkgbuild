@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_realname=lame
+pkgname=lib32-"$_realname"
+pkgver=3.100
+pkgrel=1
+pkgdesc='A high quality MPEG Audio Layer III (MP3) encoder (32 bit)'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://lame.sourceforge.net/'
+depends=('lib32-ncurses' "$_realname")
+makedepends=('nasm')
+license=('LGPL')
+source=("https://downloads.sourceforge.net/sourceforge/lame/${_pkgbasename}-${pkgver}.tar.gz")
+sha256sums=('ddfe36cab873794038ae2c1210557ad34857a4b6bdc515785d1da9e175b1da1e')
+
+build() {
+    cd "${_realname}-${pkgver}"
+    
+    export CC='gcc -m32'
+    export CXX='g++ -m32'
+    export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+    
+    ./configure \
+        --prefix='/usr' \
+        --libdir='/usr/lib32' \
+        --enable-shared='yes' \
+        --enable-nasm
+    
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${_realname}-${pkgver}"
+    
+    make DESTDIR="$pkgdir" install
+    
+    rm -r "$pkgdir"/usr/{bin,include,share}
+}

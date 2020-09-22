@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk-xfce-engine
+pkgver=3.2.0
+pkgrel=1
+pkgdesc="Xfce Gtk+-2.0 and Gtk+-3.0 engine and themes"
+arch=('x86_64')
+groups=('xfce4')
+url="http://www.xfce.org/"
+license=('GPL2')
+depends=('gtk2' 'gtk3')
+makedepends=('gtk2' 'gtk3')
+source=(http://archive.xfce.org/src/xfce/$pkgbase/3.2/$pkgbase-$pkgver.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib \
+		--localstatedir=/var \
+		--disable-static \
+		--disable-debug \
+		--enable-gtk2 \
+		--enable-gtk3
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

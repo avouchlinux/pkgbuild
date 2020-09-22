@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vid.stab
+pkgver=1.1.0
+pkgrel=1
+pkgdesc='Video stabilization library'
+arch=('x86_64')
+groups=('media-libs')
+url='http://public.hronopik.de/vid.stab'
+license=('GPL')
+depends=('gcc-libs' 'glibc')
+makedepends=('cmake' 'git')
+provides=('libvidstab.so')
+_hash='aeabc8daa7904f9edf7441a11f293965a5ef53b8'
+source=("https://github.com/georgmartius/vid.stab/archive/v1.1.0.tar.gz")
+
+prepare() {
+  cd vid.stab
+
+  if [[ -d build ]]; then
+    rm -rf build
+  fi
+  mkdir build
+}
+
+build() {
+  cd vid.stab/build
+
+  cmake .. \
+    -DCMAKE_INSTALL_PREFIX='/usr' \
+    -DCMAKE_INSTALL_LIBDIR='lib'
+  make
+}
+
+package() {
+  cd vid.stab/build
+
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,18 @@
+commit 9616e9bc9a1950f70ab1abd1c6ca9abc3f26eb7f
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Fri May 31 15:11:35 2019 +0200
+
+    Hook up membarrier syscall for arm-linux.
+
+diff --git a/coregrind/m_syswrap/syswrap-arm-linux.c b/coregrind/m_syswrap/syswrap-arm-linux.c
+index 3c5194d55..5e8baf8db 100644
+--- a/coregrind/m_syswrap/syswrap-arm-linux.c
++++ b/coregrind/m_syswrap/syswrap-arm-linux.c
+@@ -1014,6 +1014,7 @@ static SyscallTableEntry syscall_main_table[] = {
+    LINXY(__NR_getrandom,         sys_getrandom),        // 384
+    LINXY(__NR_memfd_create,      sys_memfd_create),     // 385
+ 
++   LINX_(__NR_membarrier,        sys_membarrier),       // 389
+    LINX_(__NR_copy_file_range,   sys_copy_file_range),  // 391
+ 
+    LINXY(__NR_statx,             sys_statx),            // 397

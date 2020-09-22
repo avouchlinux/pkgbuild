@@ -1,0 +1,105 @@
+Submitted By:            Fernando de Oliveira <famobr at yahoo dot com dot br>
+Date:                    2015-07-20
+Initial Package Version: 2.9
+Upstream Status:         Unknown
+Origin:                  Arch Linux
+Description:             Fixes library name and Python configuration for Qt5 based packages builds.
+
+--- QScintilla-gpl-2.9/Python/configure.py.orig	2015-04-20 17:38:24.000000000 +0300
++++ QScintilla-gpl-2.9/Python/configure.py	2015-04-26 21:54:18.000000000 +0300
+@@ -31,6 +31,7 @@
+ import os
+ import optparse
+ import sys
++src_dir = os.path.dirname(os.path.abspath(__file__))
+ 
+ 
+ ###############################################################################
+@@ -206,6 +207,8 @@
+                     "The QScintilla version number could not be determined by "
+                     "reading %s." % sciglobal)
+ 
++        return # Debian: do not check for the installed version, we're good this way.
++
+         lib_dir = target_configuration.qsci_lib_dir
+         if lib_dir is None:
+             lib_dir = target_configuration.qt_lib_dir
+@@ -260,7 +263,7 @@
+         the target configuration.
+         """
+ 
+-        return 'sip/qscimod5.sip' if target_configuration.pyqt_package == 'PyQt5' else 'sip/qscimod4.sip'
++        return os.path.join(src_dir, 'sip/qscimod5.sip') if target_configuration.pyqt_package == 'PyQt5' else os.path.join(src_dir, 'sip/qscimod4.sip')
+ 
+     def get_sip_installs(self, target_configuration):
+         """ Return a tuple of the installation directory of the module's .sip
+@@ -1411,6 +1414,7 @@
+     includepath = qmake_config.get('INCLUDEPATH')
+     if includepath:
+         pro.write('INCLUDEPATH += %s\n' % includepath)
++        pro.write('INCLUDEPATH += %s\n' % '/usr/include/qt/QtWidgets /usr/include/qt/QtPrintSupport')
+ 
+     # Make sure the SIP include directory is searched before the Python include
+     # directory if they are different.
+@@ -1420,7 +1424,10 @@
+ 
+     libs = qmake_config.get('LIBS')
+     if libs:
+-        pro.write('LIBS += %s\n' % libs)
++        if target_config.pyqt_package == 'PyQt5':
++            pro.write('LIBS += %s -lqt5scintilla2\n' % libs)
++        else:
++            pro.write('LIBS += %s -lqscintilla2\n' % libs)
+ 
+     if not opts.static:
+         pro.write('''
+--- QScintilla-gpl-2.8.3/Qt4Qt5/features/qscintilla2.prf~	2014-07-03 14:15:46.000000000 +0400
++++ QScintilla-gpl-2.8.3/Qt4Qt5/features/qscintilla2.prf	2014-08-11 18:04:44.371414609 +0400
+@@ -17,9 +17,18 @@
+         win32: {
+             LIBS += -lqscintilla2d
+         } else {
+-            LIBS += -lqscintilla2
++            greaterThan(QT_MAJOR_VERSION, 4) {
++                LIBS += -lqt5scintilla2
++            } else {
++                LIBS += -lqscintilla2
++            }
+         }
+     }
+ } else {
++    greaterThan(QT_MAJOR_VERSION, 4) {
++        LIBS += -lqt5scintilla2
++        }
++        else {
+     LIBS += -lqscintilla2
++        }
+ }
+--- QScintilla-gpl-2.8.3/Qt4Qt5/qscintilla.pro~	2014-07-03 14:15:46.000000000 +0400
++++ QScintilla-gpl-2.8.3/Qt4Qt5/qscintilla.pro	2014-08-11 18:00:05.598079386 +0400
+@@ -41,6 +41,7 @@
+ 
+ greaterThan(QT_MAJOR_VERSION, 4) {
+ 	QT += widgets printsupport
++	TARGET = qt5scintilla2
+ 
+     greaterThan(QT_MINOR_VERSION, 1) {
+ 	    macx:QT += macextras
+--- QScintilla-gpl-2.8.3/Qt4Qt5/designer-Qt4Qt5/designer.pro~	2014-07-03 14:15:46.000000000 +0400
++++ QScintilla-gpl-2.8.3/designer-Qt4Qt5/designer.pro	2014-08-11 18:00:05.598079386 +0400
+@@ -8,11 +8,14 @@
+ 
+ greaterThan(QT_MAJOR_VERSION, 4) {
+     QT += designer
++    TARGET = qt5scintillaplugin
++    LIBS += -lqt5scintilla2
+ 
+     # Work around QTBUG-39300.
+     CONFIG -= android_install
+ } else {
+     CONFIG += designer
++    LIBS += -lqscintilla2
+ }
+ 
+ macx {
+ 

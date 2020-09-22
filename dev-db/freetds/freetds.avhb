@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=freetds
+pkgver=1.1.26
+pkgrel=1
+pkgdesc='Library for accessing Sybase and MS SQL Server databases'
+url='http://www.freetds.org'
+arch=('x86_64')
+groups=('dev-db')
+license=('LGPL')
+depends=('openssl' 'unixodbc')
+backup=('etc/freetds/freetds.conf'
+        'etc/freetds/locales.conf'
+        'etc/freetds/pool.conf')
+source=("ftp://ftp.freetds.org/pub/freetds/stable/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc/freetds --enable-msdblib \
+    --with-unixodbc=/usr --with-openssl
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

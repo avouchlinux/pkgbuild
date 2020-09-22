@@ -1,0 +1,159 @@
+diff -up openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c
+--- openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c.samba-4.10-macros	2019-02-14 15:19:53.317769411 +0100
++++ openchange-openchange-2.3-VULCAN/libmapiadmin/mapiadmin_user.c	2019-02-14 15:19:53.331769410 +0100
+@@ -39,6 +39,8 @@
+ 
+ #include <time.h>
+ 
++#include "libmapi/libmapi_private.h"
++
+ static ssize_t openchange_sys_read(int fd, void *buf, size_t count)
+ {
+ 	ssize_t ret;
+@@ -101,7 +103,7 @@ static enum ndr_err_code openchange_ndr_
+ 		NDR_CHECK(ndr_push_uint8(ndr, NDR_SCALARS, r->sid_rev_num));
+ 		NDR_CHECK(ndr_push_int8(ndr, NDR_SCALARS, r->num_auths));
+ 		NDR_CHECK(ndr_push_array_uint8(ndr, NDR_SCALARS, r->id_auth, 6));
+-		if (r->num_auths < 0 || r->num_auths > ARRAY_SIZE(r->sub_auths)) {
++		if (r->num_auths < 0 || r->num_auths > OC_ARRAY_SIZE(r->sub_auths)) {
+ 			return ndr_push_error(ndr, NDR_ERR_RANGE, "value out of range");
+ 		}
+ 		for (cntr_sub_auths_0 = 0; cntr_sub_auths_0 < r->num_auths; cntr_sub_auths_0++) {
+@@ -659,7 +661,7 @@ again:
+ 
+ 	OC_DEBUG(3, "Setting account password '%s'", mapiadmin_ctx->password);
+ 
+-	ZERO_STRUCT(u);
++	OC_ZERO_STRUCT(u);
+ 	s.in.user_handle = &mapiadmin_ctx->user_ctx->user_handle;
+ 	s.in.info = &u;
+ 	s.in.level = 24;
+@@ -687,7 +689,7 @@ again:
+ 		}
+ 	}
+ 
+-	ZERO_STRUCT(u);
++	OC_ZERO_STRUCT(u);
+ 	s.in.user_handle = &mapiadmin_ctx->user_ctx->user_handle;
+ 	s.in.info = &u;
+ 	s.in.level = 21;
+diff -up openchange-openchange-2.3-VULCAN/libmapi/libmapi_private.h.samba-4.10-macros openchange-openchange-2.3-VULCAN/libmapi/libmapi_private.h
+--- openchange-openchange-2.3-VULCAN/libmapi/libmapi_private.h.samba-4.10-macros	2019-02-14 15:19:53.313769411 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/libmapi_private.h	2019-02-14 15:19:53.331769410 +0100
+@@ -141,6 +141,11 @@ const char		*libmapi_iface_best_ip(struc
+ bool			libmapi_iface_is_local(struct interface *, const char *);
+ bool			libmapi_iface_same_net(const char *, const char *, const char *);
+ 
++#define OC_ZERO_STRUCT(x) memset((char *)&(x), 0, sizeof(x))
++#define OC_ZERO_STRUCTP(x) do { if ((x) != NULL) memset((char *)(x), 0, sizeof(*(x))); } while(0)
++#define OC_ZERO_STRUCTPN(x) memset((char *)(x), 0, sizeof(*(x)))
++#define OC_ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
++
+ __END_DECLS
+ 
+ #undef _PRINTF_ATTRIBUTE
+diff -up openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c
+--- openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c.samba-4.10-macros	2019-02-14 15:19:53.318769411 +0100
++++ openchange-openchange-2.3-VULCAN/libmapi/socket/interface.c	2019-02-14 15:19:53.331769410 +0100
+@@ -70,7 +70,7 @@ static void add_interface(TALLOC_CTX *me
+ 	if (iface == NULL) 
+ 		return;
+ 	
+-	ZERO_STRUCTPN(iface);
++	OC_ZERO_STRUCTPN(iface);
+ 
+ 	iface->ip = ip;
+ 	iface->nmask = nmask;
+diff -up openchange-openchange-2.3-VULCAN/mapiproxy/dcesrv_mapiproxy.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/mapiproxy/dcesrv_mapiproxy.c
+--- openchange-openchange-2.3-VULCAN/mapiproxy/dcesrv_mapiproxy.c.samba-4.10-macros	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/mapiproxy/dcesrv_mapiproxy.c	2019-02-14 15:19:53.331769410 +0100
+@@ -703,7 +703,7 @@ NTSTATUS dcerpc_server_mapiproxy_init(vo
+ 	NTSTATUS			ret;
+ 	struct dcesrv_endpoint_server	ep_server;
+ 
+-	ZERO_STRUCT(ep_server);
++	OC_ZERO_STRUCT(ep_server);
+ 
+ 	/* Fill in our name */
+ 	ep_server.name = "mapiproxy";
+diff -up openchange-openchange-2.3-VULCAN/ndr_mapi.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/ndr_mapi.c
+--- openchange-openchange-2.3-VULCAN/ndr_mapi.c.samba-4.10-macros	2019-02-14 15:19:53.329769410 +0100
++++ openchange-openchange-2.3-VULCAN/ndr_mapi.c	2019-02-14 15:19:53.331769410 +0100
+@@ -921,7 +921,7 @@ _PUBLIC_ enum ndr_err_code ndr_pull_EcDo
+ 	TALLOC_CTX *_mem_save_length_0;
+ 
+ 	if (flags & NDR_IN) {
+-		ZERO_STRUCT(r->out);
++		OC_ZERO_STRUCT(r->out);
+ 
+ 		if (ndr->flags & LIBNDR_FLAG_REF_ALLOC) {
+ 			NDR_PULL_ALLOC(ndr, r->in.handle);
+@@ -961,7 +961,7 @@ _PUBLIC_ enum ndr_err_code ndr_pull_EcDo
+ 		NDR_PULL_ALLOC(ndr, r->out.handle);
+ 		*r->out.handle = *r->in.handle;
+ 		NDR_PULL_ALLOC(ndr, r->out.mapi_response);
+-		ZERO_STRUCTP(r->out.mapi_response);
++		OC_ZERO_STRUCTP(r->out.mapi_response);
+ 		NDR_PULL_ALLOC(ndr, r->out.length);
+ 		*r->out.length = *r->in.length;
+ 	}
+@@ -1235,7 +1235,7 @@ _PUBLIC_ enum ndr_err_code ndr_pull_EcDo
+ 	TALLOC_CTX	*_mem_save_rgbAuxOut_1;
+ 
+ 	if (flags & NDR_IN) {
+-		ZERO_STRUCT(r->out);
++		OC_ZERO_STRUCT(r->out);
+ 
+ 		NDR_CHECK(ndr_pull_array_size(ndr, &r->in.szUserDN));
+ 		NDR_CHECK(ndr_pull_array_length(ndr, &r->in.szUserDN));
+@@ -1294,19 +1294,19 @@ _PUBLIC_ enum ndr_err_code ndr_pull_EcDo
+ 		}
+ 		NDR_PULL_SET_MEM_CTX(ndr, _mem_save_pcbAuxOut_0, LIBNDR_FLAG_REF_ALLOC);
+ 		NDR_PULL_ALLOC(ndr, r->out.handle);
+-		ZERO_STRUCTP(r->out.handle);
++		OC_ZERO_STRUCTP(r->out.handle);
+ 		NDR_PULL_ALLOC(ndr, r->out.pcmsPollsMax);
+-		ZERO_STRUCTP(r->out.pcmsPollsMax);
++		OC_ZERO_STRUCTP(r->out.pcmsPollsMax);
+ 		NDR_PULL_ALLOC(ndr, r->out.pcRetry);
+-		ZERO_STRUCTP(r->out.pcRetry);
++		OC_ZERO_STRUCTP(r->out.pcRetry);
+ 		NDR_PULL_ALLOC(ndr, r->out.pcmsRetryDelay);
+-		ZERO_STRUCTP(r->out.pcmsRetryDelay);
++		OC_ZERO_STRUCTP(r->out.pcmsRetryDelay);
+ 		NDR_PULL_ALLOC(ndr, r->out.picxr);
+-		ZERO_STRUCTP(r->out.picxr);
++		OC_ZERO_STRUCTP(r->out.picxr);
+ 		NDR_PULL_ALLOC(ndr, r->out.szDNPrefix);
+-		ZERO_STRUCTP(r->out.szDNPrefix);
++		OC_ZERO_STRUCTP(r->out.szDNPrefix);
+ 		NDR_PULL_ALLOC(ndr, r->out.szDisplayName);
+-		ZERO_STRUCTP(r->out.szDisplayName);
++		OC_ZERO_STRUCTP(r->out.szDisplayName);
+ 		NDR_PULL_ALLOC(ndr, r->out.pulTimeStamp);
+ 		*r->out.pulTimeStamp = *r->in.pulTimeStamp;
+ 		NDR_PULL_ALLOC(ndr, r->out.pcbAuxOut);
+diff -up openchange-openchange-2.3-VULCAN/testsuite/libmapi/mapi_property.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/testsuite/libmapi/mapi_property.c
+--- openchange-openchange-2.3-VULCAN/testsuite/libmapi/mapi_property.c.samba-4.10-macros	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/testsuite/libmapi/mapi_property.c	2019-02-14 15:19:53.331769410 +0100
+@@ -280,7 +280,7 @@ static void _make_test_srow(TALLOC_CTX *
+ {
+ 	struct SPropValue prop_val;
+ 
+-	ZERO_STRUCT(prop_val);
++	OC_ZERO_STRUCT(prop_val);
+ 	/* PT_I8 */
+ 	prop_val.ulPropTag = PR_FID;
+ 	prop_val.value.d = 0x0123456789ABCDEFul;
+diff -up openchange-openchange-2.3-VULCAN/testsuite/libmapiproxy/openchangedb_logger.c.samba-4.10-macros openchange-openchange-2.3-VULCAN/testsuite/libmapiproxy/openchangedb_logger.c
+--- openchange-openchange-2.3-VULCAN/testsuite/libmapiproxy/openchangedb_logger.c.samba-4.10-macros	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/testsuite/libmapiproxy/openchangedb_logger.c	2019-02-14 15:19:53.332769410 +0100
+@@ -638,7 +638,7 @@ static void ocdb_logger_setup(void)
+ 		ck_abort();
+ 	}
+ 
+-	ZERO_STRUCT(functions_called);
++	OC_ZERO_STRUCT(functions_called);
+ }
+ 
+ static void ocdb_logger_teardown(void)

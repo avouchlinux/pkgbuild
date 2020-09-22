@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sddm-config-editor
+pkgver=0.1+57+gc01cbcd
+pkgrel=1
+pkgdesc='SDDM Configuration Editor'
+license=('APACHE')
+url='https://github.com/hagabaka/sddm-config-editor'
+source=('git+https://github.com/hagabaka/sddm-config-editor.git')
+md5sums=('SKIP')
+depends=('qt5-quickcontrols' 'sddm' 'polkit')
+makedepends=('git' 'qt5-tools')
+arch=('i686' 'x86_64')
+
+getsrc(){
+	
+	git clone https://github.com/hagabaka/sddm-config-editor.git
+}
+pkgver() {
+  cd "$srcdir/$_pkgname"
+  ( set -o pipefail
+  git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+  cd "$srcdir/$pkgname/cpp"
+  qmake PREFIX="$pkgdir"
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname/cpp"
+  make install
+}
+

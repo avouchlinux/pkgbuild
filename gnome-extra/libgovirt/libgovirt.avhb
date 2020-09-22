@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgovirt
+pkgver=0.3.7
+pkgrel=1
+pkgdesc="oVirt is a GObject wrapper for the oVirt REST API"
+url="https://wiki.gnome.org/Apps/gxml"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL3)
+depends=(libxml2)
+makedepends=(intltool itstool)
+source=(https://download.gnome.org/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

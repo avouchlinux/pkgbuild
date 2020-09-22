@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kde-dev-scripts
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Scripts and setting files useful during development of KDE software'
+arch=('any')
+groups=('kde-apps')
+url='https://www.kde.org/applications/development/'
+license=('GPL' 'LGPL' 'FDL')
+makedepends=('extra-cmake-modules' 'kdoctools' 'kdelibs4support')
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+sha1sums=('060e61f0ee3d1bbb3f1076e67bef0ee7b86e1607')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+
+  # Fix python 2 path
+  sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python2|' \
+    "$pkgdir"/usr/bin/{zonetab2pot.py,kde-systemsettings-tree.py,reviewboard-am}
+  sed -i 's|#! /usr/bin/env python|#!/usr/bin/env python2|' \
+    "$pkgdir"/usr/bin/{kdelnk2desktop.py,kde_generate_export_header}
+
+# Install additional files
+  cd "$srcdir"/$pkgname-$pkgver
+  mkdir -p "$pkgdir"/usr/share/kde-dev-scripts
+  cp -r kde-devel-* gdb "$pkgdir"/usr/share/kde-dev-scripts
+}

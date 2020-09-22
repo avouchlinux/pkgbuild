@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-importlib-metadata
+_realname=importlib_metadata
+pkgver=1.6.0
+pkgrel=1
+pkgdesc="Read metadata from python3 packages"
+url="https://importlib-metadata.readthedocs.io"
+license=('Apache')
+arch=('any')
+groups=('dev-python3')
+makedepends=('python3-setuptools-scm' 'python32-configparser' 'python3-zipp' )
+checkdepends=('python3-pip' 'python3-pytest-runner' 'python3-wheel' 'python3-pyfakefs')
+source=("$pkgbase-$pkgver.tar.gz::https://gitlab.com/python-devs/importlib_metadata/-/archive/v$pkgver/importlib_metadata-v$pkgver.tar.bz2")
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+build() {
+  cd $_realname-v$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-v$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-v$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

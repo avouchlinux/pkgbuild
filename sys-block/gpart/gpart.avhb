@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gpart
+pkgver=0.3
+pkgrel=1
+pkgdesc="Partition table rescue/guessing tool"
+arch=('x86_64')
+groups=('sys-block')
+url="https://github.com/baruch/gpart"
+license=('GPL')
+depends=('glibc')
+source=("https://github.com/baruch/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+md5sums=('465870b72b647a3aa22b335ba527e869')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./autogen.sh
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make prefix=${pkgdir}/usr install
+	# usr move
+	mv ${pkgdir}/usr/sbin ${pkgdir}/usr/bin
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

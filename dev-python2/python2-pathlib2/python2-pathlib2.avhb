@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pathlib2
+_realname=pathlib2
+pkgver=2.3.5
+pkgrel=1
+pkgdesc='Object-oriented filesystem paths'
+arch=('any')
+groups=('dev-python2')
+url='http://pypi.python.org/pypi/pathlib2'
+license=('MIT')
+depends=('python2-six' 'python2-scandir')
+makedepends=('python2-setuptools')
+checkdepends=('python2-pytest-runner' 'python2-mock')
+source=("https://pypi.io/packages/source/p/pathlib2/pathlib2-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE.rst "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

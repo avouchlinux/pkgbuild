@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=zip
+pkgver=3.0
+_pkgver=30
+pkgrel=1
+pkgdesc="Creates PKZIP-compatible .zip files"
+arch=('x86_64')
+groups=('app-archive')
+url="http://www.info-zip.org/Zip.html"
+license=('BSD')
+depends=('bzip2')
+options=('!makeflags')
+source=("ftp://ftp.info-zip.org/pub/infozip/src/${pkgname}${_pkgver}.zip")
+
+build() {
+	cd "${srcdir}/${pkgname}${_pkgver}"
+	make -f unix/Makefile LOCAL_ZIP="$CFLAGS" prefix=/usr generic_gcc
+}
+
+package() {
+	cd "${srcdir}/${pkgname}${_pkgver}"
+	make -f unix/Makefile INSTALL=/bin/install prefix=${pkgdir}/usr \
+	MANDIR=${pkgdir}/usr/share/man/man1 install
+	install -Dm644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+

@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk4
+pkgname=gtk4
+_realname=gtk+
+pkgver=3.91.2
+pkgrel=1
+pkgdesc="GObject-based multi-platform GUI toolkit (v3)"
+arch=(i686 x86_64)
+url="http://www.gtk.org/"
+install=gtk3.install
+depends=(atk cairo gtk-update-icon-cache libcups libxcursor libxinerama libxrandr libxi
+         libxcomposite libxdamage pango shared-mime-info colord at-spi2-atk wayland libxkbcommon)
+makedepends=(gobject-introspection)
+optdepends=('gnome-themes-standard: Default widget theme'
+            'gnome-icon-theme: Default icon theme')
+license=(LGPL)
+source=(http://ftp.gnome.org/pub/gnome/sources/gtk+/${pkgver%.*}/gtk+-$pkgver.tar.xz
+        settings.ini)
+sha256sums=('3c24c57fc5cb7a5ea39d3a3ff7b12be63d7f21a52fd6f20f7b983e19b7b0268a'
+            '14369dfd1d325c393e17c105d5d5cc5501663277bd4047ea04a50abb3cfbd119')
+
+prepare() {
+	mkdir build
+}
+ 
+build() {
+	cd build
+	meson ${srcdir}/${_realname}-${pkgver} \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		-Denable-broadway-backend=true
+  ninja
+}
+
+package() {
+  install="gtk4.install"
+
+  cd build
+
+  DESTDIR="$pkgdir" ninja install
+
+  install -Dm644 "../../settings.ini" "$pkgdir/usr/share/gtk-4.0/settings.ini"
+  install -Dm644 ../../gtk4-query-immodules.hook "$pkgdir/usr/share/libalpm/hooks/gtk4-query-immodules.hook"
+}

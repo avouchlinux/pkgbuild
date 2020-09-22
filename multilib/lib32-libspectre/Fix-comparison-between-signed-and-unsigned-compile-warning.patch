@@ -1,0 +1,26 @@
+From 6f6a8c2f9d921185a1403be27ec013d9f48a8cbf Mon Sep 17 00:00:00 2001
+From: Carlos Garcia Campos <carlosgc@gnome.org>
+Date: Sat, 3 Nov 2012 10:45:01 +0100
+Subject: ps: Fix comparison between signed and unsigned compile warning
+
+https://bugs.freedesktop.org/show_bug.cgi?id=56476
+
+diff --git a/libspectre/ps.c b/libspectre/ps.c
+index 0130fb4..fb84d80 100644
+--- a/libspectre/ps.c
++++ b/libspectre/ps.c
+@@ -1190,8 +1190,9 @@ continuepage:
+ 	section_len += line_len;
+     } else if (doc->doseps) {
+         /* No EOF, make sure endtrailer <= ps_end */
+-        if (position > doc->doseps->ps_begin + doc->doseps->ps_length) {
+-	    position = doc->doseps->ps_begin + doc->doseps->ps_length;
++        long ps_end = doc->doseps->ps_begin + doc->doseps->ps_length;
++        if (position > ps_end) {
++            position = ps_end;
+ 	    section_len = position - doc->begintrailer;
+ 	    line_len = 0;
+ 	}
+-- 
+cgit v0.10.2
+

@@ -1,0 +1,63 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-freetype2
+pkgbase=freetype
+pkgver=2.10.1
+pkgrel=1
+pkgdesc="TrueType font rendering library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL')
+url="http://freetype.sourceforge.net"
+depends=('lib32-zlib' 'lib32-bzip2' 'lib32-libpng' $_pkgbasename)
+makedepends=(gcc-multilib)
+options=('!libtool')
+source=(http://downloads.sourceforge.net/sourceforge/freetype/freetype-${pkgver}.tar.bz2
+        freetype-2.5.1-enable-spr.patch
+        freetype-2.2.1-enable-valid.patch)
+md5sums=('10e8f4d6a019b124088d18bc26123a25'
+         '80a14cce234f3f190cd936ca9060c398'
+         '214119610444c9b02766ccee5e220680')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	
+	patch -Np1 -i ../0001-Enable-table-validation-modules.patch
+	patch -Np1 -i ../0002-Enable-infinality-subpixel-hinting.patch
+	patch -Np1 -i ../0003-Enable-long-PCF-family-names.patch
+
+	# https://bugs.archlinux.org/task/62395
+	patch -Np1 -i ../0004-pcf-Fix-handling-of-undefined-glyph-56067.patch
+
+	cd ../freetype2-demos
+	# enable more demos
+	patch -Np1 -i ../0005-freetype-2.5.2-more-demos.patch
+
+	# Suppress RPATH
+	sed -i '/X11_LIB:%=-R%/d' graph/x11/rules.mk
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	#LDFLAGS="${LDFLAGS} -fuse-ld=bfd" \
+	#LD="/usr/bin/ld.bfd" 
+	./configure --prefix=/usr \
+	--libdir=/usr/lib32 \
+	--disable-static \
+	--with-harfbuzz=no
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

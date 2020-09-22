@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-openal
+_realname=openal-soft
+pkgver=1.20.1
+pkgrel=1
+pkgdesc="Cross-platform 3D audio library, software implementation (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://github.com/kcat/openal-soft"
+license=(LGPL)
+depends=(lib32-glibc openal)
+makedepends=(lib32-alsa-lib lib32-libpulse lib32-fluidsynth lib32-portaudio lib32-jack
+             git cmake ninja gcc-multilib)
+source=("https://github.com/kcat/openal-soft/archive/openal-soft-$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  mkdir build examples
+}
+
+build() {
+  export CC="gcc -m32 -mstackrealign"
+  export CXX="g++ -m32 -mstackrealign"
+  export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  cd build
+  cmake ../openal-soft-openal-soft-$pkgver -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib32 \
+    -DALSOFT_EXAMPLES=no
+  ninja
+}
+
+package() {
+  optdepends=('lib32-fluidsynth: MIDI rendering')
+
+  DESTDIR="$pkgdir" ninja -C build install
+  rm -rv "$pkgdir"/usr/{include,share,bin}
+}

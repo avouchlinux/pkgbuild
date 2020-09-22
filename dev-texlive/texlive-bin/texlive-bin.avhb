@@ -1,0 +1,142 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=texlive
+pkgname=('texlive' 'libsynctex')
+pkgver=20200327
+_realname=texlive-source-trunk
+pkgrel=1
+license=('GPL')
+arch=('x86_64')
+groups=('dev-texlive')
+makedepends=('git' 'cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler'
+         'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
+         'icu' 'harfbuzz' 'harfbuzz-icu' 'gmp' 'mpfr' 'potrace' 'libpaper'
+         'perl' 'clisp' 'ffcall')
+url='http://tug.org/texlive/'
+source=("https://github.com/TeX-Live/texlive-source/archive/build-$_pkgver.tar.gz")
+
+prepare() {
+   cd "$srcdir/$_realname"
+
+   # t4ht expects to be un /usr/share/texmf/bin/t4ht (FS#27251)
+   sed -i s/SELFAUTOPARENT/TEXMFROOT/ texk/tex4htk/t4ht.c
+
+   # pdftex poppler compatibility
+   cp -pv texk/web2c/pdftexdir/pdftoepdf{-poppler0.86.0,}.cc
+   cp -pv texk/web2c/pdftexdir/pdftosrc{-poppler0.83.0,}.cc
+}
+
+build() {
+   cd "$srcdir/$_realname"
+
+   mkdir -p Work
+   cd Work
+   echo "--> Initial configuration..."
+   # export TEXARCH=$(uname -m | sed -e 's/i.86/i386/' -e 's/$/-linux/')
+   # export TEXMFROOT=/usr/share
+
+   ../configure --prefix=/usr -C \
+     --sysconfdir=/etc \
+     --datarootdir=/usr/share \
+     --datadir=/usr/share \
+     --mandir=/usr/share/man \
+     --with-banner-add=" - Avouch OS" \
+     --with-system-zlib \
+     --with-system-zziplib \
+     --with-system-pnglib \
+     --with-system-ncurses \
+     --with-system-t1lib \
+     --with-system-gd \
+     --with-system-poppler \
+     --with-system-xpdf \
+     --with-system-freetype2 \
+     --with-system-pixman \
+     --with-system-cairo \
+     --with-system-harfbuzz \
+     --with-system-graphite \
+     --with-system-icu \
+     --with-system-gmp \
+     --with-system-mpfr \
+     --with-system-potrace \
+     --with-system-libpaper \
+     --with-freetype2-libdir=/usr/lib \
+     --with-freetype2-include=/usr/include/freetype2 \
+     --with-xdvi-x-toolkit=xaw \
+     --with-clisp-runtime=default \
+     --enable-shared \
+     --enable-luatex \
+     --enable-xindy \
+     --disable-static \
+     --disable-native-texlive-build \
+     --disable-multiplatform \
+     --disable-dialog \
+     --disable-psutils \
+     --disable-t1utils \
+     --disable-bibtexu \
+     --disable-xz \
+     --disable-aleph \
+     --disable-xindy-rules \
+     --disable-xindy-docs \
+     --disable-dump-share
+     #--disable-dvisvgm # unable to build
+
+   make ${MAKEFLAGS}
+}
+
+package_libsynctex() {
+    pkgdesc='Library for synchronization between TeX files and resulting file'
+    depends=('glibc' 'zlib')
+
+    cd "$srcdir/$_realname/Work"
+    make -C texk/web2c DESTDIR="${pkgdir}" \
+        install-data-am install-libLTLIBRARIES
+}
+
+package_texlive-bin() {
+   pkgdesc="TeX Live binaries"
+   depends=('cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler'
+            'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
+            'icu' 'harfbuzz' 'harfbuzz-icu' 'gmp' 'mpfr' 'potrace' 'libpaper'
+            'libsynctex')
+   provides=('lcdf-typetools' 'kpathsea' 'xindy')
+   optdepends=('ed: for texconfig'
+               'biber: for bibliography processing')
+   options=('!strip')
+
+   cd "$srcdir/$_realname"
+
+   #############################################################
+   ### install
+   # fixes for xindy
+   find utils/xindy -name Makefile -exec sed -i -e "s|^prefix =.\+$|prefix = $pkgdir/usr|" -e "s|^mandir =.\+$|mandir = \${prefix}/share/man|" -e "s|^datadir =.\+$|datadir = \${datarootdir}/texmf|" -e "s|^docdir =.\+$|docdir = \${datadir}/doc/xindy|" '{}' \;
+
+   echo "-------------------------------------------------------"
+   echo "--> Proceeding with make install ..."
+   echo "-------------------------------------------------------"
+   cd Work
+   make DESTDIR="${pkgdir}" texmf="$pkgdir"/usr/share/texmf install
+   #rm -rf "${pkgdir}"/usr/{texmf,share/texmf-dist}
+
+   # remove libsynctex
+   rm -f "$pkgdir"/usr/include/synctex/*
+   rm -f "$pkgdir"/usr/lib/libsynctex.*
+   rm -f "$pkgdir"/usr/lib/pkgconfig/synctex.pc
+   rm -f "$pkgdir"/usr/share/man/man*/synctex.*
+
+   # replace upstream texmf.cnf with ours
+   rm -f "$pkgdir"/usr/share/texmf-dist/web2c/texmf.cnf
+   install -Dm644 "$srcdir"/texmf.cnf "$pkgdir"/etc/texmf/web2c/texmf.cnf
+
+   # since the location of texmf.cnf is hard-wired to be under /usr/share/texmf/web2c
+   # we make a symlink from /etc/texmf/web2c/texmf.cnf to the latter
+   ln -sf /etc/texmf/web2c/texmf.cnf "$pkgdir"/usr/share/texmf-dist/web2c/texmf.cnf
+   # replace upstream texmfcnf.lua with ours
+
+   install -m644 "$srcdir"/texmfcnf.lua "$pkgdir"/usr/share/texmf-dist/web2c/texmfcnf.lua
+
+   # use python2 instead of python for scripts.
+   sed -i '1s/python/python2/' "$pkgdir"/usr/share/texmf-dist/scripts/de-macro/de-macro
+
+ }

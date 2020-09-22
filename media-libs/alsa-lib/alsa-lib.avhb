@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=alsa-lib
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="An alternative implementation of Linux sound support"
+arch=('x86_64')
+groups=('media-libs')
+url="https://www.alsa-project.org"
+license=('LGPL2.1')
+depends=('glibc' 'alsa-topology-conf' 'alsa-ucm-conf')
+provides=('libasound.so' 'libatopology.so')
+source=("https://www.alsa-project.org/files/pub/lib/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr --without-debug
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

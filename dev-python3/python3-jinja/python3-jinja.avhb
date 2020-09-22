@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-jinja
+_realname=Jinja2
+pkgver=2.11.1
+pkgrel=1
+pkgdesc="A simple python3ic template language written in python3"
+arch=('any')
+groups=('dev-python3')
+url="http://jinja.pocoo.org/"
+license=('BSD')
+depends=('python3-setuptools' 'python3-markupsafe')
+makedepends=('python3-setuptools' 'python3-markupsafe')
+source=(http://pypi.python3.org/packages/source/J/Jinja2/Jinja2-$pkgver.tar.gz)
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,28 @@
+a) Compile/install usb-modeswitch-1.1.4 according to:
+http://www.draisberghof.de/usb_modeswitch/
+
+apt-get install libusb-dev (needed for Ubuntu 8.04)
+make install
+
+B) likewise install usb-modeswitch-data
+(also via 'make install')
+
+C) Create a "12d1:140c" spec which corresponds to the ID showns by 'lsusb':
+vi /etc/usb_modeswitch.d/12d1:140c
+---
+########################################################
+# Huawei, newer modems
+DefaultVendor= 0x12d1
+DefaultProduct=0x140c
+#TargetVendor= 0x12d1
+#TargetProductList="1001,1406,140b,140c,1412,141b,14ac"
+TargetClass=0xff
+CheckSuccess=20
+MessageContent="55534243123456780000000000000011060000000000000000000000000000"
+----
+
+D) vi /lib/udev/rules.d/40-usb_modeswitch.rules
+--- add on the line before Huawei E180 ----
+# Huawei E180v [http://www.draisberghof.de/usb_modeswitch/bb/viewtopic.php?p=3301]
+ATTRS{idVendor}=="12d1", ATTRS{idProduct}=="140c", RUN+="usb_modeswitch '%b/%k'"
+---- 

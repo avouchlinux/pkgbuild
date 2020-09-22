@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=help2man
+pkgver=1.47.15
+pkgrel=1
+pkgdesc="Conversion tool to create man files"
+arch=('x86_64')
+groups=('app-text')
+url="http://www.gnu.org/software/help2man/"
+license=('GPL')
+depends=('perl-locale-gettext')
+install=help2man.install
+source=("http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr \
+        --mandir=/usr/share/man \
+        --infodir=/usr/share/info \
+        --libdir=/usr/lib
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

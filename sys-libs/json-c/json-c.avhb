@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=json-c
+pkgver=0.13.1
+pkgrel=1
+_date=20180305
+pkgdesc="A JSON implementation in C"
+license=(MIT)
+arch=(x86_64)
+url="https://github.com/json-c/json-c/wiki"
+license=(MIT)
+arch=(x86_64)
+depends=(glibc)
+makedepends=(git)
+source=("https://codeload.github.com/json-c/json-c/tar.gz/json-c-0.13.1-20180305")
+sha256sums=('SKIP')
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgname}-${pkgver}-${_date}
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgname}-${pkgver}-${_date}
+	./configure \
+		--prefix=/usr \
+		--disable-static \
+		--enable-threading
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgname}-${pkgver}-${_date}
+	make DESTDIR="$pkgdir" install
+}
+

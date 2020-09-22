@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libthai
+pkgver=0.1.28
+pkgrel=1
+pkgdesc="Thai language support routines"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://linux.thai.net/projects/libthai"
+license=('LGPL')
+depends=('libdatrie')
+makedepends=('pkgconfig')
+options=('!emptydirs')
+source=(https://linux.thai.net/pub/thailinux/software/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

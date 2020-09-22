@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=notification-daemon
+pkgver=3.20.0
+pkgrel=1
+pkgdesc="Server implementation of the freedesktop.org desktop notification specification"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL2)
+url="https://wiki.gnome.org/Projects/NotificationDaemon"
+depends=(gtk3)
+makedepends=(intltool)
+source=("https://download.gnome.org/sources/${pkgname}/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--libexecdir=/usr/lib/notification-daemon-1.0 \
+	--localstatedir=/var --disable-static
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

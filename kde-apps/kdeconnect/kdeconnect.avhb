@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdeconnect
+_realname=kdeconnect-kde
+pkgver=1.4
+pkgrel=1
+pkgdesc='Adds communication between KDE and your smartphone'
+arch=('x86_64')
+groups=('kde-apps')
+url='https://community.kde.org/KDEConnect'
+license=(GPL)
+depends=(hicolor-icon-theme kcmutils kwayland libfakekey qca-qt5)
+makedepends=(extra-cmake-modules kdoctools qt5-declarative)
+optdepends=('sshfs: remote filesystem browser' 'kde-cli-tools: configuration UI'
+            'qt5-declarative: QML bindings' 'python-nautilus: Nautilus integration')
+source=("https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-kde-$pkgver.tar.xz") #{,.sig} unavailable key
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-kde-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

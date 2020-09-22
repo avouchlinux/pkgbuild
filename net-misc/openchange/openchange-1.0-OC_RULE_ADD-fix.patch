@@ -1,0 +1,12 @@
+diff -up openchange-2.1-QUADRANT/configure.ac.OC_RULE_ADD-fix openchange-2.1-QUADRANT/configure.ac
+--- openchange-2.1-QUADRANT/configure.ac.OC_RULE_ADD-fix	2014-04-28 11:41:13.075975644 +0200
++++ openchange-2.1-QUADRANT/configure.ac	2014-04-28 11:56:50.991936546 +0200
+@@ -639,7 +639,7 @@ dnl ####################################
+ dnl mapiproxy server
+ dnl ##########################################################################
+ if test x$PYTHON != x; then
+-	if test "x$SAMBASERVER_LIBS" != x ; then
++	if test "x$SAMDB_LIBS" != x -a "x$SAMBASERVER_LIBS" != x ; then
+ 		mapiproxy=1
+ 	fi
+ fi

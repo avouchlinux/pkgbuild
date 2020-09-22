@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmfx
+_realname=mfx_dispatch
+pkgver=1.25
+pkgrel=1
+pkgdesc='Intel Media SDK dispatcher library'
+arch=('x86_64')
+groups=('media-libs')
+url='https://github.com/lu-zero/mfx_dispatch/'
+license=('BSD')
+makedepends=('libva')
+conflicts=('libmfx-git')
+options=('staticlibs')
+source=("https://github.com/lu-zero/mfx_dispatch/archive/${pkgver}.tar.gz")
+
+build() {
+    cd "${_realname}-${pkgver}"
+    autoreconf -i
+    ./configure \
+        --prefix='/usr' \
+        --enable-static='yes' \
+        --enable-shared='no' \
+        --enable-fast-install='yes' \
+        --with-libva_drm='yes' \
+        --with-libva_x11='yes' \
+        --with-pic
+}
+
+package() {
+    cd "${_realname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+    install -D -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

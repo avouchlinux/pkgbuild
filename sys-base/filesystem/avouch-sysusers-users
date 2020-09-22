@@ -1,0 +1,6 @@
+# default avouch users
+u bin 1 - -
+u daemon 2 - -
+u http 41 - /srv/http
+u ftp 42 - /srv/ftp
+u mail 43 - /var/spool/mail

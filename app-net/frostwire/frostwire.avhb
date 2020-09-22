@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=frostwire
+pkgver=6.8.4
+pkgrel=1
+pkgdesc="FrostWire is a free and easy Downloader, BitTorrent Client and Media Player"
+arch=('x86_64')
+groups=('app-net')
+url="http://www.frostwire.com"
+license=('custom')
+depends=('xdg-utils' 'jre8-openjdk')
+optdepends=('mplayer')
+source_x86_64=("https://github.com/frostwire/frostwire/releases/download/frostwire-desktop-${pkgver}-build-${pkgrel}/frostwire-${pkgver}.noarch.tar.gz")
+source=($pkgname.desktop
+        $pkgname.png)
+     
+package() {
+  cd $srcdir
+  tar xvf frostwire-${pkgver}.amd64.tar.gz
+  mkdir -p "$pkgdir/usr/bin/"
+  mkdir -p "$pkgdir/usr/lib/frostwire/"
+  cp -r "frostwire-${pkgver}.amd64/." "$pkgdir/usr/lib/frostwire/"
+  ln -s ../lib/frostwire/frostwire "$pkgdir/usr/bin/frostwire"
+  install -vDm644 $srcdir/$pkgname.desktop $pkgdir/usr/share/applications/$pkgname.desktop
+  install -vDm644 $srcdir/$pkgname.png $pkgdir/usr/share/pixmaps/$pkgname.png
+}

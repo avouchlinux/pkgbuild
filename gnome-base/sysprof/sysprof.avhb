@@ -1,0 +1,41 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sysprof
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="a profiling tool that helps in finding the functions in which a program uses most of its time"
+arch=('x86_64')
+groups=('gnome-base')
+url="http://www.daimi.au.dk/~sandmann/sysprof/"
+license=("GPL")
+depends=('gtk3' 'glib2')
+install=sysprof.install
+makedepends=('gtk3' 'glib2' 'systemd' 'itstool' 'meson')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+	# Ensure static library is non-LTO compatible
+	export CFLAGS="$CFLAGS -ffat-lto-objects"
+
+
+	## Force to use ld.bdf instead of default ld.gold 
+	## as upstream does not come up with a solution yet.
+	## otherwise gjs, mutter build faild
+	#export LD=ld.bfd
+	#export LDFLAGS="$LDFLAGS -fuse-ld=bfd"
+
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

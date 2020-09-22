@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-pyyaml
+_realname=PyYAML
+pkgver=5.3.1
+pkgrel=1
+pkgdesc='python3 bindings for YAML, using fast libYAML library'
+url='http://pyyaml.org/wiki/PyYAML'
+arch=('x86_64')
+groups=('dev-python3')
+license=('MIT')
+depends=('python3' 'libyaml')
+makedepends=('python3' 'libyaml' 'cython' 'cython2')
+source=(http://pyyaml.org/download/pyyaml/PyYAML-${pkgver}.tar.gz)
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

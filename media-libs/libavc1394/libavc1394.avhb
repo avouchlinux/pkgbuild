@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libavc1394
+pkgver=0.5.4
+pkgrel=1
+pkgdesc="A library to control A/V devices using the 1394ta AV/C commands."
+arch=('x86_64')
+groups=('media-libs')
+url="https://sourceforge.net/projects/libavc1394/"
+license=('LGPL')
+depends=('libraw1394')
+source=("https://downloads.sourceforge.net/sourceforge/libavc1394/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --mandir=/usr/share/man --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

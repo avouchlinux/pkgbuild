@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libzapojit
+pkgver=0.0.3
+pkgrel=1
+pkgdesc="GLib/GObject wrapper for the SkyDrive and Hotmail REST APIs"
+arch=('x86_64')
+groups=('gnome-base')
+license=('GPL')
+depends=(libsoup gnome-online-accounts)
+makedepends=(intltool gobject-introspection gnome-common git gtk-doc)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --disable-static --enable-gtk-doc
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/$pkgname-$pkgver"
+    make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcaca
+pkgver=0.99.beta19
+pkgrel=1
+pkgdesc="Color AsCii Art library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://caca.zoy.org/wiki/libcaca"
+license=('custom:WTFPL')
+depends=('imlib2' 'ncurses')
+options=(!emptydirs)
+source=(http://libcaca.zoy.org/files/libcaca/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --mandir=/usr/share/man \
+    --enable-shared --disable-doc \
+    --disable-cxx --disable-gl --disable-csharp --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/libcaca/COPYING"
+}

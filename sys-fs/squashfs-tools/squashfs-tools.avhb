@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=squashfs-tools
+_tarname=squashfs
+pkgver=4.4
+pkgrel=1
+pkgdesc="Tools for squashfs, a highly compressed read-only filesystem for Linux."
+arch=('x86_64')
+groups=('sys-fs')
+url="https://github.com/plougher/squashfs-tools"
+license=("GPL")
+depends=('zlib' 'lzo' 'xz' 'lz4' 'zstd')
+makedepends=('git')
+source=("git+https://github.com/plougher/squashfs-tools#commit=${_commit}")
+sha256sums=('SKIP')
+
+getsrc(){
+	git clone https://github.com/plougher/squashfs-tools.git
+}
+
+prepare() {
+    cd "$srcdir"/${pkgname}/${pkgname}
+    sed -i '1,1i#include <sys/sysmacros.h>' mksquashfs.c unsquashfs.c
+}
+
+build() {
+    cd "$srcdir"/${pkgname}/${pkgname}
+    make \
+        GZIP_SUPPORT=1 \
+        XZ_SUPPORT=1 \
+        LZO_SUPPORT=1 \
+        LZMA_XZ_SUPPORT=1 \
+        LZ4_SUPPORT=1 \
+        ZSTD_SUPPORT=1 \
+        XATTR_SUPPORT=1
+}
+
+package() {
+    cd "$srcdir"/${pkgname}/${pkgname}
+    make install INSTALL_DIR="${pkgdir}"/usr/bin
+}

@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kdsoap-ws-discovery-client
+pkgver=git20200324
+pkgrel=1
+pkgdesc='WS-Discovery client library based on KDSoap'
+license=(GPL3 custom)
+arch=(x86_64)
+url='https://github.com/KDAB/KDSoap'
+depends=(kdsoap)
+makedepends=(extra-cmake-modules doxygen qt5-tools qt5-doc)
+source=("https://gitlab.com/caspermeijn/kdsoap-ws-discovery-client/-/archive/$_commit/$pkgname-$_commit.tar.gz"
+         kdsoap-dependency.patch::"https://gitlab.com/caspermeijn/kdsoap-ws-discovery-client/-/merge_requests/11.patch")
+
+build() {
+	cmake -S ${pkgname} -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+  install -Dm644 "$srcdir"/$pkgname-$_commit/LICENSES/* -t "$pkgdir"/usr/share/licenses/$pkgname
+}

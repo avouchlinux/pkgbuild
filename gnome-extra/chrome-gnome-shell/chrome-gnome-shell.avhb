@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=chrome-gnome-shell
+pkgver=10.1
+pkgrel=1
+pkgdesc="Native connector for extensions.gnome.org using chrome-gnome-shell"
+arch=('any')
+groups=('gnome-extra')
+url="https://git.gnome.org/browse/chrome-gnome-shell"
+license=('GPL')
+depends=('gnome-shell' 'python2')
+makedepends=('git' 'cmake')
+provides=("${pkgname%-git}")
+replaces=('gs-chrome-connector') # Old name, renamed at request of the maintainer
+conflicts=($replaces)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+	mkdir -p 'build'
+}
+
+build() {
+	cd "${srcdir}/build"
+	 cmake ../${pkgname}-${pkgver} \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DBUILD_EXTENSION=OFF
+}
+
+package() {
+	cd "${srcdir}/build"
+	make DESTDIR="$pkgdir/" install
+}

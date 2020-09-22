@@ -1,0 +1,95 @@
+commit 791fe5ecf909d573bcbf353b677b9404f9da0ed4
+Author: Mark Wielaard <mark@klomp.org>
+Date:   Mon May 27 22:19:27 2019 +0200
+
+    Expose rdrand and f16c through cpuid also if the host only has avx.
+    
+    The amd64 CPUID dirtyhelpers are mostly static since they emulate some
+    existing CPU "family". The avx2 ("i7-4910MQ") CPUID variant however
+    can "dynamicly" enable rdrand and/or f16c if the host supports them.
+    Do the same for the avx_and_cx16 ("i5-2300") CPUID variant.
+    
+    https://bugs.kde.org/show_bug.cgi?id=408009
+
+diff --git a/VEX/priv/guest_amd64_defs.h b/VEX/priv/guest_amd64_defs.h
+index 4f34b41..a5de527 100644
+--- a/VEX/priv/guest_amd64_defs.h
++++ b/VEX/priv/guest_amd64_defs.h
+@@ -165,7 +165,9 @@ extern void  amd64g_dirtyhelper_storeF80le ( Addr/*addr*/, ULong/*data*/ );
+ extern void  amd64g_dirtyhelper_CPUID_baseline ( VexGuestAMD64State* st );
+ extern void  amd64g_dirtyhelper_CPUID_sse3_and_cx16 ( VexGuestAMD64State* st );
+ extern void  amd64g_dirtyhelper_CPUID_sse42_and_cx16 ( VexGuestAMD64State* st );
+-extern void  amd64g_dirtyhelper_CPUID_avx_and_cx16 ( VexGuestAMD64State* st );
++extern void  amd64g_dirtyhelper_CPUID_avx_and_cx16 ( VexGuestAMD64State* st,
++                                                     ULong hasF16C,
++                                                     ULong hasRDRAND );
+ extern void  amd64g_dirtyhelper_CPUID_avx2 ( VexGuestAMD64State* st,
+                                              ULong hasF16C, ULong hasRDRAND );
+ 
+diff --git a/VEX/priv/guest_amd64_helpers.c b/VEX/priv/guest_amd64_helpers.c
+index e4cf7e2..182bae0 100644
+--- a/VEX/priv/guest_amd64_helpers.c
++++ b/VEX/priv/guest_amd64_helpers.c
+@@ -3141,8 +3141,11 @@ void amd64g_dirtyhelper_CPUID_sse42_and_cx16 ( VexGuestAMD64State* st )
+    address sizes   : 36 bits physical, 48 bits virtual
+    power management:
+ */
+-void amd64g_dirtyhelper_CPUID_avx_and_cx16 ( VexGuestAMD64State* st )
++void amd64g_dirtyhelper_CPUID_avx_and_cx16 ( VexGuestAMD64State* st,
++                                             ULong hasF16C, ULong hasRDRAND )
+ {
++   vassert((hasF16C >> 1) == 0ULL);
++   vassert((hasRDRAND >> 1) == 0ULL);
+ #  define SET_ABCD(_a,_b,_c,_d)                \
+       do { st->guest_RAX = (ULong)(_a);        \
+            st->guest_RBX = (ULong)(_b);        \
+@@ -3157,9 +3160,14 @@ void amd64g_dirtyhelper_CPUID_avx_and_cx16 ( VexGuestAMD64State* st )
+       case 0x00000000:
+          SET_ABCD(0x0000000d, 0x756e6547, 0x6c65746e, 0x49656e69);
+          break;
+-      case 0x00000001:
+-         SET_ABCD(0x000206a7, 0x00100800, 0x1f9ae3bf, 0xbfebfbff);
++      case 0x00000001: {
++         // As a baseline, advertise neither F16C (ecx:29) nor RDRAND (ecx:30),
++         // but patch in support for them as directed by the caller.
++         UInt ecx_extra
++            = (hasF16C ? (1U << 29) : 0) | (hasRDRAND ? (1U << 30) : 0);
++         SET_ABCD(0x000206a7, 0x00100800, (0x1f9ae3bf | ecx_extra), 0xbfebfbff);
+          break;
++      }
+       case 0x00000002:
+          SET_ABCD(0x76035a01, 0x00f0b0ff, 0x00000000, 0x00ca0000);
+          break;
+diff --git a/VEX/priv/guest_amd64_toIR.c b/VEX/priv/guest_amd64_toIR.c
+index 56e992c..96dee38 100644
+--- a/VEX/priv/guest_amd64_toIR.c
++++ b/VEX/priv/guest_amd64_toIR.c
+@@ -22007,7 +22007,8 @@ Long dis_ESC_0F (
+ 
+       vassert(fName); vassert(fAddr);
+       IRExpr** args = NULL;
+-      if (fAddr == &amd64g_dirtyhelper_CPUID_avx2) {
++      if (fAddr == &amd64g_dirtyhelper_CPUID_avx2
++          || fAddr == &amd64g_dirtyhelper_CPUID_avx_and_cx16) {
+          Bool hasF16C   = (archinfo->hwcaps & VEX_HWCAPS_AMD64_F16C) != 0;
+          Bool hasRDRAND = (archinfo->hwcaps & VEX_HWCAPS_AMD64_RDRAND) != 0;
+          args = mkIRExprVec_3(IRExpr_GSPTR(),
+diff --git a/coregrind/m_machine.c b/coregrind/m_machine.c
+index 3536e57..56a28d1 100644
+--- a/coregrind/m_machine.c
++++ b/coregrind/m_machine.c
+@@ -1076,10 +1076,10 @@ Bool VG_(machine_get_hwcaps)( void )
+         have_avx2 = (ebx & (1<<5)) != 0; /* True => have AVX2 */
+      }
+ 
+-     /* Sanity check for RDRAND and F16C.  These don't actually *need* AVX2, but
+-        it's convenient to restrict them to the AVX2 case since the simulated
+-        CPUID we'll offer them on has AVX2 as a base. */
+-     if (!have_avx2) {
++     /* Sanity check for RDRAND and F16C.  These don't actually *need* AVX, but
++        it's convenient to restrict them to the AVX case since the simulated
++        CPUID we'll offer them on has AVX as a base. */
++     if (!have_avx) {
+         have_f16c   = False;
+         have_rdrand = False;
+      }

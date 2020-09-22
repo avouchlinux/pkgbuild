@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=eog
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Eye of Gnome: An image viewing and cataloging program"
+url="https://wiki.gnome.org/Apps/EyeOfGnome"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(gnome-desktop libexif lcms2 exempi libpeas librsvg dconf)
+makedepends=(gobject-introspection gtk-doc git meson yelp-tools)
+optdepends=('eog-plugins: Additional features')
+options=(!emptydirs)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D gtk_doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

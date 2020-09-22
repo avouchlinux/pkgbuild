@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gmime3
+_realname=gmime
+pkgver=3.2.7
+pkgrel=1
+pkgdesc="A C/C++ MIME creation and parser library with support for S/MIME, PGP, and Unix mbox spools"
+arch=('x86_64')
+groups=('sys-libs')
+arch=(x86_64)
+license=(GPL)
+url="https://github.com/jstedfast/gmime"
+depends=(glib2 gpgme zlib libidn2)
+source=("https://github.com/jstedfast/gmime/archive/$pkgver.tar.gz")
+
+prepare(){
+  cd "$_realname-$pkgver"
+  ./autogen.sh
+}
+
+build() {
+  cd "$_realname-$pkgver"
+
+  ./configure --prefix=/usr \
+    --program-prefix=$pkgname \
+    --enable-gtk-doc \
+    --enable-smime \
+    --disable-static
+    
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$_realname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}

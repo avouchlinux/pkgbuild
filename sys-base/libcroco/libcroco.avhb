@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcroco
+pkgver=0.6.13
+pkgrel=1
+pkgdesc="A CSS parsing library"
+arch=('x86_64')
+groups=('sys-base')
+url="https://gitlab.gnome.org/GNOME/libcroco"
+depends=(glib2 libxml2)
+makedepends=(intltool git gtk-doc)
+license=(LGPL)
+_commit=7e15ca6c2c29a4b78367e6efa6195b331a92b2a7  # tags/0.6.13^0
+source=("git+https://gitlab.gnome.org/GNOME/libcroco.git#commit=$_commit")
+sha256sums=('SKIP')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

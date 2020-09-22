@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxslt
+pkgver=1.1.34
+pkgrel=1
+pkgdesc="XML stylesheet transformation library"
+arch=('x86_64')
+groups=('sys-base')
+url="http://xmlsoft.org/XSLT/"
+arch=(x86_64)
+license=(custom)
+depends=(libxml2 libgcrypt)
+makedepends=(python2 git)
+checkdepends=(docbook-xml python)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.bz2")
+
+prepare() {
+	cd $pkgname-v$pkgver
+	sed -e 's|/usr/bin/python -u|/usr/bin/python2 -u|g' \
+      -e 's|/usr/bin/python$|/usr/bin/python2|g' \
+      -i python/tests/*.py
+
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd $pkgname-v$pkgver
+	./configure --prefix=/usr --with-python=/usr/bin/python2
+
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+check() {
+	cd $pkgname-v$pkgver
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd $pkgname-v$pkgver
+	make DESTDIR="${pkgdir}" install
+
+	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+	install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+	rm -f "${pkgdir}"/usr/lib/python*/site-packages/*.a
+}

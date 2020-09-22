@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telepathy-qt
+pkgver=0.9.8
+pkgrel=1
+pkgdesc="A library for Qt-based Telepathy clients"
+arch=('x86_64')
+groups=('net-im')
+url="http://telepathy.freedesktop.org/wiki/"
+license=(LGPL)
+depends=(qt5-base telepathy-farstream)
+makedepends=(cmake doxygen python2 qt5-tools)
+source=("http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.gz"{,.asc})
+validpgpkeys=('AA33B0D27868E36C151780F0FE0B6D736B1195ED') # Alexandr Akulich
+
+build() {
+  cmake -S$pkgname-$pkgver -Bbuild -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+    -DDESIRED_QT_VERSION=5 \
+    -DENABLE_EXAMPLES=OFF \
+    -DENABLE_TESTS=OFF
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

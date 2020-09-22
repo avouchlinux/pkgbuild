@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-jai
+_tarname=jai
+pkgver=1.1.3
+pkgrel=1
+pkgdesc='Java Advanced Imaging (JAI) API components.'
+arch=('x86_64')
+groups=('dev-java')
+url='http://excalibur.apache.org/'
+license=(APACHE)
+depends=('java-runtime')
+source=("http://download.java.net/media/jai/builds/release/1_1_3/jai-1_1_3-lib-linux-amd64.tar.gz")
+
+_jvmver=java-11-openjdk
+
+package() {	
+	cd "$srcdir/jai-1_1_3"
+	case `uname -m` in
+		i?86)
+		mkdir -p "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/ext/"
+		mkdir -p "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/i386/"
+		cp -v lib/{jai*,mlibwrapper_jai.jar} "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/ext/"
+		cp -v lib/libmlib_jai.so             "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/i386/"
+		;;
+
+		x86_64)
+		mkdir -p "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/ext/"
+		mkdir -p "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/amd64/"
+		cp -v lib/{jai*,mlibwrapper_jai.jar} "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/ext/"
+		cp -v lib/libmlib_jai.so             "$pkgdir/usr/lib/jvm/$_jvmver/jre/lib/amd64/"
+		;;
+	esac
+}

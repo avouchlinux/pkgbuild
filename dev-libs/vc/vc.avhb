@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vc
+_realname=Vc
+pkgver=1.4.1
+pkgrel=1
+pkgdesc="A library to ease explicit vectorization of C++ code"
+url='https://github.com/VcDevel/Vc'
+arch=('x86_64')
+groups=('dev-libs')
+license=(LGPL3)
+makedepends=(cmake)
+source=("https://github.com/VcDevel/Vc/releases/download/$pkgver/Vc-$pkgver.tar.gz")
+
+build() {
+  cmake -S $_realname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DTARGET_ARCHITECTURE=generic
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

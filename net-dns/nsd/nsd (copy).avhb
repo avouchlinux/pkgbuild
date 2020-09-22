@@ -1,0 +1,65 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nsd
+pkgver=4.3.1
+pkgrel=1
+pkgdesc='Authoritative only, high performance and simple DNS server'
+url='https://www.nlnetlabs.nl/nsd/'
+license=('BSD')
+arch=('x86_64')
+depends=('openssl' 'libevent')
+makedepends=('flex')
+source=("https://www.nlnetlabs.nl/downloads/${pkgname}/${pkgname}-${pkgver}.tar.gz"{,.asc})
+validpgpkeys=('EDFAA3F2CA4E6EB05681AF8E9F6F1C2D7E045F8D'
+              'C3E356788FAD0179D872D092BA811E62E7194568')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure \
+		--prefix=/ \
+		--sbindir=/usr/bin \
+		--datarootdir=/usr/share \
+		--with-pidfile=/run/nsd/nsd.pid \
+		--enable-ratelimit \
+		--enable-relro-now \
+		--enable-pie \
+
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rmdir "${pkgdir}"/{tmp,run/{nsd,}}
+
+	rm doc/differences.pdf
+	install -d "${pkgdir}"/usr/share/{doc,licenses}/"${pkgname}"
+	install -m644 doc/* "${pkgdir}"/usr/share/doc/"${pkgname}"
+	ln -s ../../doc/"${pkgname}"/LICENSE "${pkgdir}"/usr/share/licenses/"${pkgname}"/LICENSE
+
+	# systemd service file
+	cat > ${pkgdir}/usr/lib/systemd/system/nsd.service << "EOF"
+[Unit]
+Description=NSD Name Server Daemon
+After=network.target
+
+[Service]
+PIDFile=/run/nsd/nsd.pid
+ExecStart=/usr/bin/nsd -d -c /etc/nsd/nsd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -TERM $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+	# systemd tmp files
+	echo -e "d /run/nsd 0755 nsd nsd\nz /var/db/nsd 0700 nsd nsd" |
+		install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
+
+	# systemd user
+	echo 'u nsd - - /dev/null' |
+		install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+}

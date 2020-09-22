@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk-sharp-2
+_realname=gtk-sharp
+pkgver=2.12.45
+pkgrel=1
+pkgdesc="gtk2 bindings for C#"
+arch=('x86_64')
+groups=('dev-mono')
+license=('LGPL')
+url="https://www.mono-project.com/docs/gui/gtksharp/"
+depends=('mono' 'gtk2')
+makedepends=('monodoc')
+options=('!makeflags')
+source=(https://download.mono-project.com/sources/gtk-sharp212/gtk-sharp-${pkgver}.tar.gz
+        gtk-sharp2-2.12.12-gtkrange.patch)
+
+prepare() {
+  cd gtk-sharp-${pkgver}
+  patch -Np1 -i ../gtk-sharp2-2.12.12-gtkrange.patch
+}
+
+build() {
+  cd gtk-sharp-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc --disable-static
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd gtk-sharp-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

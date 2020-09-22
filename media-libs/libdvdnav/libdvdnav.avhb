@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdvdnav
+pkgver=6.1.0
+pkgrel=1
+pkgdesc="The library for xine-dvdnav plugin."
+arch=('x86_64')
+groups=('media-libs')
+license=('GPL')
+url="https://www.videolan.org/developers/libdvdnav.html"
+depends=('libdvdread')
+makedepends=('git')
+source=("https://code.videolan.org/videolan/libdvdnav/-/archive/$pkgver/libdvdnav-$pkgver.tar.bz2")
+
+prepare() {
+  cd $pkgname-$pkgver
+  autoreconf -fi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="${pkgdir}" install
+}

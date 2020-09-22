@@ -1,0 +1,46 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=liboauth
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="C library implementing OAuth Core RFC 5849"
+arch=('x86_64')
+groups=('sys-security')
+url="https://github.com/x42/liboauth"
+license=(MIT)
+depends=(curl nss)
+makedepends=(git)
+groups=(security)
+repo=(core)
+_commit=11e9461fc433e3787198f9c01a0a565a8a1f90a9
+source=("git+$url#commit=$_commit")
+sha256sums=('SKIP')
+
+getsrc(){
+	git clone https://github.com/x42/liboauth.git
+}
+
+prepare() {
+	cd $pkgname
+	autoreconf -fvi
+}
+
+build() {
+	cd $pkgname
+	./configure --prefix=/usr --disable-static --enable-nss
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make
+}
+
+check() {
+	cd $pkgname
+	make check
+}
+
+package() {
+	cd $pkgname
+	make DESTDIR="$pkgdir" install
+	install -Dm644 COPYING.MIT "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

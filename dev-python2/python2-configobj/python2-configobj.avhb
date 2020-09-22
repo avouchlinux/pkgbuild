@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-configobj
+_realname=configobj
+pkgver=5.0.6
+pkgrel=1
+pkgdesc='Simple but powerful config file reader and writer for Python'
+arch=('any')
+groups=('dev-python2')
+url='https://github.com/DiffSK/configobj'
+license=('BSD')
+depends=('python2-six')
+makedepends=('python2')
+source=("https://github.com/DiffSK/configobj/archive/v$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

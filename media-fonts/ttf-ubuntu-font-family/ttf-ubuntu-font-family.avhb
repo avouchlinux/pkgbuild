@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-ubuntu-font-family
+_realname=ubuntu-font-family
+pkgver=0.83
+pkgrel=1
+pkgdesc="Ubuntu font family"
+arch=('any')
+groups=('media-fonts')
+url="http://font.ubuntu.com/"
+license=('custom:Ubuntu Font Licence 1.0')
+depends=('fontconfig' 'xorg-font-utils')
+provides=('ttf-font')
+backup=(etc/fonts/conf.avail/81-ubuntu.conf)
+source=(https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-$pkgver.zip
+        81-ubuntu.conf)
+
+package() {
+	cd "$srcdir"/ubuntu-font-family-$pkgver
+	install -dm755 "$pkgdir"/usr/share/fonts/TTF "$pkgdir"/etc/fonts/conf.d
+	install -m644 Ubuntu{,Mono}-*.ttf "$pkgdir"/usr/share/fonts/TTF/
+	install -Dm644 LICENCE.txt "$pkgdir"/usr/share/licenses/$pkgname/LICENCE
+	install -Dm644 "$srcdir"/81-ubuntu.conf "$pkgdir"/etc/fonts/conf.avail/81-ubuntu.conf
+	ln -s ../conf.avail/81-ubuntu.conf "$pkgdir"/etc/fonts/conf.d/81-ubuntu.conf
+}

@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libktorrent
+pkgver=2.1.1
+_ktorrentver=5.1.2
+pkgrel=1
+pkgdesc="A BitTorrent protocol implementation"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.kde.org/applications/internet/ktorrent/"
+license=(GPL2)
+depends=(kio qca-qt5)
+makedepends=(extra-cmake-modules boost doxygen)
+source=("https://download.kde.org/stable/ktorrent/$_ktorrentver/$pkgname-$pkgver.tar.xz"{,.sig}
+         libktorrent-build-fix.patch::"https://invent.kde.org/network/libktorrent/-/commit/1e8ce6e9.patch")
+validpgpkeys=(1EE5A3205904BAA2B88C0A9D24FD31940095C0E1) # Andrius Štikonas <andrius@stikonas.eu>
+
+prepare() {
+  patch -d $pkgname-$pkgver -p1 -i ../libktorrent-build-fix.patch
+}
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja\
+    -DCMAKE_INSTALL_PREFIX=/usr
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

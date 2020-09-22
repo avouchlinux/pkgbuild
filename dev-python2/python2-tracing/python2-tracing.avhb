@@ -1,0 +1,29 @@
+# Contributor: Mathieu Clabaut <mathieu.clabaut@gmail.com>
+# Maintainer: Eric Anderson <ejona86@gmail.com>
+
+pkgname=python2-tracing
+_realname=tracing
+pkgver=0.1.3
+pkgrel=1
+pkgdesc="Utilities for tracing program execution"
+arch=('any')
+groups=('dev-python2')
+url="http://liw.fi/tracing/"
+license=('GPL3')
+depends=('python2')
+source=("http://code.liw.fi/debian/pool/main/p/python-tracing/python-tracing_$pkgver.orig.tar.xz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+}

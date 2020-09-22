@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-autoar
+pkgver=0.2.4
+pkgrel=1
+pkgdesc="Automatic archives creating and extracting library"
+url="https://wiki.gnome.org/TingweiLan/GSoC2013Final"
+arch=(x86_64)
+groups=('gnome-base')
+license=(LGPL)
+depends=(glib2 libarchive gtk3)
+makedepends=(intltool git gobject-introspection gtk-doc vala autoconf-archive)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-gtk-doc
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

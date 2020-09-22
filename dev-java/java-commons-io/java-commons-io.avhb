@@ -1,0 +1,22 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-commons-io
+_realname=commons-io
+pkgver=2.6
+pkgrel=1
+pkgdesc='IO related classes for Java.'
+arch=('any')
+groups=('dev-java')
+url='https://commons.apache.org/io/'
+license=('APACHE')
+depends=('java-runtime')
+source=("https://www.apache.org/dist/commons/io/binaries/commons-io-$pkgver-bin.tar.gz"{,.asc})
+validpgpkeys=('6BDACA2C0493CCA133B372D09C4F7E9D98B1CC53'  # Benson Margulies
+              'CD5464315F0B98C77E6E8ECD9DAADC1C9FCC82D0') # Benedikt Ritter
+
+package() {
+  install -Dm 644 "$srcdir"/commons-io-$pkgver/commons-io-$pkgver.jar "$pkgdir"/usr/share/java/commons-io/commons-io.jar
+}

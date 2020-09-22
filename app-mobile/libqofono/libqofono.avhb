@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libqofono
+pkgver=0.99
+pkgrel=1
+pkgdesc="A library for accessing the ofono daemon, and a declarative plugin for it"
+arch=('x86_64')
+groups=('app-mobile')
+url="https://git.sailfishos.org/mer-core/libqofono.git/"
+license=("GPL2")
+depends=("bluez" "dbus" "modemmanager" "glib2" "udev" "mobile-broadband-provider-info")
+source=(https://git.sailfishos.org/mer-core/libqofono.git)
+validpgpkeys=(
+	"E932D120BC2AEC444E558F0106CA9F5D1DCF2659"  # Marcel Holtmann <marcel@holtmann.org>
+)
+
+build() {
+	cd "$srcdir/$pkgname"
+	qmake-qt5
+
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$srcdir/$pkgname"
+	make INSTALL_ROOT="$pkgdir" install
+	mkdir -p "$pkgdir"/usr/share/doc
+	mv "$pkgdir"/opt "$pkgdir"/usr/share/doc/$pkgname
+}

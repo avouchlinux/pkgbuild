@@ -1,0 +1,11 @@
+--- Makefile.am	2020-04-20 23:40:44.645884621 +0000
++++ ../Makefile.am	2020-04-20 23:42:15.449221126 +0000
+@@ -127,7 +127,7 @@
+ 	$(INSTALL_DATA) lldpad.service $(DESTDIR)/usr/lib/systemd/system/lldpad.service
+ 	$(INSTALL_DATA) lldpad.socket $(DESTDIR)/usr/lib/systemd/system/lldpad.socket
+ 
+-BASH_COMPLETION_DIR=/etc/bash_completion.d/
++BASH_COMPLETION_DIR=/usr/share/bash-completion/completions/
+ 
+ install-data-hook:
+ 	## provide support for bash completion

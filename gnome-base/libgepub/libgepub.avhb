@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgepub
+pkgver=0.6.0
+pkgrel=1
+pkgdesc="Simple library to read epub files using glib"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://git.gnome.org/browse/libgepub"
+license=(LGPL)
+depends=(webkit2gtk libarchive)
+makedepends=(git gnome-common gobject-introspection meson)
+source=("https://gitlab.gnome.org/GNOME/libgepub/-/archive/0.6.0/libgepub-0.6.0.tar.bz2")
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    avouch-meson build
+    ninja -C build
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    DESTDIR="$pkgdir" ninja -C build install
+}

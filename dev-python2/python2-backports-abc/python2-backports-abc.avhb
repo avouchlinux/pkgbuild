@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-backports-abc
+_realname=backports_abc
+pkgver=0.5
+pkgrel=1
+pkgdesc="A backport of recent additions to the 'collections.abc' module."
+arch=('any')
+groups=('dev-python2')
+url='http://pypi.python.org/pypi/backports_abc'
+license=('PSF')
+depends=('python2')
+makedepends=('python2-setuptools')
+source=("https://pypi.io/packages/source/b/backports_abc/backports_abc-${pkgver}.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

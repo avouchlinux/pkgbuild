@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libtiff
+_realname=tiff
+pkgver=4.1.0
+pkgrel=1
+pkgdesc="Library for manipulation of TIFF images"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.remotesensing.org/libtiff/"
+license=('custom')
+depends=('gcc-libs' 'libjpeg' 'zlib' 'xz')
+makedepends=('freeglut' 'glu' 'mesa' 'jbigkit')
+optdepends=('freeglut: for using tiffgt')
+source=(ftp://ftp.remotesensing.org/pub/libtiff/tiff-${pkgver}.tar.gz)
+sha1sums=('280e27704eaca5f592b82e71ac0c78b87395e2de')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--disable-static \
+		--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make check
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

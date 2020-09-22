@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pygments
+_realname=Pygments
+pkgver=2.5.2
+pkgrel=1
+pkgdesc="Python syntax highlighter"
+arch=('any')
+groups=('dev-python2')
+url="http://pygments.org/"
+license=('BSD')
+depends=('python2-setuptools')
+makedepends=('python2-setuptools')
+options=('!emptydirs')
+source=(https://pypi.python.org/packages/source/P/Pygments/Pygments-$pkgver.tar.gz)
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	# pygmentize is included in python-pygments
+	rm "$pkgdir/usr/bin/pygmentize"
+	rmdir "$pkgdir/usr/bin"
+}

@@ -1,0 +1,67 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pkgconf
+pkgver=1.6.3
+pkgrel=1
+pkgdesc="Package compiler and linker metadata toolkit"
+url="https://github.com/pkgconf/pkgconf"
+license=(custom:ISC)
+arch=('x86_64')
+groups=('sys-devel')
+depends=(glibc sh)
+makedepends=(git)
+source=("https://github.com/pkgconf/pkgconf/archive/pkgconf-$pkgver.tar.gz" platform-pkg-config.in)
+sha256sums=('SKIP'
+            '7c61338fbd83f9783d805c2f2f97b426977895a2f4b79e0ae5bc8e9d7996edaa')
+
+_pcdirs=/usr/lib/pkgconfig:/usr/share/pkgconfig
+_libdir=/usr/lib
+_includedir=/usr/include
+
+prepare() {
+  mkdir build
+  cd $pkgname-$pkgname-$pkgver
+  ./autogen.sh
+}
+
+build() {
+  cd build
+  ../$pkgname-$pkgname-$pkgver/configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-pkg-config-dir="$_pcdirs" \
+    --with-system-libdir="$_libdir" \
+    --with-system-includedir="$_includedir" \
+    --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  DESTDIR="$pkgdir" make -C build install
+
+  # From https://src.fedoraproject.org/rpms/pkgconf/
+  sed -e "s|@TARGET_PLATFORM@|$CHOST|g" \
+      -e "s|@PKGCONF_LIBDIRS@|$_pcdirs|g" \
+      -e "s|@PKGCONF_SYSLIBDIR@|$_libdir|g" \
+      -e "s|@PKGCONF_SYSINCDIR@|$_includedir|g" \
+      platform-pkg-config.in |
+    install -D /dev/stdin "$pkgdir/usr/bin/$CHOST-pkg-config"
+  ln -s $CHOST-pkg-config "$pkgdir/usr/bin/pkg-config"
+
+  # Multilib
+  if [[ $CARCH = x86_64 ]]; then
+    _host32=${CHOST/x86_64/i686}
+    sed -e "s|@TARGET_PLATFORM@|$_host32|g" \
+        -e "s|@PKGCONF_LIBDIRS@|${_pcdirs/lib/lib32}|g" \
+        -e "s|@PKGCONF_SYSLIBDIR@|${_libdir/lib/lib32}|g" \
+        -e "s|@PKGCONF_SYSINCDIR@|$_includedir|g" \
+        platform-pkg-config.in |
+      install -D /dev/stdin "$pkgdir/usr/bin/$_host32-pkg-config"
+    ln -s $_host32-pkg-config "$pkgdir/usr/bin/pkg-config-32"
+  fi
+
+  ln -s pkgconf.1 "$pkgdir/usr/share/man/man1/pkg-config.1"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgname-$pkgver/COPYING
+}

@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-black
+_realname=black
+pkgver=19.10b0
+pkgrel=1
+pkgdesc='Uncompromising Python code formatter'
+arch=('any')
+groups=('dev-python3')
+url=https://github.com/psf/black
+license=('MIT')
+depends=('python' 'python-appdirs' 'python-attrs' 'python-click'
+         'python-pathspec' 'python-regex' 'python-setuptools' 'python-toml'
+         'python-typed-ast')
+checkdepends=('python-aiohttp' 'python-aiohttp-cors')
+optdepends=('python-aiohttp: for the blackd HTTP server'
+            'python-aiohttp-cors: for the blackd HTTP server')
+source=("https://files.pythonhosted.org/packages/source/b/black/black-$pkgver.tar.gz")
+
+build() {
+  cd "black-$pkgver"
+  python3 setup.py build
+}
+
+check() {
+  cd "black-$pkgver"
+  python3 -m unittest tests/test_black.py
+}
+
+package() {
+  cd "black-$pkgver"
+  python3 setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

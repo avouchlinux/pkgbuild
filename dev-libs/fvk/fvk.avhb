@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Furqan Ullah <furqan@real3d.pk>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fvk
+_realname=FVK-CAMERA
+pkgver=1.1.5
+pkgrel=1
+pkgdesc='Fast Visualization Kit (FVK) is a software package for 3D computer graphics, image processing, and visualization'
+arch=('x86_64')
+groups=('div-libs')
+url='https://github.com/drfurqan/FL-Essentials'
+license=('GPL2')
+depends=('fltk' 'opencv')
+makedepends=('cmake')
+source=("https://github.com/drfurqan/FVK-CAMERA.git")
+
+getsrc(){
+	
+	git clone $source
+}
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+	cd ${srcdir}/build
+	
+	CFLAGS+=" -std=c++11"
+	CPPFLAGS+=" -std=c++11"
+	CXXFLAGS+=" -std=c++11"
+	
+	cmake ../$_realname \
+		-DCMAKE_PREFIX_PATH=/usr \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DOpenCV_DIR=/usr	
+	make
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+}

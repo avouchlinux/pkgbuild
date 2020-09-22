@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=egl-wayland
+pkgver=1.1.5
+pkgrel=1
+pkgdesc="EGLStream-based Wayland external platform"
+arch=('x86_64')
+groups=('sys-libs')
+url=https://github.com/NVIDIA/egl-wayland
+license=(MIT)
+depends=(wayland eglexternalplatform)
+makedepends=(meson git)
+source=("https://github.com/NVIDIA/$pkgname/archive/$pkgver.tar.gz"
+        10_nvidia_wayland.json)
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  cd build
+  ninja test
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja install -C build
+  install -Dt "$pkgdir/usr/share/egl/egl_external_platform.d" -m644 10_nvidia_wayland.json
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver/COPYING
+}

@@ -1,0 +1,60 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fluxion
+pkgver=6.8
+pkgrel=1
+pkgdesc='Fluxion is a security auditing and social-engineering research tool'
+arch=('x86_64')
+groups=('app-forensics')
+url='https://github.com/FluxionNetwork/fluxion'
+depends=(
+  'aircrack-ng' 'bash>=4.2' 'coreutils'
+  'awk' 'iw' 'unzip'
+  'curl' 'bc' 'xterm'
+)
+makedepends=('binutils' 'coreutils' 'git')
+source=("git+https://github.com/t6x/reaver-wps-fork-t6x.git#tag=v$pkgver")
+
+getsrc(){
+		git clone git://github.com/FluxionNetwork/fluxion.git
+}
+
+pkgver() {
+  cd "$srcdir/$_pkgname"
+
+  ( set -o pipefail
+    git describe --long 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+  cd "$srcdir/$pkgname"
+  #./fluxion.sh
+  
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+
+  mkdir -p "$pkgdir/usr/bin"
+  mkdir -p "$pkgdir/usr/share/fluxion"
+
+  install -Dm644 -t "$pkgdir/usr/share/doc/fluxion/" README.md
+  install -Dm644 -t "$pkgdir/usr/share/man/man1/" docs/man/fluxion.1
+
+  rm -rf *.md .git* *.yml .project .editorconfig 
+
+  cp -a --no-preserve=ownership * "$pkgdir/usr/share/fluxion"
+
+  cat > "$pkgdir/usr/bin/fluxion" << EOF
+#!/bin/sh
+cd /usr/share/fluxion
+exec bash fluxion.sh "\${@}"
+EOF
+
+  chmod a+x "$pkgdir/usr/bin/fluxion"
+}

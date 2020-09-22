@@ -1,0 +1,21 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=java-xmlgraphics-commons
+_tarname=xmlgraphics-commons
+pkgver=2.4
+pkgrel=1
+pkgdesc='Common components between FOP and Batik'
+arch=('any')
+groups=('dev-java')
+url='https://xmlgraphics.apache.org/commons/'
+license=('Apache')
+depends=('java-runtime')
+source=("https://www.apache.org/dist/xmlgraphics/commons/binaries/xmlgraphics-commons-$pkgver-bin.tar.gz"{,.asc})
+validpgpkeys=('5C9A30FF22B2C02F30261C305B93F1DF7CDB6DEA') # Simon Steiner
+
+package() {
+  install -Dm 644 "$srcdir"/xmlgraphics-commons-$pkgver/build/xmlgraphics-commons-$pkgver.jar "$pkgdir"/usr/share/java/xmlgraphics-commons/xmlgraphics-commons.jar
+}

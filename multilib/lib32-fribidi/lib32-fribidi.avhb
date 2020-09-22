@@ -1,0 +1,38 @@
+# $Id$
+# Contributor: Giovanni Scafora <giovanni@archlinux.org>
+# Contributor: Nezmer <Nezmer@gmail.com>
+
+pkgbase=fribidi
+pkgname=lib32-$pkgbase
+pkgver=1.0.9
+pkgrel=1
+pkgdesc="A Free Implementation of the Unicode Bidirectional Algorithm (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('LGPL')
+url="https://github.com/fribidi/fribidi/"
+depends=('lib32-glibc' $pkgbase)
+makedepends=('git' 'meson')
+_commit=f2c9d50722cb60d0cdec3b1bafba9029770e86b4  # tags/v1.0.2^0
+source=("git+https://github.com/fribidi/fribidi#commit=$_commit")
+md5sums=('SKIP')
+
+build() {
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    avouch-meson $pkgbase-$pkgver build --libdir=/usr/lib32 -Ddocs=false
+    ninja -C build
+}
+
+check() {
+    cd build
+    meson test
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    rm -r "$pkgdir"/usr/{bin,lib,share,include}
+}

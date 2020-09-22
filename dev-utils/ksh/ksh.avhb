@@ -1,0 +1,57 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ksh
+pkgver=2020.0.0
+pkgrel=1
+pkgdesc="The Original AT&T Korn Shell"
+arch=('x86_64')
+groups=('dev-utils')
+url="http://kornshell.org/"
+license=('EPL')
+makedepends=('meson' 'samurai')
+checkdepends=('ed' 'expect' 'openbsd-netcat' 'procps-ng' 'which' 'vi')
+provides=('ksh93')
+install=ksh.install
+source=("https://github.com/att/ast/releases/download/${pkgver}/ksh-${pkgver}.tar.xz"{,.asc}
+        "https://github.com/att/ast/commit/d89753b5d38482f4a3f17ba3b7d09ab07cfe7419.patch"
+        "CVE-2019-14868.patch")
+validpgpkeys=('4BF045ACC726FE4E9DFC1D7762213CE2D3CB82EA') # Siteshwar Vashisht <svashisht@redhat.com>
+
+export NINJA=/usr/bin/samu
+
+prepare() {
+    cd "${srcdir}"/ksh-${pkgver}
+
+    # ignore test error on non-debug builds: https://github.com/att/ast/issues/1390
+    patch -p1 -i ../d89753b5d38482f4a3f17ba3b7d09ab07cfe7419.patch
+    # CVE-2019-14868
+    patch -p1 -i ../CVE-2019-14868.patch
+}
+
+
+build() {
+    mkdir -p "${srcdir}"/ksh-${pkgver}/build
+    cd "${srcdir}"/ksh-${pkgver}/build
+
+    meson --prefix /usr \
+          --buildtype=plain \
+          ..
+    samu
+}
+
+check() {
+    cd "${srcdir}"/ksh-${pkgver}/build
+
+    # a couple tests are flaky and may time out
+    meson test -t 3 --print-errorlogs
+}
+
+package() {
+    cd "${srcdir}"/ksh-${pkgver}/build
+
+    DESTDIR="${pkgdir}" samu install
+    ln -s ksh "${pkgdir}"/usr/bin/ksh93
+}

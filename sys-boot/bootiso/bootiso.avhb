@@ -1,0 +1,20 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=bootiso
+pkgver=4.1.1
+pkgrel=1
+pkgdesc="A bash script to securely create a bootable USB device from one ISO file."
+arch=('any')
+groups=('sys-boot')
+url="https://github.com/jsamr/bootiso"
+license=('MIT')
+depends=('syslinux' 'mtools' 'rsync' 'bc' 'wimlib')
+source=("https://github.com/jsamr/$pkgname/archive/v$pkgver.tar.gz")
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    install -D -m755 bootiso ${pkgdir}/usr/bin/bootiso
+}

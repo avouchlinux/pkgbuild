@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='perl-spreadsheet-parseexcel'
+_realname='Spreadsheet-ParseExcel'
+pkgver='0.65'
+pkgrel='1'
+pkgdesc="Read information from an Excel file."
+arch=('any')
+groups=('dev-perl')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl-crypt-rc4>=0' 'perl-digest-perl-md5>=0' 'perl-io-stringy>=0' 'perl-ole-storage-lite>=0.19')
+makedepends=()
+url='http://search.cpan.org/dist/Spreadsheet-ParseExcel'
+source=("http://search.cpan.org/CPAN/authors/id/D/DO/DOUGW/${_realname}-${pkgver}.tar.gz")
+_distdir="${_realname}-${pkgver}"
+
+build() {
+  ( export PERL_MM_USE_DEFAULT=1 PERL5LIB=""                 \
+      PERL_AUTOINSTALL=--skipdeps                            \
+      PERL_MM_OPT="INSTALLDIRS=vendor DESTDIR='$pkgdir'"     \
+      PERL_MB_OPT="--installdirs vendor --destdir '$pkgdir'" \
+      MODULEBUILDRC=/dev/null
+
+    cd "$srcdir/$_distdir"
+    /usr/bin/perl Makefile.PL
+    make
+  )
+}
+
+check() {
+  cd "$srcdir/$_distdir"
+  ( export PERL_MM_USE_DEFAULT=1 PERL5LIB=""
+    make test
+  )
+}
+
+package() {
+  cd "$srcdir/$_distdir"
+  make install
+  find "$pkgdir" -name .packlist -o -name perllocal.pod -delete
+}

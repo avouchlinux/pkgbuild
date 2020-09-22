@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-pcre
+pkgbase=pcre
+pkgver=8.44
+pkgrel=1
+pkgdesc="A library that implements Perl 5-style regular expressions (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://pcre.sourceforge.net"
+license=('custom')
+depends=('lib32-gcc-libs' $_pkgbasename)
+makedepends=('gcc-multilib')
+source=(ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/${_pkgbasename}-${pkgver}.tar.bz2{,.sig})
+md5sums=('5439e321351bddd5533551bbce128d07'
+         'SKIP')
+
+build() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--libdir=/usr/lib32 \
+	--enable-unicode-properties \
+	--enable-pcre16 \
+	--enable-pcre32 \
+	--enable-jit
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd ${srcdir}/${pkgbase}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kup-kde
+_realname=kup
+pkgver=0.3.2
+pkgrel=1
+pkgdesc="Backup scheduler for the Plasma desktop"
+arch=('x86_64')
+grous=('dev-utils')
+url="https://www.linux-apps.com/p/1127689/"
+license=(GPL2)
+depends=(kidletime kinit libgit2 hicolor-icon-theme)
+makedepends=(extra-cmake-modules plasma-framework)
+optdepends=('bup: support for incremental backups'
+            'rsync: support for synced backups')
+source=("https://invent.kde.org/kde/kup/-/archive/kup-$pkgver/kup-kup-$pkgver.tar.bz2")
+
+build() {
+  cmake -S ${_realname} -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DSYSCONF_INSTALL_DIR=/etc \
+    -DBUILD_TESTING=OFF
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja -C build install
+}

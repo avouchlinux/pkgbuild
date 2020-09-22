@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=polkit-qt5
+_realname=polkit-qt-1
+pkgver=0.113.0
+pkgrel=1
+pkgdesc='A library that allows developers to access PolicyKit API with a nice Qt-style API'
+arch=('x86_64')
+groups=('sys-auth')
+url='https://www.kde.org/'
+license=('LGPL')
+depends=('polkit' 'qt5-base')
+makedepends=(cmake)
+source=("https://download.kde.org/stable/$pkgbase-1/$pkgbase-1-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heirecka@exherbo.org>
+
+build() {
+	cmake -S ${_realname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

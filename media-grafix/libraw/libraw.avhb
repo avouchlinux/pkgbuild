@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libraw
+_realname=LibRaw
+pkgver=0.19.5
+pkgrel=1
+pkgdesc="A library for reading RAW files obtained from digital photo cameras (CRW/CR2, NEF, RAF, DNG, and others)"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://www.libraw.org/"
+license=(CDDL LGPL)
+depends=(lcms2 jasper)
+source=("https://github.com/LibRaw/LibRaw/archive/$pkgver.tar.gz")
+
+build() {
+  cd LibRaw-$pkgver
+  ./mkdist.sh
+  ./configure --prefix=/usr --disable-examples
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd LibRaw-$pkgver
+  make DESTDIR="$pkgdir" install
+}

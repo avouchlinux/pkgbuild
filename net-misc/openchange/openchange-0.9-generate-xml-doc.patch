@@ -1,0 +1,196 @@
+diff -up openchange-2.0-QUADRANT/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/Doxyfile.in
+--- openchange-2.0-QUADRANT/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/Doxyfile.in	2013-02-14 12:23:27.594802658 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -918,13 +918,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/overview
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/libmapiadmin/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/libmapiadmin/Doxyfile.in
+--- openchange-2.0-QUADRANT/libmapiadmin/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/libmapiadmin/Doxyfile.in	2013-02-14 12:23:27.594802658 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -916,13 +916,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/libmapiadmin
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/libmapi/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/libmapi/Doxyfile.in
+--- openchange-2.0-QUADRANT/libmapi/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/libmapi/Doxyfile.in	2013-02-14 12:23:27.594802658 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -922,13 +922,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/libmapi
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/libmapi++/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/libmapi++/Doxyfile.in
+--- openchange-2.0-QUADRANT/libmapi++/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/libmapi++/Doxyfile.in	2013-02-14 12:23:27.595802671 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -901,13 +901,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/libmapi++
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/libocpf/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/libocpf/Doxyfile.in
+--- openchange-2.0-QUADRANT/libocpf/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/libocpf/Doxyfile.in	2013-02-14 12:23:27.595802671 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -920,13 +920,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/libocpf
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/mapiproxy/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/mapiproxy/Doxyfile.in
+--- openchange-2.0-QUADRANT/mapiproxy/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/mapiproxy/Doxyfile.in	2013-02-14 12:23:27.596802685 +0100
+@@ -286,7 +286,7 @@ SYMBOL_CACHE_SIZE      = 0
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -1118,13 +1118,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/mapiproxy
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 
+diff -up openchange-2.0-QUADRANT/utils/mapitest/Doxyfile.in.generate-xml-doc openchange-2.0-QUADRANT/utils/mapitest/Doxyfile.in
+--- openchange-2.0-QUADRANT/utils/mapitest/Doxyfile.in.generate-xml-doc	2013-01-24 19:55:36.000000000 +0100
++++ openchange-2.0-QUADRANT/utils/mapitest/Doxyfile.in	2013-02-14 12:23:27.596802685 +0100
+@@ -224,7 +224,7 @@ SUBGROUPING            = YES
+ # Private class members and static file members will be hidden unless 
+ # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
+ 
+-EXTRACT_ALL            = NO
++EXTRACT_ALL            = YES
+ 
+ # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
+ # will be included in the documentation.
+@@ -914,13 +914,13 @@ MAN_LINKS              = YES
+ # generate an XML file that captures the structure of 
+ # the code including all documentation.
+ 
+-GENERATE_XML           = NO
++GENERATE_XML           = YES
+ 
+ # The XML_OUTPUT tag is used to specify where the XML pages will be put. 
+ # If a relative path is entered the value of OUTPUT_DIRECTORY will be 
+ # put in front of it. If left blank `xml' will be used as the default path.
+ 
+-XML_OUTPUT             = xml
++XML_OUTPUT             = xml/mapitest
+ 
+ # The XML_SCHEMA tag can be used to specify an XML schema, 
+ # which can be used by a validating XML parser to check the 

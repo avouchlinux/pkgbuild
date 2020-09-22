@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gedit
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="GNOME Text Editor"
+url="https://wiki.gnome.org/Apps/Gedit"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(gtksourceview4 gsettings-desktop-schemas libpeas gspell python-gobject
+         dconf tepl)
+makedepends=(yelp-tools vala gobject-introspection git gtk-doc meson)
+optdepends=('gedit-plugins: Additional features')
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D documentation=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

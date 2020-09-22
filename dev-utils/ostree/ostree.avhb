@@ -1,0 +1,70 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ostree
+pkgver=2020.3
+pkgrel=1
+pkgdesc="Operating system and container binary deployment and upgrades"
+arch=('x86_64')
+grous=('dev-utils')
+url="https://ostree.readthedocs.org/en/latest/"
+license=(GPL)
+depends=(glib2 xz zlib libsoup gpgme libarchive fuse2 util-linux mkinitcpio openssl avahi)
+makedepends=(e2fsprogs gobject-introspection gtk-doc libxslt systemd git python2)
+checkdepends=(parallel syslinux gjs cpio elfutils)
+source=("https://github.com/ostreedev/ostree/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+getsrc(){
+    git clone https://github.com/ostreedev/ostree
+    git clone https://github.com/mendsley/bsdiff
+    git clone https://gitlab.gnome.org/GNOME/libglnx.git
+}
+
+pkgver() {
+  cd $pkgname
+  git describe | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git config --local submodule.bsdiff.url "$srcdir/bsdiff"
+  git config --local submodule.libglnx.url "$srcdir/libglnx"
+  git submodule update
+
+  NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+    cd $pkgname
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --sbindir=/usr/bin \
+        --libexecdir=/usr/lib \
+        --with-openssl \
+        --with-builtin-grub2-mkconfig \
+        --with-dracut=yesbutnoconf \
+        --enable-experimental-api \
+        --disable-static \
+        --enable-gtk-doc
+
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd $pkgname
+    #make ${MAKEFLAGS} check || :
+}
+
+package() {
+    cd $pkgname
+    make DESTDIR="$pkgdir" install
+}

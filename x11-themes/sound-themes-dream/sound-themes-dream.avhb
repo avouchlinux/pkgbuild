@@ -1,0 +1,22 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sound-themes-dream
+_realname=dream_systemsounds_by_pulicoti-d1ps7ln
+_themename=dream
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Dream sound theme"
+arch=('any')
+groups=('media-libs')
+url="https://www.deviantart.com/pulicoti/art/Dream-SystemSounds-103772795"
+license=('LGPL2.1')
+source=(https://www.deviantart.com/pulicoti/art/dream_systemsounds_by_pulicoti-d1ps7ln.zip)
+
+package() {
+	mkdir -p ${pkgdir}/usr/share/sounds
+	cp -r $_themename ${pkgdir}/usr/share/sounds/
+	# license
+	install -Dm644 dream/Copyright "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

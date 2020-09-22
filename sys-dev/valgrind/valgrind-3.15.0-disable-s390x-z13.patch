@@ -1,0 +1,34 @@
+diff -ur valgrind-3.14.0.orig/VEX/priv/guest_s390_helpers.c valgrind-3.14.0/VEX/priv/guest_s390_helpers.c
+--- valgrind-3.14.0.orig/VEX/priv/guest_s390_helpers.c	2019-01-10 17:00:57.203206690 +0100
++++ valgrind-3.14.0/VEX/priv/guest_s390_helpers.c	2019-01-10 17:06:23.335253900 +0100
+@@ -2469,7 +2469,7 @@
+ /*--- Dirty helper for vector instructions                 ---*/
+ /*------------------------------------------------------------*/
+ 
+-#if defined(VGA_s390x)
++#if defined(VGA_s390x) && 0 /* disable for old binutils */
+ ULong
+ s390x_dirtyhelper_vec_op(VexGuestS390XState *guest_state,
+                          const ULong serialized)
+diff -ur valgrind-3.14.0.orig/none/tests/s390x/Makefile.am valgrind-3.14.0/none/tests/s390x/Makefile.am
+--- valgrind-3.14.0.orig/none/tests/s390x/Makefile.am	2019-01-10 17:00:57.411202894 +0100
++++ valgrind-3.14.0/none/tests/s390x/Makefile.am	2019-01-10 17:10:28.963776813 +0100
+@@ -18,8 +18,7 @@
+ 	     spechelper-cr  spechelper-clr  \
+ 	     spechelper-ltr spechelper-or   \
+ 	     spechelper-icm-1  spechelper-icm-2 spechelper-tmll \
+-	     spechelper-tm laa vector lsc2 ppno vector_string vector_integer \
+-	     vector_float
++	     spechelper-tm laa 
+ 
+ if BUILD_DFP_TESTS
+   INSN_TESTS += dfp-1 dfp-2 dfp-3 dfp-4 dfptest dfpext dfpconv srnmt pfpo
+@@ -68,8 +67,3 @@
+ fixbr_CFLAGS     = $(AM_CFLAGS) @FLAG_MLONG_DOUBLE_128@
+ fpext_CFLAGS     = $(AM_CFLAGS) @FLAG_MLONG_DOUBLE_128@
+ ex_clone_LDADD   = -lpthread
+-vector_CFLAGS    = $(AM_CFLAGS) -march=z13
+-lsc2_CFLAGS       = -march=z13 -DS390_TESTS_NOCOLOR
+-vector_string_CFLAGS = $(AM_CFLAGS) -march=z13 -DS390_TEST_COUNT=5
+-vector_integer_CFLAGS    = $(AM_CFLAGS) -march=z13 -DS390_TEST_COUNT=4
+-vector_float_CFLAGS    = $(AM_CFLAGS) -march=z13 -DS390_TEST_COUNT=4

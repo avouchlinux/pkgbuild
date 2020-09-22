@@ -1,0 +1,54 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jack
+pkgver=0.125.0
+pkgrel=1
+pkgdesc="A low-latency audio server"
+arch=('x86_64')
+groups=('media-libs')
+license=('GPL' 'LGPL')
+depends=('libsamplerate' 'db' 'zita-alsa-pcmi' 'zita-resampler')
+makedepends=('celt' 'doxygen' 'git' 'libffado')
+optdepends=('celt: NetJACK driver'
+            'libffado: FireWire support'
+            'realtime-privileges: Acquire realtime privileges')
+url="http://jackaudio.org/"
+source=("$pkgname::git+https://github.com/jackaudio/${pkgname}1.git#tag=${pkgver}"
+        "git+https://github.com/jackaudio/example-clients"
+        "git+https://github.com/jackaudio/headers"
+        "git+https://github.com/jackaudio/tools")
+md5sums=('SKIP'
+         'SKIP'
+         'SKIP'
+         'SKIP')
+
+getsrc(){
+	git clone https://github.com/jackaudio/jack1.git
+	git clone https://github.com/jackaudio/example-clients.git
+	git clone https://github.com/jackaudio/headers.git
+	git clone https://github.com/jackaudio/tools.git
+}
+
+prepare() {
+  mv -v "${pkgname}1" "${pkgname}-${pkgver}"
+  cd "${pkgname}-${pkgver}"
+  git submodule init
+  git config submodule.example-clients.url "${srcdir}/example-clients"
+  git config submodule.jack.url "${srcdir}/headers"
+  git config submodule.tools.url "${srcdir}/tools"
+  git submodule update
+  autoreconf -vfi
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --libdir=/usr/lib
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="$pkgdir" install
+}

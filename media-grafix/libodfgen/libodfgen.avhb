@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libodfgen
+pkgver=0.1.7
+pkgrel=1
+pkgdesc='Library for generating documents in Open Document Format'
+arch=('x86_64')
+groups=('media-grafix')
+url='https://sourceforge.net/p/libwpd/wiki/libodfgen/'
+license=('MPL')
+depends=('libwpd' 'zlib' 'librevenge')
+makedepends=('boost' 'libwpg' 'libetonyek' 'doxygen')
+source=(https://sourceforge.net/projects/libwpd/files/libodfgen/libodfgen-$pkgver/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-werror
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

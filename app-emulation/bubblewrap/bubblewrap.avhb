@@ -1,0 +1,56 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=bubblewrap
+pkgname=(bubblewrap bubblewrap-suid)
+pkgver=0.4.1
+pkgrel=1
+pkgdesc='Unprivileged sandboxing tool'
+url='https://github.com/projectatomic/bubblewrap'
+arch=('x86_64')
+groups=('app-emulation')
+license=(GPL)
+depends=(glibc libcap)
+makedepends=(libxslt docbook-xsl git)
+source=(https://github.com/projectatomic/bubblewrap/archive/v$pkgver.tar.gz)
+sha256sums=('SKIP')
+
+prepare() {
+  cd $pkgbase-$pkgver
+  NOCONFIGURE=1 ./autogen.sh
+
+  cd "$srcdir"
+  cp -r ${pkgbase}-$pkgver{,-none}
+  cp -r ${pkgbase}-$pkgver{,-setuid}
+}
+
+_build() {
+  pushd $srcdir/${pkgbase}-$pkgver-$1
+  ./configure --prefix=/usr \
+    --with-priv-mode=$1
+  make ${MAKEFLAGS}
+  popd
+}
+
+_install() {
+  make -C "$srcdir/${pkgbase}-$pkgver-$1" DESTDIR="$pkgdir" install
+}
+
+build() {
+  _build none
+  _build setuid
+}
+
+package_bubblewrap() {
+  _install none
+}
+
+package_bubblewrap-suid() {
+  pkgdesc+=" (setuid variant)"
+  provides=(bubblewrap)
+  conflicts=(bubblewrap)
+
+  _install setuid
+}

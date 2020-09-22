@@ -1,0 +1,60 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=geary
+pkgver=3.38.0
+pkgrel=1
+epoch=1
+pkgdesc='A lightweight email client for the GNOME desktop'
+arch=('x86_64')
+groups=('gnome-extra')
+url=https://wiki.gnome.org/Apps/Geary
+license=(GPL3)
+depends=(
+  cairo
+  enchant
+  folks
+  gcr
+  gdk-pixbuf2
+  glib2
+  gmime
+  gnome-keyring
+  gnome-online-accounts
+  gtk3
+  iso-codes
+  libcanberra
+  libgee
+  libnotify
+  libsecret
+  libsoup
+  libxml2
+  pango
+  sqlite
+  webkit2gtk
+)
+makedepends=(
+  appstream-glib
+  git
+  gnome-doc-utils
+  gobject-introspection
+  intltool
+  itstool
+  meson
+  vala
+)
+source=(git+https://gitlab.gnome.org/GNOME/geary.git#tag=geary-${pkgver})
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build -D gtk_doc=true
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

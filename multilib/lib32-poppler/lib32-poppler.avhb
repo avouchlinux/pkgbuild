@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-poppler
+pkgbase=poppler
+pkgver=0.87.0
+pkgrel=1
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL')
+makedepends=('libjpeg' 'gcc-libs' 'cairo' 'fontconfig' 'openjpeg' 'gtk2' 'qt4' 'pkgconfig' 'lcms2' 'gobject-introspection' 'icu' 'qt5-base')
+options=('!emptydirs')
+url="http://poppler.freedesktop.org/"
+_testtag=0d2bfd4af4c76a3bac27ccaff793d9129df7b57a
+source=(http://poppler.freedesktop.org/${pkgbase}-${pkgver}.tar.xz
+        http://cgit.freedesktop.org/poppler/test/snapshot/test-${_testtag}.tar.bz2
+        poppler-0.24.2-mocversiongrep.patch)
+md5sums=('334f2ac95cc8039f2a57fe63e4a81c69'
+         '9dc64c254a31e570507bdd4ad4ba629a'
+         'd5280e4eb6d02660971bdaa45065933f')
+
+prepare() {
+  mkdir build
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+  sed -i -e "s:python:python2:" make-glib-api-docs
+
+  # https://bugzilla.gnome.org/show_bug.cgi?id=789800#c10
+  patch -Np1 -i ../gtk-doc.patch
+}
+
+build() {
+	cd build
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+  cmake ../${pkgbase}-${pkgver} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib32 \
+    -DENABLE_QT5=OFF \
+    -DENABLE_XPDF_HEADERS=OFF \
+    -DENABLE_GTK_DOC=OFF
+  make ${MAKEFLAGS}
+
+}
+
+check() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	#LANG=en_US.UTF8 make check
+}
+
+package() {
+	cd build
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

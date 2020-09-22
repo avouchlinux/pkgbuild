@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=systemd-ui
+pkgver=3
+pkgrel=1
+pkgdesc="Session and startup manager -- GUI components"
+arch=('x86_64')
+groups=('app-admin')
+url="http://www.freedesktop.org/wiki/Software/systemd"
+license=('GPL2')
+depends=('gtk2' 'libgee' 'libnotify')
+makedepends=('vala' 'docbook-xsl' 'libxslt')
+source=("http://www.freedesktop.org/software/systemd/$pkgname-$pkgver.tar.xz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -Dm644 ../systemadm.appdata.xml "$pkgdir/usr/share/metainfo/systemadm.appdata.xml"
+}

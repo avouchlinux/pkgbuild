@@ -1,0 +1,105 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=open-fcoe
+pkgname=('libhbaapi' 'libhbalinux' 'fcoe-utils')
+pkgver=3.19
+pkgrel=1
+pkgdesc='Fibre Channel over Ethernet implementation for Linux'
+arch=('x86_64')
+groups=('net-misc')
+url='http://www.open-fcoe.org/'
+license=('GPL')
+makedepends=('libpciaccess' 'open-lldp')
+validpgpkeys=('1EFB3A04BBD6C0DBF64D5B3346A3C53C3D727E07'  # Robert Love <robert.w.love@intel.com>
+              'ECAD90B5697B35ACB65919E0D7832D07664BDE98') # Vasu Dev <vasu.dev@intel.com>
+source=("http://ftp-osl.osuosl.org/pub/${pkgbase}/${pkgbase}-${pkgver}.tar.gz"{,.sig}
+	'config'
+	'0002-configure.patch'
+	'0003-declaration.patch'
+	'0004-include.patch'
+	'0005-makefile.patch'
+	'0006-bash-completion.patch'
+	'0007-confdir.patch')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	patch -Np1 < "${srcdir}/0002-configure.patch"
+	patch -Np1 < "${srcdir}/0003-declaration.patch"
+	patch -Np1 < "${srcdir}/0004-include.patch"
+	patch -Np1 < "${srcdir}/0005-makefile.patch"
+	patch -Np1 < "${srcdir}/0006-bash-completion.patch"
+	patch -Np1 < "${srcdir}/0007-confdir.patch"
+
+	# add fcoe-utils-1.0.32 git version from https://github.com/morbidrsa/fcoe-utils
+	rm -r fcoe-utils
+	bsdtar -xf $srcarchivedir/fcoe-utils-1.0.32-9834b34.tar.gz
+	mv fcoe-utils-9834b340d8289bab48d961b6bb2698bab1f3965f fcoe-utils
+
+	cd fcoe-utils
+	patch -Np1 < "${srcdir}/0001-string-warning-fixes.patch"
+
+}
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}/libHBAAPI/"
+	autoreconf -fi	
+	./configure --prefix=/usr --sysconfdir=/etc
+	make ${MAKEFLAGS}
+
+	export HBAAPI_CFLAGS="-I${srcdir}/${pkgbase}-${pkgver}/libHBAAPI/"
+	export HBAAPI_LIBS="-L${srcdir}/${pkgbase}-${pkgver}/libHBAAPI/.libs/ -lHBAAPI -ldl"
+
+	cd "${srcdir}/${pkgbase}-${pkgver}/libhbalinux/"
+	autoreconf -fi
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+
+	export LIBHBALINUX_CFLAGS="-I${srcdir}/${pkgbase}-${pkgver}/libhbalinux/"
+	export LIBHBALINUX_LIBS="-L${srcdir}/${pkgbase}-${pkgver}/libhbalinux/.libs/ -ldl"
+
+	cd "${srcdir}/${pkgbase}-${pkgver}/fcoe-utils"
+	autoreconf -fi
+	./configure --prefix=/usr --sysconfdir=/etc --sbindir=/usr/bin
+	make ${MAKEFLAGS}
+}
+
+package_libhbaapi() {
+	pkgdesc='Fibre Channel over Ethernet implementation for Linux - libhbaapi'
+	backup=('etc/hba.conf')
+
+	cd "${srcdir}/${pkgbase}-${pkgver}/libHBAAPI/"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/libhbaapi/LICENSE
+}
+
+package_libhbalinux() {
+	pkgdesc='Fibre Channel over Ethernet implementation for Linux - libhbalinux'
+	depends=('libhbaapi')
+
+	cd "${srcdir}/${pkgbase}-${pkgver}/libhbalinux/"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/libhbalinux/LICENSE
+}
+
+package_fcoe-utils() {
+	pkgdesc='Fibre Channel over Ethernet implementation for Linux - utils'
+	depends=('open-lldp' 'libhbaapi' 'libhbalinux')
+	optdepends=('bash-completion: command completion in bash')
+	backup=('etc/conf.d/fcoe')
+
+	cd "${srcdir}/${pkgbase}-${pkgver}/fcoe-utils"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/fcoe-utils/LICENSE
+
+	install -D -m0644 "${srcdir}/fcoe.service" "${pkgdir}/usr/lib/systemd/system/fcoe.service"
+	install -D -m0644 "${srcdir}/config" "${pkgdir}/etc/conf.d/fcoe"
+
+	rm -rf "${pkgdir}/etc/init.d/"
+	rm -rf "${pkgdir}/etc/fcoe/"
+}
+

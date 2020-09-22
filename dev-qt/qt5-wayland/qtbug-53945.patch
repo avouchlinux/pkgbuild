@@ -1,0 +1,27 @@
+From 75294be3c8574d7bb7c8fd53b717e7df9821e183 Mon Sep 17 00:00:00 2001
+From: Johan Klokkhammer Helsing <johan.helsing@qt.io>
+Date: Mon, 13 Jun 2016 10:47:25 +0200
+Subject: [PATCH] Make source tarballs compile with --developer-build configure
+ flag
+
+For some reason, include paths to the generated protocol headers are incorrect
+only when compiling from source tarballs.
+
+Task-number: QTBUG-53945
+Change-Id: I7721dee4d75bd0dd29f68062fa7c200f85ce24d6
+Reviewed-by: Giulio Camuffo <giulio.camuffo@kdab.com>
+---
+ src/compositor/extensions/extensions.pri | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/compositor/extensions/extensions.pri b/src/compositor/extensions/extensions.pri
+index 4ab2672..4894eb3 100644
+--- a/src/compositor/extensions/extensions.pri
++++ b/src/compositor/extensions/extensions.pri
+@@ -1,4 +1,6 @@
+ CONFIG += wayland-scanner
++CONFIG += generated_privates
++
+ WAYLANDSERVERSOURCES += \
+     ../extensions/surface-extension.xml \
+     ../extensions/touch-extension.xml \

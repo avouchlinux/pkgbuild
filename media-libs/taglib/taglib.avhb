@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=taglib
+pkgver=1.11.1
+pkgrel=1
+pkgdesc="A Library for reading and editing the meta-data of several popular audio formats"
+arch=('x86_64')
+groups=('media-libs')
+url="http://developer.kde.org/~wheeler/taglib.html"
+license=('LGPL' 'MPL')
+depends=('sh' 'zlib' 'gcc-libs')
+makedepends=('cmake' 'pkg-config')
+source=("http://taglib.github.io/releases/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+	#patch -Np1 -i ../taglib-1.5rc1-multilib.patch
+	mkdir "${srcdir}"/build
+}
+
+build() {
+	#export CFLAGS="$CFLAGS -fPIC"
+	#export CPPFLAGS="$CPPFLAGS -fPIC"
+	export CXXFLAGS="$CXXFLAGS -fPIC"
+	cd "${srcdir}"/build
+	cmake ../${pkgname}-${pkgver} \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_SHARED_LIBS=ON \
+		-DWITH_MP4=ON \
+		-DWITH_ASF=ON
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}"/build
+	make DESTDIR="${pkgdir}" install
+}
+

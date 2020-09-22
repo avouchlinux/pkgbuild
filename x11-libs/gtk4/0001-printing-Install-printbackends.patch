@@ -1,0 +1,86 @@
+From fda120ceece7b15daee81430a45ca795719eecca Mon Sep 17 00:00:00 2001
+From: Marek Kasik <mkasik@redhat.com>
+Date: Thu, 19 Oct 2017 13:59:58 +0200
+Subject: [PATCH] printing: Install printbackends
+
+Add "install : true" for each printbackend so that they are installed.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=789185
+---
+ modules/printbackends/cloudprint/meson.build | 3 ++-
+ modules/printbackends/cups/meson.build       | 3 ++-
+ modules/printbackends/file/meson.build       | 3 ++-
+ modules/printbackends/lpr/meson.build        | 3 ++-
+ modules/printbackends/papi/meson.build       | 3 ++-
+ modules/printbackends/test/meson.build       | 3 ++-
+ 6 files changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/modules/printbackends/cloudprint/meson.build b/modules/printbackends/cloudprint/meson.build
+index c6193f4c0388..f5217cbc46ca 100644
+--- a/modules/printbackends/cloudprint/meson.build
++++ b/modules/printbackends/cloudprint/meson.build
+@@ -7,4 +7,5 @@ shared_module('printbackend-cloudprint',
+                 '-DGTK_DISABLE_DEPRECATION_WARNINGS',
+               ],
+               dependencies: [ libgtk_dep, rest_dep, json_glib_dep ],
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+diff --git a/modules/printbackends/cups/meson.build b/modules/printbackends/cups/meson.build
+index e69788d9f3c6..a6f83d51e7fa 100644
+--- a/modules/printbackends/cups/meson.build
++++ b/modules/printbackends/cups/meson.build
+@@ -18,4 +18,5 @@ shared_module('printbackend-cups',
+                 '-DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED',
+               ],
+               dependencies: [libgtk_dep, libcups, colord_dep],
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+diff --git a/modules/printbackends/file/meson.build b/modules/printbackends/file/meson.build
+index 52ab3a34226b..b1604be0f653 100644
+--- a/modules/printbackends/file/meson.build
++++ b/modules/printbackends/file/meson.build
+@@ -6,4 +6,5 @@ shared_module('printbackend-file',
+                 '-DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED',
+               ],
+               dependencies: libgtk_dep,
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+diff --git a/modules/printbackends/lpr/meson.build b/modules/printbackends/lpr/meson.build
+index 95a982df8da2..581ca77a4803 100644
+--- a/modules/printbackends/lpr/meson.build
++++ b/modules/printbackends/lpr/meson.build
+@@ -6,4 +6,5 @@ shared_module('printbackend-lpr',
+                 '-DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED',
+               ],
+               dependencies: libgtk_dep,
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+diff --git a/modules/printbackends/papi/meson.build b/modules/printbackends/papi/meson.build
+index feef64068c38..647234ef4f34 100644
+--- a/modules/printbackends/papi/meson.build
++++ b/modules/printbackends/papi/meson.build
+@@ -6,4 +6,5 @@ shared_module('printbackend-papi',
+                 '-DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED',
+               ],
+               dependencies: [libgtk_dep, libpapi],
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+diff --git a/modules/printbackends/test/meson.build b/modules/printbackends/test/meson.build
+index a8df4fe34208..29cf00b6ffae 100644
+--- a/modules/printbackends/test/meson.build
++++ b/modules/printbackends/test/meson.build
+@@ -6,4 +6,5 @@ shared_module('printbackend-test',
+                 '-DGTK_PRINT_BACKEND_ENABLE_UNSUPPORTED',
+               ],
+               dependencies: libgtk_dep,
+-              install_dir: printbackends_install_dir)
++              install_dir: printbackends_install_dir,
++              install : true)
+-- 
+2.14.2
+

@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ntfs-3g
+_pkgname=ntfs-3g_ntfsprogs
+pkgver=2017.3.23
+pkgrel=1
+pkgdesc='NTFS filesystem driver and utilities'
+url='https://www.tuxera.com/community/open-source-ntfs-3g/'
+arch=('x86_64')
+groups=('sys-fs')
+license=('GPL2')
+depends=('util-linux' 'fuse2')
+source=("https://tuxera.com/opensource/${_pkgname}-${pkgver}.tgz")
+sha256sums=('3e5a021d7b761261836dcb305370af299793eedbded731df3d6943802e1262d5')
+
+prepare() {
+	cd "${srcdir}/${_pkgname}-${pkgver}"
+	sed 's|$(DESTDIR)/sbin|$(DESTDIR)/usr/bin|' -i {ntfsprogs,src}/Makefile.in
+	patch -p1 -i ../mftmirr.patch
+}
+
+build() {
+	cd "${srcdir}/${_pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--sbin=/usr/bin \
+	--mandir=/usr/share/man \
+	--disable-ldconfig \
+	--disable-static \
+	--with-fuse=external \
+	--enable-posix-acls \
+	--enable-extras
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" rootbindir=/usr/bin rootsbindir=/usr/bin rootlibdir=/usr/lib install
+	ln -s /usr/bin/ntfs-3g "$pkgdir/usr/bin/mount.ntfs"
+}
+

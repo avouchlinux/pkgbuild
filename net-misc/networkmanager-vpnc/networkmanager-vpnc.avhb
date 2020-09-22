@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=networkmanager-vpnc
+_realname=NetworkManager-vpnc
+pkgver=1.2.7
+pkgrel=1
+pkgdesc="NetworkManager VPN plugin for VPNC"
+url="https://wiki.gnome.org/Projects/NetworkManager"
+arch=('x86_64')
+groups=('net-misc')
+license=(GPL)
+depends=(libnm libsecret vpnc)
+makedepends=(libnma intltool python git)
+optdepends=('libnma: GUI support')
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
+
+pkgver() {
+  cd NetworkManager-vpnc
+  git describe --tags | sed 's/-dev/dev/;s/-/+/g'
+}
+
+prepare() {
+  cd NetworkManager-vpnc-$pkgver-dev
+
+  intltoolize --automake --copy
+  autoreconf -fvi
+}
+
+build() {
+  cd NetworkManager-vpnc-$pkgver-dev
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --libexecdir=/usr/lib/NetworkManager --disable-static \
+    --with-libnm-gtk=no
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd NetworkManager-vpnc-$pkgver-dev
+  make DESTDIR="$pkgdir" install dbusservicedir=/usr/share/dbus-1/system.d
+}

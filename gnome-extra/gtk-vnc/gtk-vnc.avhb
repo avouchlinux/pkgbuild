@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk-vnc
+pkgver=1.0.0
+pkgrel=1
+pkgdesc="A VNC viewer widget for GTK+"
+url="https://wiki.gnome.org/Projects/gtk-vnc"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(LGPL)
+depends=(libgcrypt gtk3 gnutls libpulse)
+makedepends=(meson vala gobject-introspection gnome-common git perl-text-csv)
+source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('SKIP'
+            'SKIP')
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

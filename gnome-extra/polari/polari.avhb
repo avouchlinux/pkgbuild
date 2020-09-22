@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=polari
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="An IRC Client for GNOME"
+url="https://wiki.gnome.org/Apps/Polari"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gjs gtk3 telepathy-glib telepathy-idle telepathy-mission-control telepathy-logger gspell)
+makedepends=(gobject-introspection appdata-tools yelp-tools appstream-glib git meson)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

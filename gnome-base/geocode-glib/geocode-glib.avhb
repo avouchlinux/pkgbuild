@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=geocode-glib
+pkgver=3.26.2
+pkgrel=1
+pkgdesc="Helper library for geocoding services"
+url="https://gitlab.gnome.org/GNOME/geocode-glib"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL)
+depends=(glib2 json-glib libsoup)
+makedepends=(gobject-introspection git gtk-doc meson)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    sed -i 's/gnome/Adwaita/' icons/meson.build
+}
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D enable-installed-tests=false
+    ninja -C build
+}
+
+check() {
+    # Needs sv_SE.utf8, will not pass in chroot
+    : meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lcms2
+pkgver=2.9
+pkgrel=1
+pkgdesc="Small-footprint color management engine, version 2"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://www.littlecms.com"
+license=('MIT')
+depends=('libtiff')
+source=(http://downloads.sourceforge.net/sourceforge/lcms/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+}

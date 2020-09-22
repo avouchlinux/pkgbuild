@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=icoutils
+pkgver=0.32.3
+pkgrel=1
+pkgdesc='Extracts and converts images in MS Windows(R) icon and cursor files.'
+arch=('x86_64')
+groups=('app-grafix')
+license=('GPL')
+url='https://www.nongnu.org/icoutils/'
+depends=('libpng' 'perl-libwww')
+source=("https://savannah.nongnu.org/download/${pkgname}/${pkgname}-${pkgver}.tar.bz2"{,.sig})
+validpgpkeys=('3776FFA2692D84ECA895F98E3424F3704FF4EDEC')
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,79 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=seamonkey
+pkgver=2.53.2
+pkgrel=1
+pkgdesc="SeaMonkey internet suite"
+arch=('x86_64')
+groups=('app-net')
+url="https://www.seamonkey-project.org/"
+depends=('dbus-glib' 'gtk3' 'hunspell' 'icu'
+         'libevent' 'libpulse' 'libvpx' 'libxt' 'mime-types'
+         'nss' 'sqlite' 'startup-notification')
+makedepends=('autoconf2.13' 'clang' 'gtk2' 'imake' 'llvm' 'mesa' 'python2-setuptools'
+             'python2-psutil' 'rust' 'yasm' 'unzip' 'zip')
+optdepends=('networkmanager: Location detection via available WiFi networks'
+	    'libnotify: Notification integration'
+	    'pulseaudio: Audio support')
+source=(https://archive.mozilla.org/pub/mozilla.org/seamonkey/releases/$pkgver/source/seamonkey-$pkgver.source.tar.xz
+        mozconfig
+        seamonkey-2.0-lang.patch
+        rhbz-966424.patch
+        mozbug1323209.patch
+        mozbug1329272.patch
+	no-crmf.diff)
+install="$pkgname.install"
+
+# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+# Note: These are for Avouch use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact info@avouch.org for more information.
+_google_api_key=AIzaSyCm8I84pz4zSvrzQGpYiJTaMVgzGSxz8Z4
+
+# Mozilla API keys (see https://location.services.mozilla.com/api)
+# Note: These are for Avouch use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact info@avouch.org for
+# more information.
+_mozilla_api_key=7dca4b7b-6085-4ebb-9633-d566ed2de0fd
+
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  cp ../mozconfig .mozconfig
+
+  echo -n "$_google_api_key" > google-api-key
+  echo -n "$_mozilla_api_key" > mozilla-api-key
+
+  cat >> .mozconfig <<EOF
+  ac_add_options --with-google-location-service-api-keyfile=${PWD@Q}/google-api-key
+  ac_add_options --with-google-safebrowsing-api-keyfile=${PWD@Q}/google-api-key
+  ac_add_options --with-mozilla-api-keyfile=${PWD@Q}/mozilla-api-key
+EOF
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  make ${MAKEFLAGS} -f client.mk build
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make -f client.mk DESTDIR="$pkgdir" INSTALL_SDK= install
+
+  rm -rf "$pkgdir"/usr/lib/seamonkey/{dictionaries,hyphenation}
+  ln -s /usr/share/hunspell "$pkgdir/usr/lib/seamonkey/dictionaries"
+  ln -s /usr/share/hyphen "$pkgdir/usr/lib/seamonkey/hyphenation"
+
+  install -Dm644 suite/branding/seamonkey/default128.png \
+          "$pkgdir/usr/share/pixmaps/seamonkey.png"
+
+  install -Dm644 mozilla/toolkit/mozapps/installer/linux/rpm/mozilla.desktop \
+                "$pkgdir/usr/share/applications/seamonkey.desktop"
+  sed -i 's/@MOZ_APP_DISPLAYNAME@/SeaMonkey internet suite/' \
+                "$pkgdir/usr/share/applications/seamonkey.desktop"
+  sed -i 's/@MOZ_APP_NAME@/seamonkey/' "$pkgdir/usr/share/applications/seamonkey.desktop"
+}

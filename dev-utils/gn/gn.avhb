@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gn
+pkgver=0.1748.4cd7fe15
+pkgrel=1
+pkgdesc="Meta-build system that generates build files for Ninja"
+arch=('x86_64')
+grous=('dev-utils')
+url="https://gn.googlesource.com/gn/"
+license=('BSD')
+depends=('gcc-libs')
+makedepends=('clang' 'ninja' 'python' 'git')
+source=(git+https://gn.googlesource.com/gn#commit=$_commit)
+
+getsrc(){
+  git clone https://gn.googlesource.com/gn 
+}
+
+pkgver() {
+  cd $pkgname
+  echo 0.$(git rev-list --count initial-commit..).$(git rev-parse --short HEAD)
+}
+
+build() {
+  cd $pkgname
+  ./build/gen.py
+  ninja -C out
+}
+
+check() {
+  cd $pkgname
+  ./out/gn_unittests
+}
+
+package() {
+  cd $pkgname
+  install -D out/gn "$pkgdir/usr/bin/gn"
+  install -Dm644 -t "$pkgdir/usr/share/doc/$pkgname" docs/*
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+
+  mkdir -p "$pkgdir/usr/share/vim/vimfiles"
+  cp -r misc/vim/{autoload,ftdetect,ftplugin,syntax} \
+    "$pkgdir/usr/share/vim/vimfiles/"
+}

@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtest
+_realname=googletest-release
+pkgver=1.10.0
+pkgrel=1
+pkgdesc='Google Test - C++ testing utility'
+arch=('x86_64')
+groups=('dev-cpp')
+url='https://github.com/google/googletest/'
+license=('BSD')
+makedepends=('python3' 'cmake' 'gcc-libs' 'sh')
+options=(!makeflags)
+source=(https://github.com/google/googletest/archive/release-${pkgver}.tar.gz)
+
+prepare() {
+  mkdir build
+}
+build() {
+  
+  cd build
+  cmake ../$_realname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_SBINDIR=bin \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_SKIP_RPATH=ON
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd build
+  make test
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+  install -D -m644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

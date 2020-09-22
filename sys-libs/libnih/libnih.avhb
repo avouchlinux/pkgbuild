@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnih
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="Small library for C application development."
+arch=('x86_64')
+groups=('sys-libs')
+url="https://launchpad.net/libnih"
+license=('GPL')
+depends=('dbus')
+makedepends=('expat')
+options=(!libtool)
+validpgpkeys=('8D2D1F62A4AC9A22FEFCB0DC21EC4FDC84AD676C')
+source=(https://launchpad.net/libnih/1.0/${pkgver}/+download/$pkgname-$pkgver.tar.gz)
+
+prepare() {
+  cd "$srcdir"/$pkgname-$pkgver
+  patch -p1 -i ../libnih-1.0.3-optional-dbus.patch
+  patch -p1 -i ../libnih-1.0.3-pkg-config.patch
+	patch -p1 -i ../libnih-1.0.3-signal-race.patch
+	patch -p1 -i ../libnih-1.0.3-fno-common.patch
+	patch -p1 -i ../libnih-1.0.3-expat-2.2.5.patch
+	patch -p1 -i ../libnih-1.0.3-glibc-2.24.patch
+
+  autoreconf -vif
+}
+
+build() {
+  cd "$srcdir"/$pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir"/$pkgname-$pkgver
+  make DESTDIR="$pkgdir"/ install
+}

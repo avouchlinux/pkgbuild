@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtkspell2
+_realname=gtkspell
+pkgver=2.0.16
+pkgrel=1
+url="http://gtkspell.sourceforge.net/"
+pkgdesc="GtkSpell provides word-processor-style highlighting and replacement of misspelled words in a GtkTextView widget"
+arch=('x86_64')
+groups=('sys-libs')
+depends=('gtk2' 'enchant')
+makedepends=('intltool' 'gtk-doc')
+validpgpkeys=('7C70E4D9927061BD840E82DB6BA6197569B23319') #Daniel Atallah <daniel.atallah@gmail.com>
+source=(https://downloads.sourceforge.net/sourceforge/gtkspell/${pkgname}-${pkgver}.tar.gz{,.asc}
+        enchant-2.diff)
+
+prepare() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+
+    # enchant 2.2
+    patch -Np1 -i ../enchant-2.diff
+
+    gtkdocize
+    autoreconf -fvi
+}
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	./configure --prefix=/usr --enable-gtk-doc=no
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

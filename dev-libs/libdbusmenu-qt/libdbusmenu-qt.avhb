@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdbusmenu-qt5
+_realname=libdbusmenu-qt
+pkgver=0.9.3+16.04.20160218
+pkgrel=1
+pkgdesc="A library that provides a Qt implementation of the DBusMenu spec"
+arch=('x86_64')
+groups=('dev-libs')
+url="https://launchpad.net/libdbusmenu-qt"
+license=(GPL)
+makedepends=(cmake doxygen qjson qt4 qt5-base)
+depends=(qt5-base)
+source=("http://archive.ubuntu.com/ubuntu/pool/main/libd/$pkgbase/${pkgbase}_$pkgver.orig.tar.gz")
+
+prepare() {
+	bsdtar -xf $srcarchivedir/libdbusmenu-qt_0.9.3+16.04.20160218.orig.tar.gz
+	mkdir -p build
+}
+
+build() {
+	cd ${srcdir}/build
+	cmake ../$_realname-$pkgver \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_LIBDIR=lib
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="$pkgdir" install
+}

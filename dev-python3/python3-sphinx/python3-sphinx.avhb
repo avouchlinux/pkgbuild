@@ -1,0 +1,69 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-sphinx
+_realname=Sphinx
+pkgver=3.0.4
+pkgrel=1
+arch=('any')
+groups=('dev-python3')
+url='http://sphinx.pocoo.org/'
+license=('BSD')
+depends=('python3-babel'
+         'python3-docutils'
+         'python3-imagesize'
+         'python3-jinja'
+         'python3-pygments'
+         'python3-requests'
+         'python3-setuptools'
+         'python3-snowballstemmer'
+         'python3-sphinx-alabaster-theme'
+         'python3-sphinxcontrib-'{{apple,dev,html}help,jsmath,qthelp,serializinghtml})
+#checkdepends=('imagemagick' 'librsvg'
+#              'python3-html5lib'
+#              'python3-pytest'
+#              'texlive-fontsextra' 'texlive-latexextra')
+optdepends=('imagemagick: for ext.imgconverter'
+            'texlive-latexextra: for generation of PDF documentation')
+makedepends=(
+  'python3-setuptools'
+  'python3-docutils'
+  'python3-jinja'
+  'python3-pygments'
+  'python3-six'
+  'python3-imagesize'
+  'python3-sphinxcontrib-websupport'
+  'python3-sqlalchemy'
+  'python3-whoosh'
+  'python32-setuptools'
+  'python32-docutils'
+  'python32-jinja'
+  'python32-pygments'
+  'python32-six'
+  'python32-imagesize'
+  'python32-sphinxcontrib-websupport'
+  'python32-sqlalchemy'
+  'python32-whoosh'
+  'python32-typing'
+)
+source=("https://pypi.org/packages/source/S/Sphinx/Sphinx-$pkgver.tar.gz"{,.asc})
+
+validpgpkeys=('8A11B79A5D0D749A66F0A030102C2C17498D6B9E'  # Takeshi KOMIYA
+              'E9BEABB07E7B9CC3F56E62C91425F8CE5EBA0E07') # Takayuki Shimizukawa
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

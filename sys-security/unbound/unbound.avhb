@@ -1,0 +1,64 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=unbound
+pkgver=1.10.0
+pkgrel=1
+pkgdesc='Validating, recursive, and caching DNS resolver'
+arch=('x86_64')
+groups=('sys-security')
+url='https://unbound.net/'
+license=('custom:BSD')
+makedepends=('expat')
+optdepends=('expat: unbound-anchor')
+depends=('fstrm' 'openssl' 'libsodium' 'protobuf-c' 'libevent' 'ldns' 'dnssec-anchors')
+backup=('etc/unbound/unbound.conf')
+validpgpkeys=('EDFAA3F2CA4E6EB05681AF8E9F6F1C2D7E045F8D')
+source=("https://unbound.net/downloads/${pkgname}-${pkgver}.tar.gz"{,.asc}
+        'sysusers.d'
+        'tmpfiles.d'
+        'service'
+        'hook'
+        'conf')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# Build against embedded flex instead of system one, see:
+	# https://www.nlnetlabs.nl/bugs-script/show_bug.cgi?id=1223
+	export LEX=:
+
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--sbindir=/usr/bin \
+		--disable-rpath \
+		--enable-pie \
+		--enable-relro-now \
+		--with-conf-file=/etc/unbound/unbound.conf \
+		--with-pidfile=/run/unbound.pid \
+		--with-rootkey-file=/etc/trusted-key.key \
+		--with-libevent
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -Dm644 doc/example.conf.in "${pkgdir}/etc/unbound/unbound.conf.example"
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	install -Dm644 ../sysusers.d "${pkgdir}/usr/lib/sysusers.d/unbound.conf"
+	install -Dm644 ../conf "${pkgdir}/etc/unbound/unbound.conf"
+
+	# icannbundle from https://data.iana.org/root-anchors/icannbundle.pem
+	install -p -m 0644 ../icannbundle.pem "${pkgdir}/etc/unbound/icannbundle.pem"
+
+	install -Dm644 ../unbound.service "${pkgdir}/usr/lib/systemd/system/unbound.service"
+	install -Dm644 ../unbound-keygen.service "${pkgdir}/usr/lib/systemd/system/unbound-keygen.service"
+	install -Dm644 ../unbound-anchor.timer "${pkgdir}/usr/lib/systemd/system/unbound-anchor.timer"
+	install -Dm644 ../unbound-anchor.service "${pkgdir}/usr/lib/systemd/system/unbound-anchor.service"
+
+	# Trust anchor file available from within unbound's chroot.
+	install -Dm644 ../tmpfiles.d "${pkgdir}/usr/lib/tmpfiles.d/unbound.conf"
+}

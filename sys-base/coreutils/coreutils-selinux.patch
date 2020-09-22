@@ -1,0 +1,112 @@
+diff -urNp coreutils-8.21-orig/man/chcon.x coreutils-8.21/man/chcon.x
+--- coreutils-8.21-orig/man/chcon.x	2011-08-23 15:44:01.000000000 +0200
++++ coreutils-8.21/man/chcon.x	2013-02-15 14:31:58.937482694 +0100
+@@ -1,4 +1,4 @@
+ [NAME]
+-chcon \- change file security context
++chcon \- change file SELinux security context
+ [DESCRIPTION]
+ .\" Add any additional description here
+diff -urNp coreutils-8.21-orig/man/runcon.x coreutils-8.21/man/runcon.x
+--- coreutils-8.21-orig/man/runcon.x	2011-08-23 15:44:01.000000000 +0200
++++ coreutils-8.21/man/runcon.x	2013-02-15 14:31:58.938486496 +0100
+@@ -1,5 +1,5 @@
+ [NAME]
+-runcon \- run command with specified security context
++runcon \- run command with specified SELinux security context
+ [DESCRIPTION]
+ Run COMMAND with completely-specified CONTEXT, or with current or
+ transitioned security context modified by one or more of LEVEL,
+diff -urNp coreutils-8.21-orig/src/cp.c coreutils-8.21/src/cp.c
+--- coreutils-8.21-orig/src/cp.c	2013-02-07 10:37:05.000000000 +0100
++++ coreutils-8.21/src/cp.c	2013-02-15 14:31:58.945468929 +0100
+@@ -201,6 +202,9 @@ Copy SOURCE to DEST, or multiple SOURCE(
+                                  all\n\
+ "), stdout);
+       fputs (_("\
++  -c                           deprecated, same as --preserve=context\n\
++"), stdout);
++      fputs (_("\
+       --no-preserve=ATTR_LIST  don't preserve the specified attributes\n\
+       --parents                use full source file name under DIRECTORY\n\
+ "), stdout);
+@@ -933,7 +939,7 @@ main (int argc, char **argv)
+      we'll actually use backup_suffix_string.  */
+   backup_suffix_string = getenv ("SIMPLE_BACKUP_SUFFIX");
+ 
+-  while ((c = getopt_long (argc, argv, "abdfHilLnprst:uvxPRS:TZ",
++  while ((c = getopt_long (argc, argv, "abcdfHilLnprst:uvxPRS:TZ",
+                            long_opts, NULL))
+          != -1)
+     {
+@@ -981,6 +987,17 @@ main (int argc, char **argv)
+           copy_contents = true;
+           break;
+ 
++        case 'c':
++          fprintf (stderr, "%s: warning: option '-c' is deprecated, please use '--preserve=context' instead\n", argv[0]);
++          if ( x.set_security_context ) { 
++              (void) fprintf(stderr, "%s: cannot force target context and preserve it\n", argv[0]);
++             exit( 1 );
++           }
++           else if (selinux_enabled) {
++              x.preserve_security_context = true;
++              x.require_preserve_context = true;
++           }
++          break;
+         case 'd':
+           x.preserve_links = true;
+           x.dereference = DEREF_NEVER;
+diff -urNp coreutils-8.21-orig/src/id.c coreutils-8.21/src/id.c
+--- coreutils-8.21-orig/src/id.c	2013-01-31 01:46:24.000000000 +0100
++++ coreutils-8.21/src/id.c	2013-02-15 14:31:58.946469154 +0100
+@@ -106,7 +106,7 @@ int
+ main (int argc, char **argv)
+ {
+   int optc;
+-  int selinux_enabled = (is_selinux_enabled () > 0);
++  bool selinux_enabled = (is_selinux_enabled () > 0);
+   bool smack_enabled = is_smack_enabled ();
+   bool opt_zero = false;
+   char *pw_name = NULL;
+diff -urNp coreutils-8.21-orig/src/install.c coreutils-8.21/src/install.c
+--- coreutils-8.21-orig/src/install.c	2013-02-07 10:37:05.000000000 +0100
++++ coreutils-8.21/src/install.c	2013-02-15 14:31:58.948469440 +0100
+@@ -639,7 +640,7 @@ In the 4th form, create all components o
+   -v, --verbose       print the name of each directory as it is created\n\
+ "), stdout);
+       fputs (_("\
+-      --preserve-context  preserve SELinux security context\n\
++  -P, --preserve-context  preserve SELinux security context (-P deprecated)\n\
+   -Z                      set SELinux security context of destination\n\
+                             file to default type\n\
+       --context[=CTX]     like -Z, or if CTX is specified then set the\n\
+@@ -782,7 +783,7 @@ main (int argc, char **argv)
+      we'll actually use backup_suffix_string.  */
+   backup_suffix_string = getenv ("SIMPLE_BACKUP_SUFFIX");
+ 
+-  while ((optc = getopt_long (argc, argv, "bcCsDdg:m:o:pt:TvS:Z", long_options,
++  while ((optc = getopt_long (argc, argv, "bcCsDdg:m:o:pPt:TvS:Z", long_options,
+                               NULL)) != -1)
+     {
+       switch (optc)
+@@ -853,6 +854,8 @@ main (int argc, char **argv)
+           no_target_directory = true;
+           break;
+ 
++        case 'P':
++          fprintf (stderr, "%s: warning: option '-P' is deprecated, please use '--preserve-context' instead\n", argv[0]);
+         case PRESERVE_CONTEXT_OPTION:
+           if (! selinux_enabled)
+             {
+@@ -860,6 +862,10 @@ main (int argc, char **argv)
+                              "this kernel is not SELinux-enabled"));
+               break;
+             }
++          if ( x.set_security_context ) {
++             (void) fprintf(stderr, "%s: cannot force target context and preserve it\n", argv[0]);
++             exit( 1 );
++          }
+           x.preserve_security_context = true;
+           use_default_selinux_context = false;
+           break;

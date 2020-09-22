@@ -1,0 +1,22 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sddm-theme-breeze
+pkgver=5.19.1
+pkgrel=1
+pkgdesc='Breeze theme for sddm extracted from plasma workspace'
+arch=('x86_64')
+arch=('x11-themes')
+url='http://github.com/sddm/sddm'
+license=('GPL')
+depends=('qt5-declarative')
+makedepends=('sddm' 'breeze' 'qt5-tools')
+install="${pkgname}.install"
+
+package() {
+    mkdir -p "${pkgdir}"/usr/share/sddm/themes
+    cp -a breeze "${pkgdir}"/usr/share/sddm/themes/breeze
+    # cp -a /usr/share/sddm/themes/breeze "${pkgdir}"/usr/share/sddm/themes/breeze
+}

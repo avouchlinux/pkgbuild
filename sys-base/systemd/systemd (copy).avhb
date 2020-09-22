@@ -1,0 +1,251 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=systemd
+pkgname=('systemd' 'libsystemd' 'systemd-resolvconf' 'systemd-sysvcompat')
+pkgver=245
+pkgrel=1
+arch=('x86_64')
+groups=('sys-base')
+url='https://www.github.com/systemd/systemd'
+makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
+             'intltool' 'iptables' 'kmod' 'libcap' 'libidn2' 'libgcrypt'
+             'libmicrohttpd' 'libxslt' 'util-linux' 'linux-api-headers'
+             'python-lxml' 'quota-tools' 'shadow' 'gnu-efi-libs' 'git'
+             'meson' 'libseccomp' 'pcre2' 'audit' 'kexec-tools' 'libxkbcommon'
+             'bash-completion')
+options=('strip')
+source=("git://github.com/systemd/systemd.git#tag=v$pkgver"
+        'avouch.conf'
+        'loader.conf'
+        'splash-avouch.bmp')
+validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
+              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+
+#_gitbranch=243
+#_comit=7a6d834c0104304f506852eddc25b22e1ce65e3b
+
+if [ -n "${_gitbranch}" ]; then	
+	_basedir=${pkgname}
+else
+	_basedir=${pkgname}-${pkgver}
+fi
+
+
+getsrc() {
+	cd ${srcdir}	
+	#git clone --depth 1 --branch v$pkgver git://github.com/systemd/systemd.git
+}
+
+pkgver() {
+	#cd "${srcdir}/${_basedir}"
+	#cd "${srcdir}/${pkgbase}-${pkgver}"
+  cd "systemd-$_comit"
+	echo "$(git describe --tags)" | sed -e 's|v||g'
+}
+
+prepare() {
+    #cd "${srcdir}/${_basedir}"
+    cd "systemd-$pkgver"
+
+    # Replace cdrom/dialout/tape groups with optical/uucp/storage
+    patch -Np1 -i ../0001-Use-Avouch-Linux-device-access-groups.patch
+    # patch -Np1 -i ../0998-resolved-create-etc-resolv.conf-symlink-at-runtime.patch
+}
+
+build() {
+    cd "${srcdir}"
+    local _timeservers=({0..3}.avouch.pool.ntp.org)
+
+    local _nameservers=(
+    # We use these public name services, ordered by their
+    # privacy policy (hopefully):
+    #  * Cloudflare (https://1.1.1.1/)
+    #  * Quad9 without filtering (https://www.quad9.net/)
+    #  * Google (https://developers.google.com/speed/public-dns/)
+    1.1.1.1
+    9.9.9.10
+    8.8.8.8
+    2606:4700:4700::1111
+    2620:fe::10
+    2001:4860:4860::8888
+  )
+  
+    #export LDFLAGS="$LDFLAGS -lrt"
+    local meson_options=(
+    -Dversion-tag="${pkgver}-${pkgrel}-avouch"
+    -Daudit=true
+    -Dgnu-efi=true
+    -Dima=true
+    -Dlibidn2=true
+    -Dlz4=true
+    -Db_lto=true
+
+    -Ddbuspolicydir=/usr/share/dbus-1/system.d
+    -Ddefault-locale=C
+    -Ddefault-hierarchy=unified
+    -Ddefault-kill-user-processes=false
+    -Dfallback-hostname='avouch'
+    -Dntp-servers="${_timeservers[*]}"
+    -Ddns-servers="${_nameservers[*]}"
+    -Drpmmacrosdir=no
+    -Dsysvinit-path=
+    -Dsysvrcnd-path=
+  )
+
+    avouch-meson "systemd-$pkgver" build "${meson_options[@]}"
+
+    ninja -C build
+}
+
+
+package_systemd() {
+  pkgdesc="system and service manager"
+  license=('GPL2' 'LGPL2.1')
+  depends=('acl' 'bash' 'cryptsetup' 'dbus' 'iptables' 'kbd' 'kmod' 'hwids' 'libcap'
+           'libgcrypt' 'libsystemd' 'libidn' 'lz4' 'pam' 'libelf' 'libseccomp'
+           'util-linux' 'xz')
+  provides=('nss-myhostname' "systemd-tools=$pkgver" "udev=$pkgver")
+  replaces=('nss-myhostname' 'systemd-tools' 'udev')
+  conflicts=('nss-myhostname' 'systemd-tools' 'udev')
+  optdepends=('libmicrohttpd: remote journald capabilities'
+              'quota-tools: kernel-level quota management'
+              'systemd-sysvcompat: symlink package to provide sysvinit binaries'
+              'polkit: allow administration as unprivileged user')
+  backup=(etc/pam.d/systemd-user
+          etc/systemd/coredump.conf
+          etc/systemd/journald.conf
+          etc/systemd/journal-remote.conf
+          etc/systemd/journal-upload.conf
+          etc/systemd/logind.conf
+          etc/systemd/system.conf
+          etc/systemd/timesyncd.conf
+          etc/systemd/resolved.conf
+          etc/systemd/user.conf
+          etc/udev/udev.conf)
+  install="systemd.install"
+
+	DESTDIR="$pkgdir" ninja -C build install
+
+  # runtime libraries shipped with libsystemd
+  install -dm755 libsystemd
+  mv "$pkgdir"/usr/lib/lib{nss,systemd,udev}*.so* libsystemd
+
+  # manpages shipped with systemd-sysvcompat
+  rm "$pkgdir"/usr/share/man/man8/{halt,poweroff,reboot,runlevel,shutdown,telinit}.8
+
+  # executable (symlinks) shipped with systemd-sysvcompat
+  rm "$pkgdir"/usr/bin/{halt,init,poweroff,reboot,runlevel,shutdown,telinit}
+
+  # files shipped with systemd-resolvconf
+  rm "$pkgdir"/usr/{bin/resolvconf,share/man/man1/resolvconf.1}
+
+   # avoid a potential conflict with [core]/filesystem
+  rm "$pkgdir"/usr/share/factory/etc/{issue,nsswitch.conf}
+  sed -i -e '/^C \/etc\/nsswitch\.conf/d' \
+    -e '/^C \/etc\/issue/d' "$pkgdir"/usr/lib/tmpfiles.d/etc.conf
+
+	# add back tmpfiles.d/legacy.conf
+	install -m644 "${_basedir}/tmpfiles.d/legacy.conf" "$pkgdir/usr/lib/tmpfiles.d"
+
+	# ensure proper permissions for /var/log/journal. This is only to placate
+	chown root:systemd-journal "$pkgdir/var/log/journal"
+	chmod 2755 "$pkgdir/var/log/journal"
+
+	# match directory owner/group and mode from extra/polkit
+	chown root:70 "$pkgdir"/usr/share/polkit-1/rules.d
+	chmod 0750     "$pkgdir"/usr/share/polkit-1/rules.d
+
+	# overwrite the systemd-user PAM configuration with our own
+	install -Dm644 $srcdir/systemd-user.pam "$pkgdir/etc/pam.d/systemd-user"
+	
+	# add example bootctl configuration
+	install -Dm644 "$srcdir/avouch.conf" "$pkgdir"/usr/share/systemd/bootctl/avouch.conf
+	install -Dm644 "$srcdir/loader.conf" "$pkgdir"/usr/share/systemd/bootctl/loader.conf
+	install -Dm644 "$srcdir/splash-avouch.bmp" "$pkgdir"/usr/share/systemd/bootctl/splash-avouch.bmp
+
+	sed -i 's/L+/#/' $pkgdir/usr/lib/tmpfiles.d/etc.conf
+
+	install -m 0644 "$srcdir"/sysctl.conf.README $pkgdir/etc/sysctl.conf
+	ln -s ../sysctl.conf $pkgdir/etc/sysctl.d/99-sysctl.conf
+
+	# Install Avouch default preset policy
+	mkdir -p  $pkgdir/usr/lib/systemd/system-preset/
+	mkdir -p  $pkgdir/usr/lib/systemd/user-preset/
+	install -m 0644 $srcdir/90-default.preset $pkgdir/usr/lib/systemd/system-preset/
+	
+	# ship default policy to leave services disabled
+	install -m 0644 $srcdir/99-default-disable.preset $pkgdir/usr/lib/systemd/system-preset/
+	install -m 0644 $srcdir/85-display-manager.preset $pkgdir/usr/lib/systemd/system-preset/
+
+	mkdir -vp $pkgdir/usr/lib/firewalld/services/
+	install -Dm0644 $srcdir/systemd-journal-remote.xml $pkgdir/usr/lib/firewalld/services/
+	install -Dm0644 $srcdir/systemd-journal-gatewayd.xml $pkgdir/usr/lib/firewalld/services/
+
+	# Make sure directories in /var exist
+	mkdir -p $pkgdir/var/lib/systemd/coredump
+	mkdir -p $pkgdir/var/lib/systemd/catalog
+	mkdir -p $pkgdir/var/lib/systemd/backlight
+	mkdir -p $pkgdir/var/lib/systemd/rfkill
+	mkdir -p $pkgdir/var/log/journal
+	touch $pkgdir/etc/udev/hwdb.bin
+	touch $pkgdir/var/lib/systemd/catalog/database
+	touch $pkgdir/var/lib/systemd/random-seed
+	touch $pkgdir/var/lib/systemd/clock
+
+	### manpages shipped with systemd-sysvcompat
+	rm "$pkgdir"/usr/share/man/man8/{telinit,halt,reboot,poweroff,runlevel,shutdown}.8
+	
+	# allow core/filesystem to pristine nsswitch.conf
+	rm "$pkgdir/usr/share/factory/etc/nsswitch.conf"
+	sed -i '/^C \/etc\/nsswitch\.conf/d' "$pkgdir/usr/lib/tmpfiles.d/etc.conf"
+	  
+	# include MIT license, since it's technically custom
+	install -Dm644 "$srcdir/$pkgname-$pkgver/LICENSE.LGPL2.1" \
+	"$pkgdir/usr/share/licenses/systemd/LICENSE"
+
+}
+
+package_libsystemd() {
+    pkgdesc="systemd client libraries"
+    depends=('glibc' 'libcap' 'libgcrypt' 'lz4' 'xz')
+    license=('GPL2')
+    provides=('libsystemd.so' 'libudev.so')
+
+    install -dm755 "$pkgdir"/usr
+    mv libsystemd "$pkgdir"/usr/lib
+}
+
+package_systemd-resolvconf() {
+  pkgdesc='systemd resolvconf replacement'
+  license=('GPL2')
+  depends=('systemd')
+  provides=('openresolv' 'resolvconf')
+  conflicts=('openresolv')
+
+  install -d -m0755 "$pkgdir"/usr/bin
+  ln -s resolvectl "$pkgdir"/usr/bin/resolvconf
+
+  install -d -m0755 "$pkgdir"/usr/share/man/man1
+  ln -s resolvectl.1.gz "$pkgdir"/usr/share/man/man1/resolvconf.1.gz
+}
+
+package_systemd-sysvcompat() {
+    pkgdesc="sysvinit compat for systemd"
+    license=('GPL2')
+    groups=('base')
+    conflicts=('sysvinit')
+    depends=('systemd')
+
+    install -Dm644 -t "$pkgdir"/usr/share/man/man8 \
+        build/man/{telinit,halt,reboot,poweroff,runlevel,shutdown}.8
+
+    install -dm755 "$pkgdir/usr/bin"
+    for tool in runlevel reboot shutdown poweroff halt telinit; do
+        ln -s 'systemctl' "$pkgdir/usr/bin/$tool"
+    done
+
+    ln -s '../lib/systemd/systemd' "$pkgdir/usr/bin/init"
+}

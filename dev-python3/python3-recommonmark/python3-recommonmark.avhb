@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-recommonmark
+_realname=recommonmark
+pkgver=0.6.0
+pkgrel=1
+pkgdesc='Markdown parser for docutils'
+arch=('any')
+groups=('dev-python3')
+url='https://github.com/rtfd/recommonmark'
+license=('MIT')
+depends=('python3-docutils' 'python3-commonmark' 'python3-setuptools' 'python3-sphinx')
+makedepends=('python3-setuptools' 'python3-commonmark' 'python3-docutils' 'python3-sphinx')
+checkdepends=('python3-pytest')
+source=("https://pypi.io/packages/source/r/$_realname/$_realname-${pkgver}.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-net-http
+_realname=Net-HTTP
+pkgver=6.06
+pkgrel=1
+pkgdesc="Low-level HTTP connection (client)"
+arch=(any)
+url=http://search.cpan.org/dist/Net-HTTP
+license=(PerlArtistic GPL)
+options=(!emptydirs)
+depends=('perl')
+conflicts=('perl-libwww')
+source=("http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/Net-HTTP-${pkgver}.tar.gz")
+md5sums=('6e74d76205f168775de68347266793a7')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export PERL_MM_USE_DEFAULT=1 PERL5LIB=""
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+

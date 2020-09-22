@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xbitmaps
+pkgver=1.1.2
+pkgrel=1
+pkgdesc="X.org Bitmap files"
+arch=('any')
+groups=('x11-misc')
+repo=('core')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+makedepends=('xorg-util-macros')
+source=(${url}/releases/individual/data/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

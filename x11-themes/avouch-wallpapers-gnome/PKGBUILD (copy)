@@ -1,0 +1,62 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avouch-wallpapers-gnome
+_realname=avouch-wallpapers
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="Default wallpapers for Avouch Linux"
+arch=('any')
+groups=('media-grafix')
+url="https://avouch.org"
+license=('GPL')
+depends=()
+makedepends=()
+source=(https://avouch.org)
+sha256sums=()
+
+package() {
+  mkdir -p $pkgdir/usr/share/backgrounds/gnome
+  mkdir -p $pkgdir/usr/share/gnome-background-properties
+  cp -r $_realname-$pkgver/geometric_art-wallpaper-3840x2160.jpg \
+    $pkgdir/usr/share/backgrounds/gnome/geometric_art.jpg
+  cp gnome-backgrounds.xml \
+    $pkgdir/usr/share/gnome-background-properties/gnome-backgrounds.xml
+
+
+# Create the user profile
+mkdir -p ${pkgdir}/etc/dconf/profile
+cat > ${pkgdir}/etc/dconf/profile/user << "EOF"
+user-db:user
+system-db:local
+EOF
+
+# Create the key file
+mkdir -p ${pkgdir}/etc/dconf/db/local.d/
+cat > ${pkgdir}/etc/dconf/db/local.d/00-background << "EOF"
+# Specify the dconf path
+[org/gnome/desktop/background]
+
+# Specify the path to the desktop background image file
+picture-uri='file:///usr/share/backgrounds/gnome/geometric_art.jpg'
+
+# Specify one of the rendering options for the background image:
+picture-options='zoom'
+
+# Specify the left or top color when drawing gradients, or the solid color
+primary-color='000000'
+
+# Specify the right or bottom color when drawing gradients
+secondary-color='FFFFFF'
+EOF
+
+  #echo '  <wallpaper deleted="false">'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  <name>Wood</name>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  <filename>/usr/share/backgrounds/gnome/Wood.jpg</filename>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  <options>zoom</options>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  <pcolor>#ffffff</pcolor>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  <scolor>#000000</scolor>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  </wallpaper>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+  #echo '  </wallpapers>'>> "${pkgdir}/usr/share/gnome-background-properties/gnome-backgrounds.xml"
+}

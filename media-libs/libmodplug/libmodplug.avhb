@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmodplug
+pkgver=0.8.9.0
+pkgrel=1
+pkgdesc="A MOD playing library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://modplug-xmms.sourceforge.net/"
+license=('custom')
+depends=('gcc-libs')
+source=(http://downloads.sourceforge.net/modplug-xmms/${pkgname}-${pkgver}.tar.gz
+        libmodplug-CVE-2013-4233-Fix.patch libmodplug-CVE-2013-4234-Fix.patch)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

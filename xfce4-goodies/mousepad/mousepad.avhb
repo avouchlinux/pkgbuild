@@ -1,0 +1,34 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mousepad
+pkgver=0.4.2
+pkgrel=1
+pkgdesc="A simple text editor for the Xfce"
+arch=('x86_64')
+groups=('xfce4-goodies')
+url="https://www.xfce.org/"
+license=('GPL2')
+depends=('gtksourceview3' 'dbus-glib' 'desktop-file-utils')
+makedepends=('intltool' 'perl')
+source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--libexecdir=/usr/lib/xfce4 \
+		--localstatedir=/var \
+		--disable-static \
+		--disable-debug \
+		--enable-gtk3
+  	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

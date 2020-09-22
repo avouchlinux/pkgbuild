@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfce4-whiskermenu-plugin
+pkgver=2.4.6
+pkgrel=1
+pkgdesc='Menu for Xfce4'
+arch=('x86_64')
+groups=('xfce4-goodies')
+url='https://gottcode.org/xfce4-whiskermenu-plugin/'
+license=('GPL2')
+depends=('garcon' 'xfce4-panel' 'gtk3>=3.22')
+makedepends=('cmake' 'ninja')
+source=("http://archive.be.xfce.org/src/panel-plugins/xfce4-whiskermenu-plugin/${pkgver%.*}/xfce4-whiskermenu-plugin-$pkgver.tar.bz2") # no https available
+
+build() {
+	cmake -S "${pkgname}-${pkgver}" -B build -G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=/usr/lib
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" ninja -C build install
+}

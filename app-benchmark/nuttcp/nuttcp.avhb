@@ -1,0 +1,25 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nuttcp
+pkgver=8.2.2
+pkgrel=1
+pkgdesc="TCP/UDP network testing tool - simple, easy to use, with interesting feature set."
+arch=('x86_64')
+groups=('app-benchmark')
+url="http://www.lcp.nrl.navy.mil/nuttcp/"
+license=('GPL')
+depends=('glibc')
+install=nuttcp.install
+source=(http://nuttcp.net/nuttcp/nuttcp-${pkgver}/nuttcp.c)
+
+build() {
+  cd $srcdir
+  cc nuttcp.c -o nuttcp
+}
+
+package() {
+  install -D -m0755 -o0 -g0 nuttcp $pkgdir/usr/bin/nuttcp
+}

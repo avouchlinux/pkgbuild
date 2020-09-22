@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfce4-screensaver
+pkgver=0.1.10
+pkgrel=1
+pkgdesc='Xfce Screensaver'
+arch=('x86_64')
+groups=('xfce4-goodies')
+url='https://docs.xfce.org/apps/screensaver/start'
+license=('GPL2')
+depends=('libxss' 'libxklavier' 'libwnck3' 'garcon' 'dbus-glib' 'python' 'python-gobject')
+makedepends=('intltool')
+source=("https://archive.xfce.org/src/apps/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --libexecdir=/usr/lib \
+    --localstatedir=/var \
+    --disable-static \
+    --disable-debug
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+}

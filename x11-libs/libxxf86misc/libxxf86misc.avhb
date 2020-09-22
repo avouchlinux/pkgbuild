@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libxxf86misc
+_realname=libXxf86misc
+pkgver=1.0.4
+pkgrel=1
+pkgdesc="X11 XFree86 video mode extension library"
+arch=('x86_64')
+groups=('x11-libs')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('libxext' 'xf86vidmodeproto')
+makedepends=('xorg-util-macros')
+source=(${url}/releases/individual/lib/libXxf86vm-${pkgver}.tar.bz2)
+sha256sums=('da5e86c32ee2069b9e6d820e4c2e4242d4877cb155a2b2fbf2675a1480ec37b8')
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --sysconfdir=/etc --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -1,0 +1,65 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fftw
+pkgver=3.3.8
+pkgrel=1
+pkgdesc="A library for computing the discrete Fourier transform (DFT)"
+arch=('x86_64')
+groups=('sys-base')
+license=('GPL2')
+url="http://www.fftw.org/"
+depends=('glibc' 'bash')
+makedepends=('gcc-fortran')
+source=("http://www.fftw.org/${pkgname}-${pkgver}.tar.gz")
+install=fftw.install
+sha1sums=('11487180928d05746d431ebe7a176b52fe205cf9')
+
+# notes:
+# http://www.fftw.org/fftw2_doc/fftw_6.html#SEC69
+# http://www.fftw.org/faq/section2.html#singleprec
+# http://www.fftw.org/fftw3_doc/Precision.html#Precision
+
+prepare() {
+	cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-double
+	cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-long-double
+	mv ${pkgname}-${pkgver} ${pkgname}-${pkgver}-single
+}
+
+build() {
+
+	# use upstream default CFLAGS while keeping our -march/-mtune
+	CFLAGS+=" -O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math"
+
+	CONFIGURE="./configure F77=gfortran --prefix=/usr \
+	--enable-shared --enable-threads --enable-openmp"
+
+	# build double precision
+	cd ${srcdir}/${pkgname}-${pkgver}-double
+	$CONFIGURE --enable-sse2 --enable-avx
+    make ${MAKEFLAGS}
+
+	# build & install long double precission
+	cd ${srcdir}/${pkgname}-${pkgver}-long-double
+	$CONFIGURE --enable-long-double
+    make ${MAKEFLAGS}
+
+	# build & install single precision
+	cd ${srcdir}/${pkgname}-${pkgver}-single
+	$CONFIGURE --enable-float --enable-sse --enable-avx
+    make ${MAKEFLAGS}
+
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}-double
+	make DESTDIR=${pkgdir} install
+
+	cd ${srcdir}/${pkgname}-${pkgver}-long-double
+	make DESTDIR=${pkgdir} install
+
+	cd ${srcdir}/${pkgname}-${pkgver}-single
+	make DESTDIR=${pkgdir} install
+}
+

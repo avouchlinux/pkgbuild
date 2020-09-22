@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-icu
+_realname=icu4c
+pkgver=66.1
+pkgrel=1
+pkgdesc="International Components for Unicode library (32 bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.icu-project.org/"
+license=('custom:icu')
+depends=('lib32-gcc-libs' 'icu')
+makedepends=('gcc-multilib')
+source=(http://download.icu-project.org/files/icu4c/${pkgver}/icu4c-${pkgver//./_}-src.tgz
+        'icu.8198.revert.icu5431.patch')
+md5sums=('9e96ed4c1d99c0d14ac03c140f9f346c'
+         'ebd5470fc969c75e52baf4af94a9ee82')
+
+build() {
+	cd "${srcdir}/icu/source"
+
+	export CC='gcc -m32'
+	export CXX='g++ -m32'
+	export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--mandir=/usr/share/man --libdir=/usr/lib32
+    make ${MAKEFLAGS}
+}
+
+check() {
+	cd icu/source
+	# some tests are broken when crossbuilding i686
+	if [ "$CARCH" = "x86_64" ]; then
+		make -k check
+	else
+		make -k check || /bin/true
+	fi
+}
+
+package() {
+	cd "${srcdir}/icu/source"
+	make -j1 DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}/usr"/{include,sbin,share}
+
+	# keep icu-config-32
+	find "${pkgdir}/usr/bin" -type f -not -name icu-config -delete
+	mv "${pkgdir}/usr/bin"/icu-config{,-32}
+}

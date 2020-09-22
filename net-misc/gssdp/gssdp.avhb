@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gssdp
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="A GObject-based API for handling resource discovery and announcement over SSDP"
+url="https://wiki.gnome.org/Projects/GUPnP"
+arch=('x86_64')
+groups=('net-misc')
+license=(LGPL)
+depends=(libsoup)
+makedepends=(gobject-introspection gtk-doc vala meson git gtk3)
+optdepends=('gtk3: gssdp-device-sniffer')
+source=("https://gitlab.gnome.org/GNOME/gssdp/-/archive/gssdp-$pkgver/gssdp-gssdp-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgname-$pkgver build -D gtk_doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

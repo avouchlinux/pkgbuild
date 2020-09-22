@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ifenslave
+pkgver=1.1.0
+pkgrel=1
+pkgdesc='Utility for bonding ethernet interfaces'
+url='http://www.linuxfoundation.org/en/Net:Bonding'
+arch=('x86_64')
+groups=('net-misc')
+license=('GPL2')
+makedepends=('linux-api-headers')
+source=(ifenslave.c::'http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob_plain;f=Documentation/networking/ifenslave.c;h=450faacc')
+
+build() {
+	cd "${srcdir}"
+	gcc -Wall -Wstrict-prototypes ${CFLAGS} ${LDFLAGS} ifenslave.c -o ifenslave
+}
+
+package() {
+	cd "${srcdir}"
+	install -Dm755 ifenslave "${pkgdir}"/usr/bin/ifenslave
+}
+

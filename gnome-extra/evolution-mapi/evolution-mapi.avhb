@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=evolution-mapi
+pkgver=3.36.2
+pkgrel=1
+pkgdesc="MAPI plugin for evolution."
+arch=('x86_64')
+groups=('gnome-extra')
+url="http://www.gnome.org"
+license=('GPL3')
+depends=("evolution" "openchange")
+makedepends=("intltool")
+source=(http://ftp.gnome.org/pub/gnome/sources/evolution-mapi/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz
+        auto_reconnection.patch)
+
+build() {
+  cmake -H$pkgname-$pkgver -Bbuild \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIBEXEC_INSTALL_DIR=/usr/lib \
+    -DSYSCONF_INSTALL_DIR=/etc
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --build build --target install
+}

@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=latte-dock
+pkgver=0.9.9
+pkgrel=1
+pkgdesc='A dock based on Plasma Frameworks'
+arch=('x86_64')
+groups=('kde-apps')
+repo=('extra')
+url='https://store.kde.org/p/1169519/'
+license=(GPL)
+depends=(plasma-framework knewstuff hicolor-icon-theme)
+makedepends=(extra-cmake-modules)
+source=("https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(325E97C32E601F5D4EADCF3A55999050A2D9110E) # Michail Vourlakos (mvourlakos) <mvourlakos@gmail.com>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+
+  make DESTDIR="$pkgdir" install
+}

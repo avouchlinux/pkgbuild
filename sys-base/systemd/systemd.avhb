@@ -1,0 +1,185 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=systemd
+pkgver=246
+pkgrel=1
+pkgdesc="system and service manager"
+arch=('x86_64')
+groups=('sys-base')
+url='https://www.github.com/systemd/systemd'
+license=('GPL2' 'LGPL2.1')
+makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
+             'intltool' 'iptables' 'kmod' 'libcap' 'libidn2' 'libgcrypt'
+             'libmicrohttpd' 'libxslt' 'util-linux' 'linux-api-headers'
+             'python-lxml' 'quota-tools' 'shadow' 'gnu-efi-libs' 'git'
+             'meson' 'libseccomp' 'pcre2' 'audit' 'kexec-tools' 'libxkbcommon'
+             'bash-completion') 
+depends=('acl' 'bash' 'cryptsetup' 'dbus' 'iptables' 'kbd' 'kmod' 'hwids' 'libcap'
+           'libgcrypt' 'systemd-libs' 'libidn2' 'libidn2.so' 'lz4' 'pam' 'libelf'
+           'libseccomp' 'util-linux' 'xz' 'pcre2' 'audit' 'libp11-kit')
+optdepends=('libmicrohttpd: remote journald capabilities'
+              'quota-tools: kernel-level quota management'
+              'systemd-sysvcompat: symlink package to provide sysvinit binaries'
+              'polkit: allow administration as unprivileged user'
+              'curl: machinectl pull-tar and pull-raw')
+  backup=(etc/pam.d/systemd-user
+          etc/systemd/coredump.conf
+          etc/systemd/journald.conf
+          etc/systemd/journal-remote.conf
+          etc/systemd/journal-upload.conf
+          etc/systemd/logind.conf
+          etc/systemd/system.conf
+          etc/systemd/timesyncd.conf
+          etc/systemd/resolved.conf
+          etc/systemd/user.conf
+          etc/udev/udev.conf)
+  install="systemd.install"
+options=('strip')
+source=("git://github.com/systemd/systemd.git#tag=v$pkgver"
+        'avouch.conf'
+        'loader.conf'
+        'splash-avouch.bmp')
+validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
+              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+
+_gitbranch=246
+#_comit=7a6d834c0104304f506852eddc25b22e1ce65e3b
+
+if [ -n "${_gitbranch}" ]; then	
+	_basedir=${pkgname}
+else
+	#_basedir=${pkgname}-${pkgver}
+  _basedir=systemd-stable-$pkgver.5
+fi
+
+
+getsrc() {
+	cd ${srcdir}	
+	#git clone --depth 1 --branch v$pkgver git://github.com/systemd/systemd.git
+}
+
+pkgver() {
+	#cd "${srcdir}/${_basedir}"
+	#cd "${srcdir}/${pkgbase}-${pkgver}"
+  cd ${_basedir}
+	echo "$(git describe --tags)" | sed -e 's|v||g'
+}
+
+prepare() {
+    #cd "${srcdir}/${_basedir}"
+    cd ${_basedir}
+
+    # Replace cdrom/dialout/tape groups with optical/uucp/storage
+    patch -Np1 -i ../0001-Use-Avouch-Linux-device-access-groups.patch
+    # Make homed/userdbd/repart services installable (to allow uninstalling)
+    #patch -Np1 -i ../0002-make-homed-userdbd-repart-services-installable.patch
+    # It causes flooding of dmesg and syslog, suppressing actually important messages.
+    patch -Np1 -i ../gentoo-journald-audit.patch
+}
+
+build() {
+    cd "${srcdir}"
+    local _timeservers=({0..3}.avouch.pool.ntp.org)
+
+    local _nameservers=(
+    # We use these public name services, ordered by their
+    # privacy policy (hopefully):
+    #  * Cloudflare (https://1.1.1.1/)
+    #  * Quad9 without filtering (https://www.quad9.net/)
+    #  * Google (https://developers.google.com/speed/public-dns/)
+    1.1.1.1
+    9.9.9.10
+    8.8.8.8
+    2606:4700:4700::1111
+    2620:fe::10
+    2001:4860:4860::8888
+  )
+  
+    #export LDFLAGS="$LDFLAGS -lrt"
+    local meson_options=(
+    -Dversion-tag="${pkgver}-${pkgrel}-avouch"
+    -Daudit=true
+    -Dgnu-efi=true
+    -Dima=true
+    -Dlibidn2=true
+    -Dlz4=true
+    -Db_lto=true
+    -Dman=true
+
+    -Ddbuspolicydir=/usr/share/dbus-1/system.d
+    -Ddefault-locale=C
+    -Ddefault-hierarchy=unified
+    -Ddefault-kill-user-processes=false
+    -Dfallback-hostname='avouch'
+    -Dntp-servers="${_timeservers[*]}"
+    -Ddns-servers="${_nameservers[*]}"
+    -Drpmmacrosdir=no
+    -Dsysvinit-path=
+    -Dsysvrcnd-path=
+  )
+
+    avouch-meson ${_basedir} build "${meson_options[@]}"
+
+    ninja -C build
+}
+
+package() {
+
+	DESTDIR="$pkgdir" ninja -C build install
+
+  # avoid a potential conflict with [sys-base]/filesystem
+  rm "$pkgdir"/usr/share/factory/etc/issue
+  sed -i -e '/^C \/etc\/issue/d' "$pkgdir"/usr/lib/tmpfiles.d/etc.conf
+
+  # install avouch provided nsswitch.conf
+  rm "$pkgdir"/usr/share/factory/etc/nsswitch.conf
+  install -D -m0644 nsswitch.conf "$pkgdir"/usr/share/factory/etc/nsswitch.conf
+
+  # add back tmpfiles.d/legacy.conf
+	install -m644 "${_basedir}/tmpfiles.d/legacy.conf" "$pkgdir/usr/lib/tmpfiles.d"
+
+	# ensure proper permissions for /var/log/journal. This is only to placate
+	chown root:systemd-journal "$pkgdir/var/log/journal"
+	chmod 2755 "$pkgdir/var/log/journal"
+
+	# match directory owner/group and mode from extra/polkit
+	chown root:70 "$pkgdir"/usr/share/polkit-1/rules.d
+	chmod 0750     "$pkgdir"/usr/share/polkit-1/rules.d
+
+	# overwrite the systemd-user PAM configuration with our own
+	install -Dm644 $srcdir/systemd-user.pam "$pkgdir/etc/pam.d/systemd-user"
+	
+	# add example bootctl configuration
+	install -Dm644 "$srcdir/avouch.conf" "$pkgdir"/usr/share/systemd/bootctl/avouch.conf
+	install -Dm644 "$srcdir/loader.conf" "$pkgdir"/usr/share/systemd/bootctl/loader.conf
+	install -Dm644 "$srcdir/splash-avouch.bmp" "$pkgdir"/usr/share/systemd/bootctl/splash-avouch.bmp
+
+	#sed -i 's/L+/#/' $pkgdir/usr/lib/tmpfiles.d/etc.conf
+
+	install -m 0644 "$srcdir"/sysctl.conf.README $pkgdir/etc/sysctl.conf
+	ln -s ../sysctl.conf $pkgdir/etc/sysctl.d/99-sysctl.conf
+
+	mkdir -vp $pkgdir/usr/lib/firewalld/services/
+	install -Dm0644 $srcdir/systemd-journal-remote.xml $pkgdir/usr/lib/firewalld/services/
+	install -Dm0644 $srcdir/systemd-journal-gatewayd.xml $pkgdir/usr/lib/firewalld/services/
+
+	# Make sure directories in /var exist
+	mkdir -p $pkgdir/var/lib/systemd/coredump
+	mkdir -p $pkgdir/var/lib/systemd/catalog
+	mkdir -p $pkgdir/var/lib/systemd/backlight
+	mkdir -p $pkgdir/var/lib/systemd/rfkill
+	mkdir -p $pkgdir/var/log/journal
+	touch $pkgdir/etc/udev/hwdb.bin
+	touch $pkgdir/var/lib/systemd/catalog/database
+	touch $pkgdir/var/lib/systemd/random-seed
+	touch $pkgdir/var/lib/systemd/clock
+
+
+	# include MIT license, since it's technically custom
+	install -Dm644 "${_basedir}/LICENSE.LGPL2.1" \
+	"$pkgdir/usr/share/licenses/systemd/LICENSE"
+
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pysolfc
+_realname=PySolFC
+pkgver=2.4.0
+pkgrel=1
+pkgdesc="PySol (Fan Club edition) is an exciting collection of more than 1000 solitaire games"
+arch=('any')
+groups=('games')
+url="http://pysolfc.sourceforge.net/"
+license=('GPL3')
+depends=('tk' 'pysol-sound-server' 'python-pillow' 'python-random2')
+optdepends=('pysolfc-cardsets')
+source=(https://downloads.sourceforge.net/pysolfc/PySolFC-${pkgver}.tar.xz)
+sha256sums=('44693913d841ac3d766284fa98efc55dd6b5d7b82d3e32b93e94615a7f448c35')
+
+prepare() {
+  cd PySolFC-${pkgver}
+
+  sed -i 's/pysol.py/pysol/' data/pysol.desktop
+}
+
+
+package() {
+  cd PySolFC-$pkgver
+
+  python setup.py install --root="${pkgdir}"
+  mv "${pkgdir}"/usr/bin/pysol.py "${pkgdir}"/usr/bin/pysol
+}

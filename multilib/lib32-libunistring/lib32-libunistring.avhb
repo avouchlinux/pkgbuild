@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libunistring
+pkgbase=libunistring
+pkgver=0.9.10
+pkgrel=1
+pkgdesc="Library for manipulating Unicode strings and C strings."
+url="http://www.gnu.org/software/libunistring/"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL')
+depends=('glibc')
+install=${pkgname}.install
+source=(ftp://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+md5sums=('db8eca3b64163abadf8c40e5cecc261f')
+
+build() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./configure --prefix=/usr --libdir=/usr/lib32
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

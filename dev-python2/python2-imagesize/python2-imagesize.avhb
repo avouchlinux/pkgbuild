@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-imagesize
+_realname=imagesize
+pkgver=1.2.0
+pkgrel=1
+pkgdesc='Getting image size from png/jpeg/jpeg2000/gif file'
+arch=('any')
+groups=('dev-python2')
+url='https://github.com/shibukawa/imagesize_py'
+license=('MIT')
+depends=('python2')
+makedepends=('python2-setuptools')
+source=("https://pypi.python.org/packages/53/72/6c6f1e787d9cab2cc733cf042f125abec07209a58308831c9f292504e826/imagesize-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

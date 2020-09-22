@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-gyp
+_realname=gyp
+pkgver=20191203.e87d37d6
+pkgrel=1
+pkgdesc='"Generate Your Projects" Meta-Build system'
+arch=(any)
+groups=('dev-python3')
+url="https://gyp.gsrc.io/"
+license=(custom:BSD)
+depends=(python-setuptools ninja)
+makedepends=(git)
+_commit=fcd686f1880fa52a1ee78d3e98af1b88cb334528  # changes/82/1701782/5
+source=("git+https://chromium.googlesource.com/external/gyp#commit=$_commit"
+        gyp-fix-cmake.patch gyp-python38.patch)
+
+pkgver() {
+  cd ${_realname}
+
+  # Commit date + short rev
+  echo $(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD).$(git rev-parse --short HEAD)
+}
+
+prepare() {
+  cd ${_realname}
+
+  # Python 3 fixes from Fedora
+  patch -Np1 -i ../gyp-fix-cmake.patch
+  patch -Np1 -i ../gyp-python38.patch
+}
+
+build() {
+  cd ${_realname}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

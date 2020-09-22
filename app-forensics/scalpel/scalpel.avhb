@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=scalpel
+pkgname=$_pkgname-git
+pkgver=r24.47815c2
+pkgrel=1
+pkgdesc="A frugal, high performance file carver"
+arch=('x86_64')
+groups=('app-forensics')
+url="https://github.com/sleuthkit/scalpel"
+license=('Apache')
+depends=('tre')
+makedepends=('git')
+provides=($_pkgname) 
+conflicts=($_pkgname)
+source=($pkgname::git+https://github.com/sleuthkit/scalpel)
+md5sums=('SKIP')
+
+getsrc(){
+	git clone https://github.com/sleuthkit/scalpel
+}
+pkgver() {
+  cd $_pkgname
+  printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd $_pkgname
+  sed -i 's|#define[ \t]*SCALPEL_DEFAULT_CONFIG_FILE[ \t]*"scalpel.conf"|#define SCALPEL_DEFAULT_CONFIG_FILE "/etc/scalpel/scalpel.conf"|' src/scalpel.h 
+}
+
+build() {
+  cd $_pkgname
+  ./bootstrap
+  ./configure --with-pic --prefix=/usr
+  make
+}
+
+package() {
+  cd $_pkgname
+  make DESTDIR="$pkgdir" install
+  install -Dm644 scalpel.conf "$pkgdir/etc/scalpel/scalpel.conf"
+}
+

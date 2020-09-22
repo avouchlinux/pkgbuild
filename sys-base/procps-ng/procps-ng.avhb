@@ -1,0 +1,55 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=procps-ng
+pkgver=3.3.16
+pkgrel=1
+pkgdesc='Utilities for monitoring your system and its processes'
+url='https://gitlab.com/procps-ng/procps'
+license=('GPL' 'LGPL')
+arch=('x86_64')
+groups=('sys-base')
+depends=(ncurses systemd-libs)
+makedepends=(systemd)
+install=install
+source=(https://downloads.sourceforge.net/project/$pkgname/Production/${pkgname}-${pkgver}.tar.xz)
+sha256sums=('10bd744ffcb3de2d591d2f6acf1a54a7ba070fdcc432a855931a5057149f0465')
+
+prepare() {
+  cd $pkgname-$pkgver
+  sed 's:<ncursesw/:<:g' -i watch.c
+
+  # pgrep: check sanity of SC_ARG_MAX 
+  # https://bugs.archlinux.org/task/66093
+  patch -p1 -i ../fs66093.patch
+}
+
+build() {
+	export LDFLAGS=''
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--exec-prefix=/ \
+	--sysconfdir=/etc \
+	--libdir=/usr/lib \
+	--bindir=/usr/bin \
+	--sbindir=/usr/bin \
+	--enable-watch8bit \
+	--with-systemd \
+	--disable-kill \
+
+  # Configure screipt wrongly append hadend flags
+  # temprary fix to correct hardening flags
+  # with out correction build fails as
+  # gcc: error: relro: No such file or directory
+  sed -i 's/relro/-z relro/g' Makefile
+  sed -i 's/-z -z relro/-z relro/g' Makefile
+  
+	# kill is provided by util-linux
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

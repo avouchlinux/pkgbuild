@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=katomic
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="A fun and educational game built around molecular geometry"
+url="http://kde.org/applications/games/katomic/"
+arch=('x86_64')
+groups=('kde-games')
+license=('GPL' 'LGPL' 'FDL')
+depends=('libkdegames' 'hicolor-icon-theme')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/katomic-${pkgver}.tar.xz")
+sha1sums=('b8f3526a01553b4ee8fc49db80e07fdd0aa5ac1a')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}

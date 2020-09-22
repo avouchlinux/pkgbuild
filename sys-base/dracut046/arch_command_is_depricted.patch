@@ -1,0 +1,11 @@
+--- modules.d/90crypt/module-setup.sh	2016-10-02 13:26:53.874572107 +0000
++++ ../module-setup.sh	2016-10-02 13:45:46.804566416 +0000
+@@ -25,7 +25,7 @@
+ # called by dracut
+ installkernel() {
+     hostonly="" instmods drbg
+-    arch=$(arch)
++    arch=$(uname -m)
+     [[ $arch == x86_64 ]] && arch=x86
+     instmods dm_crypt =crypto =drivers/crypto =arch/$arch/crypto
+ }

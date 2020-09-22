@@ -1,0 +1,92 @@
+########################## JDK1.7 ##############################################
+# $Id$
+# Maintainer: Jason Chu <jason@archlinux.org>
+
+pkgname=jdk
+pkgver=7u4
+pkgrel=1
+pkgdesc="Sun's Java Development Kit"
+arch=(i686 x86_64)
+  [ "${CARCH}" = "i686" ]   && ARCH=i586
+  [ "${CARCH}" = "x86_64" ] && ARCH=amd64
+url="http://java.sun.com"
+depends=('glibc' 'jre')
+install="jdk.install"
+source=(http://download.java.net/dlj/binaries/jdk-${pkgver}-dlj-linux-${ARCH}.bin
+        https://jdk-distros.dev.java.net/source/browse/*checkout*/jdk-distros/trunk/utils/construct.sh
+	jdk.profile)
+  [ "${CARCH}" = "i686" ]   && md5sums=('169c7fdf20eb37359b0f6235bd3c0ec0'
+         '94065b612df0046d9ae758943f9f6a75'
+         '7b042ff5baaf44d23a9686a043540a2b')
+  [ "${CARCH}" = "x86_64" ] && md5sums=('b94bbdefeb6c97f1799583dec49e090f'
+         '94065b612df0046d9ae758943f9f6a75'
+         '7b042ff5baaf44d23a9686a043540a2b')
+replaces=('j2sdk')
+conflicts=('java-environment' 'j2sdk')
+provides=('java-environment' 'j2sdk')
+license=('custom')
+
+################################################################################
+
+build() {
+
+tar -zxf jdk-7u4-linux-i586.tar.gz
+cd jdk1.7.0_04
+
+#mkdir unbundle-jdk
+#cd unbundle-jdk
+#sh ../jdk-${pkgver}-dlj-linux-${ARCH}.bin --accept-license
+#cd ..
+#sh construct.sh unbundle-jdk linux-jdk linux-jre
+
+
+mkdir -p ${startdir}/pkg/usr/lib/java/jdk1.7.0_04
+cp -Rvf * ${startdir}/pkg/usr/lib/java/jdk1.7.0_04
+install -D -m755 ../${pkgname}.profile ${startdir}/pkg/etc/profile.d/${pkgname}.sh
+install -D -m755 ../jexec ${pkgdir}/etc/rc.d/init.d/jexec
+
+mkdir -p $startdir/pkg/usr/share/licenses/java/jdk
+cp $startdir/pkg/usr/lib/java/jdk/COPYRIGHT $startdir/pkg/usr/share/licenses/java/jdk
+cp $startdir/pkg/usr/lib/java/jdk/LICENSE $startdir/pkg/usr/share/licenses/java/jdk
+cp $startdir/pkg/usr/lib/java/jdk/THIRDPARTYLICENSEREADME.txt $startdir/pkg/usr/share/licenses/java/jdk
+rm -r /pkg/usr/lib/java/jdk/src.zip
+rm -r /pkg/usr/lib/java/jdk/jre
+
+}
+
+
+################################################################################
+
+install -v -m755 -d /usr/lib/jdk1.7.0 &&
+mv -v * /usr/lib/jdk1.7.0 &&
+chown -v -R root:root /usr/lib/jdk1.7.0 &&
+ln -v -sf xawt/libmawt.so \
+    /usr/lib/jdk1.7.0/jre/lib/amd64/
+
+################################################################################
+
+
+cat > /etc/profile.d/jdk.sh << "EOF"
+# Begin /etc/profile.d/jdk.sh
+
+# Set JAVA_HOME directory
+JAVA_HOME=/usr/lib/jdk1.7.0
+
+# Adjust PATH
+pathappend ${JAVA_HOME}/bin PATH
+
+# Auto Java CLASSPATH
+# Copy jar files to, or create symlinks in this directory
+AUTO_CLASSPATH_DIR=/usr/lib/classpath
+pathprepend . CLASSPATH
+for dir in `find ${AUTO_CLASSPATH_DIR} -type d 2>/dev/null`; do
+    pathappend $dir CLASSPATH
+done
+
+export JAVA_HOME CLASSPATH
+unset AUTO_CLASSPATH_DIR
+unset dir
+
+# End /etc/profile.d/jdk.sh
+EOF
+

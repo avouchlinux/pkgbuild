@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gmp
+pkgver=6.2.0
+pkgrel=1
+pkgdesc="A free library for arbitrary precision arithmetic"
+arch=('x86_64')
+groups=('sys-base')
+url="https://gmplib.org/"
+depends=('gcc-libs' 'sh')
+license=('LGPL3' 'GPL')
+source=(https://gmplib.org/download/gmp/gmp-${pkgver}.tar.xz{,.sig})
+md5sums=('f58fa8001d60c4c77595fbbb62b63c1d'
+         'SKIP')
+validpgpkeys=('343C2FF0FBEE5EC2EDBEF399F3599FF828C67298')   # Niels Möller
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --build=${CHOST} --prefix=/usr --enable-fat --enable-cxx
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check 2>&1 | tee gmp-check-log
+
+	# ensure that all 197 tests in the test suite passed
+	awk '/# PASS:/{total+=$3} ; END{print total}' gmp-check-log
+
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=winetricks
+pkgver=20180513
+pkgrel=1
+pkgdesc='Script to install various redistributable runtime libraries in Wine.'
+url='http://wiki.winehq.org/winetricks'
+license=('LGPL')
+arch=('any')
+groups=('app-emulation')
+optdepends=('zenity: GUI for GNOME desktop'
+            'kdialog: GUI for KDE desktop')
+source=("https://github.com/Winetricks/winetricks/archive/20170614.tar.gz")
+sha512sums=('8186657000dfb99ed971e6b9ff992c34fc6a72204f2814d00bde525ee352202d292983a931021906aa661764f84cfe3ce93138d1cca5cc19e00e936b5ff47748')
+
+package() {
+  depends=('wine' 'cabextract' 'unzip' 'xorg-xmessage')
+
+  cd winetricks-$pkgver
+  make DESTDIR="$pkgdir" install
+}

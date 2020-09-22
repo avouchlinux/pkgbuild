@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=partitionmanager
+pkgver=4.1.0
+pkgrel=1
+pkgdesc="A KDE utility that allows you to manage disks, partitions, and file systems"
+arch=('x86_64')
+groups=('sys-block')
+url="http://kde.org/applications/system/kdepartitionmanager/"
+license=(GPL2)
+depends=(kpmcore hicolor-icon-theme kde-cli-tools)
+makedepends=(extra-cmake-modules kdoctools python)
+source=("http://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(1EE5A3205904BAA2B88C0A9D24FD31940095C0E1) # Andrius Štikonas <andrius@stikonas.eu>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

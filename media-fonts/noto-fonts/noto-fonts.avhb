@@ -1,0 +1,53 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=noto-fonts
+pkgname=(noto-fonts noto-fonts-extra ttf-croscore)
+pkgver=20190630
+_commit=7cc126f6c0ebfe750dc911dae951f9167d36213e
+pkgrel=1
+pkgdesc="Google Noto TTF fonts"
+arch=(any)
+groups=('media-fonts')
+url="https://www.google.com/get/noto/"
+license=(custom:SIL)
+source=("https://github.com/googlei18n/noto-fonts/archive/$_commit.tar.gz"
+        66-noto-sans.conf 66-noto-serif.conf 66-noto-mono.conf)
+
+package_noto-fonts() {
+  optdepends=('noto-fonts-cjk: CJK characters' 'noto-fonts-emoji: Emoji characters'
+              'noto-fonts-extra: additional variants (condensed, semi-bold, extra-light)')
+  provides=(ttf-font)
+
+  cd $pkgbase-$_commit
+  install -Dm644 unhinted/Noto*.tt[fc] -t "$pkgdir"/usr/share/fonts/noto
+  install -Dm644 hinted/Noto*.tt[fc] -t "$pkgdir"/usr/share/fonts/noto
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/noto-fonts
+
+  # Move to noto-fonts-extra
+  rm -f "$pkgdir"/usr/share/fonts/noto/Noto*{Condensed,SemiBold,Extra}*.ttf
+
+  # Install fontconfig files
+  install -Dm644 "$srcdir"/*.conf -t "$pkgdir"/etc/fonts/conf.avail/
+  install -d "$pkgdir"/etc/fonts/conf.d
+  ln -rs "$pkgdir"/etc/fonts/conf.avail/* "$pkgdir"/etc/fonts/conf.d
+}
+
+package_noto-fonts-extra() {
+  pkgdesc+=' - additional variants'
+  depends=(noto-fonts)
+  
+  cd $pkgbase-$_commit
+  mkdir -p "$pkgdir"/usr/share/fonts/noto
+  cp hinted/Noto*{Condensed,SemiBold,Extra}*.tt[fc] "$pkgdir"/usr/share/fonts/noto
+}
+
+package_ttf-croscore() {
+  pkgdesc='Chrome OS core fonts'
+  provides=(ttf-font)
+
+  cd $pkgbase-$_commit
+  install -Dm644 hinted/{Arimo,Cousine,Tinos}*.ttf -t "$pkgdir"/usr/share/fonts/croscore
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/ttf-croscore
+}

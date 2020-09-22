@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=secilc
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux Common Intermediate Language Compiler"
+arch=('x86_64')
+groups=('sys-security')
+url='https://github.com/SELinuxProject/cil/wiki'
+license=('custom')
+makedepends=('xmlto' 'docbook-xml' 'docbook-xsl')
+depends=('libsepol>=2.9')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('73a1806e33a669e23545da2d35d0e5038714721f6bf71974eaa533b3ebde61b2')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make all
+}
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  make test
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  install -Dm 0644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

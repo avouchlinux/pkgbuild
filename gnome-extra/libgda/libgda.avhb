@@ -1,0 +1,114 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libgda
+pkgname=(libgda libgda-{firebird,jdbc,mysql,postgres})
+pkgver=5.2.9
+pkgrel=1
+pkgdesc="Database access library"
+url="http://www.gnome-db.org/"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gtksourceview3 libxslt python2 libsecret graphviz goocanvas iso-codes)
+makedepends=(glade libmariadbclient postgresql-libs libfbclient jdk8-openjdk intltool
+             gobject-introspection gtk-doc vala itstool gnome-common git)
+source=("https://gitlab.gnome.org/GNOME/libgda/-/archive/LIBGDA_5_2_9/libgda-LIBGDA_5_2_9.tar.bz2"
+        java.patch fix-crash.diff)
+
+_apiver=5.0
+
+prepare() {
+    cd $pkgbase-$pkgver
+
+    patch -Np1 -i ../fix-crash.diff
+    # remove converter functionality that relies on eight-year-old python2 scripts/taken from Fedora
+    patch -Np1 -i ../0001-libgda-report-remove-trml2pdf-trml2html-functionalit.patch
+
+    # NOCONFIGURE=1 ./autogen.sh
+    autoreconf -vif
+
+
+}
+
+build() {
+    cd $pkgbase-$pkgver
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --disable-static \
+        --with-bdb=/usr \
+        --with-bdb-libdir-name=lib \
+        --enable-json \
+        --enable-system-sqlite \
+        --enable-binreloc \
+        --enable-gdaui-gi \
+        --enable-vala \
+        --enable-gdaui-vala \
+        --disable-crypto \
+        --with-java=no # with jdk 11 configure failed
+        #--enable-gtk-doc \
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make ${MAKEFLAGS}
+}
+
+package_libgda() {
+    optdepends=('libgda-firebird: provider for Firebird'
+              'libgda-jdbc: provider for JDBC'
+              'libgda-mysql: provider for MySQL'
+              'libgda-postgres: provider for PostgreSQL')
+    options+=(emptydirs)
+
+    cd $pkgbase-$pkgver
+    make DESTDIR="$pkgdir" install
+  
+    mkdir -p $srcdir/providers
+
+  for _provider in firebird jdbc mysql postgres; do
+    mv "$pkgdir"/usr/lib/libgda-$_apiver/providers/libgda-${_provider}[-.]*so \
+       "$pkgdir"/usr/lib/pkgconfig/libgda-${_provider}-${_apiver}.pc \
+       "$pkgdir"/usr/share/libgda-$_apiver/${_provider}_specs_*.xml \
+       "$srcdir/providers"
+  done
+
+  mv "$pkgdir"/usr/lib/libgda-$_apiver/providers/gdaprovider-${_apiver}.jar \
+     "$pkgdir"/usr/bin/gda-list-jdbc-providers-${_apiver} \
+     "$srcdir/providers"
+}
+
+_packageprovider() {
+  install -d "$pkgdir"/usr/lib/{pkgconfig,libgda-$_apiver/providers} \
+             "$pkgdir"/usr/share/libgda-$_apiver
+  mv "$srcdir"/providers/libgda-${1}[-.]*so "$pkgdir/usr/lib/libgda-$_apiver/providers"
+  mv "$srcdir"/providers/libgda-${1}-5.0.pc "$pkgdir/usr/lib/pkgconfig"
+  mv "$srcdir"/providers/${1}_specs_*.xml "$pkgdir/usr/share/libgda-$_apiver"
+}
+
+package_libgda-firebird() {
+  pkgdesc="libgda provider for Firebird"
+  depends=(libgda libfbclient)
+  _packageprovider firebird
+}
+
+package_libgda-jdbc() {
+  pkgdesc="libgda provider for JDBC"
+  depends=(libgda java-environment)
+  _packageprovider jdbc
+  install -d "$pkgdir/usr/bin"
+  mv "$srcdir"/providers/gda-list-jdbc-providers-${_apiver} "$pkgdir/usr/bin"
+  mv "$srcdir"/providers/gdaprovider-${_apiver}.jar "$pkgdir/usr/lib/libgda-$_apiver/providers"
+}
+
+package_libgda-mysql() {
+  pkgdesc="libgda provider for MySQL"
+  depends=(libgda libmariadbclient)
+  _packageprovider mysql
+}
+
+package_libgda-postgres() {
+  pkgdesc="libgda provider for PostgreSQL"
+  depends=(libgda postgresql-libs)
+  _packageprovider postgres
+}

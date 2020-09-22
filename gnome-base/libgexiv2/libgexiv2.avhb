@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgexiv2
+_realname=gexiv2
+pkgver=0.12.0
+pkgrel=1
+pkgdesc='GObject-based wrapper around the Exiv2 library'
+url='https://wiki.gnome.org/Projects/gexiv2'
+arch=(x86_64)
+license=(GPL2)
+depends=(exiv2 glib2)
+makedepends=(git gobject-introspection meson python-gobject python2-gobject vala)
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$_realname-$pkgver/$_realname-$_realname-$pkgver.tar.bz2")
+
+build() {
+  mkdir -p build
+  avouch-meson $_realname-$_realname-$pkgver build -Denable-gtk-doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

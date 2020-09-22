@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libssh2
+pkgbase=libssh2
+pkgver=1.9.0
+pkgrel=1
+pkgdesc="A library implementing the SSH2 protocol as defined by Internet Drafts (32-bit)"
+url="http://www.libssh2.org/"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('BSD')
+depends=('lib32-openssl' $_pkgbasename)
+provides=('libssh2.so')
+makedepends=('zlib' "gcc-multilib")
+options=('!libtool')
+source=("http://www.libssh2.org/download/${_pkgbasename}-${pkgver}.tar.gz")
+md5sums=('071004c60c5d6f90354ad1b701013a0b')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --disable-static \
+	--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin,sbin}
+}
+

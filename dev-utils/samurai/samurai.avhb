@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=samurai
+pkgver=1.1
+pkgrel=1
+pkgdesc="ninja-compatible build tool written in C"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/michaelforney/${pkgname}"
+license=('ISC' 'Apache' 'MIT')
+source=("https://github.com/michaelforney/${pkgname}/archive/${pkgver}.tar.gz")
+
+build() {
+    cd "${srcdir}"/${pkgname}-${pkgver}
+
+    make samu
+}
+
+package() {
+    cd "${srcdir}"/${pkgname}-${pkgver}
+
+    make install PREFIX=/usr DESTDIR="${pkgdir}"
+    install -Dm644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

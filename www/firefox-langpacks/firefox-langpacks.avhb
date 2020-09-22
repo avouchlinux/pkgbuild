@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=firefox-langpacks
+pkgver=80.0
+pkgrel=1
+pkgdesc="Language pack for Firefox"
+arch=(any)
+groups=('www')
+license=(MPL GPL LGPL)
+url="https://www.mozilla.org/firefox/"
+source=("https://ftp.mozilla.org/pub/firefox/releases/$pkgver/linux-x86_64/xpi/")
+sha256sums=('')
+
+package() {
+	cd "${srcdir}"
+	# Extract langpacks, make any mods needed, repack the langpack, and install it.
+	mkdir -p  ${pkgdir}/usr/lib/firefox/langpacks
+	
+	for langpack in `ls firefox-langpacks/*.xpi`; do
+		language=`basename $langpack .xpi`
+		extensionID=langpack-$language@firefox.mozilla.org
+		mkdir -p $extensionID
+		unzip -qq $langpack -d $extensionID
+		find $extensionID -type f | xargs chmod 644
+
+		cd $extensionID
+		zip -qq -r9mX ../${extensionID}.xpi *
+		cd -
+
+		install -m 644 ${extensionID}.xpi ${pkgdir}/usr/lib/firefox/langpacks
+		language=`echo $language | sed -e 's/-/_/g'`
+		echo "%%lang($language) %{langpackdir}/${extensionID}.xpi" >> firefox.lang
+	done
+}

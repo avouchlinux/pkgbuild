@@ -1,0 +1,63 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-readline
+pkgbase=readline
+_basever=8.0
+_patchlevel=0
+pkgver=${_basever}.${_patchlevel}
+pkgrel=1
+pkgdesc="GNU readline library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://tiswww.case.edu/php/chet/readline/rltop.html"
+license=('GPL')
+depends=('lib32-glibc' 'lib32-ncurses' $_pkgbasename)
+makedepends=('gcc-multilib')
+source=(http://ftp.gnu.org/gnu/readline/readline-$_basever.tar.gz)
+if [ $_patchlevel -gt 00 ]; then
+    for (( p=1; p<=$((10#${_patchlevel})); p++ )); do
+		source=(${source[@]} http://ftp.gnu.org/gnu/readline/readline-$_basever-patches/readline${_basever//./}-$(printf "%03d" $p){,.sig})
+    done
+fi
+md5sums=('67948acb2ca081f23359d0256e9a271c'
+         '83287d52a482f790dfb30ec0a8746669'
+         '8e6a51e2e0e6e45a82752e3692c111ac'
+         '0665020ea118e8434bd145fb71f452cc'
+         '285361ca6d48c51ae2428157e174e812'
+         'c9d5d79718856e711667dede87cb7622'
+         '4437205bb1462f5f32e4812b8292c675'
+         'c08e787f50579ce301075c523fa660a4'
+         '7e39cad1d349b8ae789e4fc33dbb235f')
+
+prepare() {
+	cd ${srcdir}/readline-${_basever}
+	
+	for (( _p=1; _p <= $((10#${_patchlevel})); _p++ )); do
+    	message "applying patch readline${_basever//.}-$(printf "%03d" $_p)"
+    	patch -p0 -i ../readline${_basever//.}-$(printf "%03d" $_p)
+  	done
+
+	# Remove RPATH from shared objects (FS#14366)
+	sed -i 's|-Wl,-rpath,$(libdir) ||g' support/shobj-conf
+}
+
+build() {
+	cd ${srcdir}/readline-${_basever}
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/readline-${_basever}
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}
+

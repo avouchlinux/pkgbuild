@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-io-socket-ssl
+_realname=IO-Socket-SSL
+pkgver=2.002
+pkgrel=1
+pkgdesc="Nearly transparent SSL encapsulation for IO::Socket::INET"
+arch=('any')
+license=('GPL' 'PerlArtistic')
+url="http://search.cpan.org/dist/IO-Socket-SSL/"
+depends=('perl-net-ssleay' 'perl' 'perl-uri')
+checkdepends=('perl-io-socket-inet6')
+options=('!emptydirs')
+source=(http://www.cpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-${pkgver}.tar.gz)
+sha1sums=('25db598891cc1ed02738a6956e398c1af6cb1f74')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

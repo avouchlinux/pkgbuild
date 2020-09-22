@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rabbitvcs-thunar
+_realname=rabbitvcs
+pkgver=0.18
+pkgrel=1
+pkgdesc="Thunar front-end for RabbitVCS"
+arch=('x86_64')
+groups=('dev-vcs')
+url="http://rabbitvcs.org/"
+depends=('thunar>=0.4.0' 'thunarx-python>=0.2.0' 'dbus-python>=0.80' "rabbitvcs>=${pkgver}")
+license=('GPL')
+source=(https://github.com/rabbitvcs/rabbitvcs/archive/v${pkgver}.tar.gz)
+md5sums=('a3c3104375e4b309b98613834dba61ec')
+
+package(){
+  cd ${srcdir}/rabbitvcs-${pkgver}
+  mkdir -p $pkgdir/usr/lib/thunarx-3/python
+  cp clients/thunar/RabbitVCS.py $pkgdir/usr/lib/thunarx-3/python
+}

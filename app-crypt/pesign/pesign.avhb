@@ -1,0 +1,80 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pesign
+pkgver=0.112
+pkgrel=1
+pkgdesc='Tools for manipulating signed PE-COFF binaries'
+arch=('x86_64')
+groups=('app-crypt')
+url='https://github.com/rhinstaller/pesign'
+license=('GPL2')
+depends=('efivar' 'nss' 'libutil-linux')
+source=("${url}/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.bz2"
+        "${pkgname}.sysusers"
+        'https://github.com/rhboot/pesign/releases/download/113/pesign-113.tar.bz2') # No HTTP because custom CA
+
+prepare(){
+
+    bsdtar -xf certs.tar.xz
+    cd ${pkgname}-${pkgver}
+    # patches from Fedora
+    patch -Np1 -i ../0001-cms-kill-generate_integer-it-doesn-t-build-on-i686-a.patch
+    patch -Np1 -i ../0002-Fix-command-line-parsing.patch
+    patch -Np1 -i ../0003-gcc-don-t-error-on-stuff-in-includes.patch
+    patch -Np1 -i ../0004-Fix-certficate-argument-name.patch
+    patch -Np1 -i ../0005-Fix-description-of-ascii-armor-option-in-manpage.patch
+    patch -Np1 -i ../0006-Make-ascii-work-since-we-documented-it.patch
+    patch -Np1 -i ../0007-Switch-pesign-client-to-also-accept-token-cert-macro.patch
+    patch -Np1 -i ../0008-pesigcheck-Verify-with-the-cert-as-an-object-signer.patch
+    patch -Np1 -i ../0009-pesigcheck-make-certfile-actually-work.patch
+    patch -Np1 -i ../0010-signerInfos-make-sure-err-is-always-initialized.patch
+    patch -Np1 -i ../0011-pesign-make-pesign-h-tell-you-the-file-name.patch
+    patch -Np1 -i ../0012-Add-coverity-build-scripts.patch
+    patch -Np1 -i ../0013-Document-implicit-fallthrough.patch
+    patch -Np1 -i ../0014-Actually-setfacl-each-directory-of-our-key-storage.patch
+    patch -Np1 -i ../0015-oid-add-SHIM_EKU_MODULE_SIGNING_ONLY-and-fix-our-arr.patch
+    patch -Np1 -i ../0016-efikeygen-add-modsign.patch
+    patch -Np1 -i ../0017-check_cert_db-try-even-harder-to-pick-a-reasonable-v.patch
+    patch -Np1 -i ../0018-show-which-db-we-re-checking.patch
+    patch -Np1 -i ../0019-more-about-the-time.patch
+    patch -Np1 -i ../0020-try-to-say-why-something-fails.patch
+    patch -Np1 -i ../0021-Fix-race-condition-in-SEC_GetPassword.patch
+    patch -Np1 -i ../0022-sysvinit-Create-the-socket-directory-at-runtime.patch
+    patch -Np1 -i ../0023-Better-authorization-scripts.-Again.patch
+    patch -Np1 -i ../0024-Make-the-daemon-also-try-to-give-better-errors-on-EP.patch
+    patch -Np1 -i ../0025-certdb-fix-PRTime-printfs-for-i686.patch
+    patch -Np1 -i ../0026-Clean-up-gcc-command-lines-a-little.patch
+    patch -Np1 -i ../0027-Make-pesign-users-groups-static-in-the-repo.patch
+    patch -Np1 -i ../0028-rpm-Make-the-client-signer-use-the-fedora-values-unl.patch
+    patch -Np1 -i ../0029-Make-macros.pesign-error-in-kojibuilder-if-we-don-t-.patch
+    patch -Np1 -i ../0030-efikeygen-Fix-the-build-with-nss-3.44.patch
+    patch -Np1 -i ../0031-pesigcheck-Fix-a-wrong-assignment.patch
+
+    # drop legacy directory
+    sed -i 's|/var/run/pesign|/run/pesign|' src/tmpfiles.conf
+
+}
+build() {
+    cd ${pkgname}-${pkgver}
+    make
+}
+
+package() {
+    cd ${pkgname}-${pkgver}
+
+    make libdir=/usr/lib libexecdir=/usr/lib DESTDIR="${pkgdir}" install install_systemd
+    rm -rf "${pkgdir}"/var
+    rm -rf "${pkgdir}"/etc/rpm
+
+    install -Dm644 "${srcdir}"/${pkgname}.sysusers "${pkgdir}"/usr/lib/sysusers.d/${pkgname}.conf
+
+    # No reason those shouldn’t be readable
+    install -dm0755 "${pkgdir}"/etc/pki/pesign{,-rh-test}
+
+    # Install RedHat test certificates
+    install -Dm644 "${srcdir}"/etc/pki/pesign/{cert8,key3,secmod}.db -t "${pkgdir}"/etc/pki/pesign/
+    install -Dm644 "${srcdir}"/etc/pki/pesign-rh-test/{cert8,key3,secmod}.db -t "${pkgdir}"/etc/pki/pesign-rh-test/
+}

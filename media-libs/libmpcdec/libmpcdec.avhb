@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmpcdec
+pkgver=1.2.6
+pkgrel=1
+pkgdesc="Musepack decoding library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://musepack.net/"
+license=('custom')
+depends=('glibc')
+source=("http://files.musepack.net/source/${pkgname}-${pkgver}.tar.bz2")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

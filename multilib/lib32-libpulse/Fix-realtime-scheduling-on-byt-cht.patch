@@ -1,0 +1,62 @@
+From patchwork Wed Nov  8 12:20:22 2017
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [1/2] card-restore: log the correct profile name
+From: Tanu Kaskinen <tanuk@iki.fi>
+X-Patchwork-Id: 187101
+Message-Id: <20171108122023.8147-2-tanuk@iki.fi>
+To: pulseaudio-discuss@lists.freedesktop.org
+Date: Wed,  8 Nov 2017 14:20:22 +0200
+
+---
+ src/modules/module-card-restore.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/modules/module-card-restore.c b/src/modules/module-card-restore.c
+index 3c0307bee..2d3a91c01 100644
+--- a/src/modules/module-card-restore.c
++++ b/src/modules/module-card-restore.c
+@@ -561,7 +561,7 @@ static pa_hook_result_t card_choose_initial_profile_callback(pa_core *core, pa_c
+ 
+         profile = pa_hashmap_get(card->profiles, e->profile);
+         if (profile) {
+-            pa_log_info("Restoring profile '%s' for card %s.", card->active_profile->name, card->name);
++            pa_log_info("Restoring profile '%s' for card %s.", profile->name, card->name);
+             pa_card_set_profile(card, profile, true);
+         } else {
+             pa_log_debug("Tried to restore profile %s for card %s, but the card doesn't have such profile.",
+From patchwork Wed Nov  8 12:20:23 2017
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [2/2] card-restore: don't restore unavailable profiles
+From: Tanu Kaskinen <tanuk@iki.fi>
+X-Patchwork-Id: 187102
+Message-Id: <20171108122023.8147-3-tanuk@iki.fi>
+To: pulseaudio-discuss@lists.freedesktop.org
+Date: Wed,  8 Nov 2017 14:20:23 +0200
+
+---
+ src/modules/module-card-restore.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/module-card-restore.c b/src/modules/module-card-restore.c
+index 2d3a91c01..b7189ad53 100644
+--- a/src/modules/module-card-restore.c
++++ b/src/modules/module-card-restore.c
+@@ -561,8 +561,12 @@ static pa_hook_result_t card_choose_initial_profile_callback(pa_core *core, pa_c
+ 
+         profile = pa_hashmap_get(card->profiles, e->profile);
+         if (profile) {
+-            pa_log_info("Restoring profile '%s' for card %s.", profile->name, card->name);
+-            pa_card_set_profile(card, profile, true);
++            if (profile->available != PA_AVAILABLE_NO) {
++                pa_log_info("Restoring profile '%s' for card %s.", profile->name, card->name);
++                pa_card_set_profile(card, profile, true);
++            } else
++                pa_log_debug("Not restoring profile %s for card %s, because the profile is currently unavailable.",
++                             profile->name, card->name);
+         } else {
+             pa_log_debug("Tried to restore profile %s for card %s, but the card doesn't have such profile.",
+                          e->profile, card->name);

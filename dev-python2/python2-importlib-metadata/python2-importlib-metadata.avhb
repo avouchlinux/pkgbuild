@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-importlib-metadata
+_realname=importlib_metadata
+pkgver=1.6.0
+pkgrel=1
+pkgdesc="Read metadata from Python packages"
+url="https://importlib-metadata.readthedocs.io"
+license=('Apache')
+arch=('any')
+groups=('dev-python2')
+depends=('python2-contextlib2' 'python2-pathlib2')
+makedepends=('python2-setuptools-scm' 'python2-contextlib2' 'python2-pathlib2' 'python2-configparser' 'python2-zipp')
+checkdepends=('python2-pip' 'python2-pytest-runner' 'python2-importlib_resources' 'python2-wheel')
+source=("https://gitlab.com/python-devs/importlib_metadata/-/archive/v$pkgver/importlib_metadata-v$pkgver.tar.bz2")
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+build() { 
+	cd ${_realname}-v${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-v${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-v${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

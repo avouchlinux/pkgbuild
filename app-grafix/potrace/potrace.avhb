@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=potrace
+pkgver=1.16
+pkgrel=1
+pkgdesc='Utility for tracing a bitmap (input: PBM,PGM,PPM,BMP; output: EPS,PS,PDF,SVG,DXF,PGM,Gimppath,XFig)'
+url='http://potrace.sourceforge.net/'
+arch=('x86_64')
+groups=('app-grafix')
+license=('GPL')
+source=("http://potrace.sourceforge.net/download/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	./configure \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--with-libpotrace \
+
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

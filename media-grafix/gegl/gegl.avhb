@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gegl
+pkgver=0.4.24
+pkgrel=1
+pkgdesc="Graph based image processing framework"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://www.gegl.org/"
+license=('GPL3' 'LGPL3')
+depends=('babl' 'libspiro' 'json-glib' 'libgexiv2' 'libraw' 'openexr' 'librsvg' 'libtiff' 'luajit' 'jasper' 'lensfun' 'suitesparse')
+makedepends=('intltool' 'ruby' 'mesa' 'glu' 'ffmpeg' 'exiv2' 'vala' 'python2' 'gobject-introspection' 'git')
+optdepends=('ffmpeg: ffmpeg plugin')
+source=("https://download.gimp.org/pub/gegl/0.4/gegl-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build -Dworkshop=true -Dmrg=disabled
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="${pkgdir}" ninja install  -C build
+}

@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=intltool
+pkgver=0.51.0
+pkgrel=1
+pkgdesc="The internationalization tool collection"
+arch=('any')
+grous=('dev-utils')
+url="https://edge.launchpad.net/intltool"
+license=('GPL')
+depends=('perl-xml-parser')
+source=(http://edge.launchpad.net/intltool/trunk/${pkgver}/+download/${pkgname}-${pkgver}.tar.gz{,.asc})
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	# fix a warning that is caused by perl-5.22 and later:
+	sed -i 's:\\\${:\\\$\\{:' intltool-update.in
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -D -m644 doc/I18N-HOWTO "${pkgdir}/usr/share/doc/${pkgname}/I18N-HOWTO"
+
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

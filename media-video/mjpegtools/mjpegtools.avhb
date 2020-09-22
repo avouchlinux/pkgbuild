@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mjpegtools
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="Set of tools that can do recording of videos and playback, simple cut-and-paste editing and the MPEG compression of audio and video"
+arch=('x86_64')
+groups=('media-video')
+license=('GPL')
+url="http://mjpeg.sourceforge.net/"
+depends=('libjpeg' 'libpng' 'sdl' 'gcc-libs' 'libdv')
+makedepends=('gtk2' 'v4l-utils')
+optdepends=('gtk2: glav GUI')
+options=('!makeflags')
+source=(http://downloads.sourceforge.net/sourceforge/mjpeg/${pkgname}-${pkgver}.tar.gz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	sed -i -e '/ARCHFLAGS=/s:=.*:=:' configure
+	
+	#https://gitweb.gentoo.org/repo/gentoo.git/tree/media-video/mjpegtools/mjpegtools-2.1.0-r3.ebuild	
+	# https://sourceforge.net/p/mjpeg/bugs/139/
+	patch -Np1 -i ../mjpegtools-2.1.0-sdl-cflags.patch
+	patch -Np1 -i ../mjpegtools-2.1.0-no_format.patch
+	
+	patch -Np0 -i ../pic_fix.patch
+	
+	autoreconf -vi
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-largefile
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	install -m644 mpeg2enc/mpeg2syntaxcodes.h "${pkgdir}/usr/include/mjpegtools/mpeg2enc/"
+}

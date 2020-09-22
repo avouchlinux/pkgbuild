@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfce4-pulseaudio-plugin
+pkgver=0.4.3
+pkgrel=1
+pkgdesc="Pulseaudio plugin for Xfce4 panel"
+arch=('x86_64')
+groups=('xfce4-goodies')
+url="http://xfce-goodies.berlios.de/"
+license=('GPL')
+depends=('xfce4-panel' 'libpulse' 'libkeybinder3' 'gtk-update-icon-cache' 'libnotify')
+makedepends=('intltool' 'dbus-glib' git xfce4-dev-tools)
+optdepends=('pavucontrol: default pulseaudio mixer')
+_commit=66231b3503a74faea7bdbb925f08d7967016df6a  # tags/xfce4-pulseaudio-plugin-0.4.1^0
+source=("git+https://git.xfce.org/panel-plugins/xfce4-pulseaudio-plugin/#commit=$_commit")
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc \
+        --libexecdir=/usr/lib \
+        --localstatedir=/var \
+        --enable-keybinder \
+        --enable-libnotify \
+        --enable-maintainer-mode
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+}

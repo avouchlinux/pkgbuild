@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libreplaygain
+pkgver=475
+pkgrel=1
+pkgdesc="A library to adjust audio gain"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.musepack.net/index.php?pg=src"
+license=('LGPL')
+depends=('glibc')
+makedepends=('cmake')
+source=("http://files.musepack.net/source/${pkgname}_r${pkgver}.tar.gz")
+
+prepare() {
+	mkdir build
+}
+
+build() {
+	cd "${srcdir}"/build
+	cmake ../${pkgname}_r${pkgver}/ \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_BUILD_TYPE=Release
+	make
+}
+
+package() {
+	cd "${srcdir}"/build
+	make DESTDIR="${pkgdir}" install
+
+	install -d "${pkgdir}"/usr/include/replaygain/
+	install -Dm644 "${srcdir}"/${pkgname}_r${pkgver}/include/replaygain/* \
+	"${pkgdir}"/usr/include/replaygain/
+
+	 license
+	install -Dm644 "${srcdir}"/${pkgname}_r${pkgver}/COPYING \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

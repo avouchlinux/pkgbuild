@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-caladea
+_realname=crosextrafonts
+pkgver=20130214
+pkgrel=1
+pkgdesc="Google's Caladea font"
+arch=(any)
+groups=('media-fonts')
+license=(Apache)
+url='https://code.google.com/p/chromium/issues/detail?id=280557'
+depends=(fontconfig xorg-fonts-encodings xorg-font-utils)
+provides=(ttf-font)
+source=("https://commondatastorage.googleapis.com/chromeos-localmirror/distfiles/crosextrafonts-$pkgver.tar.gz")
+
+package() {
+  cd crosextrafonts-$pkgver
+
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname#ttf-}" -m644 *.ttf
+
+  install -Dt "$pkgdir/etc/fonts/conf.avail" -m644 ../*.conf
+
+  mkdir "$pkgdir/etc/fonts/conf.d"
+  ln -srt "$pkgdir/etc/fonts/conf.d" "$pkgdir"/etc/fonts/conf.avail/*
+}

@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-path
+_realname=path
+pkgver=13.2.0
+pkgrel=1
+pkgdesc='A module wrapper for os.path'
+arch=('any')
+groups=('dev-python3')
+license=('MIT')
+url='https://github.com/jaraco/path'
+depends=('python3-importlib-metadata')
+makedepends=('python3-setuptools-scm' 'python3-importlib-metadata')
+checkdepends=('python3-pytest-runner' 'python3-pytest-flake8')
+source=("https://github.com/jaraco/path/archive/v$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

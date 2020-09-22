@@ -1,0 +1,22 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=adobe-source-sans-pro-fonts
+_realnam=source-sans-pro
+pkgver=3.006
+pkgrel=1
+pkgdesc="Sans serif font family for user interface environments"
+url="https://adobe-fonts.github.io/source-sans-pro/"
+arch=(any)
+groups=('media-fonts')
+license=(custom)
+_tarname=source-sans-pro-${_relver//\//-}
+source=("https://github.com/adobe-fonts/source-sans-pro/archive/$_relver.tar.gz")
+
+package() {
+    cd ${_realnam}-${pkgver}R
+    install -d "$pkgdir/usr/share/fonts/${pkgname%-fonts}"
+    install -t "$pkgdir/usr/share/fonts/${pkgname%-fonts}" -m644 OTF/*.otf
+    install -Dm644 LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=transmageddon
+pkgver=1.5
+pkgrel=1
+pkgdesc="Simple python application for transcoding video into formats supported by GStreamer"
+arch=('any')
+groups=('media-video')
+url="http://www.linuxrising.org/"
+license=('LGPL')
+depends=('python-gobject' 'libnotify' 'gtk3' 'gst-plugins-base')
+makedepends=('intltool')
+optdepends=('gst-plugins-good: Extra media codecs'
+            'gst-plugins-bad: Extra media codecs'
+            'gst-plugins-ugly: Extra media codecs'            
+            'gst-libav: Extra media codecs')
+source=(http://www.linuxrising.org/files/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd "${srcdir}/$pkgname-$pkgver"
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}

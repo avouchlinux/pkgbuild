@@ -1,0 +1,37 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=farstream
+pkgver=0.2.9
+pkgrel=1
+pkgdesc="Farstream (formerly Farsight) - Audio/Video Communications Framework"
+arch=('x86_64')
+groups=('media-libs')
+url="http://www.freedesktop.org/wiki/Software/Farstream"
+license=('LGPL')
+depends=('gst-plugins-base-libs' 'libnice')
+makedepends=('gobject-introspection')
+optdepends=('gst-plugins-good' 'gst-plugins-bad')
+source=(http://freedesktop.org/software/$pkgname/releases/$pkgname/$pkgname-$pkgver.tar.gz{,.asc})
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../farstream-make-4.3.patch # Fix build with make 4.3
+  ./autogen.sh
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+	--with-package-name='Avouch OS farstream package' \
+	--with-package-origin='http://www.avouch.org'
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=double-conversion
+pkgver=3.1.5
+pkgrel=1
+pkgdesc='Binary-decimal and decimal-binary routines for IEEE doubles'
+arch=('x86_64')
+groups=('app-utils')
+url='https://github.com/google/double-conversion'
+license=(BSD)
+depends=(gcc-libs)
+makedepends=(cmake)
+source=(https://github.com/google/double-conversion/archive/v$pkgver.tar.gz)
+
+build() {
+  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DBUILD_SHARED_LIBS=ON
+  ninja -C build
+}
+
+package () {
+  DESTDIR="${pkgdir}" ninja -C build install
+
+  install -Dm644 "$srcdir"/$pkgname-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/double-conversion
+}

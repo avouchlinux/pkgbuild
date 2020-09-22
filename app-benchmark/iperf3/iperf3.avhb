@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=iperf3
+_realname=iperf
+pkgver=3.7
+pkgrel=1
+pkgdesc='TCP, UDP, and SCTP network bandwidth measurement tool'
+arch=('x86_64')
+groups=('app-benchmark')
+url='https://github.com/esnet/iperf'
+license=('BSD')
+depends=('openssl')
+source=(https://github.com/esnet/iperf/archive/3.5.tar.gz)
+
+build() {
+  cd iperf-${pkgver}
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd iperf-${pkgver}
+  make check
+}
+
+package() {
+  cd iperf-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 644 examples/*{.am,.in,.c} -t "${pkgdir}/usr/share/doc/${pkgname}/examples"
+}

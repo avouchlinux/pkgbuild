@@ -1,0 +1,76 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telegram-desktop-bin
+_realname=tsetup
+pkgver=1.1.23
+pkgrel=1
+pkgdesc="Official desktop version of Telegram messaging app - Static binaries"
+arch=('x86_64')
+groups=('app-net')
+url="https://desktop.telegram.org"
+license=('GPL3')
+depends=(
+	'glib2'
+	'hicolor-icon-theme'
+	'libdbus'
+	'libx11'
+)
+makedepends=(
+	'chrpath'
+)
+optdepends=(
+	'libappindicator-gtk2: to hide Telegram in the tray bar (GTK2-based desktop environment)'
+	'libappindicator-gtk3: to hide Telegram in the tray bar (GTK3-based desktop environment)'
+	'libappindicator-sharp: to hide Telegram in the tray bar (Unity-based desktop environment)'
+	'xdg-utils: for automatic opening of URLs, files and directories in proper applications'
+)
+conflicts=('telegram-desktop')
+provides=('telegram-desktop')
+replaces=('telegram-bin')
+
+# Sources
+source=(
+	"$pkgname.desktop"
+	tg.protocol
+	https://github.com/telegramdesktop/tdesktop/raw/master/Telegram/Resources/art/icon{16,32,48,64,128,256,512}.png
+)
+source_i686=('https://updates.tdesktop.com/tlinux32/tsetup32.'$pkgver'.tar.xz')
+source_x86_64=('https://updates.tdesktop.com/tlinux/tsetup.'$pkgver'.tar.xz')
+
+# Some installation information
+install="$pkgname.install"
+
+package() {
+
+	cd "$srcdir/"
+
+	# Creating needed directories
+	install -dm755 "$pkgdir/usr/bin"
+	install -dm755 "$pkgdir/usr/share/pixmaps/"
+	install -dm755 "$pkgdir/usr/share/applications/"
+
+	# Program
+	install -Dm755 "$srcdir/Telegram/Telegram" "$pkgdir/usr/bin/telegram-desktop"
+
+	# Remove RPATH informations
+	chrpath --delete "$pkgdir/usr/bin/telegram-desktop"
+
+	# Desktop launcher
+	install -Dm644 "$srcdir/icon256.png" "$pkgdir/usr/share/pixmaps/telegram.png"
+	install -Dm644 "$srcdir/$pkgname.desktop" "$pkgdir/usr/share/applications/telegramdesktop.desktop"
+
+	# KDE4 protocol file
+	install -d "$pkgdir/usr/share/kde4/services"
+	install -m644 "$srcdir/tg.protocol" "$pkgdir/usr/share/kde4/services/tg.protocol"
+
+	# Icons
+	local icon_size icon_dir
+	for icon_size in 16 32 48 64 128 256 512; do
+		icon_dir="$pkgdir/usr/share/icons/hicolor/${icon_size}x${icon_size}/apps"
+		install -d "$icon_dir"
+		install -m644 "$srcdir/icon${icon_size}.png" "$icon_dir/telegram.png"
+	done
+}

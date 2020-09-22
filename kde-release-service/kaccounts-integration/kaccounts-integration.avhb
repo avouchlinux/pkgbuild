@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kaccounts-integration
+pkgver=20.04.2
+pkgrel=1
+pkgdesc='Small system to administer web accounts for the sites and services across the KDE desktop, including: Google, Facebook, Owncloud, IMAP, 
+Jabber and others'
+arch=('x86_64')
+groups=('kde-apps')
+url='https://www.kde.org/applications/internet/'
+license=(GPL)
+depends=(kcmutils signon-kwallet-extension signon-plugin-oauth2 signon-ui)
+makedepends=(extra-cmake-modules kdoctools python)
+source=("http://download.kde.org/stable/applications/${pkgver}/src/$pkgname-${pkgver}.tar.xz")
+md5sums=('3599eea84581827b68b0134d0d006bfb')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DKDE_INSTALL_LIBDIR=lib \
+    -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

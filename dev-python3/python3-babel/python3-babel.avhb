@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-babel
+_realname=Babel
+pkgver=2.8.0
+_core=36
+pkgrel=1
+pkgdesc="A collection of tools for internationalizing python3 applications"
+url="http://babel.pocoo.org/"
+license=("BSD")
+arch=('any')
+groups=('dev-python3')
+depends=('python3' 'python3-pytz')
+makedepends=('python3' 'python32'
+             'python3-setuptools' 'python32-setuptools'
+             'python3-pytz' 'python32-pytz')
+checkdepends=('python3-pytest' 'python3-pytest-runner' 'python3-freezegun'
+              'python3-pytest-runner' 'python32-pytest-runner' 'python32-freezegun')
+noextract=("cldr-core-$_core.zip")
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/python3-babel/babel/archive/v$pkgver.tar.gz"
+        "cldr-core-$_core.zip::http://unicode.org/Public/cldr/$_core/core.zip")
+sha256sums=('2d4d29e73e85afd10ff260579303b5479b332eadc393663089dceb14ff6f8b9c'
+            '07279e56c1f4266d140b907ef3ec379dce0a99542303a9628562ac5fe460ba43')
+
+prepare() {
+  cd "$srcdir/$_realname-$pkgver"
+  mkdir cldr
+	cp "$srcarchivedir"/cldr-core-$_core.zip cldr/cldr-core-$_core.zip
+}
+
+build(){
+  cd "$srcdir/$_realname-$pkgver"
+  python3 setup.py import_cldr
+  python3 setup.py build
+}
+
+check(){
+  cd "$srcdir/$_realname-$pkgver"
+  python3 setup.py pytest
+}
+
+package() {
+  cd "$srcdir"/$_realname-${pkgver}
+  python3 setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  install -D -m0644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

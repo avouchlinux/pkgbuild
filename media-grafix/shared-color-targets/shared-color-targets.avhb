@@ -1,0 +1,24 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=shared-color-targets
+pkgver=0.1.7
+pkgrel=1
+pkgdesc="Shared color targets for creating color profiles"
+arch=('any')
+groups=('media-grafix')
+url="https://github.com/hughsie/shared-color-targets"
+license=('GPL2')
+source=(https://people.freedesktop.org/~hughsient/releases/$pkgname-$pkgver.tar.xz)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

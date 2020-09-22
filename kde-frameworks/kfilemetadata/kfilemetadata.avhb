@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kfilemetadata
+pkgver=5.74.0
+pkgrel=1
+pkgdesc="A library for extracting file metadata"
+arch=('x86_64')
+groups=('kde-frameworks')
+url='https://projects.kde.org/kfilemetadata'
+license=('LGPL')
+depends=('ki18n' 'karchive' 'exiv2' 'poppler-qt5' 'taglib' 'ffmpeg' 'ebook-tools')
+optdepends=('catdoc: Extract text from office 98 files')
+makedepends=('extra-cmake-modules' 'catdoc' 'python')
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

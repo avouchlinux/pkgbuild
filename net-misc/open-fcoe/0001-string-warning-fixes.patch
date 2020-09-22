@@ -1,0 +1,490 @@
+From 1bc240f074767a2c23efaf413d6ce96fdedcda2e Mon Sep 17 00:00:00 2001
+From: Chris Leech <cleech@redhat.com>
+Date: Mon, 3 Jun 2019 18:37:59 -0700
+Subject: [PATCH 1/1] use libbsd strlcpy
+
+gcc7 fmt truncation errors
+
+fix build warnings/errors with GCC format-truncation checks
+
+more libbsd
+---
+ Makefile.am       | 17 ++++++++++-------
+ configure.ac      |  2 ++
+ fcoeadm.c         |  4 ++--
+ fcoeadm_display.c | 32 +++++++++++++++++++++++++-------
+ fcoemon.c         | 37 +++++++++++++++++++++++--------------
+ fipvlan.c         | 10 ++++++----
+ lib/rtnetlink.c   |  2 +-
+ lib/sysfs_hba.c   | 16 ++++++++--------
+ libopenfcoe.c     | 19 +++++++++++++------
+ 9 files changed, 90 insertions(+), 49 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index ba302e09d94..b8bc810af19 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -9,29 +9,32 @@ AM_CFLAGS = -Wall -Wformat=2 -Werror -Wmissing-prototypes -Wstrict-prototypes
+ 
+ ## rules for building fcoeadm
+ fcoeadm_SOURCES = fcoeadm.c fcoeadm_display.c
+-fcoeadm_LDADD = lib/libutil.a libopenfcoe.a $(PCIACCESS_LIBS)
+-fcoeadm_CFLAGS = $(AM_CFLAGS)
++fcoeadm_LDADD = lib/libutil.a libopenfcoe.a $(PCIACCESS_LIBS) $(LIBBSD_LIBS)
++fcoeadm_CFLAGS = $(AM_CFLAGS) $(LIBBSD_CFLAGS)
+ 
+ ## rules for building fcoemon
+ fcoemon_SOURCES = fcoemon.c
+-fcoemon_LDADD = lib/libutil.a -lrt
+-fcoemon_CFLAGS = $(AM_CFLAGS) $(DCBD_CFLAGS)
++fcoemon_LDADD = lib/libutil.a -lrt $(LIBBSD_LIBS)
++fcoemon_CFLAGS = $(AM_CFLAGS) $(DCBD_CFLAGS) $(LIBBSD_CFLAGS)
+ 
+ ## rules for building fcping
+ fcping_SOURCES = fcping.c
+-fcping_LDADD = lib/libutil.a libopenfcoe.a $(PCIACCESS_LIBS) -lrt
+-fcping_CFLAGS = $(AM_CFLAGS)
++fcping_LDADD = lib/libutil.a libopenfcoe.a $(PCIACCESS_LIBS) -lrt $(LIBBSD_LIBS)
++fcping_CFLAGS = $(AM_CFLAGS) $(LIBBSD_CFLAGS)
+ 
+ ## rules for building fipvlan
+ fipvlan_SOURCES = fipvlan.c
+-fipvlan_LDADD = lib/libutil.a
++fipvlan_LDADD = lib/libutil.a $(LIBBSD_LIBS)
++fipvlan_CFLAGS = $(AM_CFLAGS) $(LIBBSD_CFLAGS)
+ 
+ AUTOMAKE_OPTIONS=subdir-objects
+ noinst_LIBRARIES = lib/libutil.a libopenfcoe.a
+ lib_libutil_a_SOURCES = lib/fcoe_utils.c lib/sa_log.c lib/sa_select.c \
+ 	lib/sa_timer.c lib/sa_other.c lib/fip.c lib/rtnetlink.c lib/sa_sys.c \
+ 	lib/sysfs_hba.c
++lib_libutil_a_CFLAGS = $(AM_CFLAGS) $(LIBBSD_CFLAGS)
+ libopenfcoe_a_SOURCES = libopenfcoe.c
++libopenfcoe_a_CFLAGS = $(AM_CFLAGS) $(LIBBSD_CFLAGS)
+ 
+ ## header files that need to be distributed
+ noinst_HEADERS = fcoeadm_display.h fcoe_clif.h fcoemon.h \
+diff --git a/configure.ac b/configure.ac
+index 6bc073b221c..f1612e490cb 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -13,6 +13,8 @@ AC_SUBST([LLDPAD_CFLAGS])
+ PKG_CHECK_MODULES([PCIACCESS], [pciaccess])
+ AC_SUBST([PCIACCESS_LIBS])
+ 
++PKG_CHECK_MODULES([LIBBSD], [libbsd-overlay])
++
+ PKG_PROG_PKG_CONFIG
+ AC_ARG_WITH([systemdsystemunitdir],
+         AS_HELP_STRING([--with-systemdsystemunitdir=DIR],
+diff --git a/fcoeadm.c b/fcoeadm.c
+index 776b4e32b2e..6e143596129 100644
+--- a/fcoeadm.c
++++ b/fcoeadm.c
+@@ -186,7 +186,7 @@ fcoeadm_action(enum clif_action cmd, char *ifname, enum clif_flags flags)
+ 	int rc;
+ 
+ 	if (ifname)
+-		strncpy(data.ifname, ifname, sizeof(data.ifname));
++		strlcpy(data.ifname, ifname, sizeof(data.ifname));
+ 	else
+ 		data.ifname[0] = '\0';
+ 	data.cmd = cmd;
+@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
+ 	 * This has to be first because the error print macro
+ 	 * expects progname to be valid.
+ 	 */
+-	strncpy(progname, basename(argv[0]), sizeof(progname));
++	strlcpy(progname, basename(argv[0]), sizeof(progname));
+ 
+ 	/* check if we have sysfs */
+ 	if (fcoe_checkdir(SYSFS_MOUNT)) {
+diff --git a/fcoeadm_display.c b/fcoeadm_display.c
+index 120c6084b7c..2c6214db29a 100644
+--- a/fcoeadm_display.c
++++ b/fcoeadm_display.c
+@@ -254,6 +254,7 @@ static void show_full_lun_info(unsigned int hba, unsigned int port,
+ 	struct dirent *dp;
+ 	struct port_attributes *rport_attrs;
+ 	struct port_attributes *port_attrs;
++	int rc;
+ 
+ 	snprintf(path, sizeof(path),
+ 		"/sys/class/scsi_device/%u:%u:%u:%u",
+@@ -267,13 +268,13 @@ static void show_full_lun_info(unsigned int hba, unsigned int port,
+ 	if (!port_attrs)
+ 		goto free_rport;
+ 
+-	strncat(path, "/device/", sizeof(path) - strlen(path) - 1);
++	strlcat(path, "/device/", sizeof(path));
+ 
+ 	sa_sys_read_line(path, "rev", rev, sizeof(rev));
+ 	sa_sys_read_line(path, "model", model, sizeof(model));
+ 	sa_sys_read_line(path, "vendor", vendor, sizeof(vendor));
+ 
+-	strncat(path, "block", sizeof(path) - strlen(path) - 1);
++	strlcat(path, "block", sizeof(path));
+ 
+ 	dir = opendir(path);
+ 	if (!dir)
+@@ -287,10 +288,18 @@ static void show_full_lun_info(unsigned int hba, unsigned int port,
+ 
+ 		osname = dp->d_name;
+ 
+-		snprintf(npath, sizeof(npath), "%s/%s/", path, osname);
++		rc = snprintf(npath, sizeof(npath), "%s/%s/", path, osname);
++		if (rc < 0 || rc >= sizeof(npath)) {
++			/* error or truncation, bailing out */
++			return;
++		}
+ 		sa_sys_read_u64(npath, "size", &lba);
+ 
+-		snprintf(npath, sizeof(npath), "%s/%s/queue/", path, osname);
++		rc = snprintf(npath, sizeof(npath), "%s/%s/queue/", path, osname);
++		if (rc < 0 || rc >= sizeof(npath)) {
++			/* error or truncation, bailing out */
++			return;
++		}
+ 		sa_sys_read_u32(npath, "hw_sector_size", &blksize);
+ 	}
+ 
+@@ -340,6 +349,7 @@ static void show_short_lun_info(unsigned int hba, unsigned int port,
+ 	char *capstr = "Unknown";
+ 	char *osname = "Unknown";
+ 	uint64_t size;
++	int rc;
+ 
+ 	snprintf(path, sizeof(path),
+ 		"/sys/class/scsi_device/%u:%u:%u:%u/device/",
+@@ -349,7 +359,7 @@ static void show_short_lun_info(unsigned int hba, unsigned int port,
+ 	sa_sys_read_line(path, "model", model, sizeof(model));
+ 	sa_sys_read_line(path, "vendor", vendor, sizeof(vendor));
+ 
+-	strncat(path, "block", sizeof(path) - strlen(path) - 1);
++	strlcat(path, "block", sizeof(path));
+ 
+ 	dir = opendir(path);
+ 	if (!dir)
+@@ -363,10 +373,18 @@ static void show_short_lun_info(unsigned int hba, unsigned int port,
+ 
+ 		osname = dp->d_name;
+ 
+-		snprintf(npath, sizeof(npath), "%s/%s/", path, osname);
++		rc = snprintf(npath, sizeof(npath), "%s/%s/", path, osname);
++		if (rc < 0 || rc >= sizeof(npath)) {
++			/* error or truncation, bailing out */
++			return;
++		}
+ 		sa_sys_read_u64(npath, "size", &size);
+ 
+-		snprintf(npath, sizeof(npath), "%s/%s/queue/", path, osname);
++		rc = snprintf(npath, sizeof(npath), "%s/%s/queue/", path, osname);
++		if (rc < 0 || rc >= sizeof(npath)) {
++			/* error or truncation, bailing out */
++			return;
++		}
+ 		sa_sys_read_u32(npath, "hw_sector_size", &blksize);
+ 	}
+ 
+diff --git a/fcoemon.c b/fcoemon.c
+index 9af0f1284af..10f978b19ec 100644
+--- a/fcoemon.c
++++ b/fcoemon.c
+@@ -378,8 +378,8 @@ static int fcm_remove_quotes(char *buf, int len)
+ 		return -1;
+ 	s = buf + 1;
+ 	*e = '\0';
+-	strncpy(tmp, s, len - 1);
+-	strncpy(buf, tmp, len - 1);
++	strlcpy(tmp, s, len);
++	strlcpy(buf, tmp, len);
+ 
+ 	return 0;
+ }
+@@ -516,8 +516,8 @@ static int fcm_read_config_files(void)
+ 				    dp->d_name);
+ 			continue;
+ 		}
+-		strncpy(file, CONFIG_DIR "/", sizeof(file));
+-		strncat(file, dp->d_name, sizeof(file) - strlen(file));
++		strlcpy(file, CONFIG_DIR "/", sizeof(file));
++		strlcat(file, dp->d_name, sizeof(file));
+ 		fp = fopen(file, "r");
+ 		if (!fp) {
+ 			FCM_LOG_ERR(errno, "Failed to read %s\n", file);
+@@ -937,6 +937,7 @@ static struct fcoe_port *fcm_new_vlan(int ifindex, int vid, bool vn2vn)
+ 		[false] = CLIF_FLAGS_FABRIC,
+ 		[true] = CLIF_FLAGS_VN2VN,
+ 	};
++	int rc;
+ 
+ 	if (vn2vn)
+ 		FCM_LOG_DBG("Auto VLAN found vn2vn on VID %d\n", vid);
+@@ -945,8 +946,15 @@ static struct fcoe_port *fcm_new_vlan(int ifindex, int vid, bool vn2vn)
+ 
+ 	if (rtnl_find_vlan(ifindex, vid, vlan_name)) {
+ 		rtnl_get_linkname(ifindex, real_name);
+-		snprintf(vlan_name, sizeof(vlan_name), FCOE_VLAN_FORMAT,
+-			 real_name, vid);
++		rc = snprintf(vlan_name, sizeof(vlan_name), FCOE_VLAN_FORMAT,
++			      real_name, vid);
++		if (rc >= sizeof(vlan_name)) {
++			FCM_LOG("Warning: Generating FCoE VLAN device name for"
++				"interface %s VLAN %d: format resulted in a"
++				"name larger than IFNAMSIZ\n", real_name, vid);
++			vlan_name[sizeof(vlan_name) - 1] = 0;
++			FCM_LOG("\tTruncating VLAN name to %s\n", vlan_name);
++		}
+ 		vlan_create(ifindex, vid, vlan_name);
+ 	}
+ 	rtnl_set_iff_up(0, vlan_name);
+@@ -1087,9 +1095,10 @@ static void fcm_vlan_dev_real_dev(char *vlan_ifname, char *real_ifname)
+ 
+ 	memset(&ifv, 0, sizeof(ifv));
+ 	ifv.cmd = GET_VLAN_REALDEV_NAME_CMD;
+-	strncpy(ifv.device1, vlan_ifname, strlen(vlan_ifname)+1);
++	strlcpy(ifv.device1, vlan_ifname, sizeof(ifv.device1));
++
+ 	if (ioctl(fd, SIOCGIFVLAN, &ifv) == 0)
+-		strncpy(real_ifname, ifv.u.device2, strlen(ifv.u.device2)+1);
++		strlcpy(real_ifname, ifv.u.device2, IFNAMSIZ);
+ 	close(fd);
+ }
+ 
+@@ -1318,7 +1327,7 @@ static void ieee_get_req(struct fcm_netif *ff)
+ 	msg.dcbmsg.dcb_pad = 0;
+ 	msg.rta.rta_len = NLMSG_ALIGN(NLA_HDRLEN + iflen + 1);
+ 	msg.rta.rta_type = DCB_ATTR_IFNAME;
+-	strncpy(msg.ifname, ff->ifname, iflen);
++	strlcpy(msg.ifname, ff->ifname, IFNAMSIZ);
+ 	ff->ieee_resp_pending = seq;
+ 	rc = write(fcm_link_socket, &msg, msg.nl.nlmsg_len);
+ 	if (rc < 0) {
+@@ -1641,7 +1650,7 @@ static void fcm_process_link_msg(struct ifinfomsg *ip, int len, unsigned type)
+ 		real_dev[0] = '\0';
+ 		fcm_vlan_dev_real_dev(ifname, real_dev);
+ 		if (strlen(real_dev))
+-			strncpy(p->real_ifname, real_dev, strlen(real_dev)+1);
++			strlcpy(p->real_ifname, real_dev, IFNAMSIZ);
+ 		if (p->ready)
+ 			update_fcoe_port_state(p, type, operstate,
+ 					       FCP_CFG_IFNAME);
+@@ -1653,7 +1662,7 @@ static void fcm_process_link_msg(struct ifinfomsg *ip, int len, unsigned type)
+ 		if (p) {
+ 			p->ifindex = ifindex;
+ 			memcpy(p->mac, mac, ETHER_ADDR_LEN);
+-			strncpy(p->real_ifname, ifname, strlen(ifname)+1);
++			strlcpy(p->real_ifname, ifname, IFNAMSIZ);
+ 			update_fcoe_port_state(p, type, operstate,
+ 					       FCP_REAL_IFNAME);
+ 		}
+@@ -1781,7 +1790,7 @@ static void fcm_process_ieee_msg(struct nlmsghdr *nlh)
+ 	if (rta_parent->rta_type != DCB_ATTR_IFNAME)
+ 		return;
+ 
+-	strncpy(ifname, NLA_DATA(rta_parent), sizeof(ifname));
++	strlcpy(ifname, NLA_DATA(rta_parent), IFNAMSIZ);
+ 	ff = fcm_netif_lookup_create(ifname);
+ 	if (!ff) {
+ 		FCM_LOG("Processing IEEE message: %s not found or created\n",
+@@ -3531,7 +3540,7 @@ static void fcm_srv_receive(void *arg)
+ 	}
+ 
+ 	cmd = data->cmd;
+-	strncpy(ifname, data->ifname, sizeof(data->ifname));
++	strlcpy(ifname, data->ifname, IFNAMSIZ);
+ 	ifname[sizeof(data->ifname)] = 0;
+ 
+ 	if (cmd != CLIF_PID_CMD) {
+@@ -3686,7 +3695,7 @@ int main(int argc, char **argv)
+ 
+ 	memset(&fcoe_config, 0, sizeof(fcoe_config));
+ 
+-	strncpy(progname, basename(argv[0]), sizeof(progname));
++	strlcpy(progname, basename(argv[0]), sizeof(progname));
+ 	sa_log_prefix = progname;
+ 	sa_log_flags = 0;
+ 	openlog(sa_log_prefix, LOG_CONS, LOG_DAEMON);
+diff --git a/fipvlan.c b/fipvlan.c
+index 7c00c7c2fec..1d6ca61d738 100644
+--- a/fipvlan.c
++++ b/fipvlan.c
+@@ -448,7 +448,7 @@ static void rtnl_recv_newlink(struct nlmsghdr *nh)
+ 	else
+ 		iff->iflink = iff->ifindex;
+ 	memcpy(iff->mac_addr, RTA_DATA(ifla[IFLA_ADDRESS]), ETHER_ADDR_LEN);
+-	strncpy(iff->ifname, RTA_DATA(ifla[IFLA_IFNAME]), IFNAMSIZ);
++	strlcpy(iff->ifname, RTA_DATA(ifla[IFLA_IFNAME]), IFNAMSIZ);
+ 
+ 	if (ifla[IFLA_LINKINFO]) {
+ 		parse_linkinfo(linkinfo, ifla[IFLA_LINKINFO]);
+@@ -542,7 +542,7 @@ static void parse_cmdline(int argc, char **argv)
+ 			break;
+ 		case 'f':
+ 			if (optarg && strlen(optarg))
+-				strncpy(config.suffix, optarg, 256);
++				strlcpy(config.suffix, optarg, 256);
+ 			break;
+ 		case 'l':
+ 			config.link_retry = strtoul(optarg, NULL, 10);
+@@ -621,8 +621,10 @@ create_and_start_vlan(struct fcf *fcf, bool vn2vn)
+ 				    real_dev->ifname, fcf->vlan, vlan->ifname);
+ 			rc = 0;
+ 		} else {
+-			snprintf(vlan_name, IFNAMSIZ, "%s.%d%s",
+-				 real_dev->ifname, fcf->vlan, config.suffix);
++			rc = snprintf(vlan_name, IFNAMSIZ, "%s.%d%s",
++				      real_dev->ifname, fcf->vlan, config.suffix);
++			if (rc >= IFNAMSIZ)
++				return -E2BIG;
+ 			rc = vlan_create(fcf->ifindex, fcf->vlan, vlan_name);
+ 			if (rc < 0)
+ 				printf("Failed to create VLAN device %s\n\t%s\n",
+diff --git a/lib/rtnetlink.c b/lib/rtnetlink.c
+index 3b841371899..07518e39224 100644
+--- a/lib/rtnetlink.c
++++ b/lib/rtnetlink.c
+@@ -378,7 +378,7 @@ static int rtnl_getlinkname_handler(struct nlmsghdr *nh, void *arg)
+ 	switch (nh->nlmsg_type) {
+ 	case RTM_NEWLINK:
+ 		parse_ifinfo(ifla, nh);
+-		strncpy(name, RTA_DATA(ifla[IFLA_IFNAME]), IFNAMSIZ);
++		strlcpy(name, RTA_DATA(ifla[IFLA_IFNAME]), IFNAMSIZ);
+ 		return 0;
+ 	}
+ 	return -1;
+diff --git a/lib/sysfs_hba.c b/lib/sysfs_hba.c
+index 786215440ba..6db5ece3754 100644
+--- a/lib/sysfs_hba.c
++++ b/lib/sysfs_hba.c
+@@ -214,13 +214,13 @@ static void get_pci_device_info(struct pci_device *dev, struct hba_info *info)
+ 	if (!vname)
+ 		vname = unknown;
+ 
+-	strncpy(info->manufacturer, vname, sizeof(info->manufacturer));
++	strlcpy(info->manufacturer, vname, sizeof(info->manufacturer));
+ 
+ 	dname = pci_device_get_device_name(dev);
+ 	if (!dname)
+ 		dname = unknown;
+ 
+-	strncpy(info->model_description, dname,
++	strlcpy(info->model_description, dname,
+ 		sizeof(info->model_description));
+ 
+ 	pci_device_cfg_read_u8(dev, &revision, PCI_REVISION_ID);
+@@ -238,8 +238,8 @@ static void get_module_info(const char *pcidev, struct hba_info *info)
+ 	char *path;
+ 	int err;
+ 
+-	strncpy(info->driver_name, "Unknown", sizeof(info->driver_name));
+-	strncpy(info->driver_version, "Unknown", sizeof(info->driver_version));
++	strlcpy(info->driver_name, "Unknown", sizeof(info->driver_name));
++	strlcpy(info->driver_version, "Unknown", sizeof(info->driver_version));
+ 
+ 	err = asprintf(&path, "/sys/bus/pci/devices/%s/driver/module", pcidev);
+ 	if (err == -1)
+@@ -256,7 +256,7 @@ static void get_module_info(const char *pcidev, struct hba_info *info)
+ 	buf[err] = '\0';
+ 
+ 	if (strstr(buf, "module"))
+-		strncpy(info->driver_name,
++		strlcpy(info->driver_name,
+ 			strstr(buf, "module") + strlen("module") + 1,
+ 			sizeof(info->driver_name));
+ 
+@@ -315,7 +315,7 @@ struct port_attributes *get_rport_attribs(const char *rport)
+ 	if (!pa)
+ 		goto free_path;
+ 
+-	strncpy(pa->device_name, rport, sizeof(pa->device_name));
++	strlcpy(pa->device_name, rport, sizeof(pa->device_name));
+ 	sa_sys_read_line(path, "node_name", pa->node_name,
+ 			 sizeof(pa->node_name));
+ 	sa_sys_read_line(path, "port_name", pa->port_name,
+@@ -390,7 +390,7 @@ struct port_attributes *get_port_attribs(const char *host)
+ 	if (!pa)
+ 		goto free_path;
+ 
+-	strncpy(pa->device_name, host, sizeof(pa->device_name));
++	strlcpy(pa->device_name, host, sizeof(pa->device_name));
+ 
+ 	sa_sys_read_line(path, "symbolic_name", pa->symbolic_name,
+ 			 sizeof(pa->symbolic_name));
+@@ -443,7 +443,7 @@ char *get_pci_dev_from_netdev(const char *netdev)
+ 			return NULL;
+ 
+ 		len = strlen(netdev) - strlen(subif);
+-		strncpy(realdev, netdev, len);
++		strlcpy(realdev, netdev, sizeof(realdev));
+ 		if (realdev[len] != '\0')
+ 			realdev[len] = '\0';
+ 
+diff --git a/libopenfcoe.c b/libopenfcoe.c
+index 07090d5a09a..27389bac9ec 100644
+--- a/libopenfcoe.c
++++ b/libopenfcoe.c
+@@ -59,6 +59,7 @@ static int add_fcoe_fcf_device(struct dirent *dp, void *arg)
+ {
+ 	struct fcoe_ctlr_device *ctlr = (struct fcoe_ctlr_device *)arg;
+ 	struct fcoe_fcf_device *fcf;
++	int rc;
+ 
+ 	if (!strstr(dp->d_name, "fcf") ||
+ 	    (!strcmp(dp->d_name, "fcf_dev_loss_tmo")))
+@@ -71,8 +72,10 @@ static int add_fcoe_fcf_device(struct dirent *dp, void *arg)
+ 	memset(fcf, 0, sizeof(struct fcoe_fcf_device));
+ 
+ 	/* Save the path */
+-	snprintf(fcf->path, sizeof(fcf->path),
+-		 "%s/%s", ctlr->path, dp->d_name);
++	rc = snprintf(fcf->path, sizeof(fcf->path),
++		      "%s/%s", ctlr->path, dp->d_name);
++	if (rc >= sizeof(fcf->path))
++		goto fail;
+ 
+ 	/* Use the index from the logical enumeration */
+ 	fcf->index = atoi(dp->d_name + sizeof("fcf_") - 1);
+@@ -140,7 +143,7 @@ static int find_fchost(struct dirent *dp, void *arg)
+ 	char *fchost = arg;
+ 
+ 	if (strstr(dp->d_name, "host")) {
+-		strncpy(fchost, dp->d_name, MAX_STR_LEN);
++		strlcpy(fchost, dp->d_name, MAX_STR_LEN);
+ 		return 1;
+ 	}
+ 
+@@ -179,7 +182,9 @@ static int read_fcoe_ctlr_device(struct dirent *dp, void *arg)
+ 	if (!rc)
+ 		goto fail;
+ 
+-	sprintf(hpath, "%s/%s/", SYSFS_FCHOST, fchost);
++	rc = snprintf(hpath, MAX_STR_LEN, "%s/%s/", SYSFS_FCHOST, fchost);
++	if (rc < 0 || rc >= MAX_STR_LEN)
++		goto fail;
+ 
+ 	rc = sa_sys_read_line(hpath, "symbolic_name", buf, sizeof(buf));
+ 
+@@ -189,7 +194,7 @@ static int read_fcoe_ctlr_device(struct dirent *dp, void *arg)
+ 		goto fail;
+ 
+ 	ifname = get_ifname_from_symbolic_name(buf);
+-	strncpy(ctlr->ifname, ifname, IFNAMSIZ-1);
++	strlcpy(ctlr->ifname, ifname, IFNAMSIZ);
+ 
+ 	/* Get fcf device loss timeout */
+ 	sa_sys_read_u32(ctlr->path, "fcf_dev_loss_tmo",
+@@ -198,7 +203,9 @@ static int read_fcoe_ctlr_device(struct dirent *dp, void *arg)
+ 	sa_sys_read_line(ctlr->path, "mode", buf, sizeof(buf));
+ 	sa_enum_encode(fip_conn_type_table, buf, &ctlr->mode);
+ 
+-	snprintf(lesb_path, sizeof(lesb_path), "%s/lesb/", ctlr->path);
++	rc = snprintf(lesb_path, sizeof(lesb_path), "%s/lesb/", ctlr->path);
++	if (rc >= sizeof(lesb_path))
++		goto fail;
+ 
+ 	/* Get LESB statistics */
+ 	sa_sys_read_u32(lesb_path, "link_fail",
+-- 
+2.21.0
+

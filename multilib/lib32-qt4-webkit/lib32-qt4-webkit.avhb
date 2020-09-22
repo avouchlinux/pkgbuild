@@ -1,0 +1,93 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-qt4-webkit
+_realname=qtwebkit
+pkgver=2.3.4
+_qtver=4.8.7
+pkgrel=1
+arch=('i686' 'x86_64')
+url='http://trac.webkit.org/wiki/QtWebKit'
+pkgdesc='An open source web browser engine (Qt port)'
+license=('LGPL2.1' 'GPL3')
+depends=('qt4' 'systemd' 'gstreamer0.10-base')
+makedepends=('gperf' 'python2' 'ruby' 'git' 'mesa')
+conflicts=('qt<4.8')
+source=("ftp://ftp.archlinux.org/other/packages/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        "http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-everywhere-opensource-src-${_qtver}.tar.gz"
+        'use-python2.patch'
+        'bison3.patch'
+        'qwebview.patch')
+sha1sums=('64f3ab7f8e53b5b971a3a6577fc61db0cc2ea31f'
+          '745f9ebf091696c0d5403ce691dc28c039d77b9e'
+          '315b6ff603f35e5492a036f7082f6aa075dfb607'
+          'd2c6182512e4bcbdf30a9e9d513c52fe4b16d9f2'
+          '88ed73e6bd7ea9c6d227ceaed0ff2f1cf0200667')
+
+prepare() {
+	#bsdtar -xf "${srcarchivedir}"/qt-everywhere-opensource-src-${_qtver}.tar.gz
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	patch -p1 -i "${srcdir}"/use-python2.patch
+
+	# search /usr/lib{,64}/mozilla/plugins-wrapped for browser plugins too
+	patch -p1 -i "${srcdir}"/webkit-qtwebkit-2.2-tp1-pluginpath.patch
+
+	# smaller debuginfo s/-g/-g1/ (debian uses -gstabs) to avoid 4gb size limit
+	patch -p1 -i "${srcdir}"/qtwebkit-2.3-debuginfo.patch
+
+	# Fix build with GCC 5 (BLFS)
+	patch -p1 -i "$srcdir"/qtwebkit-2.3.4-gcc5-1.patch
+	  
+	#cd "${srcdir}"/qt-everywhere-opensource-src-${_qtver}
+	#patch -p1 -i "${srcdir}"/qwebview.patch
+}
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	OPTS="--no-webkit2"
+	#if [ "${CARCH}" = "i686" ]; then
+		  # FS#33418
+		  OPTS="${OPTS} --no-force-sse2"
+	#fi
+
+	#export QTDIR=/usr
+	#export PATH="/usr/lib/qt4/bin:$PATH"
+	
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+
+	
+	Tools/Scripts/build-webkit --qt \
+	--makeargs="${MAKEFLAGS} -m32" \
+	--prefix=/usr \
+	--install-headers=/usr/include \
+	--install-libs=/usr/lib32 \
+	${OPTS}
+
+	# Build the QWebView plugin (FS#27914)
+	#cd "${srcdir}"/qt-everywhere-opensource-src-${_qtver}/tools/designer/src/plugins/qwebview
+	#qmake-qt4
+	make
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make INSTALL_ROOT="${pkgdir}" -C WebKitBuild/Release install
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+
+	#cd "${srcdir}"/qt-everywhere-opensource-src-${_qtver}/tools/designer/src/plugins/qwebview
+	#make INSTALL_ROOT="${pkgdir}" install
+
+	## pkgconfig love
+	# drop Libs.private, it contains buildroot references, and
+	# we don't support static linking libQtWebKit anyway
+	pushd "${pkgdir}"/usr/lib32/pkgconfig
+		grep -v "^Libs.private:" QtWebKit.pc > QtWebKit.pc.new && \
+		mv QtWebKit.pc.new QtWebKit.pc
+	popd	
+}

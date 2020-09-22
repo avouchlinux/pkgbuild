@@ -1,0 +1,93 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=inetutils
+pkgver=1.9.4
+pkgrel=1
+pkgdesc="A collection of common network programs"
+arch=('x86_64')
+groups=('net-misc')
+license=('GPL3')
+url="https://www.gnu.org/software/inetutils/"
+license=('GPL3')
+depends=('pam' 'libcap')
+makedepends=('help2man')
+backup=('etc/xinetd.d/telnet' 'etc/xinetd.d/talk'
+        'etc/xinetd.d/rlogin' 'etc/xinetd.d/rsh'
+		'etc/pam.d/rlogin' 'etc/pam.d/rsh')
+options=('!emptydirs')
+install=inetutils.install
+source=("https://ftp.gnu.org/gnu/inetutils/${pkgname}-${pkgver}.tar.xz"{,.sig}
+        'ftpd.service' 'rlogin.pam' 'rlogin@.service' 'rlogin.socket' 'rlogin.xinetd'
+        'rsh.pam' 'rsh@.service' 'rsh.socket' 'rsh.xinetd' 'talk.service' 'talk.socket'
+        'talk.xinetd' 'telnet@.service' 'telnet.socket' 'telnet.xinetd')
+validpgpkeys=('4FBD67621082C4C502448E3B180551BAD95A3C35')
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	export CFLAGS+=' -fcommon'
+	./configure --prefix=/usr \
+		--libexec=/usr/bin \
+		--localstatedir=/var \
+		--sysconfdir=/etc \
+		--without-wrap \
+		--with-pam \
+		--enable-ftp \
+		--enable-ftpd \
+		--enable-telnet \
+		--enable-telnetd \
+		--enable-talk \
+		--enable-talkd \
+		--enable-rlogin \
+		--enable-rlogind \
+		--enable-rsh \
+		--enable-rshd \
+		--enable-rcp \
+		--enable-hostname \
+		--enable-dnsdomainname \
+		--disable-rexec \
+		--disable-rexecd \
+		--disable-tftp \
+		--disable-tftpd \
+		--disable-ping \
+		--disable-ping6 \
+		--disable-logger \
+		--disable-syslogd \
+		--disable-inetd \
+		--disable-whois \
+		--disable-uucpd \
+		--disable-ifconfig \
+		--disable-traceroute
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	install -D -m644 "${srcdir}/telnet.xinetd" "${pkgdir}/etc/xinetd.d/telnet"
+	install -D -m644 "${srcdir}/talk.xinetd" "${pkgdir}/etc/xinetd.d/talk"
+	install -D -m644 "${srcdir}/rlogin.xinetd" "${pkgdir}/etc/xinetd.d/rlogin"
+	install -D -m644 "${srcdir}/rsh.xinetd" "${pkgdir}/etc/xinetd.d/rsh"
+
+	install -D -m644 "${srcdir}/rlogin.pam" "${pkgdir}/etc/pam.d/rlogin"
+	install -D -m644 "${srcdir}/rsh.pam" "${pkgdir}/etc/pam.d/rsh"
+
+	install -D -m644 "${srcdir}/ftpd.service" "${pkgdir}/usr/lib/systemd/system/ftpd.service"
+	install -D -m644 "${srcdir}/rlogin@.service" "${pkgdir}/usr/lib/systemd/system/rlogin@.service"
+	install -D -m644 "${srcdir}/rlogin.socket" "${pkgdir}/usr/lib/systemd/system/rlogin.socket"
+	install -D -m644 "${srcdir}/rsh@.service" "${pkgdir}/usr/lib/systemd/system/rsh@.service"
+	install -D -m644 "${srcdir}/rsh.socket" "${pkgdir}/usr/lib/systemd/system/rsh.socket"
+	install -D -m644 "${srcdir}/talk.service" "${pkgdir}/usr/lib/systemd/system/talk.service"
+	install -D -m644 "${srcdir}/talk.socket" "${pkgdir}/usr/lib/systemd/system/talk.socket"
+	install -D -m644 "${srcdir}/telnet@.service" "${pkgdir}/usr/lib/systemd/system/telnet@.service"
+	install -D -m644 "${srcdir}/telnet.socket" "${pkgdir}/usr/lib/systemd/system/telnet.socket"
+}

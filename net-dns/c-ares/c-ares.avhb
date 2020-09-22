@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=c-ares
+pkgver=1.16.0
+pkgrel=1
+pkgdesc='C library that performs DNS requests and name resolves asynchronously'
+arch=('x86_64')
+groups=('net-dns')
+url='https://c-ares.haxx.se/'
+license=('custom')
+depends=('glibc')
+source=("https://c-ares.haxx.se/download/$pkgname-$pkgver.tar.gz"{,.asc}
+        'LICENSE')
+validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2'   # Daniel Stenberg
+              '914C533DF9B2ADA2204F586D78E11C6B279D5C91')  # Daniel Stenberg
+
+build() {
+  cd "$pkgname-$pkgver"
+
+  ./configure --prefix=/usr --enable-shared
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+  install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

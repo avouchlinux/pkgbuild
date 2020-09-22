@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xvidcore
+pkgver=1.3.7
+pkgrel=1
+pkgdesc='XviD is an open source MPEG-4 video codec'
+arch=('x86_64')
+groups=('media-libs')
+url='https://www.xvid.org/'
+license=('GPL')
+depends=('glibc')
+makedepends=('nasm')
+provides=('libxvidcore.so')
+source=(http://downloads.xvid.org/downloads/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd "${srcdir}/${pkgname}/build/generic"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}/build/generic"
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 ${srcdir}/${pkgname}/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
+

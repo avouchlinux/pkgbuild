@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libspectre
+pkgver=0.2.8
+pkgrel=1
+pkgdesc="Small library for rendering Postscript documents"
+arch=('x86_64')
+groups=('media-grafix')
+license=('GPL2')
+url="https://www.freedesktop.org/wiki/Software/libspectre"
+depends=('ghostscript>=9.00')
+source=(https://libspectre.freedesktop.org/releases/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

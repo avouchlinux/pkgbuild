@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=telepathy-glib
+pkgver=0.24.1
+pkgrel=1
+pkgdesc="GLib bindings for the Telepathy D-Bus protocol"
+arch=('x86_64')
+groups=('net-im')
+url="http://telepathy.freedesktop.org"
+license=('LGPL2.1')
+options=('!emptydirs')
+depends=('dbus-glib')
+makedepends=('libxslt' 'vala' 'gobject-introspection')
+source=(http://telepathy.freedesktop.org/releases/$pkgname/$pkgname-$pkgver.tar.gz)
+
+build() {
+	cd "${srcdir}"/${pkgname}-${pkgver}
+	PYTHON=/usr/bin/python2 ./configure --prefix=/usr \
+		--libexecdir=/usr/lib/telepathy \
+		--enable-vala-bindings \
+		--enable-static=no
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

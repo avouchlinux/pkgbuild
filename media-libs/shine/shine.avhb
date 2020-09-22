@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah
+# Contributor: Qurban Ullah
+
+pkgname=shine
+pkgver=3.1.1
+pkgrel=1
+pkgdesc='Super fast fixed-point MP3 encoder'
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/savonet/shine"
+license=(GPL2)
+depends=('glibc')
+makedepends=('automake' 'autoconf' 'make' 'libtool')
+options=('!libtool' '!strip')
+source=(https://github.com/toots/$pkgname/archive/$pkgver.tar.gz)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./bootstrap
+    ./configure --prefix=/usr
+    make all
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}
+

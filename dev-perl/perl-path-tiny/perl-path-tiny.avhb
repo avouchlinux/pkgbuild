@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-path-tiny
+_realname=Path-Tiny
+pkgver=0.076
+pkgrel=1
+pkgdesc='A small and fast Perl module for working with file paths'
+arch=('any')
+url='https://metacpan.org/release/Path-Tiny'
+license=('PerlArtistic' 'GPL')
+depends=('perl>=5.17.8')
+source=(http://search.cpan.org/CPAN/authors/id/D/DA/DAGOLDEN/Path-Tiny-0.076.tar.gz)
+options=(!emptydirs)
+md5sums=('495b965187a59af9b99c0f4709013746')
+
+sanitize() {
+	unset PERL5LIB PERL_MM_OPT PERL_MB_OPT PERL_LOCAL_LIB_ROOT
+	export PERL_MM_USE_DEFAULT=1
+}
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	sanitize
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	sanitize
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	sanitize
+	make install DESTDIR="$pkgdir"
+}

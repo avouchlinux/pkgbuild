@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=appdata-tools
+pkgver=0.1.8
+pkgrel=1
+pkgdesc="command line program designed to validate AppData descriptions"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/hughsie/appdata-tools/"
+license=('GPL')
+depends=('appstream-glib')
+makedepends=('intltool')
+source=(http://people.freedesktop.org/~hughsient/releases/appdata-tools-$pkgver.tar.xz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgname//-/_}_${pkgver//./_}"
+
+	autoreconf -fi
+	intltoolize
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgname//-/_}_${pkgver//./_}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgname//-/_}_${pkgver//./_}"
+	make DESTDIR="${pkgdir}" install
+}

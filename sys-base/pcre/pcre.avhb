@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pcre
+pkgver=8.44
+pkgrel=1
+pkgdesc="A library that implements Perl 5-style regular expressions"
+arch=('x86_64')
+groups=('sys-base')
+url='http://www.pcre.org/'
+license=('BSD')
+depends=('gcc-libs' 'readline' 'zlib' 'bzip2' 'bash')
+validpgpkeys=('45F68D54BBE23FB3039B46E59766E084FB0F43D8') # Philip Hazel
+source=("https://ftp.pcre.org/pub/pcre/$pkgname-$pkgver.tar.bz2"{,.sig})
+md5sums=('636222e79e392c3d95dcc545f24f98c4'
+         'SKIP')
+
+build() {
+    cd "${srcdir}"/${pkgname}-${pkgver}
+    ./configure --prefix=/usr \
+        --enable-unicode-properties \
+        --enable-pcre16 \
+        --enable-pcre32 \
+        --enable-jit \
+        --enable-pcregrep-libz \
+        --enable-pcregrep-libbz2 \
+        --enable-pcretest-libreadline
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}"/${pkgname}-${pkgver}
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}"/${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+}

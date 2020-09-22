@@ -1,0 +1,27 @@
+diff -up openchange-openchange-2.3-VULCAN/configure.ac.switch-to-python3 openchange-openchange-2.3-VULCAN/configure.ac
+--- openchange-openchange-2.3-VULCAN/configure.ac.switch-to-python3	2018-04-17 13:51:55.977608741 +0200
++++ openchange-openchange-2.3-VULCAN/configure.ac	2018-04-17 13:54:21.958606722 +0200
+@@ -377,17 +377,17 @@ dnl ------------------------------------
+ dnl Check for Python
+ dnl ---------------------------------------------------------------------------
+ 
+-AC_PATH_PROG(PYTHON, python)
++AC_PATH_PROG(PYTHON, python3)
+ if test x"$PYTHON" = x""; then
+-	AC_MSG_WARN([No version of python was found!])
+-	AC_MSG_ERROR([Please install python])
++	AC_MSG_WARN([No version of python3 was found!])
++	AC_MSG_ERROR([Please install python3])
+ fi
+ AC_SUBST(PYTHON)
+ 
+-AC_PATH_PROG(PYTHON_CONFIG, python-config)
++AC_PATH_PROG(PYTHON_CONFIG, python3-config)
+ if test x"$PYTHON_CONFIG" = x""; then
+-	AC_MSG_WARN([No version of python-config was found!])
+-	AC_MSG_ERROR([Please install python-dev 2.7])
++	AC_MSG_WARN([No version of python3-config was found!])
++	AC_MSG_ERROR([Please install python3-dev 3.x])
+ fi
+ AC_SUBST(PYTHON_CONFIG)
+ 

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# update initramfs
+echo "/boot/initramfs-linux.img $(uname -r) --force"
+dracut '/boot/initramfs-linux.img' $(uname -r) --force

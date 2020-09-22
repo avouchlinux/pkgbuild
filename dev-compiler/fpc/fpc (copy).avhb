@@ -1,0 +1,101 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fpc
+_realname=fpcbuild
+pkgver=3.2.0
+pkgrel=1
+pkgdesc="Free Pascal Compiler, Turbo Pascal 7.0 and Delphi compatible."
+arch=('x86_64')
+groups=('dev-compiler')
+url="https://www.freepascal.org/"
+license=('GPL' 'LGPL' 'custom')
+backup=("etc/fpc.cfg")
+depends=('ncurses' 'zlib' 'expat' 'binutils' 'make')
+makedepends=(fpc)
+options=(zipman staticlibs)
+source=(ftp://ftp.freepascal.org/pub/fpc/dist/$pkgver/source/fpcbuild-$pkgver.tar.gz)
+
+prepare() {
+  cd "$srcdir"/fpcbuild-r1473
+  unzip $srcarchivedir/fpc-r44680.zip
+  mv fpc-r44680 fpcsrc/
+
+  unzip $srcarchivedir/fpcdocs-r1688.zip
+  mv fpcdocs-r1688 fpcdocs
+
+  # The source-files:
+  mkdir -p fpc_src
+  cp -a fpcsrc/rtl fpc_src
+  cp -a fpcsrc/packages fpc_src
+  rm -rf fpc_src/packages/extra/amunits
+  rm -rf fpc_src/packages/extra/winunits
+
+}
+
+
+build() {
+  cd "$srcdir"/fpcbuild-r1473
+
+  ## Force to use ld.bdf instead of default ld.gold 
+	## as upstream does not come up with a solution yet.
+	#export LD=ld.bfd
+	#export LDFLAGS="${LDFLAGS} -fuse-ld=bfd"
+	
+	#export LDNAME=$(BINUTILSPREFIX)ld.bfd
+
+  pushd fpcsrc
+    #fpcmake -Tall
+    sed -i 's|$(BINUTILSPREFIX)ld|$(BINUTILSPREFIX)ld.bfd|g' Makefile
+    sed -i 's|LD=$(LDPROG)|LD=ld.bfd|g' Makefile
+
+    sed -i 's|LDPROG=$(LDNAME)|LDPROG=/usr/bin/ld.bfd|g' Makefile
+    sed -i 's|LDPROG=$(LDNAME)|LDPROG=/usr/bin/ld.bfd|g' compiler/Makefile
+
+    sed -i 's|LD=$(LDPROG)|LD=ld.bfd|g' compiler/Makefile
+    sed -i 's|$(BINUTILSPREFIX)ld|$(BINUTILSPREFIX)ld.bfd|g' compiler/Makefile
+
+    NEWPP=$(pwd)/compiler/ppcx64
+    DATA2INC=$(pwd)/utils/data2inc
+    # FIXME: -j1 as there is a race on armv7hl - seen on "missing" `prt0.o' and 'dllprt0.o'.
+
+    make -j1 compiler_cycle FPC=ppcx64 NOGDB=1
+    # Save new compiler from cleaning...
+	  cp $NEWPP $NEWPP.new
+    make LD=ld.bfd compiler_cycle FPC=$NEWPP.new NOGDB=1
+    make LDNAME=/usr/bin/ld.bfd make build NOGDB=1 rtl_clean rtl_smart FPC=${NEWPP}
+    make LDNAME=/usr/bin/ld.bfd packages_smart FPC=${NEWPP}
+    make LDNAME=/usr/bin/ld.bfd utils_all FPC=${NEWPP} DATA2INC=${DATA2INC}
+  popd
+  #LDNAME=$(BINUTILSPREFIX)ld.bfd make LDNAME=$(BINUTILSPREFIX)ld.bfd build NOGDB=1
+
+  # FIXME: -j1 as there is a race - seen on "missing" `rtl.xct'.
+  make -j1 -C fpcdocs pdf FPC=${NEWPP}
+}
+
+package() {
+  cd "$srcdir"/fpcbuild-r1473
+
+  export HOME="$srcdir"
+
+  make -j1 PREFIX="$pkgdir"/usr install NOGDB=1
+
+  export PATH="$pkgdir"/usr/bin:$PATH
+
+  install -Dm0644 fpcsrc/rtl/COPYING.FPC "$pkgdir"/usr/share/licenses/${pkgname}/COPYING.FPC
+
+  [ "$CARCH" = "x86_64" ] && ln -s /usr/lib/fpc/${pkgver}/ppcx64 "$pkgdir"/usr/bin/
+
+  mkdir -p "$pkgdir"/etc
+  "$pkgdir"/usr/lib/fpc/${pkgver}/samplecfg "$pkgdir"/usr/lib/fpc/${pkgver} "$pkgdir"/etc
+
+  # use -fPIC by default
+  echo -e "#ifdef cpux86_64\n# for x86_64 use -fPIC by default\n-Cg\n#endif" >> "$pkgdir/etc/fpc.cfg"
+
+  mv "$pkgdir"/usr/man "$pkgdir"/usr/share/
+
+  find "$pkgdir"/etc/ -type f -exec sed -i "s|"$pkgdir"||g" {} \;
+  sed -e "s|$pkgdir||g" -i "$pkgdir/usr/lib/fpc/$pkgver/ide/text/fp.cfg"
+
+}

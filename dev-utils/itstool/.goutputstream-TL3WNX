@@ -1,0 +1,62 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=itstool
+pkgver=2.0.2
+avhver=1
+pkgrel=1
+pkgdate=20131217
+pkgdesc="XML to PO and back again"
+arch=(any)
+url="http://itstool.org/"
+license=(GPL3)
+depends=(python2 libxml2)
+source=(http://files.itstool.org/itstool/$pkgname-$pkgver.tar.bz2)
+sha256sums=('14708111b11b4a70e240e3b404d7a58941e61dbb5caf7e18833294d654c09169')
+
+prepare() {
+
+srcdir=/build/${pkgname}
+cd ${srcdir}
+tar -jxf ${srcdir}/${pkgname}-${pkgver}.tar.bz2
+cd ${srcdir}/${pkgname}-${pkgver}
+
+sed -i 's/| python/&2/' configure.ac
+autoreconf -fi
+
+}
+
+build() {
+
+cd ${srcdir}/${pkgname}-${pkgver}
+./configure --prefix=/usr PYTHON=/usr/bin/python2
+make
+
+}
+
+check() {
+
+cd ${srcdir}/${pkgname}-${pkgver}
+make -k check
+
+}
+
+package() {
+
+cd "${srcdir}/${pkgname}-${pkgver}"
+make DESTDIR="${pkgdir}" install
+# license
+install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+
+}
+
+makepkg() {
+
+# make avouch package
+apm ${pkgname} ${pkgver} ${avhver} ${pkgrel}
+
+# install avouch package
+api ${pkgname} ${pkgver} ${avhver} ${pkgrel}
+
+}
+

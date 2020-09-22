@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ding-libs
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="'D is not GLib' utility libraries"
+arch=('x86_64')
+groups=('sys-base')
+url="https://pagure.io/SSSD/ding-libs/"
+license=('GPL3' 'LGPL3')
+depends=('glibc')
+makedepends=('doxygen')
+checkdepends=('check')
+source=(https://releases.pagure.org/SSSD//$pkgname/$pkgname-$pkgver.tar.gz{,.asc}
+       ding-libs-0.6.1-ini_validators_ut_check-glibc-2.28.patch)
+validpgpkeys=('7B54CAE8A03D66F3D70A5B516F5A90EB44FBC7C7'  # "Pavel Reichl <preichl@redhat.com>"
+              'E4E366758CA0716AAB8048671EC6AB7532E7BC25'  # "Jakub Hrozek <jhrozek@redhat.com>"
+              '16F24229488E736048952737BA88000FE6398272') # "Michal Židek (rh_work) <mzidek@redhat.com>"
+
+prepare() {
+	cd $pkgname-$pkgver
+	# fix a test; FS#60089
+	patch -Np1 -i ../ding-libs-0.6.1-ini_validators_ut_check-glibc-2.28.patch
+}
+
+build() {
+	cd $pkgname-$pkgver
+	./configure --prefix=/usr --disable-static
+	make ${MAKEFLAGS} all docs
+}
+
+check() {
+	cd $pkgname-$pkgver
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="$pkgdir/" install
+} 

@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=librest
+pkgver=0.8.1
+pkgrel=1
+pkgdesc="A helper library for RESTful services."
+arch=('x86_64')
+groups=('sys-libs')
+url="https://wiki.gnome.org/Projects/Librest"
+license=(LGPL2.1)
+depends=(glib2 libxml2 libsoup)
+makedepends=(gobject-introspection gtk-doc git)
+source=("https://gitlab.gnome.org/GNOME/librest/-/archive/$pkgver/librest-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --sysconfdir=/etc --enable-gtk-doc
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

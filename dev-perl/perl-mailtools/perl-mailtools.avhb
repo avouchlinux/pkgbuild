@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-mailtools
+_realname=MailTools
+pkgver=2.13
+pkgrel=1
+pkgdesc='Various e-mail related modules'
+arch=(any)
+license=(PerlArtistic GPL)
+options=(!emptydirs)
+depends=(perl-timedate)
+url=https://metacpan.org/release/MailTools
+source=("http://search.cpan.org/CPAN/authors/id/M/MA/MARKOV/MailTools-$pkgver.tar.gz")
+md5sums=('b233a5723a0f5680d8ddd4dfdcb14c14')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

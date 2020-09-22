@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libshout
+pkgver=2.4.3
+pkgrel=1
+pkgdesc="Library for accessing a shoutcast/icecast server"
+arch=('x86_64')
+groups=('media-libs')
+depends=('libvorbis' 'libtheora' 'speex')
+url="http://www.icecast.org/"
+options=('!emptydirs')
+license=('LGPL')
+source=("http://downloads.xiph.org/releases/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+	sed -e 's/SSLeay_add_all_algorithms/OpenSSL_add_all_algorithms/g' -i src/tls.c
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --localstatedir=/var
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

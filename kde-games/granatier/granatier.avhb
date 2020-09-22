@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=granatier
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="A clone of the classic Bomberman game"
+url="http://kde.org/applications/games/granatier/"
+arch=('x86_64')
+groups=('kde-games')
+license=('GPL' 'LGPL' 'FDL')
+depends=('libkdegames' 'hicolor-icon-theme')
+makedepends=('extra-cmake-modules' 'python' 'kdoctools')
+source=("http://download.kde.org/stable/applications/${pkgver}/src/granatier-${pkgver}.tar.xz")
+sha1sums=('a1a132f2f4a2d89f590f4b9762ee0603ed88b2b2')
+
+prepare() {
+	mkdir -p build
+}
+
+build() {
+	cd build
+	cmake ../$pkgname-$pkgver \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DBUILD_TESTING=OFF \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd build
+	make DESTDIR="${pkgdir}" install
+}

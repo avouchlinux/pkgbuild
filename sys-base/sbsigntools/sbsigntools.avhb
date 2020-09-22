@@ -1,0 +1,58 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="sbsigntools"
+pkgver=0.9.3
+pkgrel=1
+pkgdesc="Tools to add signatures to EFI binaries and Drivers"
+arch=('x86_64')
+groups=('sys-base')
+url="https://build.opensuse.org/package/show/home:jejb1:UEFI/sbsigntools"
+license=('GPL3')
+makedepends=('gnu-efi-libs' 'help2man' 'git') 
+depends=('libutil-linux' 'openssl')
+source=("git+https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git#tag=v${pkgver}"
+	"git://git.ozlabs.org/~ccan/ccan"
+	"0001-sbsigntools-fix-autogen.sh-for-build-service.patch")
+sha256sums=('SKIP'
+            'SKIP'
+            '9085ad181f67ac911918864783a9804af456d33c4631659e6acaaa27987786d7')
+
+getsrc() {
+	cd "${srcdir}"
+	git clone https://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
+	
+	cd "${srcdir}/${pkgname}"
+	#git clone git://git.ozlabs.org/~ccan/ccan
+}
+
+prepare() {
+	cd "${srcdir}/${pkgname}"
+	
+	bsdtar -xf $srcarchivedir/ccan.tar.xz
+	
+	rm -r lib/ccan.git
+	mv ccan lib/ccan.git
+	
+	patch -p1 -i "${srcdir}/0001-sbsigntools-fix-autogen.sh-for-build-service.patch"
+
+	git submodule init
+	git config submodule."lib/ccan.git".url "${srcdir}/ccan"
+	git submodule update
+	
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd "${pkgname}"        
+	./configure --prefix="/usr" --bindir="/usr/bin" --sbindir="/usr/bin" --libexecdir="/usr/lib" --mandir="/usr/share/man" --sysconfdir="/etc"
+	cp "lib/ccan.git/config.h" "lib/ccan/"
+	make
+}
+
+package() {
+	cd "${pkgname}"
+	
+	make DESTDIR="${pkgdir}" install
+}

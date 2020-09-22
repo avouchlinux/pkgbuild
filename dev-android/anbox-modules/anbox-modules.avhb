@@ -1,0 +1,50 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=anbox-modules
+pkgname=('anbox-modules-ashmem' 'anbox-modules-binder')
+pkgver=r1213.c898810
+pkgrel=1
+epoch=1
+arch=('x86_64')
+groups=('dev-android')
+url="http://anbox.io/"
+license=('GPL3')
+makedepends=('dkms' 'kernel-headers')
+source=('')
+
+build() {
+    _kernver=$(</usr/src/linux/version)
+
+    dkms build --dkmstree "${srcdir}" -m anbox-modules-ashmem/${pkgver} -k ${_kernver}
+    dkms build --dkmstree "${srcdir}" -m anbox-modules-binder/${pkgver} -k ${_kernver}
+}
+
+package_anbox-modules-ashmem() {
+  depends=('anbox')
+  
+  _kernver="$(</usr/src/linux/version)"
+
+    install -Dt "${pkgdir}/usr/lib/modules/${_kernver}/extramodules" -m644 \
+        anbox-modules-ashmem/${pkgver}/${_kernver}/${CARCH}/module/*
+
+    # compress each module individually
+    find "$pkgdir" -name '*.ko' -exec xz -T1 {} +
+
+
+}
+
+package_anbox-modules-binder() {
+  depends=('anbox')
+  
+  _kernver="$(</usr/src/linux/version)"
+
+    install -Dt "${pkgdir}/usr/lib/modules/${_kernver}/extramodules" -m644 \
+        anbox-modules-binder/${pkgver}/${_kernver}/${CARCH}/module/*
+
+    # compress each module individually
+    find "$pkgdir" -name '*.ko' -exec xz -T1 {} +
+
+}

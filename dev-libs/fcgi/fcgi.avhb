@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fcgi
+pkgver=2.4.2
+pkgrel=1
+depends=('gcc-libs')
+pkgdesc="FASTCgi (fcgi) is a language independent, high performant extension to CGI"
+arch=('x86_64')
+groups=('div-libs')
+license=('custom')
+options=('!makeflags')
+url='http://www.fastcgi.com/'
+source=("https://github.com/FastCGI-Archives/fcgi2/archive/${pkgver}.tar.gz")
+
+prepare() {
+  cd "${srcdir}/fcgi2-${pkgver}"
+
+  ./autogen.sh
+}
+
+build() {
+  cd "${srcdir}/fcgi2-${pkgver}"
+
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/fcgi2-${pkgver}"
+
+  make DESTDIR="${pkgdir}" install
+  install -Dm0644 LICENSE.TERMS "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

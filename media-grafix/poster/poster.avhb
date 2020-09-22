@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=poster
+pkgver=20060221
+pkgrel=1
+pkgdesc="Scales PostScript images to span multiple pages"
+arch=('x86_64')
+groups=('media-grafix')
+url="http://printing.kde.org/downloads/"
+license=(GPL)
+depends=(cairo gobject-introspection 'mozjs')
+groups=('grafix')
+repo=('core')
+source=(ftp://ftp.kde.org/pub/kde/printing/poster.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	mkdir -p ${pkgdir}/usr/bin
+	mkdir -p ${pkgdir}/usr//share/man/man1
+	install -m755 poster ${pkgdir}/usr/bin
+	install -m644 poster.1 ${pkgdir}/usr/share/man/man1/
+
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

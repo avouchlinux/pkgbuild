@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-jinja
+_realname=Jinja2
+pkgver=2.11.1
+pkgrel=1
+pkgdesc="A simple pythonic template language written in Python"
+arch=('any')
+groups=('dev-python2')
+url="http://jinja.pocoo.org/"
+license=('BSD')
+depends=('python2-setuptools' 'python2-markupsafe')
+makedepends=('python2-setuptools' 'python2-markupsafe')
+source=(http://pypi.python.org/packages/source/J/Jinja2/Jinja2-$pkgver.tar.gz)
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

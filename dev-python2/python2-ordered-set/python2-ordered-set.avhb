@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-ordered-set
+_realname=ordered-set
+pkgver=3.1.1
+pkgrel=1
+pkgdesc='A MutableSet that remembers its order, so that every entry has an index'
+arch=('any')
+groups=('dev-python2')
+url="https://github.com/LuminosoInsight/ordered-set"
+license=('MIT')
+depends=('python2')
+makedepends=('python2-setuptools')
+checkdepends=('python2-pytest')
+source=("https://pypi.io/packages/source/o/ordered-set/ordered-set-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

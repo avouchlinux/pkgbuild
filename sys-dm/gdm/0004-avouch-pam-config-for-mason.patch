@@ -1,0 +1,16 @@
+--- meson.build	2020-09-11 20:34:27.186127400 +0000
++++ ../../meson.build	2020-09-12 06:12:57.301434174 +0000
+@@ -137,6 +137,13 @@
+     'gdm-password',
+     'gdm-pin',
+   ],
++    'avouch': [
++    'gdm-autologin',
++    'gdm-launch-environment',
++    'gdm-fingerprint',
++    'gdm-smartcard',
++    'gdm-password',
++  ],
+   'none': [],
+   # We should no longer have 'autodetect' at this point
+ }

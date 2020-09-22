@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libclc
+pkgver=0.2.0+589+9aa6f35
+pkgrel=1
+pkgdesc="Library requirements of the OpenCL C programming language"
+arch=('any')
+url="http://libclc.llvm.org/"
+license=('MIT')
+makedepends=('clang' 'llvm' 'python2' 'git')
+options=('staticlibs')
+groups=('devel')
+repo=('core')
+source=('git+https://llvm.org/git/libclc.git#commit=17648cd')
+md5sums=(SKIP)
+
+getsrc(){
+	git clone https://llvm.org/git/libclc.git
+}
+
+pkgver() {
+  cd libclc
+
+  echo 0.2.0+$(git rev-list --count HEAD)+$(git describe --always)
+  #git describe --long | sed 's/-/+/g'
+}
+
+build() {
+  cd libclc
+  
+  sed -i 's/"python < $in >/sys.executable + " < $in >/g' configure.py
+  
+  python2 ./configure.py --prefix=/usr
+  make
+}
+
+package() {
+  cd libclc
+  
+  make install DESTDIR="$pkgdir"
+  install -Dm644 LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

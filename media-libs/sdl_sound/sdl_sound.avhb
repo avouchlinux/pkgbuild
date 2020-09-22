@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sdl_sound
+_realname=SDL_sound
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="A library to decode several popular sound file formats, such as .WAV and .MP3"
+url="https://icculus.org/SDL_sound/"
+arch=('x86_64')
+groups=('media-libs')
+license=(LGPL)
+depends=(sdl libmikmod libvorbis flac speex smpeg)
+source=(https://icculus.org/SDL_sound/downloads/SDL_sound-$pkgver.tar.gz 
+        flac.patch)
+
+build() {
+  cd SDL_sound-$pkgver
+
+  CFLAGS+=" -I/usr/include/smpeg"
+  CXXFLAGS+=" -I/usr/include/smpeg"
+
+  export LDFLAGS="$LDFLAGS -lm"
+
+  ./configure --prefix=/usr --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd SDL_sound-$pkgver
+  make DESTDIR="$pkgdir" install
+}
+

@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-astroid
+_realname=astroid-astroid
+pkgver=2.3.3
+pkgrel=1
+pkgdesc="Useful miscellaneous modules used by Logilab projects"
+arch=('any')
+groups=('dev-python2')
+url="https://github.com/PyCQA/astroid"
+license=('LGPL')
+depends=('python2-six' 'python2-lazy-object-proxy' 'python2-wrapt')
+makedepends=('python2-setuptools')
+checkdepends=('python2-dateutil' 'python2-pytest' 'python2-numpy' 'python2-nose')
+source=(https://github.com/PyCQA/astroid/archive/astroid-$pkgver.tar.gz)
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

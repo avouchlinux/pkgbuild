@@ -1,0 +1,64 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-video-intel
+pkgver=20180618
+pkgrel=1
+arch=('x86_64')
+groups=('x11-drivers')
+url="https://01.org/linuxgraphics"
+license=('custom')
+install=$pkgname.install
+pkgdesc="X.org Intel i810/i830/i915/945G/G965+ video drivers"
+depends=('mesa-dri' 'libxvmc' 'pixman' 'xcb-util>=0.3.9' 'libsystemd')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0' 'libx11' 'libxrender'
+             # additional deps for intel-virtual-output
+             'libxrandr' 'libxinerama' 'libxcursor' 'libxtst' 'libxss'
+             # additional for git snapshot
+             'git')
+optdepends=('libxrandr: for intel-virtual-output'
+            'libxinerama: for intel-virtual-output'
+            'libxcursor: for intel-virtual-output'
+            'libxtst: for intel-virtual-output'
+            'libxss: for intel-virtual-output')
+replaces=('xf86-video-intel-uxa' 'xf86-video-intel-sna')
+provides=('xf86-video-intel-uxa' 'xf86-video-intel-sna')
+source=("git+https://anongit.freedesktop.org/git/xorg/driver/xf86-video-intel#commit=$_commit")
+
+prepare() {	
+    cd ${srcdir}/${pkgname}-${pkgver}
+    
+    patch -Np1 -i ../intel-gcc-pr65873.patch
+    # https://bugs.freedesktop.org/show_bug.cgi?id=96255#c11
+    patch -Np1 -i ../0001-sna-Avoid-clobbering-output-physical-size-with-xf86O.patch
+    patch -Np1 -i ../0001-Fix-build-on-F28-and-later.patch
+    patch -Np1 -i ../0001-Fix-build-on-i686.patch
+
+    autoreconf -f -i -v
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	
+	# Since avouch, hardened flags are now enabled in apm.conf
+	# With them, module fail to load with undefined symbol.
+	# See https://bugs.avouch.org/task/55102 / https://bugs.avouch.org/task/54845
+    CFLAGS+=' -fcommon'
+	export CFLAGS=${CFLAGS/-fno-plt}
+	export CXXFLAGS=${CXXFLAGS/-fno-plt}
+	export LDFLAGS=${LDFLAGS/,-z now}
+  
+	./configure --prefix=/usr --libexecdir=/usr/lib --with-default-dri=3 --enable-tools
+	make ${MAKEFLGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make check
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

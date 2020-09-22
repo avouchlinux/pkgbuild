@@ -1,0 +1,38 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cbindgen
+pkgver=0.14.4
+pkgrel=1
+pkgdesc="A tool for generating C bindings to Rust code"
+url="https://github.com/eqrion/cbindgen"
+arch=('x86_64')
+groups=('dev-utils')
+license=(MPL2)
+depends=(gcc-libs)
+makedepends=(cargo)
+source=("https://github.com/eqrion/cbindgen/archive/v$pkgver.tar.gz")
+
+prepare() {
+  cd $pkgname-$pkgver
+  cargo fetch --locked
+}
+
+build() {
+  cd $pkgname-$pkgver
+  cargo build --release --frozen
+}
+
+check() {
+  cd $pkgname-$pkgver
+  # test_expand* fails; needs nightly rust
+  cargo test --release --frozen || :
+}
+
+package() {
+  cd $pkgname-$pkgver
+  install -Dt "$pkgdir/usr/bin" target/release/cbindgen
+  install -Dt "$pkgdir/usr/share/doc/$pkgname" -m644 README.md
+}

@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lua51
+_realname=lua
+pkgver=5.1.5
+pkgrel=1
+pkgdesc='Powerful lightweight programming language designed for extending applications'
+arch=('x86_64')
+groups=('dev-lang')
+url='http://www.lua.org/'
+depends=('readline')
+license=('MIT')
+options=('!makeflags' '!emptydirs')
+source=(http://www.lua.org/ftp/lua-$pkgver.tar.gz
+        lua-arch.patch
+        lua-5.1-cflags.diff)
+
+prepare() {
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	patch -p1 -i ../lua-arch.patch
+	patch -p1 -i ../lua-5.1-cflags.diff
+}
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	[[ $CARCH == x86_64 ]] && export CFLAGS="$CFLAGS -fPIC"
+	sed -e 's:llua:llua5.1:' -e 's:/include:/include/lua5.1:' -i etc/lua.pc
+	sed -r -e '/^LUA_(SO|A|T)=/ s/lua/lua5.1/' -e '/^LUAC_T=/ s/luac/luac5.1/' \
+	-i src/Makefile
+	make MYCFLAGS="$CFLAGS" MYLDFLAGS="$LDFLAGS" linux
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	make \
+	TO_BIN='lua5.1 luac5.1' \
+	TO_LIB="liblua5.1.a liblua5.1.so liblua5.1.so.5.1 liblua5.1.so.$pkgver" \
+	INSTALL_DATA='cp -d' \
+	INSTALL_TOP="$pkgdir"/usr \
+	INSTALL_INC="$pkgdir"/usr/include/lua5.1 \
+	INSTALL_MAN="$pkgdir"/usr/share/man/man1 \
+	install
+
+	install -Dm644 etc/lua.pc "$pkgdir"/usr/lib/pkgconfig/lua5.1.pc
+	install -d "$pkgdir/usr/share/doc/$pkgname"
+	install -m644 doc/*.{gif,png,css,html} "$pkgdir"/usr/share/doc/$pkgname
+	install -Dm644 COPYRIGHT "$pkgdir"/usr/share/licenses/$pkgname/COPYRIGHT
+
+	ln -s liblua5.1.so "$pkgdir"/usr/lib/liblua.so.5.1
+	ln -s liblua5.1.so "$pkgdir"/usr/lib/liblua.so.$pkgver
+
+	cd "$pkgdir"/usr/share/man/man1
+	mv lua.1 lua5.1.1
+	mv luac.1 luac5.1.1
+}

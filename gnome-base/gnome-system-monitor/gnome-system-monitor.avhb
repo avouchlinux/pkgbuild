@@ -1,0 +1,30 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-system-monitor
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="View current processes and monitor system state"
+url="https://wiki.gnome.org/Apps/SystemMonitor"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(libgtop gtkmm3 librsvg systemd)
+makedepends=(meson yelp-tools git)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

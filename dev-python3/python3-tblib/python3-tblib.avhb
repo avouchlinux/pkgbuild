@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-tblib
+_pyname=tblib
+pkgver=1.6.0
+pkgrel=1
+pkgdesc='python3 traceback fiddling library'
+url='https://github.com/ionelmc/python3-tblib'
+arch=('any')
+groups=('dev-python3')
+license=('BSD')
+depends=('python3-six')
+makedepends=('python3-setuptools' 'python3-six')
+source=(https://github.com/ionelmc/python3-tblib/archive/v${pkgver}.tar.gz)
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,621 @@
+From patchwork Sun Oct  8 16:48:24 2017
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v2,1/3] alsa-mixer: add hw_device_index to pa_alsa_mapping
+From: Tanu Kaskinen <tanuk@iki.fi>
+X-Patchwork-Id: 181163
+Message-Id: <20171008164826.7588-2-tanuk@iki.fi>
+To: pulseaudio-discuss@lists.freedesktop.org
+Date: Sun,  8 Oct 2017 19:48:24 +0300
+
+We have so far assumed that HDMI always uses device indexes 3, 7, 8, 9,
+10, 11, 12 and 13. These values are hardcoded in the path configuration.
+The Intel HDMI LPE driver, however, uses different device numbering
+scheme. Since the indexes aren't always the same, we need to query the
+hw device index from ALSA.
+
+Later patches will use the queried index for HDMI jack detection and ELD
+information reading.
+
+BugLink: https://bugs.freedesktop.org/show_bug.cgi?id=100488
+---
+ src/modules/alsa/alsa-mixer.c | 26 ++++++++++++++++++++++++++
+ src/modules/alsa/alsa-mixer.h |  4 ++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index 7de1c7deb..02ab4a611 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -3505,6 +3505,7 @@ pa_alsa_mapping *pa_alsa_mapping_get(pa_alsa_profile_set *ps, const char *name)
+     pa_sample_spec_init(&m->sample_spec);
+     pa_channel_map_init(&m->channel_map);
+     m->proplist = pa_proplist_new();
++    m->hw_device_index = -1;
+ 
+     pa_hashmap_put(ps->mappings, m->name, m);
+ 
+@@ -4532,6 +4533,25 @@ static int add_profiles_to_probe(
+     return i;
+ }
+ 
++static void mapping_query_hw_device(pa_alsa_mapping *mapping, snd_pcm_t *pcm) {
++    int r;
++    snd_pcm_info_t* pcm_info;
++    snd_pcm_info_alloca(&pcm_info);
++
++    r = snd_pcm_info(pcm, pcm_info);
++    if (r < 0) {
++        pa_log("Mapping %s: snd_pcm_info() failed %s: ", mapping->name, pa_alsa_strerror(r));
++        return;
++    }
++
++    /* XXX: It's not clear what snd_pcm_info_get_device() does if the device is
++     * not backed by a hw device or if it's backed by multiple hw devices. We
++     * only use hw_device_index for HDMI devices, however, and for those the
++     * return value is expected to be always valid, so this shouldn't be a
++     * significant problem. */
++    mapping->hw_device_index = snd_pcm_info_get_device(pcm_info);
++}
++
+ void pa_alsa_profile_set_probe(
+         pa_alsa_profile_set *ps,
+         const char *dev_id,
+@@ -4622,6 +4642,9 @@ void pa_alsa_profile_set_probe(
+                         }
+                         break;
+                     }
++
++                    if (m->hw_device_index < 0)
++                        mapping_query_hw_device(m, m->output_pcm);
+                 }
+ 
+             if (p->input_mappings && p->supported)
+@@ -4643,6 +4666,9 @@ void pa_alsa_profile_set_probe(
+                         }
+                         break;
+                     }
++
++                    if (m->hw_device_index < 0)
++                        mapping_query_hw_device(m, m->input_pcm);
+                 }
+ 
+             last = p;
+diff --git a/src/modules/alsa/alsa-mixer.h b/src/modules/alsa/alsa-mixer.h
+index 4ebf1922b..cb482906b 100644
+--- a/src/modules/alsa/alsa-mixer.h
++++ b/src/modules/alsa/alsa-mixer.h
+@@ -275,6 +275,10 @@ struct pa_alsa_mapping {
+     bool exact_channels:1;
+     bool fallback:1;
+ 
++    /* The "y" in "hw:x,y". This is set to -1 before the device index has been
++     * queried, or if the query failed. */
++    int hw_device_index;
++
+     /* Temporarily used during probing */
+     snd_pcm_t *input_pcm;
+     snd_pcm_t *output_pcm;
+
+From patchwork Sun Oct  8 16:48:25 2017
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v2,2/3] alsa-mixer: autodetect the HDMI jack PCM device
+From: Tanu Kaskinen <tanuk@iki.fi>
+X-Patchwork-Id: 181164
+Message-Id: <20171008164826.7588-3-tanuk@iki.fi>
+To: pulseaudio-discuss@lists.freedesktop.org
+Date: Sun,  8 Oct 2017 19:48:25 +0300
+
+This removes the need to hardcode the PCM device index in the HDMI jack
+names. The hardcoded values don't work with the Intel HDMI LPE driver.
+
+BugLink: https://bugs.freedesktop.org/show_bug.cgi?id=100488
+---
+ src/modules/alsa/alsa-mixer.c                      | 53 ++++++++++++++++++++--
+ src/modules/alsa/alsa-mixer.h                      |  4 +-
+ src/modules/alsa/alsa-sink.c                       |  2 +-
+ src/modules/alsa/alsa-source.c                     |  2 +-
+ .../alsa/mixer/paths/analog-output.conf.common     |  4 ++
+ src/modules/alsa/mixer/paths/hdmi-output-0.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-1.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-2.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-3.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-4.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-5.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-6.conf    |  3 +-
+ src/modules/alsa/mixer/paths/hdmi-output-7.conf    |  3 +-
+ 13 files changed, 73 insertions(+), 16 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index 02ab4a611..eaee7ea0a 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -1812,12 +1812,31 @@ static int element_probe(pa_alsa_element *e, snd_mixer_t *m) {
+     return 0;
+ }
+ 
+-static int jack_probe(pa_alsa_jack *j, snd_mixer_t *m) {
++static int jack_probe(pa_alsa_jack *j, pa_alsa_mapping *mapping, snd_mixer_t *m) {
+     bool has_control;
+ 
+     pa_assert(j);
+     pa_assert(j->path);
+ 
++    if (j->append_pcm_to_name) {
++        char *new_name;
++
++        if (!mapping) {
++            /* This could also be an assertion, because this should never
++             * happen. At the time of writing, mapping can only be NULL when
++             * module-alsa-sink/source synthesizes a path, and those
++             * synthesized paths never have any jacks, so jack_probe() should
++             * never be called with a NULL mapping. */
++            pa_log("Jack %s: append_pcm_to_name is set, but mapping is NULL. Can't use this jack.", j->name);
++            return -1;
++        }
++
++        new_name = pa_sprintf_malloc("%s,pcm=%i Jack", j->name, mapping->hw_device_index);
++        pa_xfree(j->alsa_name);
++        j->alsa_name = new_name;
++        j->append_pcm_to_name = false;
++    }
++
+     has_control = pa_alsa_mixer_find(m, j->alsa_name, 0) != NULL;
+     pa_alsa_jack_set_has_control(j, has_control);
+ 
+@@ -2326,6 +2345,30 @@ static int jack_parse_state(pa_config_parser_state *state) {
+     return 0;
+ }
+ 
++static int jack_parse_append_pcm_to_name(pa_config_parser_state *state) {
++    pa_alsa_path *path;
++    pa_alsa_jack *jack;
++    int b;
++
++    pa_assert(state);
++
++    path = state->userdata;
++    if (!(jack = jack_get(path, state->section))) {
++        pa_log("[%s:%u] Option 'append_pcm_to_name' not expected in section '%s'",
++               state->filename, state->lineno, state->section);
++        return -1;
++    }
++
++    b = pa_parse_boolean(state->rvalue);
++    if (b < 0) {
++        pa_log("[%s:%u] Invalid value for 'append_pcm_to_name': %s", state->filename, state->lineno, state->rvalue);
++        return -1;
++    }
++
++    jack->append_pcm_to_name = b;
++    return 0;
++}
++
+ static int element_set_option(pa_alsa_element *e, snd_mixer_t *m, int alsa_idx) {
+     snd_mixer_selem_id_t *sid;
+     snd_mixer_elem_t *me;
+@@ -2534,6 +2577,7 @@ pa_alsa_path* pa_alsa_path_new(const char *paths_dir, const char *fname, pa_alsa
+         /* [Jack ...] */
+         { "state.plugged",       jack_parse_state,                  NULL, NULL },
+         { "state.unplugged",     jack_parse_state,                  NULL, NULL },
++        { "append-pcm-to-name",  jack_parse_append_pcm_to_name,     NULL, NULL },
+ 
+         /* [Element ...] */
+         { "switch",              element_parse_switch,              NULL, NULL },
+@@ -2746,7 +2790,7 @@ static void path_create_settings(pa_alsa_path *p) {
+     element_create_settings(p->elements, NULL);
+ }
+ 
+-int pa_alsa_path_probe(pa_alsa_path *p, snd_mixer_t *m, bool ignore_dB) {
++int pa_alsa_path_probe(pa_alsa_path *p, pa_alsa_mapping *mapping, snd_mixer_t *m, bool ignore_dB) {
+     pa_alsa_element *e;
+     pa_alsa_jack *j;
+     double min_dB[PA_CHANNEL_POSITION_MAX], max_dB[PA_CHANNEL_POSITION_MAX];
+@@ -2766,7 +2810,7 @@ int pa_alsa_path_probe(pa_alsa_path *p, snd_mixer_t *m, bool ignore_dB) {
+     pa_log_debug("Probing path '%s'", p->name);
+ 
+     PA_LLIST_FOREACH(j, p->jacks) {
+-        if (jack_probe(j, m) < 0) {
++        if (jack_probe(j, mapping, m) < 0) {
+             p->supported = false;
+             pa_log_debug("Probe of jack '%s' failed.", j->alsa_name);
+             return -1;
+@@ -3968,9 +4012,8 @@ static void mapping_paths_probe(pa_alsa_mapping *m, pa_alsa_profile *profile,
+     }
+ 
+     PA_HASHMAP_FOREACH(p, ps->paths, state) {
+-        if (pa_alsa_path_probe(p, mixer_handle, m->profile_set->ignore_dB) < 0) {
++        if (pa_alsa_path_probe(p, m, mixer_handle, m->profile_set->ignore_dB) < 0)
+             pa_hashmap_remove(ps->paths, p);
+-        }
+     }
+ 
+     path_set_condense(ps, mixer_handle);
+diff --git a/src/modules/alsa/alsa-mixer.h b/src/modules/alsa/alsa-mixer.h
+index cb482906b..7ae40511c 100644
+--- a/src/modules/alsa/alsa-mixer.h
++++ b/src/modules/alsa/alsa-mixer.h
+@@ -171,6 +171,8 @@ struct pa_alsa_jack {
+ 
+     pa_dynarray *ucm_devices; /* pa_alsa_ucm_device */
+     pa_dynarray *ucm_hw_mute_devices; /* pa_alsa_ucm_device */
++
++    bool append_pcm_to_name;
+ };
+ 
+ pa_alsa_jack *pa_alsa_jack_new(pa_alsa_path *path, const char *name);
+@@ -234,7 +236,7 @@ void pa_alsa_element_dump(pa_alsa_element *e);
+ 
+ pa_alsa_path *pa_alsa_path_new(const char *paths_dir, const char *fname, pa_alsa_direction_t direction);
+ pa_alsa_path *pa_alsa_path_synthesize(const char *element, pa_alsa_direction_t direction);
+-int pa_alsa_path_probe(pa_alsa_path *p, snd_mixer_t *m, bool ignore_dB);
++int pa_alsa_path_probe(pa_alsa_path *p, pa_alsa_mapping *mapping, snd_mixer_t *m, bool ignore_dB);
+ void pa_alsa_path_dump(pa_alsa_path *p);
+ int pa_alsa_path_get_volume(pa_alsa_path *p, snd_mixer_t *m, const pa_channel_map *cm, pa_cvolume *v);
+ int pa_alsa_path_get_mute(pa_alsa_path *path, snd_mixer_t *m, bool *muted);
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 827a65081..99ca5061b 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -1912,7 +1912,7 @@ static void find_mixer(struct userdata *u, pa_alsa_mapping *mapping, const char
+         if (!(u->mixer_path = pa_alsa_path_synthesize(element, PA_ALSA_DIRECTION_OUTPUT)))
+             goto fail;
+ 
+-        if (pa_alsa_path_probe(u->mixer_path, u->mixer_handle, ignore_dB) < 0)
++        if (pa_alsa_path_probe(u->mixer_path, NULL, u->mixer_handle, ignore_dB) < 0)
+             goto fail;
+ 
+         pa_log_debug("Probed mixer path %s:", u->mixer_path->name);
+diff --git a/src/modules/alsa/alsa-source.c b/src/modules/alsa/alsa-source.c
+index 6bec188ea..84abbf1d9 100644
+--- a/src/modules/alsa/alsa-source.c
++++ b/src/modules/alsa/alsa-source.c
+@@ -1615,7 +1615,7 @@ static void find_mixer(struct userdata *u, pa_alsa_mapping *mapping, const char
+         if (!(u->mixer_path = pa_alsa_path_synthesize(element, PA_ALSA_DIRECTION_INPUT)))
+             goto fail;
+ 
+-        if (pa_alsa_path_probe(u->mixer_path, u->mixer_handle, ignore_dB) < 0)
++        if (pa_alsa_path_probe(u->mixer_path, NULL, u->mixer_handle, ignore_dB) < 0)
+             goto fail;
+ 
+         pa_log_debug("Probed mixer path %s:", u->mixer_path->name);
+diff --git a/src/modules/alsa/mixer/paths/analog-output.conf.common b/src/modules/alsa/mixer/paths/analog-output.conf.common
+index 17b45278a..baf37660e 100644
+--- a/src/modules/alsa/mixer/paths/analog-output.conf.common
++++ b/src/modules/alsa/mixer/paths/analog-output.conf.common
+@@ -122,6 +122,10 @@
+ ;                                      # the required-any are present.
+ ; state.plugged = yes | no | unknown   # Normally a plugged jack would mean the port becomes available, and an unplugged means it's
+ ; state.unplugged = yes | no | unknown # unavailable, but the port status can be overridden by specifying state.plugged and/or state.unplugged.
++; append-pcm-to-name = no | yes        # Add ",pcm=N" to the jack name? N is the hw PCM device index. HDMI jacks have
++;                                      # the PCM device index in their name, but different drivers use different
++;                                      # numbering schemes, so we can't hardcode the full jack name in our configuration
++;                                      # files.
+ 
+ [Element PCM]
+ switch = mute
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-0.conf b/src/modules/alsa/mixer/paths/hdmi-output-0.conf
+index 331014709..a87205cea 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-0.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-0.conf
+@@ -6,5 +6,6 @@ eld-device = 3
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=3]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-1.conf b/src/modules/alsa/mixer/paths/hdmi-output-1.conf
+index d81ee789c..b513ffd70 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-1.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-1.conf
+@@ -6,5 +6,6 @@ eld-device = 7
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=7]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-2.conf b/src/modules/alsa/mixer/paths/hdmi-output-2.conf
+index 349812fc2..a2386650e 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-2.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-2.conf
+@@ -6,5 +6,6 @@ eld-device = 8
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=8]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-3.conf b/src/modules/alsa/mixer/paths/hdmi-output-3.conf
+index 81463c946..edceb36e1 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-3.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-3.conf
+@@ -6,5 +6,6 @@ eld-device = 9
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=9]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-4.conf b/src/modules/alsa/mixer/paths/hdmi-output-4.conf
+index d61ec7547..0d1401eef 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-4.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-4.conf
+@@ -6,5 +6,6 @@ eld-device = 10
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=10]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-5.conf b/src/modules/alsa/mixer/paths/hdmi-output-5.conf
+index 02c15e893..883cccc20 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-5.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-5.conf
+@@ -6,5 +6,6 @@ eld-device = 11
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=11]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-6.conf b/src/modules/alsa/mixer/paths/hdmi-output-6.conf
+index 188a1adb3..d8ac2f55c 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-6.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-6.conf
+@@ -6,5 +6,6 @@ eld-device = 12
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=12]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-7.conf b/src/modules/alsa/mixer/paths/hdmi-output-7.conf
+index 80f4e3722..dd090855f 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-7.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-7.conf
+@@ -6,5 +6,6 @@ eld-device = 13
+ [Properties]
+ device.icon_name = video-display
+ 
+-[Jack HDMI/DP,pcm=13]
++[Jack HDMI/DP]
++append-pcm-to-name = yes
+ required = ignore
+
+From patchwork Sun Oct  8 16:48:26 2017
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [v2,3/3] alsa-mixer: autodetect the ELD device
+From: Tanu Kaskinen <tanuk@iki.fi>
+X-Patchwork-Id: 181165
+Message-Id: <20171008164826.7588-4-tanuk@iki.fi>
+To: pulseaudio-discuss@lists.freedesktop.org
+Date: Sun,  8 Oct 2017 19:48:26 +0300
+
+This removes the need to hardcode the ELD device index in the path
+configuration. The hardcoded values don't work with the Intel HDMI LPE
+driver.
+
+BugLink: https://bugs.freedesktop.org/show_bug.cgi?id=100488
+---
+ src/modules/alsa/alsa-mixer.c                      | 28 ++++++++++++++++++++--
+ src/modules/alsa/alsa-mixer.h                      |  1 +
+ .../alsa/mixer/paths/analog-output.conf.common     |  8 +++++--
+ src/modules/alsa/mixer/paths/hdmi-output-0.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-1.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-2.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-3.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-4.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-5.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-6.conf    |  2 +-
+ src/modules/alsa/mixer/paths/hdmi-output-7.conf    |  2 +-
+ 11 files changed, 41 insertions(+), 12 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index eaee7ea0a..a524d6d64 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -2051,6 +2051,28 @@ static int element_parse_enumeration(pa_config_parser_state *state) {
+     return 0;
+ }
+ 
++static int parse_eld_device(pa_config_parser_state *state) {
++    pa_alsa_path *path;
++    uint32_t eld_device;
++
++    path = state->userdata;
++
++    if (pa_atou(state->rvalue, &eld_device) >= 0) {
++        path->autodetect_eld_device = false;
++        path->eld_device = eld_device;
++        return 0;
++    }
++
++    if (pa_streq(state->rvalue, "auto")) {
++        path->autodetect_eld_device = true;
++        path->eld_device = -1;
++        return 0;
++    }
++
++    pa_log("[%s:%u] Invalid value for option 'eld-device': %s", state->filename, state->lineno, state->rvalue);
++    return -1;
++}
++
+ static int option_parse_priority(pa_config_parser_state *state) {
+     pa_alsa_path *p;
+     pa_alsa_option *o;
+@@ -2568,7 +2590,7 @@ pa_alsa_path* pa_alsa_path_new(const char *paths_dir, const char *fname, pa_alsa
+         { "description-key",     pa_config_parse_string,            NULL, "General" },
+         { "description",         pa_config_parse_string,            NULL, "General" },
+         { "mute-during-activation", pa_config_parse_bool,           NULL, "General" },
+-        { "eld-device",          pa_config_parse_int,               NULL, "General" },
++        { "eld-device",          parse_eld_device,                  NULL, "General" },
+ 
+         /* [Option ...] */
+         { "priority",            option_parse_priority,             NULL, NULL },
+@@ -2608,7 +2630,6 @@ pa_alsa_path* pa_alsa_path_new(const char *paths_dir, const char *fname, pa_alsa
+     items[1].data = &p->description_key;
+     items[2].data = &p->description;
+     items[3].data = &mute_during_activation;
+-    items[4].data = &p->eld_device;
+ 
+     if (!paths_dir)
+         paths_dir = get_default_paths_dir();
+@@ -4012,6 +4033,9 @@ static void mapping_paths_probe(pa_alsa_mapping *m, pa_alsa_profile *profile,
+     }
+ 
+     PA_HASHMAP_FOREACH(p, ps->paths, state) {
++        if (p->autodetect_eld_device)
++            p->eld_device = m->hw_device_index;
++
+         if (pa_alsa_path_probe(p, m, mixer_handle, m->profile_set->ignore_dB) < 0)
+             pa_hashmap_remove(ps->paths, p);
+     }
+diff --git a/src/modules/alsa/alsa-mixer.h b/src/modules/alsa/alsa-mixer.h
+index 7ae40511c..15615a615 100644
+--- a/src/modules/alsa/alsa-mixer.h
++++ b/src/modules/alsa/alsa-mixer.h
+@@ -193,6 +193,7 @@ struct pa_alsa_path {
+     char *description_key;
+     char *description;
+     unsigned priority;
++    bool autodetect_eld_device;
+     int eld_device;
+     pa_proplist *proplist;
+ 
+diff --git a/src/modules/alsa/mixer/paths/analog-output.conf.common b/src/modules/alsa/mixer/paths/analog-output.conf.common
+index baf37660e..e52830d99 100644
+--- a/src/modules/alsa/mixer/paths/analog-output.conf.common
++++ b/src/modules/alsa/mixer/paths/analog-output.conf.common
+@@ -64,8 +64,12 @@
+ ; mute-during-activation = yes | no      # If this path supports hardware mute, should the hw mute be used while activating this
+ ;                                        # path? In some cases this can reduce extra noises during port switching, while in other
+ ;                                        # cases this can increase such noises. Default: no.
+-; eld-device = ...                       # If this is an HDMI port, here's where to specify the device number for the ELD mixer
+-;                                        # control. The default is to not make use of ELD information.
++; eld-device = ...                       # If this is an HDMI port, set to "auto" so that PulseAudio will try to read
++;                                        # the monitor ELD information from the ALSA mixer. By default the ELD information
++;                                        # is not read, because it's only applicable with HDMI. Earlier the "auto" option
++;                                        # didn't exist, and the hw device index had to be manually configured. For
++;                                        # backwards compatibility, it's still possible to manually configure the device
++;                                        # index using this option.
+ ;
+ ; [Properties]                           # Property list for this path. The list is merged into the port property list.
+ ; <key> = <value>                        # Each property is defined on its own line.
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-0.conf b/src/modules/alsa/mixer/paths/hdmi-output-0.conf
+index a87205cea..95b1342e9 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-0.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-0.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort
+ priority = 59
+-eld-device = 3
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-1.conf b/src/modules/alsa/mixer/paths/hdmi-output-1.conf
+index b513ffd70..37b945204 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-1.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-1.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 2
+ priority = 58
+-eld-device = 7
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-2.conf b/src/modules/alsa/mixer/paths/hdmi-output-2.conf
+index a2386650e..19c38f2e8 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-2.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-2.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 3
+ priority = 57
+-eld-device = 8
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-3.conf b/src/modules/alsa/mixer/paths/hdmi-output-3.conf
+index edceb36e1..8551570ac 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-3.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-3.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 4
+ priority = 56
+-eld-device = 9
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-4.conf b/src/modules/alsa/mixer/paths/hdmi-output-4.conf
+index 0d1401eef..e36128921 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-4.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-4.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 5
+ priority = 55
+-eld-device = 10
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-5.conf b/src/modules/alsa/mixer/paths/hdmi-output-5.conf
+index 883cccc20..82dc3be79 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-5.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-5.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 6
+ priority = 54
+-eld-device = 11
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-6.conf b/src/modules/alsa/mixer/paths/hdmi-output-6.conf
+index d8ac2f55c..92e8fd1e2 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-6.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-6.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 7
+ priority = 53
+-eld-device = 12
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display
+diff --git a/src/modules/alsa/mixer/paths/hdmi-output-7.conf b/src/modules/alsa/mixer/paths/hdmi-output-7.conf
+index dd090855f..abe2b60e6 100644
+--- a/src/modules/alsa/mixer/paths/hdmi-output-7.conf
++++ b/src/modules/alsa/mixer/paths/hdmi-output-7.conf
+@@ -1,7 +1,7 @@
+ [General]
+ description = HDMI / DisplayPort 8
+ priority = 52
+-eld-device = 13
++eld-device = auto
+ 
+ [Properties]
+ device.icon_name = video-display

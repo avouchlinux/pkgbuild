@@ -1,0 +1,56 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=autoconf213
+_realname=autoconf
+pkgver=2.13
+pkgrel=1
+pkgdesc="A GNU tool for automatically configuring source code"
+arch=('any')
+groups=('sys-devel')
+license=('GPL2' 'GPL3' 'custom')
+url="http://www.gnu.org/software/autoconf"
+depends=('awk' 'm4' 'diffutils' 'bash')
+install=autoconf.install
+source=(ftp://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz{,.sig})
+md5sums=('50f97f4159805e374639a73e2636f22e'
+         '2941e2fe687e05b3431eac6b714053bc')
+
+prepare() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	patch -Np1 -i ../autoconf-2.12-race.patch
+	patch -Np1 -i ../autoconf-2.13-mawk.patch
+	patch -Np1 -i ../autoconf-2.13-notmp.patch
+	patch -Np1 -i ../autoconf-2.13-c++exit.patch
+	patch -Np1 -i ../autoconf-2.13-headers.patch
+	patch -Np1 -i ../autoconf-2.13-exit.patch
+	patch -Np1 -i ../autoconf-2.13-wait3test.patch
+	patch -Np1 -i ../autoconf-2.13-make-defs-62361.patch
+	patch -Np1 -i ../autoconf-2.13-versioning.patch
+	patch -Np1 -i ../autoconf213-destdir.patch
+	patch -Np1 -i ../autoconf213-info.patch
+	patch -Np1 -i ../autoconf213-testsuite.patch
+
+	mv autoconf.texi autoconf213.texi
+	rm -f autoconf.info
+
+}
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr --infodir=/usr/share/info --program-suffix=2.13
+	make
+}
+
+check() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	#make ${MAKEFLAGS} check
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR=${pkgdir} install
+	# We don't want to include the standards.info stuff in the package,
+	# because it comes from binutils...
+	rm -f ${pkgdir}/usr/share/info/standards*
+}

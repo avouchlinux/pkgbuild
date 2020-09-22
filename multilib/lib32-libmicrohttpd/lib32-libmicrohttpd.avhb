@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libmicrohttpd
+pkgbase=libmicrohttpd
+pkgver=0.9.70
+pkgrel=1
+pkgdesc="a small C library that is supposed to make it easy to run an HTTP server as part of another application."
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.gnu.org/software/libmicrohttpd/"
+license=('LGPL')
+depends=('gnutls' 'libgcrypt')
+install=libmicrohttpd.install
+source=(ftp://ftp.gnu.org/gnu/libmicrohttpd/$pkgname-$pkgver.tar.gz)
+md5sums=('013b10f9de1cda5448b29c81305354a3')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 \
+	--disable-dependency-tracking
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

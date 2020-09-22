@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cluttermm
+pkgver=1.23.1
+pkgrel=1
+pkgdesc="C++ binding for clutter"
+arch=('x86_64')
+groups=('dev-cpp')
+url="http://clutter-project.org/"
+license=('LGPL')
+depends=('cogl' 'mesa' 'json-glib' 'atk' 'libxi' 'libxkbcommon' 'libevdev')
+makedepends=('gobject-introspection')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+prepare() {
+    cd $pkgname
+    NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+    cd $pkgname
+    ./configure \
+        --prefix=/usr \
+        --enable-maintainer-mode \
+        --disable-documentation
+    make
+}
+
+package() {
+    cd $pkgname
+    make DESTDIR=$pkgdir install
+}

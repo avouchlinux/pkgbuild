@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libkate
+_realname=kate
+pkgver=0.4.1
+pkgrel=1
+pkgdesc="A karaoke and text codec for embedding in ogg"
+arch=('x86_64')
+groups=('media-libs')
+url="https://wiki.xiph.org/OggKate"
+license=('BSD')
+depends=('libpng' 'libogg')
+makedepends=('git')
+source=("$pkgname::git+git://git.xiph.org/users/oggk/kate.git#tag=kate-${pkgver}"
+        0001-Fix-automake-warnings.patch)
+
+prepare() {
+  cd ${_realname}
+  patch -Np1 -i ../0001-Fix-automake-warnings.patch
+}
+
+build() {
+  cd ${_realname}
+  ./autogen.sh --prefix=/usr --disable-static --disable-doc
+  make
+}
+
+package() {
+  cd ${_realname}
+  make DESTDIR="${pkgdir}" install
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgname}" -m644 COPYING
+  rm "${pkgdir}/usr/share/man/man1/KateDJ.1"
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-mccabe
+_realname=mccabe
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="McCabe complexity checker for Python"
+arch=(any)
+groups=('dev-python3')
+url="https://github.com/flintwork/mccabe"
+depends=('python3')
+license=('custom:Expat')
+makedepends=('python3-pytest-runner')
+source=("https://github.com/flintwork/mccabe/archive/$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

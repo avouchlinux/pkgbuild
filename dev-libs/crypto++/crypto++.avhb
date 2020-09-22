@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=crypto++
+pkgver=8.2
+_srcver=${pkgver//./}
+_realname=cryptopp
+pkgrel=1
+pkgdesc="A free C++ class library of cryptographic schemes"
+arch=('x86_64')
+groups=('dev-libs')
+url="http://www.cryptopp.com/"
+license=('custom')
+depends=('gcc-libs')
+makedepends=('unzip')
+source=("https://www.cryptopp.com/cryptopp${_srcver}.zip"
+        'libcrypto++.pc')
+
+build() {
+	
+	CXXFLAGS+=" -DNDEBUG -fPIC" make -f GNUmakefile-cross  
+	make libcryptopp.so
+}
+
+package() {
+	install -d ${pkgdir}/usr/{lib/pkgconfig,include/cryptopp}
+	install -m644 *.h ${pkgdir}/usr/include/cryptopp/
+	install -m644 libcryptopp.so "${pkgdir}/usr/lib/libcryptopp.so"
+	install -m644 ${srcdir}/libcrypto++.pc "${pkgdir}/usr/lib/pkgconfig/libcrypto++.pc"
+	install -D -m644 License.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

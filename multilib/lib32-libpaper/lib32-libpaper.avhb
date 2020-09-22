@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libpaper
+pkgbase=libpaper
+pkgver=1.1.28
+pkgrel=1
+pkgdesc='Library for handling paper characteristics'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://packages.debian.org/unstable/source/libpaper'
+license=('GPL')
+depends=('sh')
+backup=('etc/papersize')
+source=("http://ftp.de.debian.org/debian/pool/main/libp/$pkgname/${pkgname}_$pkgver+nmu2.tar.gz")
+sha256sums=('c5bdd6d9dff179699160675dbb61651d9b3158f6da27558fdaba00e7c427ba96')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	autoreconf -vif
+	./configure --prefix=/usr --sysconfdir=/etc \
+	--sbindir=/usr/bin --disable-static --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}
+

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=t1utils
+pkgver=1.41
+pkgrel=1
+pkgdesc="A collection of simple Type 1 font manipulation programs"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://www.lcdf.org/~eddietwo/type/#t1utils"
+license=("custom")
+depends=('glibc')
+source=("https://www.lcdf.org/~eddietwo/type/$pkgname-$pkgver.tar.gz"
+        "memmem-decl.patch::https://github.com/kohler/t1utils/commit/3f1ddda424353f0f926dd28efa47b0ac61556ce8.patch"
+        "LICENSE")
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # FS#57999 and https://github.com/kohler/t1utils/issues/8
+  #patch -p1 -i "${srcdir}/memmem-decl.patch"
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  install -D -m644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

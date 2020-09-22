@@ -1,0 +1,232 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=firefox
+pkgver=80.0
+pkgrel=1
+pkgdesc="Standalone web browser from mozilla.org"
+arch=('x86_64')
+groups=('www')
+license=(MPL GPL LGPL)
+url="https://www.mozilla.org/firefox/"
+depends=(gtk3 mozilla-common libxt startup-notification mime-types dbus-glib
+         ffmpeg nss ttf-font libpulse)
+makedepends=(unzip zip diffutils python2-setuptools yasm mesa imake inetutils
+             xorg-server-xvfb autoconf2.13 rust clang llvm jack gtk2
+             python nodejs python2-psutil cbindgen nasm)
+optdepends=('networkmanager: Location detection via available WiFi networks'
+            'libnotify: Notification integration'
+            'pulseaudio: Audio support'
+            'speech-dispatcher: Text-to-Speech'
+            'hunspell-en_US: Spell checking, American English')
+options=(!emptydirs !makeflags)
+source=(https://archive.mozilla.org/pub/firefox/releases/$pkgver/source/firefox-$pkgver.source.tar.xz{,.asc}
+        0001-bz-1521249.patch
+        $pkgname.desktop firefox-symbolic.svg)
+validpgpkeys=('14F26682D0916CDD81E37B6D61B7B526D98F0353') # Mozilla Software Releases <release@mozilla.com>
+
+# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+# Note: These are for Avouch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact info@avouch.org for more information.
+_google_api_key=AIzaSyCm8I84pz4zSvrzQGpYiJTaMVgzGSxz8Z4
+_google_default_client_id=1062054956701.apps.googleusercontent.com
+_google_default_client_secret=vNghxOz1TWXC7uE9-p4uTUPk
+
+# Mozilla API keys (see https://location.services.mozilla.com/api)
+# Note: These are for Avouch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact info@avouch.org for
+# more information.
+_mozilla_api_key=7dca4b7b-6085-4ebb-9633-d566ed2de0fd
+
+prepare() {
+    #bsdtar -xf $srcarchivedir/$release_hash.tar.bz2
+    #mkdir path
+    #ln -s /usr/bin/python2 path/python
+
+    #cd "mozilla-release-${release_hash}"
+    mkdir mozbuild
+    cd $pkgname-$pkgver
+
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=1530052
+    # patch -Np1 -i ../0001-Use-remoting-name-for-GDK-application-names.patch
+
+    echo -n "$_google_api_key" >google-api-key
+    echo -n "$_mozilla_api_key" >mozilla-api-key
+
+    # for firefox PGO thre tier build /tmp file size 4G is less
+    # so increase the file size first to minimum 8G
+    # echo tmpfs     /tmp     tmpfs     defaults,size=8G,mode=1777     0     0 >> /etc/fstab
+
+cat >../mozconfig <<END
+ac_add_options --enable-application=browser
+
+ac_add_options --prefix=/usr
+ac_add_options --enable-release
+ac_add_options --enable-hardening
+ac_add_options --enable-optimize
+ac_add_options --enable-rust-simd
+export CC='clang --target=x86_64-unknown-linux-gnu'
+export CXX='clang++ --target=x86_64-unknown-linux-gnu'
+export AR=llvm-ar
+export NM=llvm-nm
+export RANLIB=llvm-ranlib
+
+# Branding
+ac_add_options --enable-official-branding
+ac_add_options --enable-update-channel=release
+ac_add_options --with-distribution-id=org.avouch
+ac_add_options --with-unsigned-addon-scopes=app,system
+ac_add_options --allow-addon-sideload
+export MOZILLA_OFFICIAL=1
+export MOZ_APP_REMOTINGNAME=${pkgname//-/}
+export MOZ_TELEMETRY_REPORTING=1
+export MOZ_REQUIRE_SIGNING=1
+
+# Keys
+ac_add_options --with-google-location-service-api-keyfile=${PWD@Q}/google-api-key
+ac_add_options --with-google-safebrowsing-api-keyfile=${PWD@Q}/google-api-key
+ac_add_options --with-mozilla-api-keyfile=${PWD@Q}/mozilla-api-key
+
+# System libraries
+ac_add_options --with-system-nspr
+ac_add_options --with-system-nss
+
+# Features
+ac_add_options --enable-alsa
+ac_add_options --enable-jack
+ac_add_options --enable-crashreporter
+ac_add_options --disable-updater
+ac_add_options --disable-tests
+END
+
+}
+
+build() {
+    #cd "mozilla-release-${release_hash}"
+    cd $pkgname-$pkgver
+
+  export MOZ_NOSPAM=1
+  export MOZBUILD_STATE_PATH="$srcdir/mozbuild"
+
+  # either as the root user export the $SHELL environment variable using export SHELL=/bin/sh 
+  # or else prepend SHELL=/bin/sh when running the ./mach commands.
+  export SHELL=/bin/sh
+
+  # LTO needs more open files
+  ulimit -n 4096
+
+  # -fno-plt with cross-LTO causes obscure LLVM errors
+  # LLVM ERROR: Function Import: link error
+  export CFLAGS="${CFLAGS/-fno-plt/}"
+  export CXXFLAGS="${CXXFLAGS/-fno-plt/}"
+
+  # Do 3-tier Profile-guided optimization (PGO)
+  message "Building instrumented browser..."
+  cat >.mozconfig ../mozconfig - <<END
+ac_add_options --enable-profile-generate=cross
+END
+
+  # using all the cores causes the build to swap because you have insufficient memory
+  ./mach build
+
+  message "Profiling instrumented browser..."
+  # The package command does not accept the arguments: -j4
+  ./mach package
+
+  LLVM_PROFDATA=llvm-profdata \
+    JARLOG_FILE="$PWD/jarlog" \
+    xvfb-run -s "-screen 0 1920x1080x24 -nolisten local" \
+    ./mach python build/pgo/profileserver.py
+
+  if [[ ! -s merged.profdata ]]; then
+    echo "No profile data produced."
+    return 1
+  fi
+
+  if [[ ! -s jarlog ]]; then
+    echo "No jar log produced."
+    return 1
+  fi
+
+  message "Removing instrumented browser..."
+  # The clobber command does not accept the arguments: -j4
+  ./mach clobber
+
+  message "Building optimized browser..."
+  cat >.mozconfig ../mozconfig - <<END
+ac_add_options --enable-lto=cross
+ac_add_options --enable-profile-use=cross
+ac_add_options --with-pgo-profile-path=${PWD@Q}/merged.profdata
+ac_add_options --with-pgo-jarlog=${PWD@Q}/jarlog
+END
+  ./mach build
+
+  message "Building symbol archive..."
+  # The buildsymbols command does not accept the arguments: -j4
+  ./mach buildsymbols
+}
+
+package() {
+  cd firefox-$pkgver
+  DESTDIR="$pkgdir" ./mach install
+  find . -name '*crashreporter-symbols-full.zip' -exec cp -fvt "$srcdir" {} +
+
+  _vendorjs="$pkgdir/usr/lib/$pkgname/browser/defaults/preferences/vendor.js"
+  install -Dm644 /dev/stdin "$_vendorjs" <<END
+// Use LANG environment variable to choose locale
+pref("intl.locale.requested", "");
+
+// Use system-provided dictionaries
+pref("spellchecker.dictionary_path", "/usr/share/hunspell");
+
+// Disable default browser checking.
+pref("browser.shell.checkDefaultBrowser", false);
+
+// Don't disable our bundled extensions in the application directory
+pref("extensions.autoDisableScopes", 11);
+pref("extensions.shownSelectionUI", true);
+
+pref("browser.startup.homepage",            	"data:text/plain,browser.startup.homepage=about:newtab");
+pref("browser.newtabpage.pinned",           	'[{"url":"https://avouch.org/","title":"Avouch OS - Home Page"}]');
+END
+
+  _distini="$pkgdir/usr/lib/$pkgname/distribution/distribution.ini"
+  install -Dm644 /dev/stdin "$_distini" <<END
+[Global]
+id=avouch
+version=0.2.0
+about=Mozilla Firefox for Avouch OS
+
+[Preferences]
+app.distributor=avouch
+app.distributor.channel=$pkgname
+app.partner.avouch=avouch
+END
+
+  for i in 16 22 24 32 48 64 128 256; do
+    install -Dm644 browser/branding/official/default$i.png \
+      "$pkgdir/usr/share/icons/hicolor/${i}x${i}/apps/$pkgname.png"
+  done
+  install -Dm644 browser/branding/official/content/about-logo.png \
+    "$pkgdir/usr/share/icons/hicolor/192x192/apps/$pkgname.png"
+  install -Dm644 browser/branding/official/content/about-logo@2x.png \
+    "$pkgdir/usr/share/icons/hicolor/384x384/apps/$pkgname.png"
+  install -Dm644 ../firefox-symbolic.svg \
+    "$pkgdir/usr/share/icons/hicolor/symbolic/apps/$pkgname-symbolic.svg"
+
+  install -Dm644 ../$pkgname.desktop \
+    "$pkgdir/usr/share/applications/$pkgname.desktop"
+
+  # Install a wrapper to avoid confusion about binary path
+  install -Dm755 /dev/stdin "$pkgdir/usr/bin/$pkgname" <<END
+#!/bin/sh
+exec /usr/lib/$pkgname/firefox "\$@"
+END
+
+  # Replace duplicate binary with wrapper
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=658850
+  ln -srf "$pkgdir/usr/bin/$pkgname" \
+    "$pkgdir/usr/lib/$pkgname/firefox-bin"
+}

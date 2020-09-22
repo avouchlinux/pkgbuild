@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-xcb-util
+pkgbase=xcb-util
+pkgver=0.4.0
+pkgrel=1
+pkgdesc="Utility libraries for XC Binding (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xcb.freedesktop.org"
+license=('custom')
+depends=('lib32-glibc' 'lib32-libxcb' $_pkgbasename)
+makedepends=('gperf' 'gcc-multilib')
+options=('!libtool')
+source=(http://xcb.freedesktop.org/dist/${_pkgbasename}-${pkgver}.tar.bz2)
+sha256sums=('c611259c0ab20fd76f79f48f4684843c18ea9c967eba78a45e8b3636315c18c4')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --libdir=/usr/lib32 --disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

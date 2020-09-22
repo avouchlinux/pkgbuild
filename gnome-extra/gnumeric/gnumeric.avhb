@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnumeric
+pkgver=1.12.48
+pkgrel=1
+pkgdesc="A GNOME Spreadsheet Program"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://www.gnome.org/projects/gnumeric/"
+license=('GPL')
+depends=('goffice')
+makedepends=('intltool' 'psiconv' 'pygobject-devel' docbook-xml
+             'gobject-introspection' 'python2-gobject' gtk-doc autoconf-archive git yelp-tools)
+optdepends=('python2-gobject: for python2 plugin support'
+            'perl: for perl plugin support'
+            'psiconv: for Psion 5 file support'
+            'yelp: for viewing the help manual')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	sed 's/python -c/$PYTHON -c/' -i configure.ac
+	patch -Np0 -i ../revert-warnings.patch
+	autoreconf -vif
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr \
+		--sysconfdir=/etc --localstatedir=/var \
+		--disable-schemas-compile \
+		--enable-introspection \
+		--disable-silent-rules \
+		--without-python
+
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"  
+	make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-devel-docs
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Developer documentation for GNOME"
+url="https://gitlab.gnome.org/GNOME/gnome-devel-docs"
+arch=(any)
+groups=('gnome-extra')
+license=('FDL')
+depends=('yelp')
+makedepends=('yelp-tools')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+}
+

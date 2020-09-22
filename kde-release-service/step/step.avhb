@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=step
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="Interactive Physical Simulator"
+arch=('x86_64')
+groups=('kde-apps')
+url='http://stepcore.sf.net/'
+license=(GPL)
+depends=(xcb-util-cursor libkipi purpose)
+makedepends=(extra-cmake-modules kdoctools python)
+optdepends=('kipi-plugins: export to various online services')
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+md5sums=('7cda7b162410ad9fdcb1f28eb233c93a'
+         'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+   -DCMAKE_INSTALL_PREFIX=/usr \
+   -DCMAKE_BUILD_TYPE=Release \
+   -DKDE_INSTALL_LIBDIR=lib \
+   -DBUILD_TESTING=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}
+

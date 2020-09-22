@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmimic
+pkgver=1.0.4
+pkgrel=1
+pkgdesc="An open source video encoding/decoding library for Mimic V2.x"
+arch=('x86_64')
+groups=('media-libs')
+url="http://farsight.sourceforge.net"
+options=('!libtool')
+license=('LGPL')
+depends=('glibc')
+source=(http://downloads.sourceforge.net/sourceforge/farsight/libmimic-$pkgver.tar.gz)
+
+build() {
+	cd $srcdir/libmimic-$pkgver
+	./configure --prefix=/usr
+	make || return 1
+}
+
+package() {
+	cd $srcdir/libmimic-$pkgver
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING.LIB "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

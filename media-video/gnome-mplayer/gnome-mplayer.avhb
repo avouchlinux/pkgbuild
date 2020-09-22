@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-mplayer
+pkgver=1.0.9
+pkgrel=1
+pkgdesc='A simple MPlayer GUI.'
+arch=('x86_64')
+groups=('media-video')
+url='https://sites.google.com/site/kdekorte2/gnomemplayer'
+license=('GPL')
+depends=('mplayer' 'dbus-glib' 'libnotify' 'hicolor-icon-theme' 'dconf' 'gmtk')
+makedepends=('nautilus' 'nemo' 'caja' 'gconf')
+source=("https://github.com/kdekorte/$pkgname/archive/v$pkgver.tar.gz"
+        "caja.patch")
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np0 -i ../caja.patch
+  sed -i 's/Exec=gnome-mplayer %U/Exec=gnome-mplayer %F/' $pkgname.desktop
+  sed -i '/AM_GCONF_SOURCE_2/d' configure.in
+  autoreconf -fi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 ../gnome-mplayer.appdata.xml "$pkgdir/usr/share/metainfo/gnome-mplayer.appdata.xml"
+}

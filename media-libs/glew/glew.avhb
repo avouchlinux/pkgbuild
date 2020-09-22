@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glew
+pkgver=2.2.0
+pkgrel=1
+pkgdesc="The OpenGL Extension Wrangler Library"
+arch=('x86_64')
+groups=('media-libs')
+url="http://glew.sourceforge.net"
+license=('BSD' 'MIT' 'GPL')
+depends=('libxmu' 'libxi' 'glu')
+source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tgz)
+
+build() {
+  cd ${pkgname}-${pkgver}
+  
+  sed -i 's|lib64|lib|' config/Makefile.linux
+  sed -i '/^.PHONY: .*\.pc$/d' Makefile
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make GLEW_DEST="${pkgdir}/usr" install.all
+  install -D -m644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+#  chmod 0755 "${pkgdir}"/usr/lib/libGLEW*.so.${pkgver}
+}

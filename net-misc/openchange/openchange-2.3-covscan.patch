@@ -1,0 +1,675 @@
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.covscan openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c.covscan	2018-07-19 13:53:41.281450703 +0200
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_property.c	2018-07-19 13:53:41.285450703 +0200
+@@ -53,6 +53,7 @@ static void openchange_all_string_sub(ch
+ 	}
+ }
+ 
++#if 0
+ struct RRULE_byday {
+ 	uint16_t	DayOfWeek;
+ 	const char	*DayName;
+@@ -68,6 +69,7 @@ static const struct RRULE_byday RRULE_by
+ 	{ 0x0006,	"SA" },
+ 	{ 0x0007,	NULL }
+ };
++#endif
+ 
+ static const char *get_filename(const char *filename)
+ {
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c.covscan openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c.covscan	2018-07-19 13:53:41.281450703 +0200
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/exchange2ical_utils.c	2018-07-19 13:53:41.285450703 +0200
+@@ -232,7 +232,7 @@ uint32_t get_exchange_rdfDays_from_ical(
+ 
+ struct icaltimetype get_icaltimetype_from_tm(struct tm *tm)
+ {
+-	struct icaltimetype tt;
++	struct icaltimetype tt = icaltime_null_time ();
+ 
+ 	tt.year   = tm->tm_year+1900;
+ 	tt.month  = tm->tm_mon+1;
+@@ -259,7 +259,7 @@ struct icaltimetype get_icaltimetype_fro
+ 
+ struct icaltimetype get_icaldate_from_tm(struct tm *tm)
+ {
+-	struct icaltimetype tt;
++	struct icaltimetype tt = icaltime_null_time ();
+ 
+ 	tt.year   = tm->tm_year+1900;
+ 	tt.month  = tm->tm_mon+1;
+@@ -267,6 +267,7 @@ struct icaltimetype get_icaldate_from_tm
+ 	tt.hour   = 0;
+ 	tt.minute = 0;
+ 	tt.second = 0;
++	tt.zone   = NULL;
+ 
+ 	tt.is_date     = 1;
+ 	tt.is_daylight = 0;
+@@ -292,7 +293,7 @@ struct tm *get_tm_from_FILETIME(const st
+ 
+ struct icaltimetype get_icaltime_from_FILETIME(const struct FILETIME *ft)
+ {
+-	struct icaltimetype	tt;
++	struct icaltimetype	tt = icaltime_null_time ();
+ 	NTTIME			nttime;
+ 	struct timeval		temp_timeval;
+ 	struct tm		*tm;
+@@ -317,7 +318,7 @@ struct icaltimetype get_icaltime_from_FI
+ 
+ struct icaltimetype get_icaltime_from_FILETIME_UTC(const struct FILETIME *ft)
+ {
+-	struct icaltimetype	tt;
++	struct icaltimetype	tt = icaltime_null_time ();
+ 	NTTIME			nttime;
+ 	struct timeval		temp_timeval;
+ 	struct tm		*tm;
+@@ -342,7 +343,7 @@ struct icaltimetype get_icaltime_from_FI
+ 
+ struct icaltimetype get_icaldate_from_FILETIME(const struct FILETIME *ft)
+ {
+-	struct icaltimetype	tt;
++	struct icaltimetype	tt = icaltime_null_time ();
+ 	NTTIME			nttime;
+ 	struct timeval		temp_timeval;
+ 	struct tm		*tm;
+@@ -373,7 +374,7 @@ struct icaltimetype get_icaldate_from_FI
+ 
+ struct icaltimetype get_icaldate_from_GlobalObjectId(struct GlobalObjectId *GlobalObjectId)
+ {
+-	struct icaltimetype	tt;
++	struct icaltimetype	tt = icaltime_null_time ();
+ 	tt.year   = GlobalObjectId->YH;
+ 	tt.year   = tt.year <<8;
+ 	tt.year   |= GlobalObjectId->YL;
+@@ -513,7 +514,10 @@ uint32_t get_minutes_from_icaltimetype(i
+ 	time_t			time;
+ 	NTTIME			nttime;
+ 	struct timeval 		t;
+-	
++
++	if (icaltime_is_null_time(icaltime) || !icaltime_is_valid_time(icaltime))
++		return 0;
++
+ 	tm.tm_year	= icaltime.year - 1900;
+ 	tm.tm_mon 	= icaltime.month - 1;
+ 	tm.tm_mday	= icaltime.day;
+diff -up openchange-openchange-2.3-VULCAN/libexchange2ical/ical2exchange_property.c.covscan openchange-openchange-2.3-VULCAN/libexchange2ical/ical2exchange_property.c
+--- openchange-openchange-2.3-VULCAN/libexchange2ical/ical2exchange_property.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libexchange2ical/ical2exchange_property.c	2018-07-19 13:53:41.286450703 +0200
+@@ -147,7 +147,6 @@ void ical2exchange_property_CATEGORIES(s
+ 	struct StringArray_r *sArray;
+ 	char **stringArray = NULL;
+ 	char string[256];
+-	char *value;
+ 	char *tok;
+ 	icalproperty *categoriesProp;
+ 	uint32_t i = 0;
+@@ -160,8 +159,10 @@ void ical2exchange_property_CATEGORIES(s
+ 	categoriesProp = icalcomponent_get_first_property(ical2exchange->categoriesEvent, ICAL_CATEGORIES_PROPERTY);
+ 	sArray->cValues = 0;
+ 	while(categoriesProp){
+-	
+-		value = strdup(icalproperty_get_categories(categoriesProp));
++		const char *categories = icalproperty_get_categories(categoriesProp);
++		char *value;
++
++		value = strdup(categories ? categories : "");
+ 		tok = strtok(value, ",");
+ 		while(tok){
+ 			if(!stringArray){
+@@ -185,6 +186,7 @@ void ical2exchange_property_CATEGORIES(s
+ 		}
+ 		categoriesProp = icalcomponent_get_next_property(ical2exchange->categoriesEvent, ICAL_CATEGORIES_PROPERTY);
+ 
++		free(value);
+ 	}
+ 	sArray->lppszA= (const char **) stringArray;
+ 	
+@@ -519,6 +521,7 @@ void ical2exchange_property_RRULE_EXDATE
+ 		
+ 		ritr = icalrecur_iterator_new(irt,dtstart);
+ 		next=icalrecur_iterator_next(ritr);
++		last = icaltime_null_time();
+ 		
+ 		while (!icaltime_is_null_time(next)){
+ 			last = next;
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/examples/foldertree.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/examples/foldertree.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/examples/foldertree.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/examples/foldertree.cpp	2018-07-19 13:53:41.286450703 +0200
+@@ -65,12 +65,12 @@ int main ()
+         	}
+ 
+         }
+-        catch (libmapipp::mapi_exception e) // Catch any MAPI exceptions
++        catch (libmapipp::mapi_exception &e) // Catch any MAPI exceptions
+         {
+                 std::cout << "MAPI Exception in main: " <<  e.what()
+ 			  << std::endl;
+         }
+-        catch (std::runtime_error e) // Catch any other runtime exceptions
++        catch (std::runtime_error &e) // Catch any other runtime exceptions
+         {
+                 std::cout << "std::runtime_error exception in main: "
+ 			  << e.what() << std::endl;
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/examples/messages.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/examples/messages.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/examples/messages.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/examples/messages.cpp	2018-07-19 13:53:41.286450703 +0200
+@@ -61,12 +61,12 @@ int main ()
+ 			}
+         	}
+         }
+-        catch (libmapipp::mapi_exception e) // Catch any MAPI exceptions
++        catch (libmapipp::mapi_exception &e) // Catch any MAPI exceptions
+         {
+                 std::cout << "MAPI Exception in main: " <<  e.what()
+ 			  << std::endl;
+         }
+-        catch (std::runtime_error e) // Catch any other runtime exceptions
++        catch (std::runtime_error &e) // Catch any other runtime exceptions
+         {
+                 std::cout << "std::runtime_error exception in main: "
+ 			  << e.what() << std::endl;
+diff -up openchange-openchange-2.3-VULCAN/libmapi/FXICS.c.covscan openchange-openchange-2.3-VULCAN/libmapi/FXICS.c
+--- openchange-openchange-2.3-VULCAN/libmapi/FXICS.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/FXICS.c	2018-07-19 13:53:41.286450703 +0200
+@@ -800,6 +800,7 @@ _PUBLIC_ enum MAPISTATUS FXGetBuffer(map
+ 	if ((retval = mapi_object_get_logon_id(obj_source_context, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&request, 0, sizeof(struct FastTransferSourceGetBuffer_req));
+ 	mem_ctx = talloc_named(session, 0, "FXGetBuffer");
+ 	size = 0;
+ 
+diff -up openchange-openchange-2.3-VULCAN/libmapi/idset.c.covscan openchange-openchange-2.3-VULCAN/libmapi/idset.c
+--- openchange-openchange-2.3-VULCAN/libmapi/idset.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/idset.c	2018-07-19 13:53:41.286450703 +0200
+@@ -383,6 +383,7 @@ _PUBLIC_ struct idset *IDSET_parse(TALLO
+ 			total_bytes += 16;
+ 		}
+ 
++		byte_count = 0;
+ 		globset.length = buffer.length - 16;
+ 		globset.data = (uint8_t *) buffer.data + 16;
+ 		idset->ranges = GLOBSET_parse(idset, globset, &idset->range_count, &byte_count);
+@@ -1182,7 +1183,8 @@ _PUBLIC_ void RAWIDSET_push_eid(struct r
+ 		}
+ 		else {
+ 			glob_idset = RAWIDSET_make(rawidset->mem_ctx, true, rawidset->single);
+-			last_glob_idset->next = glob_idset;
++			if (last_glob_idset)
++				last_glob_idset->next = glob_idset;
+ 		}
+ 		glob_idset->repl.id = eid_id;
+ 	}
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IMAPIProp.c.covscan openchange-openchange-2.3-VULCAN/libmapi/IMAPIProp.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IMAPIProp.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IMAPIProp.c	2018-07-19 13:53:41.287450703 +0200
+@@ -1122,6 +1122,7 @@ _PUBLIC_ enum MAPISTATUS QueryNamedPrope
+ 		return retval;
+ 
+ 	/* Initialization */
++	memset(&request, 0, sizeof(struct QueryNamedProperties_req));
+ 	mem_ctx = talloc_named(session, 0, "QueryNamesFromIDs");
+ 	size = 0;
+ 
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IMAPISupport.c.covscan openchange-openchange-2.3-VULCAN/libmapi/IMAPISupport.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IMAPISupport.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IMAPISupport.c	2018-07-19 13:53:41.287450703 +0200
+@@ -101,6 +101,7 @@ _PUBLIC_ enum MAPISTATUS Subscribe(mapi_
+ 	if ((retval = mapi_object_get_logon_id(obj, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&request, 0, sizeof(struct RegisterNotification_req));
+ 	mem_ctx = talloc_named(session, 0, "Subscribe");
+ 
+ 	/* Fill the Subscribe operation */
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IMessage.c.covscan openchange-openchange-2.3-VULCAN/libmapi/IMessage.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IMessage.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IMessage.c	2018-07-19 13:53:41.287450703 +0200
+@@ -499,6 +499,8 @@ _PUBLIC_ enum MAPISTATUS SetRecipientTyp
+ 	enum MAPISTATUS		retval;
+ 	struct SPropValue	lpProp;
+ 
++	memset(&lpProp, 0, sizeof(struct SPropValue));
++
+ 	lpProp.ulPropTag = PR_RECIPIENT_TYPE;
+ 	lpProp.value.l = RecipClass;
+ 
+@@ -1648,6 +1650,7 @@ _PUBLIC_ enum MAPISTATUS OpenEmbeddedMes
+ 	if ((retval = mapi_object_get_logon_id(obj_attach, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&lpProp, 0, sizeof(struct SPropValue));
+ 	mem_ctx = talloc_named(session, 0, "OpenEmbeddedMessage");
+ 
+ 	/* Fill the OpenEmbeddedMessage request */
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IStoreFolder.c.covscan openchange-openchange-2.3-VULCAN/libmapi/IStoreFolder.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IStoreFolder.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IStoreFolder.c	2018-07-19 13:53:41.287450703 +0200
+@@ -93,6 +93,7 @@ _PUBLIC_ enum MAPISTATUS OpenMessage(map
+ 	if ((retval = mapi_object_get_logon_id(obj_store, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&lpProp, 0, sizeof(struct SPropValue));
+ 	mem_ctx = talloc_named(session, 0, "OpenMessage");
+ 
+ 	/* Fill the OpenMessage operation */
+@@ -232,6 +233,7 @@ _PUBLIC_ enum MAPISTATUS ReloadCachedInf
+ 	if ((retval = mapi_object_get_logon_id(obj_message, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&lpProp, 0, sizeof(struct SPropValue));
+ 	mem_ctx = talloc_named(session, 0, "ReloadCachedInformation");
+ 
+ 	/* Fill the ReloadCachedInformation operation */
+diff -up openchange-openchange-2.3-VULCAN/libmapi/IStream.c.covscan openchange-openchange-2.3-VULCAN/libmapi/IStream.c
+--- openchange-openchange-2.3-VULCAN/libmapi/IStream.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi/IStream.c	2018-07-19 13:53:41.287450703 +0200
+@@ -183,6 +183,7 @@ _PUBLIC_ enum MAPISTATUS ReadStream(mapi
+ 	if ((retval = mapi_object_get_logon_id(obj_stream, &logon_id)) != MAPI_E_SUCCESS)
+ 		return retval;
+ 
++	memset(&request, 0, sizeof(struct ReadStream_req));
+ 	mem_ctx = talloc_named(session, 0, "ReadStream");
+ 
+ 	*ByteRead = 0;
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/src/folder.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/src/folder.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/src/folder.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/src/folder.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -57,7 +57,7 @@ folder::message_container_type folder::f
+ 				message_container.push_back(message_shared_ptr(new message(m_session,
+ 											   m_id,
+ 											   row_set.aRow[i].lpProps[1].value.d)));
+-			} catch(mapi_exception e) {
++			} catch(mapi_exception &e) {
+ 				mapi_object_release(&contents_table);
+ 				throw;
+ 			}
+@@ -102,7 +102,7 @@ folder::hierarchy_container_type folder:
+ 			try {
+ 				hierarchy_container.push_back(folder_shared_ptr(new folder(*this,
+ 							      row_set.aRow[i].lpProps[0].value.d)));
+-			} catch(mapi_exception e) {
++			} catch(mapi_exception &e) {
+ 				mapi_object_release(&hierarchy_table);
+ 				throw;
+ 			}
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/src/message.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/src/message.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/src/message.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/src/message.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -50,7 +50,7 @@ message::attachment_container_type messa
+ 			try {
+ 				attachment_container.push_back(attachment_shared_ptr(new attachment(*this, row_set.aRow[i].lpProps[0].value.l)));
+ 			}
+-			catch(mapi_exception e) {
++			catch(mapi_exception &e) {
+ 				mapi_object_release(&attachment_table);
+ 				throw;
+ 			}
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/src/session.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/src/session.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/src/session.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/src/session.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -61,7 +61,7 @@ void session::login(const std::string& p
+ 	if (m_profile_name == "") { // if profile is not set, try to get default profile
+ 		try {
+ 			m_profile_name = profile_database().get_default_profile_name();
+-		} catch(mapi_exception e) {
++		} catch(mapi_exception &e) {
+ 			uninitialize();
+ 			throw;
+ 		}
+@@ -74,7 +74,7 @@ void session::login(const std::string& p
+ 
+ 	try {
+ 		m_message_store->open(m_session);
+-	} catch (mapi_exception e) {
++	} catch (mapi_exception &e) {
+ 		throw;
+ 	}
+ }
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/tests/attach_test.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/tests/attach_test.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/tests/attach_test.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/tests/attach_test.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -84,11 +84,11 @@ int main()
+ 
+ 		print_folder_tree(top_folder, mapi_session);
+ 	}
+-	catch (mapi_exception e) // Catch any mapi exceptions
++	catch (mapi_exception &e) // Catch any mapi exceptions
+ 	{
+ 		cout << "MAPI Exception @ main: " <<  e.what() << endl;
+ 	}
+-	catch (std::runtime_error e) // Catch runtime exceptions
++	catch (std::runtime_error &e) // Catch runtime exceptions
+ 	{
+ 		cout << "std::runtime_error exception @ main: " << e.what() << endl;
+ 	}
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/tests/exception_test.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/tests/exception_test.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/tests/exception_test.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/tests/exception_test.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -12,7 +12,7 @@ int main()
+ 	try {
+ 		dotest();
+ 	}
+-	catch (libmapipp::mapi_exception e) {
++	catch (libmapipp::mapi_exception &e) {
+ 		std::cout << e.what() << std::endl;
+ 	}
+ 	
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/tests/profile_test.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/tests/profile_test.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/tests/profile_test.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/tests/profile_test.cpp	2018-07-19 13:53:41.287450703 +0200
+@@ -27,15 +27,18 @@
+ #define PROFILEDB_NAME_TEMPLATE "/tmp/mapidbXXXXXX"
+ int main ()
+ {
++	char *tmpname = NULL, *tmpname2 = NULL;
++
+ 	try {
+ 		libmapipp::profile_database db;
+ 
+ 		std::cout << "default profile name: " << db.get_default_profile_name() << std::endl;
+ 
+ 		{
+-			char *tmpname = (char*) calloc(sizeof(PROFILEDB_NAME_TEMPLATE) + 1, sizeof(char));
+-			strncpy(tmpname, PROFILEDB_NAME_TEMPLATE, sizeof(PROFILEDB_NAME_TEMPLATE));
+-			int ret = mkstemp(tmpname);
++			int ret;
++
++			tmpname = strdup(PROFILEDB_NAME_TEMPLATE);
++			ret = mkstemp(tmpname);
+ 			if (ret < 0) {
+ 				std::cout << "failed to create temporary file: " << strerror(errno) << std::endl;
+ 			}
+@@ -45,12 +48,15 @@ int main ()
+ 				std::cout << "failed to create a temporary profile store" << std::endl;
+ 			}
+ 			unlink(tmpname);
++			free(tmpname);
++			tmpname = NULL;
+ 		}
+ 		
+ 		{
+-			char *tmpname2 = (char*) calloc(sizeof(PROFILEDB_NAME_TEMPLATE) + 1, sizeof(char));
+-			strncpy(tmpname2, PROFILEDB_NAME_TEMPLATE, sizeof(PROFILEDB_NAME_TEMPLATE));
+-			int ret = mkstemp(tmpname2);
++			int ret;
++
++			tmpname2 = strdup(PROFILEDB_NAME_TEMPLATE);
++			ret = mkstemp(tmpname2);
+ 			if (ret < 0) {
+ 				std::cout << "failed to create temporary file: " << strerror(errno) << std::endl;
+ 			}
+@@ -60,19 +66,33 @@ int main ()
+ 				std::cout << "failed to create a temporary profile store with std::string" << std::endl;
+ 			}
+ 			unlink(tmpname2);
++			free(tmpname2);
++			tmpname2 = NULL;
+ 		}
+ 
+ 		std::cout << "finished profile and profile database tests" << std::endl;
+ 	}
+-	catch (libmapipp::mapi_exception e) // Catch any mapi exceptions
++	catch (libmapipp::mapi_exception &e) // Catch any mapi exceptions
+ 	{
+ 		std::cout << "MAPI Exception @ main: " <<  e.what() << std::endl;
+ 	}
+-	catch (std::runtime_error e) // Catch runtime exceptions
++	catch (std::runtime_error &e) // Catch runtime exceptions
+ 	{
+ 		std::cout << "std::runtime_error exception @ main: " << e.what() << std::endl;
+ 
+ 	}
+ 
++	if (tmpname) {
++		unlink(tmpname);
++		free(tmpname);
++		tmpname = NULL;
++	}
++
++	if (tmpname2) {
++		unlink(tmpname2);
++		free(tmpname2);
++		tmpname2 = NULL;
++	}
++
+ 	return 0;
+ }
+diff -up openchange-openchange-2.3-VULCAN/libmapi++/tests/test.cpp.covscan openchange-openchange-2.3-VULCAN/libmapi++/tests/test.cpp
+--- openchange-openchange-2.3-VULCAN/libmapi++/tests/test.cpp.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libmapi++/tests/test.cpp	2018-07-19 13:53:41.288450703 +0200
+@@ -126,11 +126,11 @@ int main ()
+ 
+ 		cout << "finished session" << endl;
+ 	}
+-	catch (mapi_exception e) // Catch any mapi exceptions
++	catch (mapi_exception &e) // Catch any mapi exceptions
+ 	{
+ 		cout << "MAPI Exception @ main: " <<  e.what() << endl;
+ 	}
+-	catch (std::runtime_error e) // Catch runtime exceptions
++	catch (std::runtime_error &e) // Catch runtime exceptions
+ 	{
+ 		cout << "std::runtime_error exception @ main: " << e.what() << endl;
+ 
+diff -up openchange-openchange-2.3-VULCAN/libocpf/ocpf_api.c.covscan openchange-openchange-2.3-VULCAN/libocpf/ocpf_api.c
+--- openchange-openchange-2.3-VULCAN/libocpf/ocpf_api.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libocpf/ocpf_api.c	2018-07-19 13:53:41.288450703 +0200
+@@ -316,6 +316,8 @@ int ocpf_propvalue(struct ocpf_context *
+ 	if (!ocpf || !ocpf->mem_ctx) return OCPF_ERROR;
+ 	if (!ctx) return OCPF_ERROR;
+ 
++	memset(&lpProps, 0, sizeof(struct SPropValue));
++
+ 	switch (scope) {
+ 	case kw_PROPERTY:
+ 		/* Sanity check: do not insert the same property twice */
+diff -up openchange-openchange-2.3-VULCAN/libocpf/ocpf_public.c.covscan openchange-openchange-2.3-VULCAN/libocpf/ocpf_public.c
+--- openchange-openchange-2.3-VULCAN/libocpf/ocpf_public.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/libocpf/ocpf_public.c	2018-07-19 13:53:41.288450703 +0200
+@@ -537,6 +537,8 @@ static bool set_external_recipients(TALL
+ 	uint32_t		last;
+ 	struct SPropValue	SPropValue;
+ 
++	memset(&SPropValue, 0, sizeof(struct SPropValue));
++
+ 	SRowSet->aRow = talloc_realloc(mem_ctx, SRowSet->aRow, struct SRow, SRowSet->cRows + 2);
+ 	last = SRowSet->cRows;
+ 	SRowSet->aRow[last].cValues = 0;
+@@ -626,6 +628,8 @@ _PUBLIC_ enum MAPISTATUS ocpf_set_Recipi
+ 
+ 	MAPI_RETVAL_IF(!ctx->recipients->cRows, MAPI_E_NOT_FOUND, NULL);
+ 
++	memset(&SPropValue, 0, sizeof(struct SPropValue));
++
+ 	SPropTagArray = set_SPropTagArray(mem_ctx, 0x8,
+ 					  PidTagObjectType,
+ 					  PidTagDisplayName,
+diff -up openchange-openchange-2.3-VULCAN/ndr_mapi.c.covscan openchange-openchange-2.3-VULCAN/ndr_mapi.c
+--- openchange-openchange-2.3-VULCAN/ndr_mapi.c.covscan	2018-07-19 13:53:41.276450703 +0200
++++ openchange-openchange-2.3-VULCAN/ndr_mapi.c	2018-07-19 13:53:41.288450703 +0200
+@@ -1310,8 +1310,11 @@ _PUBLIC_ enum ndr_err_code ndr_pull_EcDo
+ 		NDR_PULL_ALLOC(ndr, r->out.pulTimeStamp);
+ 		*r->out.pulTimeStamp = *r->in.pulTimeStamp;
+ 		NDR_PULL_ALLOC(ndr, r->out.pcbAuxOut);
+-		*r->out.pcbAuxOut = *r->in.pcbAuxOut;
+-	}		
++		if (r->in.pcbAuxOut)
++			*r->out.pcbAuxOut = *r->in.pcbAuxOut;
++		else
++			*r->out.pcbAuxOut = 0;
++	}
+ 
+ 	if (flags & NDR_OUT) {
+ 		if (ndr->flags & LIBNDR_FLAG_REF_ALLOC) {
+diff -up openchange-openchange-2.3-VULCAN/script/makepropslist.py.covscan openchange-openchange-2.3-VULCAN/script/makepropslist.py
+--- openchange-openchange-2.3-VULCAN/script/makepropslist.py.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/script/makepropslist.py	2018-07-19 13:53:41.288450703 +0200
+@@ -992,7 +992,7 @@ def check_duplicate_alternative_names():
+ 				if previous_alternative_names.has_key(altname):
+ 					print "\tIn section", entry["OXPROPS_Sect"], ", alternative name:", altname, "duplicates name in section", previous_alternative_names[altname]
+ 				if previous_canonical_names.has_key(altname):
+-					print "\tIn section", entry["OXPROPS_Sect"], ", alternative name:", altname, "duplicates canonical name in section", previous_alternative_names[altname]
++					print "\tIn section", entry["OXPROPS_Sect"], ", alternative name:", altname, "duplicates canonical name in section", previous_canonical_names[altname]
+ 				previous_alternative_names[altname] = (entry["OXPROPS_Sect"])
+ 
+ def check_duplicate_propids():
+diff -up openchange-openchange-2.3-VULCAN/testprogs/test_asyncnotif.c.covscan openchange-openchange-2.3-VULCAN/testprogs/test_asyncnotif.c
+--- openchange-openchange-2.3-VULCAN/testprogs/test_asyncnotif.c.covscan	2015-05-16 17:22:04.000000000 +0200
++++ openchange-openchange-2.3-VULCAN/testprogs/test_asyncnotif.c	2018-07-19 13:53:41.288450703 +0200
+@@ -109,12 +109,16 @@ static int callback(uint16_t Notificatio
+ 		break;
+ 	case fnevMbit|fnevObjectDeleted:
+ 		OC_DEBUG(0, "[+] Message deleted");
++		break;
+ 	case fnevMbit|fnevObjectModified:
+ 		OC_DEBUG(0, "[+] Message modified");
++		break;
+ 	case fnevMbit|fnevObjectMoved:
+ 		OC_DEBUG(0, "[+] Message moved");
++		break;
+ 	case fnevMbit|fnevObjectCopied:
+ 		OC_DEBUG(0, "[+] Message copied");
++		break;
+ 	case fnevMbit|fnevTableModified:
+ 		ctable = (struct ContentsTableChange *) NotificationData;
+ 		switch (ctable->TableEvent) {
+@@ -143,6 +147,7 @@ static int callback(uint16_t Notificatio
+ 		break;
+ 	case fnevMbit|fnevSbit|fnevObjectModified:
+ 		OC_DEBUG(0, "[+] A property on a message in a search folder has changed");
++		break;
+ 	case fnevMbit|fnevSbit|fnevTableModified:
+ 		stable = (struct ContentsTableChange *) NotificationData;
+ 		switch (stable->TableEvent) {
+@@ -250,6 +255,7 @@ int main(int argc, const char *argv[])
+ 
+ 	retval = MAPIInitialize(&mapi_ctx, opt_profdb);
+ 	if (retval != MAPI_E_SUCCESS) {
++		talloc_free(mem_ctx);
+ 		mapi_errstr("MAPIInitialize", retval);
+ 		exit (1);
+ 	}
+@@ -261,6 +267,10 @@ int main(int argc, const char *argv[])
+ 		SetMAPIDebugLevel(mapi_ctx, atoi(opt_debug));
+ 	}
+ 
++	mapi_object_init(&obj_store);
++	mapi_object_init(&obj_inbox);
++	mapi_object_init(&obj_contentstable);
++
+ 	/* if no profile is supplied use the default one */
+ 	if (!opt_profname) {
+ 		retval = GetDefaultProfile(mapi_ctx, &opt_profname);
+@@ -280,7 +290,6 @@ int main(int argc, const char *argv[])
+ 	}
+ 
+ 	/* Open the default message store */
+-	mapi_object_init(&obj_store);
+ 
+ 	retval = OpenMsgStore(session, &obj_store);
+ 	if (retval != MAPI_E_SUCCESS) {
+@@ -292,11 +301,9 @@ int main(int argc, const char *argv[])
+ 	retval = GetReceiveFolder(&obj_store, &fid, NULL);
+ 	MAPI_RETVAL_IF(retval, retval, mem_ctx);
+ 
+-	mapi_object_init(&obj_inbox);
+ 	retval = OpenFolder(&obj_store, fid, &obj_inbox);
+ 	MAPI_RETVAL_IF(retval, retval, mem_ctx);
+ 
+-	mapi_object_init(&obj_contentstable);
+ 	retval = GetContentsTable(&obj_inbox, &obj_contentstable, 0, &count);
+ 	printf("mailbox contains %i messages\n", count);
+ 
+diff -up openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c.covscan openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c
+--- openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c.covscan	2018-07-19 13:53:41.276450703 +0200
++++ openchange-openchange-2.3-VULCAN/utils/mapipropsdump.c	2018-07-19 13:53:41.289450703 +0200
+@@ -79,21 +79,21 @@
+  */
+ 
+ 
+-static const const struct ndr_interface_table *load_exchange_emsmdb_dso(const char *plugin)
++static const struct ndr_interface_table *load_exchange_emsmdb_dso(const char *plugin, void **phandle)
+ {
+ 	const struct ndr_interface_table	*p;
+-	void					*handle;
+ 
+-	handle = dlopen(plugin, RTLD_NOW);
+-	if (handle == NULL) {
++	*phandle = dlopen(plugin, RTLD_NOW);
++	if (*phandle == NULL) {
+ 		printf("%s: Unable to open: %s\n", plugin, dlerror());
+ 		return NULL;
+ 	}
+ 
+-	p = (const struct ndr_interface_table *) dlsym(handle, "ndr_table_exchange_emsmdb");
++	p = (const struct ndr_interface_table *) dlsym(*phandle, "ndr_table_exchange_emsmdb");
+ 	if (!p) {
+ 		OC_DEBUG(0, "%s: Unable to find DCE/RPC interface table for 'ndr_table_exchange_emsmdb': %s", plugin, dlerror());
+-		dlclose(handle);
++		dlclose(*phandle);
++		*phandle = NULL;
+ 		return NULL;
+ 	}
+ 
+@@ -409,6 +409,7 @@ int main(int argc, const char *argv[])
+ 	struct SPropTagArray			*s;
+ 	const char				*opt_reqfile = NULL;
+ 	const char				*opt_replfile = NULL;
++	void					*plhandle = NULL;
+ 	poptContext				pc;
+ 	int					opt;
+ 	int					index = -1;
+@@ -442,7 +443,7 @@ int main(int argc, const char *argv[])
+ 		exit (1);
+ 	}
+ 
+-	p = load_exchange_emsmdb_dso(PLUGIN);
++	p = load_exchange_emsmdb_dso(PLUGIN, &plhandle);
+ 	if (!p) {
+ 		exit (1);
+ 	}
+@@ -454,6 +455,7 @@ int main(int argc, const char *argv[])
+ 	s = process_request(mem_ctx, f, opt_reqfile, &opnum, &index);
+ 	if (!s) {
+ 		talloc_free(mem_ctx);
++		dlclose(plhandle);
+ 		exit (1);
+ 	}
+ 
+@@ -461,9 +463,12 @@ int main(int argc, const char *argv[])
+ 	ret = process_response(mem_ctx, f, opt_replfile, s, opnum, index);
+ 	if (ret == -1) {
+ 		talloc_free(mem_ctx);
++		dlclose(plhandle);
+ 		exit (1);
+ 	}
+ 
+ 	talloc_free(mem_ctx);
++	dlclose(plhandle);
++
+ 	return (0);
+ }
+diff -up openchange-openchange-2.3-VULCAN/utils/openchangeclient.c.covscan openchange-openchange-2.3-VULCAN/utils/openchangeclient.c
+--- openchange-openchange-2.3-VULCAN/utils/openchangeclient.c.covscan	2018-07-19 13:53:41.277450703 +0200
++++ openchange-openchange-2.3-VULCAN/utils/openchangeclient.c	2018-07-19 13:53:41.289450703 +0200
+@@ -629,6 +629,8 @@ static bool set_external_recipients(TALL
+ 	uint32_t		last;
+ 	struct SPropValue	SPropValue;
+ 
++	memset(&SPropValue, 0, sizeof(struct SPropValue));
++
+ 	SRowSet->aRow = talloc_realloc(mem_ctx, SRowSet->aRow, struct SRow, SRowSet->cRows + 1);
+ 	last = SRowSet->cRows;
+ 	SRowSet->aRow[last].cValues = 0;
+@@ -821,6 +823,8 @@ static enum MAPISTATUS openchangeclient_
+ 	mapi_object_init(&obj_outbox);
+ 	mapi_object_init(&obj_message);
+ 
++	memset(&SPropValue, 0, sizeof(struct SPropValue));
++
+ 	if (oclient->pf == true) {
+ 		retval = openchangeclient_getpfdir(mem_ctx, obj_store, &obj_outbox, oclient->folder);
+ 		if (retval != MAPI_E_SUCCESS) return retval;

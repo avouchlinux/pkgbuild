@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tslib
+pkgver=1.21
+pkgrel=1
+pkgdesc="Touchscreen Access Library"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://github.com/kergoth/tslib"
+license=(GPL2)
+depends=(glibc)
+makedepends=()
+source=("https://github.com/kergoth/tslib/releases/download/$pkgver/$pkgname-$pkgver.tar.xz")
+validpgpkeys=(F2082B880F9E423934686E3F500398DF5AB387D3) # Martin Kepplinger <martink@posteo.de>
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+}

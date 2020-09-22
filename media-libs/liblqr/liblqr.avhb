@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=liblqr
+pkgver=0.4.2
+pkgrel=1
+pkgdesc="A seam-carving C/C++ library called Liquid Rescale"
+arch=('i686' 'x86_64')
+url="http://liblqr.wikidot.com/"
+license=('GPL')
+depends=('glib2')
+makedepends=('pkgconfig')
+options=('!emptydirs')
+source=("https://github.com/carlobaldassi/liblqr/archive/v$pkgver.tar.gz")
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr 
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make DESTDIR="$pkgdir/" install
+}

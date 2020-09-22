@@ -1,0 +1,67 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-cairo
+pkgbase=cairo
+pkgver=1.17.2
+pkgrel=1
+pkgdesc="Cairo vector graphics library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://cairographics.org/"
+license=('LGPL' 'MPL')
+makedepends=('gcc-multilib' 'lib32-gtk2' 'lib32-mesa-libgl')
+depends=('lib32-libpng' 'lib32-libxext' 'lib32-libxrender' 'lib32-fontconfig'
+         'lib32-pixman' 'lib32-glib2' 'lib32-mesa' 'lib32-libgl' ${_pkgbasename})
+source=(http://cairographics.org/releases/${_pkgbasename}-${pkgver}.tar.xz)
+options=(!libtool)
+sha1sums=('4f6e337d5d3edd7ea79d1426f575331552b003ec')
+
+prepare() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	# Update gtk-doc
+	cp /usr/share/aclocal/gtk-doc.m4 build/aclocal.gtk-doc.m4
+	cp /usr/share/gtk-doc/data/gtk-doc.make build/Makefile.am.gtk-doc
+
+	# Fix typo
+	sed -i 's/have_png/use_png/g' configure.ac
+
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+        --libdir=/usr/lib32 \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --disable-static \
+        --disable-gl \
+        --enable-tee \
+        --enable-svg \
+        --enable-ps \
+        --enable-pdf \
+        --enable-gobject \
+        --disable-gtk-doc \
+        --enable-full-testing \
+        --enable-test-surfaces
+	
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -r "$pkgdir"/usr/{include,bin}
+}

@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xfsprogs
+_realname=xfsprogs-dev
+pkgver=5.5.0
+pkgrel=1
+pkgdesc="XFS filesystem utilities"
+arch=('x86_64')
+groups=('sys-fs')
+license=('LGPL')
+url="http://xfs.org"
+depends=('sh' 'libutil-linux' 'readline')
+makedepends=('git')
+options=('!makeflags')
+source=("https://git.kernel.org/pub/scm/fs/xfs/xfsprogs-dev.git/snapshot/xfsprogs-dev-$pkgver.tar.gz")
+md5sums=('SKIP')
+
+build() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make configure
+    export OPTIMIZER="-march=${CARCH/_/-} -O1"
+    export DEBUG=-DNDEBUG
+    ./configure --prefix=/usr --sbindir=/usr/bin --enable-readline
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${_realname}-${pkgver}"
+    make DIST_ROOT="${pkgdir}" PKG_ROOT_SBIN_DIR="/usr/bin" install install-dev
+
+    chown -R root $pkgdir
+    chgrp -R root $pkgdir
+
+    # add hack as we cannot set rootlibdir
+    mv "${pkgdir}"/lib/libhandle.so* "${pkgdir}/usr/lib/"
+    rm -rf "${pkgdir}/lib"
+}

@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=exiv2
+pkgver=0.27.2
+pkgrel=1
+pkgdesc="Exif, Iptc and XMP metadata manipulation library and tools"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://exiv2.org"
+license=('GPL2')
+depends=('gcc-libs' 'zlib' 'expat')
+makedepends=('cmake')
+source=("https://github.com/Exiv2/exiv2/archive/$pkgver.tar.gz")
+
+prepare() {
+  cd $pkgname-$pkgver
+
+}
+
+build() {
+  cd $pkgname-$pkgver
+cmake . \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DEXIV2_ENABLE_VIDEO=ON \
+    -DEXIV2_ENABLE_BUILD_PO=ON \
+    -DEXIV2_ENABLE_BUILD_SAMPLES=OFF \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+    make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=liblrdf
+_realname=LRDF
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="A library for the manipulation of RDF file in LADSPA plugins"
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/swh/LRDF"
+depends=('raptor' 'ladspa')
+license=('GPL2')
+source=("https://github.com/swh/LRDF/archive/v${pkgver}.tar.gz")
+
+prepare() {
+  mv -v "LRDF-${pkgver}" "${pkgname}-${pkgver}"
+  cd "${pkgname}-${pkgver}"
+  autoreconf -vfi
+  sed -e 's,raptor.h,raptor2/raptor.h,' -i lrdf.h
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -t "${pkgdir}/usr/share/doc/${pkgname}" \
+    -vDm644 {AUTHORS,ChangeLog,NEWS,README}
+}

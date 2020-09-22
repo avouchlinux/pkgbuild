@@ -1,0 +1,79 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=glib2
+pkgname=('glib2' 'glib2-docs')
+_realname=glib
+pkgver=2.66.0
+pkgrel=1
+pkgdesc="Low level core library"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://wiki.gnome.org/Projects/GLib"
+license=(LGPL2.1)
+arch=(x86_64)
+depends=(pcre libffi libutil-linux zlib)
+makedepends=(gettext gtk-doc shared-mime-info python libelf git util-linux meson dbus)
+checkdepends=(desktop-file-utils)
+optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
+            'libelf: gresource inspection tool')
+options=(!emptydirs)
+source=("https://gitlab.gnome.org/GNOME/$realname/-/archive/$pkgver/$realname-$pkgver.tar.bz2"
+        noisy-glib-compile-schemas.diff
+        glib-compile-schemas.hook gio-querymodules.hook)
+
+prepare() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    # Suppress noise from glib-compile-schemas.hook
+    patch -Np1 -i ../noisy-glib-compile-schemas.diff
+
+    patch -Np1 -i ../glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch
+}
+  
+build() {
+    export CFLAGS+=" -DG_DISABLE_CAST_CHECKS" # https://gitlab.gnome.org/GNOME/glib/issues/1833
+    avouch-meson ${_realname}-${pkgver} build \
+        -D man=true \
+        -D gtk_doc=true
+    meson compile -C build
+}
+
+# check() {
+
+#   export XDG_CONFIG_DIRS=/etc/xdg
+# 	export XDG_DATA_DIRS=/usr/local/share:/usr/share
+# 	export LC_TIME=C # bug #411967
+# 	unset GSETTINGS_BACKEND # bug #59638
+
+#   meson test -C build --no-suite flaky --print-errorlogs
+# }
+
+package_glib2() {
+  depends+=(libmount.so)
+  provides+=(libgio-2.0.so libglib-2.0.so libgmodule-2.0.so libgobject-2.0.so
+             libgthread-2.0.so)
+  optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
+              'libelf: gresource inspection tool')
+  DESTDIR="$pkgdir" meson install -C build
+
+  export PYTHONHASHSEED=0
+  python -m compileall -d /usr/share/glib-2.0/codegen "$pkgdir/usr/share/glib-2.0/codegen"
+  python -O -m compileall -d /usr/share/glib-2.0/codegen "$pkgdir/usr/share/glib-2.0/codegen"
+
+  # Split docs
+  mv "$pkgdir/usr/share/gtk-doc" "$srcdir"
+}
+
+package_glib2-docs() {
+  pkgdesc="Documentation for GLib"
+  depends=()
+  optdepends=()
+  license+=(custom)
+
+  mkdir -p "$pkgdir/usr/share"
+  mv gtk-doc "$pkgdir/usr/share"
+
+  install -Dt "$pkgdir/usr/share/licenses/glib2-docs" -m644 ${_realname}-${pkgver}/docs/reference/COPYING
+}

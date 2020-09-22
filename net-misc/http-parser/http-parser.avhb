@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=http-parser
+pkgver=2.9.4
+pkgrel=1
+pkgdesc="Parser for HTTP Request/Response written in C"
+arch=('x86_64')
+groups=('net-misc')
+url="https://github.com/nodejs/http-parser"
+license=('MIT')
+depends=('glibc')
+source=("${url}/archive/v$pkgver.tar.gz")
+
+prepare() {
+	cd "$srcdir/$pkgname-$pkgver"
+	sed -i 's|-Werror||' $pkgname/Makefile
+}
+
+build() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make library
+}
+
+check() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make test
+}
+
+package() {
+	cd "$srcdir/$pkgname-$pkgver"
+	make PREFIX="$pkgdir/usr" install
+
+	install -Dm644 LICENSE-MIT \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+	ln -sf libhttp_parser.so.$pkgver "${pkgdir}/usr/lib/libhttp_parser.so"
+}

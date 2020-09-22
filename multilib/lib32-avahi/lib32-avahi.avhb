@@ -1,0 +1,70 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-avahi
+_realname=avahi
+pkgver=0.8
+pkgrel=1
+pkgdesc='Service Discovery for Linux using mDNS/DNS-SD -- compatible with Bonjour (32-bit)'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='https://github.com/lathiat/avahi'
+license=('LGPL')
+depends=("${pkgname#lib32-}" 'expat' 'lib32-gdbm' 'lib32-glib2' 'lib32-libcap' 'lib32-libdaemon' 'lib32-dbus')
+makedepends=('gcc-multilib' 'git' 'gobject-introspection' 'gtk-sharp-2' 'intltool' 'lib32-gtk2' 'lib32-gtk3'
+             'pygtk' 'python-dbus' 'python-gobject' 'mono' 'xmltoman')
+optdepends=('lib32-gtk3: gtk3 bindings'
+            'lib32-gtk2: gtk2 bindings')
+options=(!emptydirs)
+_commit=1b5f401f64d7bed40c4335b0327acf4125da3086  # pull/115/merge~2
+source=("git+$url#tag=$_commit")
+sha256sums=('SKIP')
+
+prepare() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	patch -Np1 -i ../0001-avahi-python-Use-the-agnostic-DBM-interface.patch
+}
+
+build() {
+  # Modify environment to generate 32-bit ELF. Respects flags defined in makepkg.conf
+  export CFLAGS="-m32 ${CFLAGS}"
+  export CXXFLAGS="-m32 ${CXXFLAGS}"
+  export LDFLAGS="-m32 ${LDFLAGS}"
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+#  export PKG_CONFIG_LIBDIR='/usr/lib32/pkgconfig'
+
+  export PYTHON=/usr/bin/python2
+
+	cd "${srcdir}/${_realname}-${pkgver}"
+  ./configure \
+    --build=i686-avouch-linux-gnu \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --sbindir=/usr/bin \
+    --libdir=/usr/lib32 \
+    --disable-mono \
+    --disable-monodoc \
+    --disable-qt3 \
+    --disable-qt4 \
+    --disable-qt5 \
+    --enable-compat-libdns_sd \
+    --with-distro=archlinux \
+    --with-avahi-priv-access-group=network \
+    --with-autoipd-user=avahi \
+    --with-autoipd-group=avahi \
+    --with-systemdsystemunitdir=/usr/lib/systemd/system 
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  
+  make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  # Remove conflicting files.
+  rm -rf "${pkgdir}"/{etc,run,usr/{share,lib,include,bin,lib32/mono}}
+}

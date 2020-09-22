@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rp-pppoe
+pkgver=3.13
+pkgrel=1
+pkgdesc="Roaring Penguin's Point-to-Point Protocol over Ethernet client"
+arch=('x86_64')
+groups=('net-misc')
+url="https://dianne.skoll.ca/projects/rp-pppoe"
+license=('GPL')
+depends=('ppp=2.4.8' 'sh' 'net-tools')
+backup=(etc/ppp/pppoe.conf etc/ppp/firewall-standalone etc/ppp/firewall-masq 
+        etc/ppp/pppoe-server-options)
+options=('!makeflags')
+install=rp-pppoe.install
+source=(https://dianne.skoll.ca/projects/rp-pppoe/download/rp-pppoe-$pkgver.tar.gz{,.sig} 
+       adsl.service)
+validpgpkeys=('FC2E9B645468698FD7B21655C1842E2A126F42E0') # Dianne Skoll
+
+build() {
+  cd $pkgname-$pkgver/src
+  ./configure --prefix=/usr --sbindir=/usr/bin --enable-plugin
+  make ${MAKEFLAGS} PLUGIN_DIR="/usr/lib/rp-pppoe" all rp-pppoe.so
+}
+
+package() {
+  cd $pkgname-$pkgver/src
+  make PLUGIN_DIR="/usr/lib/rp-pppoe" DESTDIR="$pkgdir" install
+
+  #install -Dm755 "$srcdir/adsl" "$pkgdir/etc/rc.d/adsl"
+  install -Dm644 "$srcdir/adsl.service" "$pkgdir/usr/lib/systemd/system/adsl.service"
+}

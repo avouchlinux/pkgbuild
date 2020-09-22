@@ -1,0 +1,25 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pixiewps
+pkgver=1.4.2
+pkgrel=1
+pkgdesc="Offline bruteforce of the WPS pin exploiting the low or non-existing entropy of some APs"
+arch=('x86_64')
+groups=('app-net')
+url="https://github.com/wiire/pixiewps"
+license=('GPL')
+depends=('openssl')
+source=(https://github.com/wiire/pixiewps/archive/v$pkgver.tar.gz)
+
+build() {
+	cd "$pkgname-$pkgver"
+	make
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" "PREFIX=/usr" install
+}

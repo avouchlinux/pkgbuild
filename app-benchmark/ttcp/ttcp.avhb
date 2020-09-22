@@ -1,0 +1,24 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttcp
+pkgver=20071201
+pkgrel=1
+pkgdesc="TCP benchmarking tool"
+arch=('x86_64')
+groups=('app-benchmark')
+license=('custom:Public Domain')
+depends=('glibc')
+makedepends=('gcc')
+source=("http://www.netcore.fi/pekkas/linux/ipv6/ttcp.c")
+build() {
+  cd "${srcdir}"
+  gcc ttcp.c -o ttcp
+}
+
+package() {
+  cd "${srcdir}"
+  install -D -m755 ttcp "${pkgdir}/usr/bin/ttcp"
+}

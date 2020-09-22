@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=enventor
+pkgver=0.8.1
+pkgrel=1
+pkgdesc="The dynamic EDC editor to write your layout fast and easy."
+arch=('i686' 'x86_64')
+url="http://www.enlightenment.org"
+license=('BSD')
+depends=('libjpeg>=7' 'openssl' 'eina')
+options=(!libtool)
+source=(http://download.enlightenment.org/releases/$pkgname-$pkgver.tar.gz)
+sha1sums=('42265eb508a17e3684a01429593da138da369718')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	export CFLAGS="$CFLAGS -fvisibility=hidden"
+	./configure --prefix=/usr
+	make
+}
+
+package(){
+	cd $srcdir/$pkgname-$pkgver
+	make DESTDIR=$pkgdir install
+	# install license files
+	install -Dm644 COPYING $pkgdir/usr/share/licenses/$pkgname/license
+}

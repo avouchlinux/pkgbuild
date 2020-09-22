@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=frei0r-plugins
+pkgver=1.7.0
+pkgrel=1
+pkgdesc="A minimalistic plugin API for video sources and filters"
+arch=('x86_64')
+groups=('media-libs')
+url="https://frei0r.dyne.org/"
+license=('GPL')
+depends=('cairo' 'gavl')
+makedepends=('cmake' 'doxygen')
+optdepends=('opencv: for facebl0r and facedetect plugins')
+source=(https://files.dyne.org/frei0r/$pkgname-$pkgver.tar.gz
+https://github.com/dyne/frei0r/pull/94/commits/b27f03c8d51c34cd5f79e0399bb0024ca94ea813.patch
+https://github.com/dyne/frei0r/commit/7482c320b52956713d0b511771b23020fabd07a2.patch)
+validpgpkeys=('6113D89CA825C5CEDD02C87273B35DA54ACB7D10') # Denis Roio (Jaromil)
+
+prepare(){
+	cd $pkgname-$pkgver 
+	patch -Np1 -i ../7482c320b52956713d0b511771b23020fabd07a2.patch
+	patch -Np1 -i ../b27f03c8d51c34cd5f79e0399bb0024ca94ea813.patch
+
+	# few more hacks (from fedora)
+	sed -i -e 's/CV_HAAR_FIND_BIGGEST_OBJECT/cv::CASCADE_FIND_BIGGEST_OBJECT/'  \
+		-e 's/CV_HAAR_DO_CANNY_PRUNING/cv::CASCADE_DO_CANNY_PRUNING/' \
+		-e 's/CV_BGR2GRAY/cv::COLOR_BGR2GRAY/' \
+		-e 's/CV_BGR2HSV/cv::COLOR_BGR2HSV/' \
+		src/filter/facebl0r/facebl0r.cpp
+
+	mkdir -p m4
+	autoreconf -i
+}
+
+build() {
+  mkdir -p build
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

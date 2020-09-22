@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=font-misc-ethiopic
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="X.org Misc Ethiopic fonts"
+arch=('any')
+groups=('media-fonts')
+url="http://xorg.freedesktop.org/"
+license=('MIT')
+groups=('xorg' 'xorg-fonts')
+depends=('xorg-mkfontdir' 'xorg-mkfontscale' 'fontconfig')
+makedepends=('xorg-font-util' 'xorg-util-macros')
+install=xfonts.install
+source=(http://xorg.freedesktop.org/releases/individual/font/${pkgname}-${pkgver}.tar.bz2)
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr \
+    --with-ttf-fontdir=/usr/share/fonts/TTF \
+    --with-otf-fontdir=/usr/share/fonts/OTF
+    make
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+    rm -f "${pkgdir}/usr/share/fonts"/*/fonts.*
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

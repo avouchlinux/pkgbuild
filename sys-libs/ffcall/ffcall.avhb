@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ffcall
+_realname=libffcall
+pkgver=2.2
+pkgrel=1
+pkgdesc="C library for implementing foreign function calls in embedded interpreters"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://www.gnu.org/software/libffcall/"
+license=('GPL2')
+options=('!makeflags' 'staticlibs')
+source=(https://ftp.gnu.org/gnu/libffcall/libffcall-${pkgver}.tar.gz)
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  #[ "$CARCH" = "x86_64" ] && CONFIGFLAG="--with-pic"
+  ./configure --prefix=/usr --mandir=/usr/share/man --with-pic
+  make
+}
+
+check() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+  install -d "${pkgdir}"/usr/share/{man,doc/ffcall}
+  make DESTDIR="${pkgdir}" htmldir=/usr/share/doc/ffcall install
+}

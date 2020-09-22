@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=schroedinger
+pkgver=1.0.11
+pkgrel=1
+pkgdesc="An implemenation of the Dirac video codec in ANSI C code"
+arch=('x86_64')
+groups=('media-libs')
+url='https://launchpad.net/schroedinger'
+license=('GPL2' 'LGPL2.1' 'MPL' 'MIT')
+depends=('orc')
+source=("https://launchpad.net/schroedinger/trunk/${pkgver}/+download/schroedinger-${pkgver}.tar.gz"{,.asc})
+validpgpkeys=('9456AFC0814A8139E99483517FE6B095B582B0D4') # Timothy Gu)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+	# license
+	install -m644 -D COPYING.MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

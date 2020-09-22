@@ -1,0 +1,12 @@
+diff -up pulseaudio-8.99.2/src/tests/once-test.c.than pulseaudio-8.99.2/src/tests/once-test.c
+--- pulseaudio-8.99.2/src/tests/once-test.c.than	2016-06-22 10:20:57.127583628 -0400
++++ pulseaudio-8.99.2/src/tests/once-test.c	2016-06-22 10:59:38.905573634 -0400
+@@ -70,7 +70,7 @@ static void thread_func(void *data) {
+ #endif
+ 
+     CPU_ZERO(&mask);
+-    CPU_SET((size_t) (pa_atomic_inc(&i_cpu) % n_cpu), &mask);
++    CPU_SET(pthread_getaffinity_np(pthread_self(), sizeof(mask), &mask), &mask);
+     fail_unless(pthread_setaffinity_np(pthread_self(), sizeof(mask), &mask) == 0);
+ #endif
+ 

@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dbus-c++
+_realname=lib$pkgname
+pkgver=0.9.0
+pkgrel=1
+pkgdesc="A C++ API for D-BUS"
+arch=('x86_64')
+groups=('dev-cpp')
+url="http://sourceforge.net/projects/dbus-cplusplus/"
+license=('LGPL')
+depends=('dbus' 'glib2')
+source=("https://sourceforge.net/projects/${_upstream}/files/${pkgname}/${pkgver}/${_pkgname}-${pkgver}.tar.gz"
+        'gcc47.patch'
+        'disable-threading.patch'
+        'fix-writechar.patch')
+
+prepare() {
+	cd ${srcdir}/${_realname}-${pkgver}
+
+	patch -Np0 -i "$srcdir/gcc47.patch"	
+	patch -Np1 -i "$srcdir/dbus-c++-writechar.patch"	
+	patch -Np1 -i "${srcdir}/disable-threading.patch"	
+	patch -Np1 -i "$srcdir/dbus-c++-linkfix.patch"
+	
+	# Fix collision between macro bind_property in dbus-c++/interface.h and method
+	# bind_property in glibmm/binding.h
+	patch -Np1 -i "$srcdir/dbus-c++-macro_collision.patch"
+	
+	autoreconf -vi
+}
+
+build() { 
+	cd ${srcdir}/${_realname}-${pkgver}
+	CXXFLAGS='--std=gnu++11'
+	LDFLAGS+="-lexpat -lpthread" # -lpthread needed for i686
+	
+	./configure --prefix=/usr --disable-static --disable-tests --disable-ecore --enable-glib
+	
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}

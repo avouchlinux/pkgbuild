@@ -1,0 +1,573 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>sgmldiff</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="DocBook Utils"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="sgmldiff"
+HREF="intro-sgmldiff.html"><LINK
+REL="PREVIOUS"
+TITLE="sgmldiff"
+HREF="intro-sgmldiff.html"><LINK
+REL="NEXT"
+TITLE="GNU Free Documentation License"
+HREF="fdl.html"></HEAD
+><BODY
+CLASS="REFENTRY"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>DocBook Utils</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="intro-sgmldiff.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="fdl.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SGMLDIFF"
+></A
+>sgmldiff</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN1039"
+></A
+><H2
+>Name</H2
+>sgmldiff&nbsp;--&nbsp;Find differences in the markup of two SGML files</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN1042"
+></A
+><H2
+>Synopsis</H2
+><P
+><B
+CLASS="COMMAND"
+>sgmldiff</B
+>  [options <I
+><A
+HREF="sgmldiff.html#OPTIONS-SGMLDIFF"
+>(1)</A
+></I
+>...] {<TT
+CLASS="REPLACEABLE"
+><I
+>file1</I
+></TT
+>} {<TT
+CLASS="REPLACEABLE"
+><I
+>file2</I
+></TT
+>}<P
+><A
+NAME="OPTIONS-SGMLDIFF"
+>(1)</A
+>&nbsp;[<CODE
+CLASS="OPTION"
+>-a</CODE
+> | <CODE
+CLASS="OPTION"
+>--attributes</CODE
+><BR> | <CODE
+CLASS="OPTION"
+>-c</CODE
+>  [attributes | nesting | textpos] | <CODE
+CLASS="OPTION"
+>--context</CODE
+>  [attributes | nesting | textpos]<BR> | <CODE
+CLASS="OPTION"
+>-s</CODE
+> | <CODE
+CLASS="OPTION"
+>--statistics</CODE
+><BR> | <CODE
+CLASS="OPTION"
+>-h</CODE
+> | <CODE
+CLASS="OPTION"
+>--help</CODE
+><BR> | <CODE
+CLASS="OPTION"
+>-v</CODE
+> | <CODE
+CLASS="OPTION"
+>--version</CODE
+>]</P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1085"
+></A
+><H2
+>Description</H2
+><P
+>This perl script allows to determine the structural differences
+    between two SGML files. It compares the files, regardless of what
+    is in between the tags, to only focus on the markup. Its output
+    is similar to <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>diff</SPAN
+>(1)</SPAN
+>.</P
+><P
+>The typical use of <SPAN
+CLASS="APPLICATION"
+>sgmldiff</SPAN
+> is to
+    compare an SGML file with its translation into another language. If
+    the translation was done cleanly, <SPAN
+CLASS="APPLICATION"
+>sgmldiff</SPAN
+>
+    returns without finding any difference in the markup.</P
+><P
+>An example of a typical call to sgmldiff is:</P
+><PRE
+CLASS="SCREEN"
+>      sgmldiff english.sgml italiano.sgml
+    </PRE
+><P
+>If there are differences in markup between both files,
+    <SPAN
+CLASS="APPLICATION"
+>sgmldiff</SPAN
+> will output a series of differences
+    reports summarized with lines of the form:
+    <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>169a164</DT
+><DD
+><P
+>At line 169 of the first file, line 164 of the
+        second file has been added.</P
+></DD
+><DT
+>8a12,15</DT
+><DD
+><P
+>At line 8 of the first file, lines 12 to 15
+        of the second file have been added.</P
+></DD
+><DT
+>41d28</DT
+><DD
+><P
+>Line 41 of the first file has been destroyed, to
+        obtain line 28 of the second file.</P
+></DD
+><DT
+>63,66d61</DT
+><DD
+><P
+>Lines 63 to 66 of the first file have been
+        destroyed. to obtain line 61 of the second file.</P
+></DD
+><DT
+>52c51</DT
+><DD
+><P
+>Line 52 of the first file has been changed into
+        line 51 of the second file.</P
+></DD
+><DT
+>5,7c8,10</DT
+><DD
+><P
+>Lines 5 to 7 of the first file have been changed
+        into lines 8 to 10 of the second line.</P
+></DD
+></DL
+></DIV
+>
+    In addition to those summaries, the lines of the first file are
+    shown preceeded by '&#60;' and the lines of the second file are
+    shown preceeded by '&#62;".</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1123"
+></A
+><H2
+>Options</H2
+><P
+>Here is the list of actions that can be requested to
+    sgmldiff:</P
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <P
+>[<CODE
+CLASS="OPTION"
+>-a</CODE
+> | <CODE
+CLASS="OPTION"
+>--attributes</CODE
+>]</P
+>
+        </B
+></DT
+><DD
+><P
+>Include the attribute values in the difference tests.
+          Don't set this value if the attributes are likely to be
+          translated. Set this value if the attributes value shouldn't
+          change between both files. Default is to don't include the
+          attributes in the difference tests.</P
+></DD
+><DT
+><B
+>          <P
+>[<CODE
+CLASS="OPTION"
+>-c</CODE
+>  [attributes | nesting | textpos] | <CODE
+CLASS="OPTION"
+>--context</CODE
+>  [attributes | nesting | textpos]]</P
+>
+        </B
+></DT
+><DD
+><P
+>Add more context to the difference. Since every test between the tags is removed before testing the differences, <SPAN
+CLASS="APPLICATION"
+>sgmldiff</SPAN
+> is likely to resynchronize itself at the wrong place, by thinking the location in both files correspond, while it's not true. By adding more context to the compared area, such risk is disminished.</P
+><P
+>The allowed values for the <CODE
+CLASS="OPTION"
+>--context</CODE
+> option are:
+          <P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>attributes</DT
+><DD
+><P
+>Take into account the attribute
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>names</I
+></SPAN
+>. The attribute
+              <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>values</I
+></SPAN
+> are controlled by the
+              <CODE
+CLASS="OPTION"
+>attributes</CODE
+> option.</P
+></DD
+><DT
+>nesting</DT
+><DD
+><P
+>Take into account the nesting level of all the compared tags.</P
+></DD
+><DT
+>textpos</DT
+><DD
+><P
+>Take into account the position in the text.</P
+></DD
+></DL
+></DIV
+>
+          </P
+></DD
+><DT
+><B
+>          <P
+>[<CODE
+CLASS="OPTION"
+>-s</CODE
+> | <CODE
+CLASS="OPTION"
+>--statistics</CODE
+>]</P
+>
+        </B
+></DT
+><DD
+><P
+>Print some SGML information at the end.</P
+></DD
+><DT
+><B
+>          <P
+>[<CODE
+CLASS="OPTION"
+>-h</CODE
+> | <CODE
+CLASS="OPTION"
+>--help</CODE
+>]</P
+>
+        </B
+></DT
+><DD
+><P
+>Print a short help message and exit</P
+></DD
+><DT
+><B
+>          <P
+>[<CODE
+CLASS="OPTION"
+>-v</CODE
+> | <CODE
+CLASS="OPTION"
+>--version</CODE
+>]</P
+>
+        </B
+></DT
+><DD
+><P
+>Print the version identifier and exit</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1204"
+></A
+><H2
+>Files</H2
+><P
+></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1207"
+></A
+><H2
+>Authors</H2
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          Frederik Fouvry
+        </B
+></DT
+><DD
+><P
+>Developer of <SPAN
+CLASS="APPLICATION"
+>sgmldiff</SPAN
+>.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN1215"
+></A
+><H2
+>See Also</H2
+><DIV
+CLASS="GLOSSLIST"
+><DL
+><DT
+><B
+>          <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>jw</SPAN
+>(1)</SPAN
+>
+        </B
+></DT
+><DD
+><P
+>conversion from a SGML file to other file formats</P
+></DD
+><DT
+><B
+><P
+><B
+CLASS="COMMAND"
+></B
+> </P
+>
+          <SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>nsgmls</SPAN
+>(1)</SPAN
+>
+        </B
+></DT
+><DD
+><P
+>a base component of <SPAN
+CLASS="APPLICATION"
+>Jade</SPAN
+> DSSSL engine</P
+></DD
+><DT
+><B
+><P
+><B
+CLASS="COMMAND"
+></B
+> </P
+>
+          <A
+HREF="http://sources.redhat.com/docbook-tools/"
+TARGET="_top"
+>http://sources.redhat.com/docbook-tools/</A
+>
+        </B
+></DT
+><DD
+><P
+>the home page of the DocBook tools, a compendium of
+          all tools necessary to process DocBook files, including
+          the DocBook-utils</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="intro-sgmldiff.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="fdl.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>sgmldiff</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="intro-sgmldiff.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GNU Free Documentation License</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=leafpad
+pkgver=0.8.18.1
+pkgrel=1
+pkgdesc="A notepad clone for GTK+ 2.0"
+arch=('x86_64')
+groups=('app-editors')
+url="http://tarot.freeshell.org/leafpad/"
+license=('GPL')
+depends=('gtk2' 'desktop-file-utils')
+makedepends=('intltool')
+install=leafpad.install
+source=(http://download.savannah.gnu.org/releases/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --enable-chooser
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	echo 'StartupNotify=true' >> "${pkgdir}/usr/share/applications/leafpad.desktop"
+	# license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

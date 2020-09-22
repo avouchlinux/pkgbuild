@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=attr
+pkgver=2.4.48
+pkgrel=1
+pkgdesc="Extended attribute support library for ACL support"
+arch=('x86_64')
+groups=('sys-base')
+url='https://savannah.nongnu.org/projects/attr'
+license=('LGPL')
+depends=('glibc')
+makedepends=('gettext')
+replaces=('xfsattr')
+provides=('xfsattr')
+conflicts=('xfsattr')
+backup=('etc/xattr.conf')
+validpgpkeys=('600CD204FBCEA418BD2CA74F154343260542DF34'  # Brandon Philips <brandon@ifup.co>
+              'B902B5271325F892AC251AD441633B9FE837F581') # Frysinger <vapier@gentoo.org>
+source=("https://download.savannah.gnu.org/releases/${pkgname}/${pkgname}-${pkgver}.tar.gz"{,.sig})
+sha256sums=('5ead72b358ec709ed00bbf7a9eaef1654baad937c001c044fe8b74c57f5324e7'
+            'SKIP')
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	# using gold results in "mv: relocation error:
+	# /usr/x86_64-pc-linux-gnu/lib/libacl.so.1: symbol lgetxattr version
+	# ATTR_1.0 not defined in file libattr.so.1 with link time reference
+	# Force to use ld.bdf instead of default ld.gold 
+	# as upstream does not come up with a solution yet.
+	export LD=ld.bfd
+	export LDFLAGS="$LDFLAGS -fuse-ld=bfd"
+	./configure --prefix=/usr --sysconfdir=/etc --libdir=/usr/lib --libexecdir=/usr/lib
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+}
+

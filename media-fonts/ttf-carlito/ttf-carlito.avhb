@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-carlito
+_realname=crosextrafonts-carlito
+pkgver=20130920
+pkgrel=1
+pkgdesc='Googles Carlito font'
+arch=('any')
+groups=('media-fonts')
+license=('custom:OFL')
+url='https://code.google.com/p/chromium/issues/detail?id=280557'
+depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-font-utils')
+provides=('ttf-font')
+source=("http://commondatastorage.googleapis.com/chromeos-localmirror/distfiles/crosextrafonts-${pkgname#ttf-}-${pkgver}.tar.gz")
+
+package() {
+  cd "crosextrafonts-carlito-${pkgver}"
+
+  install -d "${pkgdir}/usr/share/fonts/TTF/"
+  install -m644 *.ttf "${pkgdir}/usr/share/fonts/TTF/"
+
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

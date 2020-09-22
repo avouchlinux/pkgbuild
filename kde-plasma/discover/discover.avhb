@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=discover
+pkgver=5.19.5
+pkgrel=1
+pkgdesc='KDE and Plasma resources management GUI'
+arch=('x86_64')
+groups=('kde-plasma')
+url='https://projects.kde.org/projects/kde/workspace/discover'
+license=(LGPL)
+depends=(knewstuff kdeclarative kitemmodels qt5-graphicaleffects appstream-qt archlinux-appstream-data
+         hicolor-icon-theme kirigami2 qt5-quickcontrols)
+makedepends=(extra-cmake-modules python plasma-framework packagekit-qt5 flatpak)
+optdepends=('packagekit-qt5: to manage packages from Arch Linux repositories' 'flatpak: Flatpak packages support')
+source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"
+        discover-no-deb-rpm.patch)
+validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell
+              '348C8651206633FD983A8FC4DEACEA00075E1D76'  # KDE Neon
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF') # David Edmundson
+
+prepare() {
+  cd $pkgname-$pkgver
+  # Don't handle .rpm or .deb files
+  # patch -p1 -i ../discover-no-deb-rpm.patch
+}
+
+build() {
+	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_TESTING=OFF \
+		-DBUILD_QCH=ON
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

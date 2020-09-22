@@ -1,0 +1,52 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=icedtea-sound
+pkgver=1.0.1
+pkgrel=1
+pkgdesc="The IcedTea-Sound package contains the PulseAudio-8.0 provider which was removed from IcedTea itself from version 2.5.0 onwards."
+arch=('any')
+groups=('dev-java')
+url=https://github.com/gentoo/hwids
+license=('GPL2')
+makedepends=('git')
+source=(http://icedtea.classpath.org/download/source/icedtea-sound-1.0.1.tar.xz)
+
+_javaver=java-11-openjdk
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	
+	./configure --with-jdk-home=/usr/lib/jvm/default --disable-docs --without-ecj
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	case $(uname -m) in
+	  i?86   ) ARCH=i386 ;;
+	  x86_64 ) ARCH=amd64 ;;
+	esac
+	
+	mkdir -p ${pkgdir}/usr/lib/jvm/$_javaver/jre/lib/ext
+	install  icedtea-sound.jar ${pkgdir}/usr/lib/jvm/$_javaver/jre/lib/ext
+	
+	mkdir -p ${pkgdir}/usr/lib/jvm/$_javaver/jre/lib/$ARCH
+	install  build/native/libicedtea-sound.so ${pkgdir}/usr/lib/jvm/$_javaver/jre/lib/$ARCH
+
+	unset ARCH
+	
+cat >> ${pkgdir}/usr/lib/jvm/$_javaver/jre/lib/sound.properties << "EOF"
+# Begin PulseAudio provider additions:
+
+javax.sound.sampled.Clip=org.classpath.icedtea.pulseaudio.PulseAudioClip
+javax.sound.sampled.SourceDataLine=org.classpath.icedtea.pulseaudio.PulseAudioSourceDataLine
+javax.sound.sampled.TargetDataLine=org.classpath.icedtea.pulseaudio.PulseAudioTargetDataLine
+
+# End PulseAudio provider additions
+EOF
+
+}

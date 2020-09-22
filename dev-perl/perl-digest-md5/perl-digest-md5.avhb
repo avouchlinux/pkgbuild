@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-digest-md5
+_realname=Digest-MD5
+pkgver=2.53
+pkgrel=1
+pkgdesc="Perl interface to the SHA-1 Algorithm"
+arch=(i686 x86_64)
+license=('PerlArtistic')
+url="http://search.cpan.org/dist/${_realname}/"
+depends=('perl')
+options=(!emptydirs)
+source=(http://www.cpan.org/authors/id/G/GA/GAAS/${_realname}-${pkgver}.tar.gz)
+replaces=('digest-sha1')
+provides=('digest-sha1')
+md5sums=('bd22388f268434f2b24f64e28bf1aa35')
+
+build() {
+	cd "${srcdir}/Digest-MD5-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/Digest-MD5-${pkgver}"
+	make test
+}
+
+package() {
+	cd ${srcdir}/Digest-MD5-${pkgver}
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

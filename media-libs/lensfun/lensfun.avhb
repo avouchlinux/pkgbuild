@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lensfun
+pkgver=0.3.95
+pkgrel=1
+pkgdesc="Database of photographic lenses and a library that allows advanced access to the database"
+arch=('x86_64')
+groups=('media-libs')
+url="https://lensfun.sourceforge.net"
+license=('LGPL3')
+depends=('glib2')
+makedepends=('python' 'libpng' 'doxygen' 'cmake')
+optdepends=('python: for lensfun-update-data and lensfun-add-adapter')
+source=("https://sourceforge.net/projects/lensfun/files/${pkgver}/${pkgname}-${pkgver}.tar.gz"
+        lensfun-fix-python-install-dir.patch)
+
+build() {
+    cd ${pkgname}-${pkgver}
+    cmake . \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DCMAKE_CXX_FLAGS="${CXXFLAGS} -fno-delete-null-pointer-checks"
+    make ${MAKEFLAGS} all
+}
+
+package() {
+    cd ${pkgname}-${pkgver}
+    make DESTDIR="$pkgdir" install
+}

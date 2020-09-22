@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnote
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="A note taking application"
+url="https://wiki.gnome.org/Apps/Gnote"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL3)
+depends=(gtkmm3 gtkspell3 libxslt dconf libsecret)
+makedepends=(intltool boost yelp-tools autoconf-archive git)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr \
+        --sysconfdir=/etc \
+        --localstatedir=/var \
+        --libexecdir=/usr/lib/$pkgname \
+        --disable-schemas-compile \
+        --disable-static
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+}
+

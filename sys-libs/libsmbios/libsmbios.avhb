@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsmbios
+pkgver=2.4.3
+pkgrel=1
+pkgdesc="A library for providing access to as much BIOS information as possible"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://github.com/dell/libsmbios"
+license=('GPL' 'custom')
+depends=('gcc-libs')
+makedepends=('libxml2' 'python2' 'chrpath' 'doxygen' 'git' 'cppunit')
+optdepends=('python2: tools')
+source=("https://github.com/dell/libsmbios/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  cd $pkgname-$pkgver
+  ./autogen.sh --no-configure
+}
+
+build() {
+  unset MAKEFLAGS
+  cd $pkgname-$pkgver
+  mkdir build
+  cd build
+  ../configure --prefix=/usr --sbindir=/usr/bin --sysconfdir=/etc --disable-static
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver/build
+  make DESTDIR="${pkgdir}" install
+
+  chrpath -d "${pkgdir}/usr/bin/smbios-sys-info-lite"
+  install -m755 -d "${pkgdir}/usr/include"
+  cp -a ../src/include/* "${pkgdir}/usr/include/"
+  cp -a out/public-include/* "${pkgdir}/usr/include/"
+
+  rm -rf "${pkgdir}/etc/yum"
+  rm -rf "${pkgdir}/usr/lib/yum-plugins"
+
+  sed -e 's|#!/usr/bin/python|#!/usr/bin/python2|g' \
+      -i "${pkgdir}"/usr/bin/smbios-{{wakeup,token,wireless,keyboard,thermal}-ctl,lcd-brightness,passwd,sys-info,battery-ctl}
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 ../COPYING-OSL "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+  python2 -m compileall "${pkgdir}/usr/lib/python2.7/site-packages/libsmbios_c/"
+}

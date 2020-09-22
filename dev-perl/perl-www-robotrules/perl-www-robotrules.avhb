@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-www-robotrules
+_realname=WWW-RobotRules
+pkgver=6.02
+pkgrel=1
+pkgdesc="Database of robots.txt-derived permissions"
+arch=('any')
+url="https://metacpan.org/release/WWW-RobotRules"
+license=('PerlArtistic' 'GPL')
+depends=('perl' 'perl-uri')
+options=('!emptydirs')
+source=(http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/WWW-RobotRules-${pkgver}.tar.gz)
+sha1sums=('e158e6559307878b32d8e4c241bf257c2bc88ebb')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

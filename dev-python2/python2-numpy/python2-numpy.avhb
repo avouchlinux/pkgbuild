@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-numpy
+_realname=numpy
+pkgver=1.16.6
+pkgrel=1
+pkgdesc="Scientific tools for Python"
+arch=('x86_64')
+groups=('dev-python')
+license=('custom')
+url="https://www.numpy.org/"
+depends=('cblas' 'lapack' 'python2')
+optdepends=('openblas: faster linear algebra')
+makedepends=('python2-setuptools' 'gcc-fortran' 'cython2')
+source=("https://github.com/numpy/numpy/archive/v$pkgver.tar.gz")
+
+build() {
+  cd numpy-$pkgver
+  python2 setup.py build
+}
+
+package() {
+  cd numpy-$pkgver
+  python2 setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/python-numpy"
+  install -m644 LICENSE.txt "${pkgdir}/usr/share/licenses/python-numpy/"
+
+  mv "$pkgdir"/usr/bin/f2py{,2}
+}

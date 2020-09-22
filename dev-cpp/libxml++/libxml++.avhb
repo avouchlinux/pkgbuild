@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libxml++
+pkgname=('libxml++' 'libxml++-docs')
+pkgver=3.0.1
+pkgrel=1
+arch=('x86_64')
+groups=('dev-cpp')
+license=('LGPL')
+url="http://libxmlplusplus.sourceforge.net/"
+makedepends=('pkgconfig' 'glibmm-docs' 'libxml2' 'glibmm' 'git' 'mm-common')
+options=('!emptydirs')
+source=("https://gitlab.gnome.org/GNOME/libxmlplusplus/-/archive/$pkgver/libxmlplusplus-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+	cd $pkgbase-$pkgver
+	./autogen.sh --prefix=/usr
+	
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd $pkgbase-$pkgver
+	make ${MAKEFLAGS} check
+}
+
+package_libxml++() {
+	pkgdesc="C++ bindings to libxml2"
+	depends=('libxml2' 'glibmm')
+	replaces=('libxml++2')
+	provides=("libxml++2=${pkgver}")
+	conflicts=('libxml++2')
+
+	cd $pkgbase-$pkgver
+	make DESTDIR="${pkgdir}" install doc_subdirs=
+}
+
+package_libxml++-docs() {
+	pkgdesc="Developer documentation for libxml++"
+	depends=('glibmm-docs')
+
+	cd $pkgbase-$pkgver
+	make DESTDIR="${pkgdir}" -C docs install	  
+}

@@ -1,0 +1,58 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vpnc
+pkgver=0.5.3.r465
+pkgrel=1
+epoch=1
+pkgdesc='VPN client for cisco3000 VPN Concentrators'
+url='https://github.com/streambinder/vpnc'
+arch=('x86_64')
+groups=('net-misc')
+license=('GPL')
+depends=('libgcrypt' 'openssl' 'iproute2')
+makedepends=('git')
+optdepends=('openresolv: Let vpnc manage resolv.conf')
+backup=('etc/vpnc/default.conf')
+source=("https://github.com/streambinder/vpnc.git"
+        "git://git.infradead.org/users/dwmw2/vpnc-scripts.git"
+        vpnc.conf
+        vpnc@.service)
+
+getsrc(){
+  git clone https://github.com/streambinder/vpnc.git
+  git clone git://git.infradead.org/users/dwmw2/vpnc-scripts.git
+}
+pkgver() {
+  cd ${pkgname}
+  printf "%s.r%s.r%s" "$(cat VERSION)" \
+    "$(git -C ../vpnc rev-list --count HEAD)" \
+    "$(git -C ../vpnc-scripts rev-list --count HEAD)"
+}
+
+prepare() {
+  cd ${pkgname}
+  # Build hybrid support
+  sed 's|^#OPENSSL|OPENSSL|g' -i Makefile
+  # fix resolvconf location for community/openresolv
+  sed 's|/sbin/resolvconf|/usr/bin/resolvconf|g' -i ../vpnc-scripts/vpnc-script
+  ln -sf ../../vpnc-scripts/vpnc-script src
+  ln -sf ../../vpnc.conf src
+}
+
+build() {
+  make -C ${pkgname}
+}
+
+check() {
+  make -C ${pkgname} test
+}
+
+package() {
+  cd ${pkgname}
+  make DESTDIR="${pkgdir}" PREFIX=/usr SBINDIR=/usr/bin install
+  install -Dm 644 ../vpnc@.service -t "${pkgdir}/usr/lib/systemd/system"
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+}

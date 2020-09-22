@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=checkpolicy
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux policy compiler"
+arch=('x86_64')
+groups=('sys-security')
+url='http://userspace.selinuxproject.org'
+license=('GPL2')
+groups=('selinux')
+makedepends=('libsepol>=2.9')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  make CFLAGS="$CFLAGS -fcommon"
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -m 0755 test/dismod "${pkgdir}"/usr/bin/sedismod
+  install -m 0755 test/dispol "${pkgdir}"/usr/bin/sedispol
+}

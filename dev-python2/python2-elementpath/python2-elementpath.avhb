@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-elementpath
+_realname=elementpath
+pkgver=1.3.3
+pkgrel=1
+pkgdesc="XPath 1.0/2.0 parsers and selectors for ElementTree and lxml"
+url="https://github.com/sissaschool/elementpath"
+license=('MIT')
+arch=('any')
+groups=('dev-python')
+depends=('python')
+makedepends=('python-setuptools')
+checkdepends=('python-pytest-runner' 'python-xmlschema')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/sissaschool/elementpath/archive/v$pkgver.tar.gz")
+sha512sums=('d7bf4d19a1e3afc1d445a53fa0bed61595141606a2f98b7636878cb5317cb08e6aef9d548a3587b8fd5500be2115a3e296c3be777bb6eb6463e93ba9fc1e6a5f')
+
+build() {
+  cd elementpath-$pkgver
+  python2 setup.py build
+}
+
+check() {
+  cd elementpath-$pkgver
+  python2 setup.py pytest || warning "missing it_IT locale for testing"
+}
+
+package() {
+  cd elementpath-$pkgver
+  python2 setup.py install --root="$pkgdir" --optimize=1
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

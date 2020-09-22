@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=digikam
+_pkgver=6.4.0
+pkgver=${_pkgver//-/_} # for beta versions
+pkgrel=1
+pkgdesc="An advanced digital photo management application"
+arch=('x86_64')
+groups=('kde-apps')
+url="https://www.digikam.org/"
+license=(GPL)
+depends=(lensfun opencv akonadi-contacts knotifyconfig libksane kfilemetadata qtav marble-common threadweaver kcalcore
+         qt5-xmlpatterns libmagick)
+makedepends=(extra-cmake-modules doxygen eigen boost kdoctools libkvkontakte)
+optdepends=('hugin: panorama tool' 'qt5-imageformats: support for additional image formats (WEBP, TIFF)'
+            'libkvkontakte: VKontakte plugin')
+source=("https://download.kde.org/stable/$pkgname/$_pkgver/$pkgname-$_pkgver.tar.xz"{,.sig})
+validpgpkeys=(D1CF2444A7858C5F2FB095B74A77747BC2386E50) # digiKam.org (digiKam project) <digikamdeveloper@gmail.com>
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -p1 -i ../initialize-imagemagick.patch # Properly initialize exceptions in imagemagick
+  patch -p1 -i ../digikam-opencv-4.2.patch # Fix build with opencv 4.2
+  patch -p1 -i ../digikam-qt-5.15.patch # Fix build with qt 5.15
+}
+
+build() {
+  cmake -S $pkgname-$_pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_TESTING=OFF \
+    -DENABLE_KFILEMETADATASUPPORT=ON \
+    -DENABLE_MEDIAPLAYER=ON \
+    -DENABLE_AKONADICONTACTSUPPORT=ON \
+    -DENABLE_MYSQLSUPPORT=ON \
+    -DENABLE_APPSTYLES=ON \
+    -DENABLE_QWEBENGINE=ON
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

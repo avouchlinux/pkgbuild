@@ -1,0 +1,26 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sound-themes-linux-a11y
+_realname=linux-a11y-sound-theme
+_themename=linux-a11y
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Linux-A11y sound theme"
+arch=('any')
+groups=('media-libs')
+url="http://www.linux-a11y.org"
+license=('LGPL2.1')
+source=(https://github.com/coffeeking/linux-a11y-sound-theme/archive/master.zip)
+
+package() {
+	cd ${srcdir}/$_realname-master
+	mkdir -p ${pkgdir}/usr/share/sounds
+	cp -r $_themename ${pkgdir}/usr/share/sounds/
+	# docs
+	install -Dm644 CREDITS "${pkgdir}/usr/share/doc/${pkgname}/CREDITS"
+	install -Dm644 Readme.md "${pkgdir}/usr/share/doc/${pkgname}/Readme.md"
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

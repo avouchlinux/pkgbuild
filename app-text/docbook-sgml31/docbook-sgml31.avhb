@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='docbook-sgml31'
+_realname='docbk31'
+pkgver='3.1'
+pkgrel=1
+pkgdesc='Tools for maintaining centralized SGML catalogs.'
+arch=('any')
+groups=('app-text')
+url='http://www.docbook.org/xml/'
+license=('custom')
+install='sgml-common.install'
+source=("http://www.docbook.org/sgml/3.1/docbk31.zip")
+
+prepare() {
+	cd ${srcdir}/${pkgname}
+
+	# from blfs
+	sed -i -e '/ISO 8879/d' \
+	-e 's|DTDDECL "-//OASIS//DTD DocBook V3.1//EN"|SGMLDECL|g' \
+	docbook.cat
+}
+
+package() {
+	cd ${srcdir}/${pkgname}
+	install -v -d -m755 "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-3.1
+	chown -R root:root .
+	install -v docbook.cat "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-3.1/catalog
+	cp -v -af *.dtd *.mod *.dcl "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-3.1
+
+cat >> "${pkgdir}"/usr/share/sgml/docbook/sgml-dtd-3.1/catalog << "EOF"
+  -- Begin Single Major Version catalog changes --
+
+PUBLIC "-//Davenport//DTD DocBook V3.0//EN" "docbook.dtd"
+
+  -- End Single Major Version catalog changes --
+EOF
+}
+

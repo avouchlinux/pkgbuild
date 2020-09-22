@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gettext
+pkgver=0.20.1
+pkgrel=1
+pkgdesc="GNU internationalization library"
+arch=('x86_64')
+groups=('sys-base')
+url="http://www.gnu.org/software/gettext/"
+license=('GPL')
+depends=(gcc-libs acl sh glib2 libunistring libcroco)
+makedepends=(gettext emacs git)
+optdepends=('git: for autopoint infrastructure updates')
+options=(!docs)
+source=(https://ftp.gnu.org/pub/gnu/gettext/$pkgname-$pkgver.tar.gz{,.sig})
+validpgpkeys=('462225C3B46F34879FC8496CD605848ED7E69871')  # Daiki Ueno
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure \
+		--prefix=/usr \
+		--enable-csharp \
+		--enable-nls \
+		--with-xz \
+		--without-included-gettext
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+}

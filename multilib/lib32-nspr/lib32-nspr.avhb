@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-nspr
+pkgbase=nspr
+pkgver=4.25
+pkgrel=1
+pkgdesc="Netscape Portable Runtime (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.mozilla.org/projects/nspr/"
+#download_url=ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/
+license=('MPL' 'GPL')
+depends=('lib32-glibc' ${_pkgbasename})
+makedepends=('zip' 'gcc-multilib')
+options=(!emptydirs)
+source=(http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v${pkgver}/src/${_pkgbasename}-${pkgver}.tar.gz)
+md5sums=('f0d254da0b2b870d9a5fa094e879d4b8')
+
+
+build() {
+	cd ${srcdir}/nspr-${pkgver}/nspr
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--includedir=/usr/include/nspr \
+		--enable-optimize \
+		--disable-debug
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/nspr-${pkgver}/nspr
+	make DESTDIR="${pkgdir}" install
+	chmod 644 "$pkgdir"/usr/lib32/*.a
+	ln -s nspr.pc "$pkgdir/usr/lib32/pkgconfig/mozilla-nspr.pc"
+
+	rm -r "$pkgdir"/usr/bin/{compile-et.pl,prerr.properties} \
+	"$pkgdir/usr/include/nspr/md"
+	rm -rf "${pkgdir}"/usr/{bin,share,include}
+}

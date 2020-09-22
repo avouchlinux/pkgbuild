@@ -1,0 +1,42 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libusbmuxd
+pkgver=2.0.1.r5.g98f2f23
+pkgrel=1
+pkgdesc="The usbmuxd communication interface library"
+arch=('x86_64')
+groups=('app-mobile')
+url="http://www.libimobiledevice.org/"
+license=('LGPL2.1')
+depends=('libplist-git')
+makedepends=('git')
+provides=('libusbmuxd')
+conflicts=('libusbmuxd')
+
+source=("https://git.libimobiledevice.org/libusbmuxd.git")
+sha512sums=('SKIP')
+
+getsrc(){
+  git clone $source
+}
+
+pkgver() {
+	cd libusbmuxd
+	git describe --long --tags | sed 's/-/.r/; s/-/./'
+}
+
+build() {
+	cd libusbmuxd
+
+	./autogen.sh --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd libusbmuxd
+	make DESTDIR="$pkgdir" install
+}
+

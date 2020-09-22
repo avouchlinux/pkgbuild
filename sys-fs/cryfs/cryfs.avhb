@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cryfs
+pkgver=0.10.2
+pkgrel=1
+pkgdesc="Cryptographic filesystem for the cloud"
+arch=(x86_64)
+groups=('sys-fs')
+depends=(fuse2 curl)
+makedepends=(cmake python boost)
+url="https://www.cryfs.org"
+license=(LGPL3)
+source=("https://github.com/cryfs/cryfs/releases/download/$pkgver/cryfs-$pkgver.tar.xz"{,.asc})
+validpgpkeys=(C3111FE656732704EF6DF059017DC932549E65B2) # CryFS Team <messmer@cryfs.org>
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+
+  cmake ../ \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF \
+    -DCRYFS_UPDATE_CHECKS=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+
+  install -Dm 644 ../LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
+  install -Dm 644 "$srcdir"/README.md -t "$pkgdir"/usr/share/doc/$pkgname
+}

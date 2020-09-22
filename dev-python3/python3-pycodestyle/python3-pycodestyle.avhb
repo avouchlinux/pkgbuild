@@ -1,0 +1,31 @@
+# Maintainer: Felix Yan <felixonmars@archlinux.org>
+# Contributor: Ismael Carnales <icarnales at gmail dot com>
+# Contributor: Sergey Mastykov <smastykov[at]gmail[dot]com>
+
+pkgname=python3-pycodestyle
+_realname=pycodestyle
+pkgver=2.5.0
+pkgrel=1
+pkgdesc="python3 style guide checker"
+arch=('any')
+groups=('dev-python3')
+url="https://github.com/PyCQA/pycodestyle"
+license=('custom:Expat')
+depends=('python3-setuptools')
+makedepends=('python3-setuptools')
+source=("https://github.com/PyCQA/pycodestyle/archive/$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

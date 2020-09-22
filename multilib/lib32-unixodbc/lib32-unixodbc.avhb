@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-unixodbc
+_realname=unixODBC
+pkgver=2.3.7
+pkgrel=1
+pkgdesc="ODBC is an open specification for providing application developers with a predictable API with which to access Data Sources"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+license=('GPL2' 'LGPL2.1')
+url="http://www.unixodbc.org/"
+backup=('etc/odbc.ini' 'etc/odbcinst.ini')
+depends=('readline' 'libltdl')
+source=("http://www.unixodbc.org/unixODBC-$pkgver.tar.gz")
+md5sums=('5e4528851eda5d3d4aed249b669bd05b')
+
+build() {
+	cd "$srcdir/$_realname-$pkgver"
+	
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr --sysconfdir=/etc --libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "$srcdir/$_realname-$pkgver"
+	make -k check
+}
+
+package() {
+	cd "$srcdir/$_realname-$pkgver"
+	make DESTDIR="$pkgdir" install
+}
+

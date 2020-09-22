@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-toolz
+_realname=toolz
+pkgver=0.10.0
+pkgrel=1
+pkgdesc="A set of utility functions for iterators, functions, and dictionaries."
+arch=('any')
+groups=('dev-python3')
+url="https://github.com/pytoolz"
+license=('BSD')
+depends=('python3')
+makedepends=('python3-setuptools' 'cython' 'gcc')
+conflict=('python3-cytoolz')
+source=("https://pypi.org/packages/source/t/toolz/toolz-${pkgver}.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

@@ -1,0 +1,11 @@
+post()(
+    # Only run make texlinks once. 
+    # If it is rerun, it can change all the program symlinks so that they point to themselves and are useless. 
+    # make texlinks
+
+    # initialise the new system (the commands fmtutil-sys --all and mtxrun --generate will produce a lot of output):
+    # mktexlsr &&
+    # fmtutil-sys --all &&
+    # mtxrun --generate
+
+)

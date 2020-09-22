@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=jemalloc
+pkgver=5.2.1
+pkgrel=1
+pkgdesc='General-purpose scalable concurrent malloc implementation'
+arch=('x86_64')
+groups=('sys-base')
+license=('BSD')
+url='http://www.canonware.com/jemalloc/'
+depends=('glibc')
+provides=('libjemalloc.so')
+optdepends=('perl: for jeprof')
+source=("https://github.com/jemalloc/jemalloc/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.bz2")
+sha256sums=('74be9f44a60d2a99398e706baa921e4efde82bf8fd16e5c0643c375c5851e3b4')
+
+build() {
+	cd "$pkgname-$pkgver"
+	./configure --prefix=/usr --enable-autogen
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "$pkgname-$pkgver"
+	make DESTDIR="$pkgdir" install
+	chmod 644 "$pkgdir/usr/lib/libjemalloc_pic.a"
+	install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}

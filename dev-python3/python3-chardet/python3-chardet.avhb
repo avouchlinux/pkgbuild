@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-chardet
+_realname=chardet
+pkgver=3.0.4
+pkgrel=1
+arch=('any')
+groups=('dev-python3')
+url="https://github.com/chardet/chardet"
+license=('LGPL')
+depends=('python3')
+makedepends=('python3-setuptools')
+source=("https://pypi.io/packages/source/c/$_realname/$_realname-${pkgver}.tar.gz")
+
+build() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py build
+}
+
+check() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py pytest
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

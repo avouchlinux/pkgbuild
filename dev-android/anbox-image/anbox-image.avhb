@@ -1,0 +1,20 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=anbox-image
+pkgver=2018.07.19
+_pkgdate=2018.07.19
+pkgrel=1
+epoch=1
+pkgdesc="Android image for running in Anbox"
+arch=('x86_64')
+groups=('dev-android')
+url="http://anbox.io/"
+license=('custom')
+source=("http://build.anbox.io/android-images/${_pkgdate}/android_${pkgver}_amd64.img")
+
+package() {
+  install -Dm 644 $srcarchivedir/android_amd64.img $pkgdir/var/lib/anbox/android.img
+}

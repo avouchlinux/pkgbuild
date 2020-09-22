@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pipewire02
+_realname=pipewire
+pkgver=0.2.7
+pkgrel=1
+pkgdesc="User space API to deal with multimedia pipelines (${pkgver:0:3})"
+arch=(x86_64)
+groups=('media-video')
+url="https://pipewire.org"
+license=(LGPL2.1)
+depends=(alsa-lib dbus)
+makedepends=(git meson)
+provides=(libpipewire-${pkgver:0:3}.so)
+source=("https://github.com/PipeWire/pipewire/archive/$pkgver.tar.gz")
+
+
+prepare() {
+  cd $_realname-$pkgver
+  patch -Np1 -i ../pipewire-0.2.7-fno-common.patch
+}
+
+build() {
+  avouch-meson $_realname-$pkgver build \
+    -D gstreamer=disabled \
+    -D systemd=false
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  rm -rf "$pkgdir"/{etc,usr/bin}
+}

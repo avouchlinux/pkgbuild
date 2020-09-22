@@ -1,0 +1,44 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=idnkit
+pkgver=1.0
+pkgrel=1
+pkgdesc='Provides functionalities about Internationalized Domain Name processing'
+arch=('x86_64')
+groups=('net-dns')
+url='http://www.nic.ad.jp/ja/idn/idnkit/download/'
+license=('custom:BSD')
+depends=('glibc')
+backup=('etc/idnalias.conf' 'etc/idn.conf')
+options=('!makeflags')
+source=("http://www.nic.ad.jp/ja/idn/idnkit/download/sources/idnkit-${pkgver}-src.tar.gz")
+
+prepare() {
+	cd idnkit-${pkgver}-src
+	sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" configure
+}
+
+build() {
+	cd idnkit-${pkgver}-src
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--mandir=/usr/share/man \
+		--enable-static=no
+	make
+}
+
+check() {
+	cd idnkit-${pkgver}-src
+	make check
+}
+
+package() {
+	cd idnkit-${pkgver}-src
+	make DESTDIR="${pkgdir}" install
+	install -Dm644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	rm "${pkgdir}"/etc/*.sample
+}

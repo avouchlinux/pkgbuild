@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libselinux
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux library and simple utilities"
+arch=('x86_64')
+groups=('sys-security')
+url='http://userspace.selinuxproject.org'
+license=('custom')
+makedepends=('python2' 'python' 'ruby' 'xz' 'swig')
+depends=('libsepol' 'pcre')
+optdepends=('python2: python2 bindings'
+            'python: python bindings'
+            'ruby: ruby bindings')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz"
+        "libselinux.tmpfiles.d")
+sha256sums=('1bccc8873e449587d9a2b2cf253de9b89a8291b9fbc7c59393ca9e5f5f4d2693'
+            'afe23890fb2e12e6756e5d81bad3c3da33f38a95d072731c0422fbeb0b1fa1fc')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+
+    # Do not build deprecated rpm_execcon() interface. It is useless on Arch Linux anyway.
+    export DISABLE_RPM="y"
+    export USE_PCRE2="y"
+
+    make CFLAGS="$CFLAGS -Wno-strict-overflow" swigify
+    make CFLAGS="$CFLAGS -Wno-strict-overflow" all
+    make PYTHON=/usr/bin/python2 pywrap
+    make PYTHON=/usr/bin/python3 pywrap
+    make RUBY=/usr/bin/ruby rubywrap
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+
+  export DISABLE_RPM=y
+
+  make DESTDIR="${pkgdir}" SBINDIR=/usr/bin SHLIBDIR=/usr/lib install
+  make DESTDIR="${pkgdir}" PYTHON=/usr/bin/python2 SBINDIR=/usr/bin SHLIBDIR=/usr/lib install-pywrap
+  make DESTDIR="${pkgdir}" PYTHON=/usr/bin/python3 SBINDIR=/usr/bin SHLIBDIR=/usr/lib install-pywrap
+  make DESTDIR="${pkgdir}" RUBY=/usr/bin/ruby SBINDIR=/usr/bin SHLIBDIR=/usr/lib install-rubywrap
+  /usr/bin/python2 -m compileall "${pkgdir}/$(/usr/bin/python2 -c 'from distutils.sysconfig import *; print(get_python_lib(plat_specific=1))')"
+  /usr/bin/python3 -m compileall "${pkgdir}/$(/usr/bin/python3 -c 'from distutils.sysconfig import *; print(get_python_lib(plat_specific=1))')"
+
+  install -Dm 0644 "${srcdir}"/libselinux.tmpfiles.d "${pkgdir}"/usr/lib/tmpfiles.d/libselinux.conf
+
+  install -Dm 0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

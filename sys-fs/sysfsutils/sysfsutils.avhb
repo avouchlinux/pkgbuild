@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sysfsutils
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="System Utilities Based on Sysfs"
+arch=('x86_64')
+groups=('sys-fs')
+license=('GPL' 'LGPL')
+url="http://linux-diag.sourceforge.net/Sysfsutils.html"
+groups=('base')
+depends=('glibc')
+source=(https://downloads.sourceforge.net/sourceforge/linux-diag/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr --mandir=/usr/share/man
+	make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make  ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+	rm "$pkgdir/usr/lib/libsysfs.a"
+}

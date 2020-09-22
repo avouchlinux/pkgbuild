@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnghttp2
+_realname=nghttp2
+pkgver=1.40.0
+pkgrel=1
+pkgdesc='Framing layer of HTTP/2 is implemented as a reusable C library'
+arch=('x86_64')
+groups=('net-libs')
+url='https://nghttp2.org/'
+license=(MIT)
+depends=(glibc)
+source=(https://github.com/nghttp2/nghttp2/releases/download/v$pkgver/nghttp2-$pkgver.tar.xz)
+
+build() {
+  cd nghttp2-$pkgver
+
+  autoreconf -i
+  ./configure \
+    --prefix=/usr \
+    --disable-examples \
+    --disable-python-bindings \
+    --enable-lib-only
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd nghttp2-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd nghttp2-$pkgver/lib
+
+  make DESTDIR="$pkgdir" install
+  install -Dm644 ../COPYING "$pkgdir/usr/share/licenses/libnghttp2/COPYING"
+}

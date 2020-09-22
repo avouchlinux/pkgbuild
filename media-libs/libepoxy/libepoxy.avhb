@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libepoxy
+pkgver=1.5.4
+pkgrel=1
+pkgdesc="Library handling OpenGL function pointer management"
+url="https://github.com/anholt/libepoxy"
+arch=('x86_64')
+groups=('media-libs')
+license=(MIT)
+depends=(glibc)
+makedepends=(python mesa-libgl git meson doxygen graphviz)
+options=('!libtool')
+source=("https://github.com/anholt/${pkgname}/archive/v${pkgver}.tar.gz")
+
+prepare() {
+    cd $pkgname-$pkgver
+    # Reduce docs size
+    printf '%s\n' >>doc/Doxyfile.in \
+        HAVE_DOT=yes DOT_IMAGE_FORMAT=svg INTERACTIVE_SVG=yes
+}
+
+build() {
+    avouch-meson $pkgname-$pkgver build -Ddocs=true
+    ninja -C build
+}
+
+check() {
+    cd build
+    meson test
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    install -Dm644 $pkgname-$pkgver/COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

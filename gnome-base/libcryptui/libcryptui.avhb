@@ -1,0 +1,45 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcryptui
+pkgver=3.12.2+56+g9aac7cbe
+pkgrel=1
+pkgdesc="Library for OpenPGP prompts"
+url="https://gitlab.gnome.org/GNOME/libcryptui"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL)
+depends=(gtk3 gpgme dbus-glib libnotify gcr dconf libsm)
+makedepends=(intltool gobject-introspection gnome-common git)
+source=(https://gitlab.gnome.org/GNOME/libcryptui.git)
+
+# getsrc(){	
+# 	git clone https://gitlab.gnome.org/GNOME/libcryptui.git
+# }
+
+# pkgver() {
+#   cd $pkgname
+#   git describe --tags | sed 's/-/+/g'
+# }
+
+prepare() {
+	cd $pkgname
+	NOCONFIGURE=1 ./autogen.sh
+}
+
+build() {
+	cd $pkgname
+	./configure --prefix=/usr \
+	--sysconfdir=/etc --localstatedir=/var \
+	--disable-static --disable-schemas-compile \
+	--enable-gtk-doc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd $pkgname
+	make DESTDIR="${pkgdir}" install
+}
+

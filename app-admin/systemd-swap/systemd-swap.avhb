@@ -1,0 +1,28 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=systemd-swap
+pkgver=4.3.3
+pkgrel=1
+pkgdesc="Script for creating hybrid swap space from zram swaps, swap files and swap partitions."
+arch=('any')
+groups=('sys-apps')
+url="https://github.com/Nefelim4ag/systemd-swap"
+license=('GPL3')
+depends=('systemd' 'bash')
+backup=('etc/systemd/swap.conf')
+install="$pkgname.install"
+source=("$pkgname-$pkgver.tar.gz::https://github.com/Nefelim4ag/systemd-swap/archive/$pkgver.tar.gz")
+sha512sums=('ccb205dda01b344c54963504f78ce783d7730b5fbc83191c3f819444a34353411a2417586b5a8557429aee24ac00ffa4834324ad427f6452b8c79b31ad38359d')
+
+build() {
+  cd systemd-swap-$pkgver
+  make
+}
+
+package() {
+  cd systemd-swap-$pkgver
+  make DESTDIR="$pkgdir" install
+}

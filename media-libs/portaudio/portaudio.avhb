@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=portaudio
+pkgver=190600_20161030
+_realname=pa_stable
+pkgrel=1
+pkgdesc='A free, cross-platform, open source, audio I/O library.'
+arch=('x86_64')
+groups=('media-libs')
+url='http://www.portaudio.com/'
+license=('custom')
+depends=('gcc-libs' 'jack')
+options=('!makeflags')
+source=("http://www.portaudio.com/archives/pa_stable_v$pkgver.tgz")
+
+build() {
+  cd "$srcdir/$pkgname"
+
+  ./configure --prefix=/usr --enable-cxx
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname"
+
+  make DESTDIR="$pkgdir" install
+  install -Dm0644 LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE.txt"
+}

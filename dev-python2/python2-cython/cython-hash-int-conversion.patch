@@ -1,0 +1,106 @@
+From 28251032f86c266065e4976080230481b1a1bb29 Mon Sep 17 00:00:00 2001
+From: Robert Bradshaw <robertwb@google.com>
+Date: Mon, 10 Dec 2018 11:54:20 +0100
+Subject: [PATCH] Non-int conversion to Py_hash_t.
+
+Still requires the more conservative __index__ here rather than a possibly
+truncating __int__ because this is used in a context where floating point
+values should probably be treated specially.
+
+This fixes Github issue #2752.
+---
+ Cython/Utility/ModuleSetupCode.c |  4 ++--
+ Cython/Utility/TypeConversion.c  | 20 ++++++++++++++++++++
+ tests/run/py_hash_t.pyx          | 18 ++++++++++++++++++
+ 3 files changed, 40 insertions(+), 2 deletions(-)
+
+diff --git a/Cython/Utility/ModuleSetupCode.c b/Cython/Utility/ModuleSetupCode.c
+index 1f2e4bfae0..f2f62f98bc 100644
+--- a/Cython/Utility/ModuleSetupCode.c
++++ b/Cython/Utility/ModuleSetupCode.c
+@@ -651,10 +651,10 @@ static CYTHON_INLINE void * PyThread_tss_get(Py_tss_t *key) {
+ #if PY_VERSION_HEX < 0x030200A4
+   typedef long Py_hash_t;
+   #define __Pyx_PyInt_FromHash_t PyInt_FromLong
+-  #define __Pyx_PyInt_AsHash_t   PyInt_AsLong
++  #define __Pyx_PyInt_AsHash_t   __Pyx_PyIndex_AsHash_t
+ #else
+   #define __Pyx_PyInt_FromHash_t PyInt_FromSsize_t
+-  #define __Pyx_PyInt_AsHash_t   PyInt_AsSsize_t
++  #define __Pyx_PyInt_AsHash_t   __Pyx_PyIndex_AsSsize_t
+ #endif
+ 
+ #if PY_MAJOR_VERSION >= 3
+diff --git a/Cython/Utility/TypeConversion.c b/Cython/Utility/TypeConversion.c
+index 796c8bed9b..5938d2d78a 100644
+--- a/Cython/Utility/TypeConversion.c
++++ b/Cython/Utility/TypeConversion.c
+@@ -102,6 +102,7 @@ static CYTHON_INLINE PyObject* __Pyx_PyNumber_IntOrLong(PyObject* x);
+ 
+ static CYTHON_INLINE Py_ssize_t __Pyx_PyIndex_AsSsize_t(PyObject*);
+ static CYTHON_INLINE PyObject * __Pyx_PyInt_FromSize_t(size_t);
++static CYTHON_INLINE Py_hash_t __Pyx_PyIndex_AsHash_t(PyObject*);
+ 
+ #if CYTHON_ASSUME_SAFE_MACROS
+ #define __pyx_PyFloat_AsDouble(x) (PyFloat_CheckExact(x) ? PyFloat_AS_DOUBLE(x) : PyFloat_AsDouble(x))
+@@ -420,6 +421,25 @@ static CYTHON_INLINE Py_ssize_t __Pyx_PyIndex_AsSsize_t(PyObject* b) {
+ }
+ 
+ 
++static CYTHON_INLINE Py_hash_t __Pyx_PyIndex_AsHash_t(PyObject* o) {
++  if (sizeof(Py_hash_t) == sizeof(Py_ssize_t)) {
++    return __Pyx_PyIndex_AsSsize_t(o);
++#if PY_MAJOR_VERSION < 3
++  } else if (likely(PyInt_CheckExact(o))) {
++    return PyInt_AS_LONG(o);
++#endif
++  } else {
++    Py_ssize_t ival;
++    PyObject *x;
++    x = PyNumber_Index(o);
++    if (!x) return -1;
++    ival = PyInt_AsLong(x);
++    Py_DECREF(x);
++    return ival;
++  }
++}
++
++
+ static CYTHON_INLINE PyObject * __Pyx_PyBool_FromLong(long b) {
+   return b ? __Pyx_NewRef(Py_True) : __Pyx_NewRef(Py_False);
+ }
+diff --git a/tests/run/py_hash_t.pyx b/tests/run/py_hash_t.pyx
+index f18a8c3acc..ccdcd82e61 100644
+--- a/tests/run/py_hash_t.pyx
++++ b/tests/run/py_hash_t.pyx
+@@ -2,12 +2,30 @@
+ cimport cython
+ 
+ 
++class IntLike(object):
++  def __init__(self, value):
++    self.value = value
++  def __index__(self):
++    return self.value
++
++
+ def assign_py_hash_t(x):
+     """
+     >>> assign_py_hash_t(12)
+     12
+     >>> assign_py_hash_t(-12)
+     -12
++
++    >>> assign_py_hash_t(IntLike(-3))
++    -3
++    >>> assign_py_hash_t(IntLike(1 << 100))  # doctest: +ELLIPSIS
++    Traceback (most recent call last):
++    ...
++    OverflowError: ...
++    >>> assign_py_hash_t(IntLike(1.5))  # doctest: +ELLIPSIS
++    Traceback (most recent call last):
++    ...
++    TypeError: __index__ ... (type float)
+     """
+     cdef Py_hash_t h = x
+     return h

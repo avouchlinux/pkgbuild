@@ -1,0 +1,50 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=bugzilla
+pkgver=5.0.6
+pkgrel=1
+pkgdesc="bug tracker"
+arch=('any')
+groups=('www')
+url="http://www.bugzilla.org"
+license=("custom:MPL2")
+depends=(perl perl-timedate perl-datetime
+	 perl-chart perl-email-abstract perl-email-address perl-email-date-format
+	 perl-email-messageid perl-email-mime perl-email-mime-attachment-stripper
+	 perl-email-mime-contenttype perl-email-mime-encodings
+	 perl-email-mime-modifier perl-email-mime-creator perl-email-reply perl-email-send perl-email-simple
+	 perl-email-simple-creator perl-gd perl-gdgraph perl-gdtextutil perl-patchreader
+	 perl-return-value perl-template-gd perl-ldap perl-soap-lite perl-authen-sasl
+	 perl-xml-twig perl-html-scrubber perl-authen-radius perl-template-toolkit
+	 perl-data-dumper perl-math-random-isaac perl-email-sender perl-json-xs perl-file-slurp)
+optdepends=('perl-dbd-pg'
+	    'perl-dbd-mysql'
+#	    'perl-dbd-oracle'
+	    'python2'
+	    'ruby'
+#	    'perl-class-trigger'
+#	    'perl-data-objectdriver'
+#	    'perl-html-formattext-withlinks'
+#	    'perl-test-taint'
+#	    'perl-theschwartz'
+	    'perl-xmlrpc-lite')
+options=(!strip)
+backup=('srv/http/bugzilla/.htaccess')
+source=(https://ftp.mozilla.org/pub/mozilla.org/webtools/bugzilla-$pkgver.tar.gz)
+md5sums=('b78365742a85cd030c87af12c196e8e9')
+
+prepare() {
+  cd "$srcdir"/$pkgname-$pkgver
+  rm -rf .git
+  rm -rf .gitignore
+  rm -rf .bzrignore
+}
+
+package() {
+  install -d -m0755 "$pkgdir"/srv/http
+  cp -a "$srcdir"/$pkgname-$pkgver "$pkgdir"/srv/http/bugzilla
+  
+  install -D -m644 ${srcdir}/apache.conf ${pkgdir}/etc/httpd/conf/extra/cgi.conf
+}

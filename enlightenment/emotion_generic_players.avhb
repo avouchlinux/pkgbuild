@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=emotion_generic_players
+pkgver=1.17.0
+pkgrel=1
+pkgdesc="Enlightenment Foundation Libraries"
+arch=('i686' 'x86_64')
+url="http://www.enlightenment.org"
+license=('BSD')
+depends=('efl' 'vlc')
+options=('!emptydirs')
+source=(http://download.enlightenment.org/rel/libs/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+sha1sums=('3324d16ca3839f947a0b9b44a6dfb9cf67eaf24c')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	export CFLAGS="$CFLAGS -fvisibility=hidden"
+	./configure --prefix=/usr
+	make
+}
+
+package(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=${pkgdir} install
+	# install license files
+	install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" \
+	"${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}

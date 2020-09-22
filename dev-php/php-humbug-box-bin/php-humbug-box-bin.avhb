@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname='php-humbug-box'
+pkgname="${_pkgname}-bin"
+_realname=box
+pkgver=3.8.0
+pkgrel=1
+pkgdesc='Fast, zero config application bundler with PHARs.'
+arch=("any")
+groups=("dev-php")
+url='https://github.com/humbug/box'
+license=('MIT')
+install="${_pkgname}.install"
+source=(
+  "https://github.com/humbug/box/releases/download/${pkgver}/box.phar"
+  "https://raw.githubusercontent.com/humbug/box/${pkgver}/LICENSE"
+)
+
+package() {
+  install -D -m644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${_pkgname}/LICENSE"
+  install -D -m755 "${srcdir}/box.phar" "${pkgdir}/usr/share/webapps/bin/box.phar"
+  install -d "${pkgdir}/usr/bin"
+  ln -s "/usr/share/webapps/bin/box.phar" "${pkgdir}/usr/bin/box"
+}

@@ -1,0 +1,21 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mailnag-gnome-shell
+pkgver=3.24.0
+pkgrel=1
+pkgdesc="GNOME-Shell extension that shows a mail indicator in the top panel"
+arch=('i686' 'x86_64')
+url="https://github.com/pulb/mailnag-gnome-shell"
+license=('GPL3')
+groups=('base-devel')
+depends=(gnome-shell)
+source=(https://github.com/pulb/mailnag-gnome-shell/archive/v3.24.0.tar.gz)
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	mkdir -p "${pkgdir}"/usr/bin
+	mkdir -p "${pkgdir}"/usr/share
+	make DESTDIR="${pkgdir}" install
+}

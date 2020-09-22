@@ -1,0 +1,31 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-shell-extensions
+pkgver=3.38.0
+pkgrel=1
+pkgdesc="Extensions for GNOME shell, including classic mode"
+url="https://wiki.gnome.org/Projects/GnomeShell/Extensions"
+arch=(any)
+groups=('gnome-base')
+license=(GPL)
+makedepends=(meson git sassc js52)
+optdepends=('gnome-menus: applications menu extension')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build --print-errorlogs
+}
+
+package() {
+    depends=(gnome-shell)
+
+    DESTDIR="$pkgdir" meson install -C build
+}

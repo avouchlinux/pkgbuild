@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libmng
+pkgbase=libmng
+pkgver=2.0.3
+pkgrel=1
+pkgdesc="A collection of routines used to create and manipulate MNG format graphics files (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.libmng.com/"
+license=('custom')
+depends=('lib32-lcms2' $_pkgbasename)
+makedepends=(gcc-multilib)
+options=(!libtool)
+source=(http://downloads.sourceforge.net/sourceforge/${_pkgbasename}/${_pkgbasename}-${pkgver}.tar.xz{,.asc})
+md5sums=('3804bf2523af9b4e0670b5982b3bf984'
+         'SKIP')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+	--disable-static \
+	--libdir=/usr/lib32
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=$pkgdir install
+	rm -rf "${pkgdir}"/usr/{include,share,bin}
+}

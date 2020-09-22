@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libasyncns
+pkgver=0.8+3+g68cd5af
+pkgrel=1
+pkgdesc="A C library for Linux/Unix for executing name service queries asynchronously (32-bit)"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://0pointer.de/lennart/projects/libasyncns"
+license=(LGPL)
+depends=(glibc)
+makedepends=(git lynx)
+_commit=68cd5aff1467638c086f1bedcc750e34917168e4
+source=("git://git.0pointer.de/libasyncns.git")
+
+getsrc(){
+	git clone $source
+}
+pkgver() {
+	cd $pkgname
+	git describe | sed 's/^v//;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+  NOCONFIGURE=1 ./bootstrap.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}
+

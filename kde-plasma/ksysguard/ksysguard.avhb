@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ksysguard
+pkgver=5.19.5
+pkgrel=1
+pkgdesc='Track and control the processes running in your system'
+arch=('x86_64')
+groups=('kde-plasma')
+url='https://userbase.kde.org/KSysGuard'
+license=('LGPL')
+depends=('knewstuff' 'libksysguard' 'lm_sensors' 'xdg-utils'
+         'hicolor-icon-theme' 'kdelibs4support')
+makedepends=('extra-cmake-modules' 'kdoctools' 'python')
+conflicts=('kdebase-workspace')
+install="${pkgname}.install"
+source=("http://download.kde.org/stable/plasma/${pkgver}/$pkgname-$pkgver.tar.xz")
+
+build() {
+    cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF \
+        -DBUILD_QCH=ON
+    ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+}

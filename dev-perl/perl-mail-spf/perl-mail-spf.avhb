@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-mail-spf
+_realname=Mail-SPF
+pkgver=2.9.0
+pkgrel=1
+pkgdesc="Perl module that provides SPF support"	
+arch=('any')
+license=('custom')
+url="http://search.cpan.org/dist/${_realname}/"
+depends=('perl-error' 'perl-netaddr-ip' 'perl-uri' 'perl-net-dns' 'perl')
+makedepends=('perl-net-dns-resolver-programmable')
+conflicts=('perl-mail-spf-query')
+options=('!emptydirs')
+source=("http://search.cpan.org/CPAN/authors/id/J/JM/JMEHNLE/mail-spf/${_realname}-v${pkgver}.tar.gz")
+md5sums=('4f5bbd59058da680bfd9ff18e31489b7')
+
+prepare() {	
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	sed -i 's|/usr/sbin|/usr/bin|' Build.PL
+}
+
+build() {
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

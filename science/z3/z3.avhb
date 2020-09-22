@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=z3
+pkgname=('z3' 'python-z3')
+pkgver=4.8.7
+pkgrel=1
+pkgdesc='High-performance theorem prover'
+arch=('x86_64')
+groups=('science')
+url='https://github.com/Z3Prover/z3'
+license=('MIT')
+ # 'java-environment-common' 'mono' 'ocaml' 'ocaml-findlib'
+makedepends=('cmake' 'python' 'python-setuptools' 'gcc-libs' 'gmp')
+source=(https://github.com/Z3Prover/z3/archive/Z3-${pkgver}.tar.gz)
+
+build() {
+  cmake -S ${pkgbase}-${pkgbase}-${pkgver} -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DZ3_LINK_TIME_OPTIMIZATION=1 \
+    -DZ3_BUILD_PYTHON_BINDINGS=1 \
+    -DPYTHON_EXECUTABLE=/usr/bin/python \
+    -DZ3_USE_LIB_GMP=1
+  make ${MAKEFLAGS} -C build
+}
+
+package_z3() {
+  depends=('gcc-libs' 'gmp')
+  provides=('libz3' 'libz3.so')
+  cd build
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 ../LICENSE.txt -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  rm -r "${pkgdir}"/usr/lib/python*
+}
+
+package_python-z3() {
+  depends=('python' 'libz3')
+  cd build
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 ../LICENSE.txt -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  cd "${pkgdir}"
+  rm -r usr/include usr/bin usr/lib/cmake usr/lib/lib*
+  python -m compileall .
+  python -O -m compileall .
+}

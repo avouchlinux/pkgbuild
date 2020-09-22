@@ -1,0 +1,27 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=usbredir
+pkgver=0.8.0
+pkgrel=1
+pkgdesc="USB traffic redirection protocol"
+arch=('x86_64')
+groups=('dev-utils')
+url="http://spice-space.org/page/UsbRedir"
+license=('GPL2' 'LGPL2.1')
+depends=('libusb')
+source=(http://spice-space.org/download/usbredir/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  export CFLAGS="$CFLAGS -Wno-error"
+  ./configure --prefix=/usr --sbindir=/usr/bin
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}

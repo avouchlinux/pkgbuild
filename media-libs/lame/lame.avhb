@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lame
+pkgver=3.100
+pkgrel=1
+pkgdesc='A high quality MPEG Audio Layer III (MP3) encoder'
+arch=('x86_64')
+groups=('media-libs')
+url='http://lame.sourceforge.net/'
+depends=('ncurses')
+makedepends=('nasm')
+license=('LGPL')
+source=("https://downloads.sourceforge.net/lame/lame-${pkgver}.tar.gz")
+
+build() {
+  cd lame-${pkgver}
+
+  ./configure --prefix='/usr' --enable-nasm --enable-shared
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd lame-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+}

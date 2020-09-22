@@ -1,0 +1,44 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sqlitebrowser
+pkgver=3.11.2
+pkgrel=1
+pkgdesc="A high quality, visual, open source tool to create, design, and edit database files compatible with SQLite"
+arch=('x86_64')
+groups=('dev-db')
+license=('GPL')
+url="http://sqlitebrowser.org"
+depends=('qt5')
+makedepends=('cmake')
+source=(https://github.com/sqlitebrowser/sqlitebrowser/archive/v3.5.1.tar.gz)
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	cd "$srcdir"/$pkgname-$pkgver
+	sed -i 's|Icon=.*|Icon=sqlitebrowser|' distri/sqlitebrowser.desktop
+	sed -i \
+		-e 's|DB Browser for SQLite|sqlitebrowser|g' \
+		CMakeLists.txt
+
+	mkdir ${srcdir}/build
+}
+
+build() {
+	cd "${srcdir}/build"
+	cmake -DCMAKE_INSTALL_PREFIX=/usr -DUSE_QT5=TRUE \
+	-Wno-dev ${srcdir}/${pkgname}-${pkgver}
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/build"
+	make install DESTDIR="$pkgdir"
+	install -Dm0644 distri/sqlitebrowser.desktop "$pkgdir"/usr/share/applications/sqlitebrowser.desktop
+	install -dm0755 "$pkgdir"/usr/share/icons/
+	install -m0644 images/sqlitebrowser.svg "$pkgdir"/usr/share/icons/
+}
+

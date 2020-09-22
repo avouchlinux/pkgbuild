@@ -1,0 +1,27 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gccmakedep
+pkgver=1.0.3
+pkgrel=1
+pkgdesc="Create a shadow directory of symbolic links to another directory tree"
+arch=('x86_64')
+groups=('x11-misc')
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('glibc')
+source=(http://xorg.freedesktop.org/archive/individual/util/$pkgname-$pkgver.tar.bz2)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr --mandir=/usr/share/man
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

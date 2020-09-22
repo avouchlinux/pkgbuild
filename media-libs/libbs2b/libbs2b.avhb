@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libbs2b
+pkgver=3.1.0
+pkgrel=1
+pkgdesc="Bauer stereophonic-to-binaural DSP effect library"
+url="http://bs2b.sourceforge.net"
+arch=('x86_64')
+groups=('media-libs')
+license=('custom:MIT')
+depends=(libsndfile)
+source=("https://downloads.sourceforge.net/sourceforge/bs2b/$pkgname-$pkgver.tar.lzma")
+
+prepare() {
+  cd $pkgname-$pkgver
+  sed -i 's/dist-lzma/dist-xz/g' configure.ac
+  autoreconf -fvi
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make ${MAKEFLAGS} check
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

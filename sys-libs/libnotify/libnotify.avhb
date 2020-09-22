@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnotify
+pkgver=0.7.9
+pkgrel=1
+pkgdesc="Desktop notification library"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://developer.gnome.org/notification-spec/"
+license=(LGPL)
+depends=(gdk-pixbuf2)
+makedepends=(gtk3 gobject-introspection git meson docbook-xsl xmlto gtk-doc)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

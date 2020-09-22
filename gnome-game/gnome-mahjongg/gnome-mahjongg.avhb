@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-mahjongg
+pkgver=3.38.1
+pkgrel=1
+pkgdesc="Disassemble a pile of tiles by removing matching pairs"
+url="https://wiki.gnome.org/Apps/Mahjongg"
+arch=('x86_64')
+groups=('gnome-games')
+license=(GPL)
+depends=(gtk3 librsvg)
+makedepends=(meson gobject-introspection yelp-tools appstream-glib git vala)
+source=(https://gitlab.gnome.org/GNOME/$pkgver/-/archive/$pkgver/$pkgver-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build
+    ninja -C build
+}
+
+check() {
+    meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C build
+}

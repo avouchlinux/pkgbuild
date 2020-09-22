@@ -1,0 +1,25 @@
+From 4e6d9e321400cbb660b4373db6b50bea71707641 Mon Sep 17 00:00:00 2001
+From: Tanu Kaskinen <tanuk@iki.fi>
+Date: Fri, 4 Aug 2017 16:43:02 +0300
+Subject: [PATCH 10/48] build-sys: add iec958-stereo-input.conf to
+ dist_alsapaths_DATA
+
+---
+ src/Makefile.am | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 3ff1139f..1d974037 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -1343,6 +1343,7 @@ dist_alsapaths_DATA = \
+ 		modules/alsa/mixer/paths/analog-output-headphones-2.conf \
+ 		modules/alsa/mixer/paths/analog-output-lineout.conf \
+ 		modules/alsa/mixer/paths/analog-output-mono.conf \
++		modules/alsa/mixer/paths/iec958-stereo-input.conf \
+ 		modules/alsa/mixer/paths/iec958-stereo-output.conf \
+ 		modules/alsa/mixer/paths/hdmi-output-0.conf \
+ 		modules/alsa/mixer/paths/hdmi-output-1.conf \
+-- 
+2.13.6
+

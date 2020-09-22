@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=screengrab
+pkgver=2.0.1
+pkgrel=1
+pkgdesc="Crossplatform tool for grabbing screenshots of your desktop."
+arch=("x86_64")
+groups=('lxqt')
+url="http://screengrab.doomer.org/"
+license=('GPL2')
+depends=('qt5-base')
+makedepends=('cmake')
+source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+
+build() {
+    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
+        -DCMAKE_INSTALL_PREFIX=/usr
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

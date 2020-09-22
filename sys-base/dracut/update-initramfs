@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# set umask to 022 so that the files created by root will be with 644 permission
+# and directory will be created with permission 750
+# our default mask in profile is 027 (moderate security)
+umask 022
+
+# update initramfs
+KERVER=$(</usr/src/linux/version)
+IMGFILE="/usr/lib/modules/${KERVER}/initramfs.img"
+SYMLINK="/boot/initramfs-${KERVER}.img"
+
+echo "Updating initramfs image for kernel : ${KERVER}"
+# first backup the origional initrmafs.img
+if [ -f "${IMGFILE}" ]; then
+    mv "${IMGFILE}"  "${IMGFILE}".backup
+fi
+# update kernel depmod
+depmod -a ${KERVER}
+# now create the new initramfs.img
+dracut "${IMGFILE}" "${KERVER}" -fq
+
+# create the symlink if not exist
+if [ -e "${SYMLINK}" ]; then
+    if [ -L "${SYMLINK}" ]; then
+        rm -f "/boot/initramfs-${KERVER}.img"
+        ln -sf "..${IMGFILE}" "${SYMLINK}"
+    else
+        # may some user prefer to create initramfs directly into the /boot directory
+        # echo "File exists but not a sym link to initramfs.img"
+        rm -f "/boot/initramfs-${KERVER}.img"
+        ln -sf "..${IMGFILE}" "${SYMLINK}"
+    fi
+else
+    # echo "Symbolic linke to initramfs.img does not exist"
+    ln -sf "..${IMGFILE}" "${SYMLINK}"
+fi
+

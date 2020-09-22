@@ -1,0 +1,36 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-xml-sax-base
+_realname=XML-SAX-Base
+pkgver=1.09
+pkgrel=1
+pkgdesc="Base class SAX Drivers and Filters"
+arch=('any')
+groups=('dev-perl')
+url="http://search.cpan.org/dist/XML-SAX-Base"
+license=('GPL' 'PerlArtistic')
+depends=('perl')
+options=('!emptydirs')
+source=("http://www.cpan.org/authors/id/G/GR/GRANTM/XML-SAX-Base-$pkgver.tar.gz")
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=$pkgdir
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}

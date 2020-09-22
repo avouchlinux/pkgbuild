@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-webrtc-audio-processing
+pkgbase=webrtc-audio-processing
+pkgver=0.3.1
+pkgrel=1
+pkgdesc="AudioProcessing library based on Google's implementation of WebRTC"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://freedesktop.org/software/pulseaudio/webrtc-audio-processing"
+license=(custom)
+depends=(gcc-libs)
+source=("$url/$pkgname-$pkgver.tar.xz")
+sha256sums=('ed4b52f9c2688b97628035a5565377d74704d7c04de4254a768df3342c7afedc')
+
+build() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+
+    export CC="gcc -m32"
+    export CXX="g++ -m32"
+    export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+    ./autogen.sh
+    ./configure --prefix=/usr --disable-static 	--libdir=/usr/lib32
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgbase}-${pkgver}"
+    make DESTDIR="$pkgdir" install
+    rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

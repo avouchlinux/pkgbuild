@@ -1,0 +1,29 @@
+# HG changeset patch
+# User Franziskus Kiefer <franziskuskiefer@gmail.com>
+# Date 1497028925 -7200
+#      Fri Jun 09 19:22:05 2017 +0200
+# Node ID 6900d5e02a8a7b67b274fa051ff46bf11eea71a2
+# Parent  eb8e94a5da5e15f15b5c10dd037e86ea51c5c16b
+enable libpkix
+
+diff --git a/build.sh b/build.sh
+--- a/build.sh
++++ b/build.sh
+@@ -87,16 +87,17 @@ while [ $# -gt 0 ]; do
+         --sancov=?*) enable_sancov "${1#*=}" ;;
+         --pprof) gyp_params+=(-Duse_pprof=1) ;;
+         --ct-verif) gyp_params+=(-Dct_verif=1) ;;
+         --disable-tests) gyp_params+=(-Ddisable_tests=1) ;;
+         --no-zdefs) gyp_params+=(-Dno_zdefs=1) ;;
+         --system-sqlite) gyp_params+=(-Duse_system_sqlite=1) ;;
+         --with-nspr=?*) set_nspr_path "${1#*=}"; no_local_nspr=1 ;;
+         --system-nspr) set_nspr_path "/usr/include/nspr/:"; no_local_nspr=1 ;;
++        --enable-libpkix) gyp_params+=(-Ddisable_libpkix=0) ;;
+         *) show_help; exit 2 ;;
+     esac
+     shift
+ done
+ 
+ if [ "$opt_build" = 1 ]; then
+     target=Release
+ else

@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-contacts
+pkgver=3.38
+pkgrel=1
+pkgdesc="Contacts Manager for GNOME"
+url="https://wiki.gnome.org/Apps/Contacts"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL2)
+depends=(gtk3 folks gnome-desktop dconf gnome-online-accounts libgee cheese libhandy)
+makedepends=(vala gobject-introspection git meson)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+    avouch-meson ${pkgname}-${pkgver} build -D telepathy=false
+    ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=argyllcms
+_realname=Argyll
+pkgver=2.1.2
+_pkgver="V${pkgver}"
+pkgrel=1
+pkgdesc="An ICC compatible color management system with support for different colorimeter hardware"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://www.argyllcms.com/"
+license=(GPL AGPL)
+depends=(libpng libtiff libxss libxinerama libxxf86vm libxrandr zlib openssl)
+makedepends=(ftjam zip unzip)
+source=("https://www.argyllcms.com/${_pkgname}_${_pkgver}_src.zip")
+
+prepare() {
+    cd ${_realname}_${_pkgver}
+    patch -p1 -i ../argyllcms-2.1.2-fno-common.patch
+    # Use hwdb builtin, instead of the obsolete usb-db in the udev rules.
+    sed -i 's:^TEST=="/lib/udev/usb-db", IMPORT{program}="usb-db %p":IMPORT{builtin}="hwdb --subsystem=usb":' usb/55-Argyll.rules
+
+    # the shared libraries by default on the command line _before_ the object to be built...
+	echo "STDLIBS += -ldl -lrt -lX11 -lXext -lXxf86vm -lXinerama -lXrandr -lXau -lXdmcp -lXss -ltiff -ljpeg ;" >> Jamtop
+
+    # Use LDFLAGS
+    echo "LINKFLAGS += ${LDFLAGS} ;" >> Jamtop
+}
+
+build() {
+    cd ${_realname}_${_pkgver}
+    CCOPTFLAG="$CFLAGS -DUNIX -D_THREAD_SAFE"
+    jam -q -fJambase ${MAKEFLAGS} -sPREFIX=/usr -sDESTDIR="${pkgdir}" -sREFSUBDIR=share/argyllcms/ref all
+}
+
+package() {
+    cd ${_realname}_${_pkgver}
+    jam -q -fJambase ${MAKEFLAGS} -sPREFIX=/usr -sDESTDIR="${pkgdir}" -sREFSUBDIR=share/argyllcms/ref install
+
+    rm "${pkgdir}"/usr/bin/License.txt
+
+    rm {doc,ref}/afiles
+    install -Dm644 doc/*.* -t "${pkgdir}"/usr/share/${pkgname}/doc/
+    install -Dm644 doc/ccmxs/*.ccmx -t "${pkgdir}"/usr/share/${pkgname}/doc/ccmxs/
+
+    install -Dm644 usb/55-Argyll.rules -t "${pkgdir}"/usr/lib/udev/rules.d/
+}

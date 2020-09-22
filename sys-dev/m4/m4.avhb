@@ -1,0 +1,47 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=m4
+pkgver=1.4.18
+pkgrel=1
+pkgdesc="The GNU macro processor"
+arch=('x86_64')
+groups=('sys-dev')
+url="http://www.gnu.org/software/m4"
+license=('GPL3')
+groups=('base-devel')
+depends=('glibc' 'bash')
+source=(https://ftp.gnu.org/gnu/m4/$pkgname-$pkgver.tar.xz{,.sig}
+        m4-1.4.18-glibc-change-work-around.patch)
+md5sums=('730bb15d96fffe47e148d1e09235af82'
+         'SKIP'
+         '01968e8f3a5be62de1c849668db8042b')
+validpgpkeys=('71C2CC22B1C4602927D2F3AAA7A16B4A2527436A')   # Eric Blake
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}" 
+    
+    # update to glibc libio.h removal, rhbz#1573342
+    patch -Np1 -i ../m4-1.4.18-glibc-change-work-around.patch
+    
+    autoreconf -ivf
+}
+
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"  
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

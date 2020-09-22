@@ -1,0 +1,21 @@
+--- isdn4k-utils-CVS-2005-03-09/vbox/src/vboxgetty.c.old	2000-11-30 16:35:20.000000000 +0100
++++ isdn4k-utils-CVS-2005-03-09/vbox/src/vboxgetty.c	2005-04-20 16:30:31.000000000 +0200
+@@ -434,7 +434,7 @@
+ static int check_spool_space(unsigned long need)
+ {
+ 	struct statfs stat;
+-	unsigned long have;
++	unsigned long long have;
+ 
+ 	log(L_DEBUG, "Checking free space on \"%s\"...\n", setup.spool);
+ 
+@@ -449,7 +449,7 @@
+ 	{
+ 		have = (stat.f_bfree * stat.f_bsize);
+ 
+-		log_line(L_JUNK, "%ld bytes available; %ld bytes needed... ", have, need);
++		log_line(L_JUNK, "%lld bytes available; %ld bytes needed... ", have, need);
+ 
+ 		if (have >= need)
+ 		{
+ 

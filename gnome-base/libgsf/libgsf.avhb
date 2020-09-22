@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgsf
+pkgver=1.14.47
+pkgrel=1
+pkgdesc="An extensible I/O abstraction library for dealing with structured file formats"
+url="https://gitlab.gnome.org/GNOME/libgsf.git"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL LGPL)
+depends=(libxml2 gdk-pixbuf2 bzip2)
+makedepends=(gobject-introspection git gtk-doc autoconf-archive)
+checkdepends=(perl-xml-parser unzip)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/1.14/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	PYTHON=/usr/bin/python2 ./configure --prefix=/usr --sysconfdir=/etc \
+	--localstatedir=/var --disable-static --enable-introspection --enable-gtk-doc
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

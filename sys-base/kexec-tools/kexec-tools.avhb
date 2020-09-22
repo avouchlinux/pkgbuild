@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kexec-tools
+pkgver=2.0.20
+pkgrel=1
+pkgdesc="Load another kernel from the currently executing Linux kernel"
+arch=('x86_64')
+groups=('sys-base')
+url="https://kernel.org/pub/linux/utils/kernel/kexec/"
+source=("https://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git/snapshot/kexec-tools-2.0.19.tar.gz")
+makedepends=('git')
+depends=('gawk' 'zlib' 'xz')
+license=('GPL2')
+
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# (Gentoo)
+	patch -p1 -i ../kexec-tools-2.0.4-disable-kexec-test.patch
+	patch -p1 -i ../kexec-tools-2.0.4-out-of-source.patch
+	patch -p1 -i ../kexec-tools-2.0.20-build-multiboot2-for-i386.patch
+	patch -p1 -i ../kexec-tools-2.0.20-remove-duplicated-variable-declarations.patch
+}
+
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./bootstrap
+	./configure --prefix=/usr --sbindir=/usr/bin --without-lzma
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR=$pkgdir install
+	
+	install -m 755 ../mkdumprd $pkgdir/usr/bin/mkdumprd
+	install -D -m 644 ../kdump.conf $pkgdir/etc/kdump.conf
+	install -D -m 755 ../kdump-lib.sh $pkgdir/usr/lib/kdump/kdump-lib.sh
+	install -D -m 755 ../kdump-lib-initramfs.sh $pkgdir/usr/lib/kdump/kdump-lib-initramfs.sh
+
+	install -D -m 644 kexec/kexec.8 $RPM_BUILD_ROOT%{_mandir}/man8/kexec.8
+	install -D -m 644 ../mkdumprd.8 $RPM_BUILD_ROOT%{_mandir}/man8/mkdumprd.8
+	install -D -m 644 ../kdumpctl.8 $RPM_BUILD_ROOT%{_mandir}/man8/kdumpctl.8
+	
+	install -D -m644 kexec/kexec.8 $pkgdir/usr/share/man/man8/kexec.8
+}
+

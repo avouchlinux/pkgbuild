@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-argcomplete
+_realname=argcomplete
+pkgver=1.11.1
+pkgrel=1
+pkgdesc='Easy, extensible command line tab completion of arguments for your Python script'
+url='https://github.com/kislyuk/argcomplete'
+arch=('any')
+groups=('dev-python2')
+license=('Apache')
+depends=('python2')
+makedepends=('python2-setuptools')
+checkdepends=('python-pexpect' 'tcsh' 'fish' 'python-pip')
+source=("https://github.com/kislyuk/argcomplete/archive/v$pkgver.tar.gz")
+validpgpkeys=('29BCBADB4ECAAAC2382699388AFAFCD242818A52') # Andrey Kislyuk <kislyuk@gmail.com>
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

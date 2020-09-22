@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-httplib2
+_realname=httplib2
+pkgver=0.17.0
+pkgrel=1
+pkgdesc='Comprehensive HTTP client library, supporting many features'
+url='https://github.com/httplib2/httplib2'
+license=('MIT')
+arch=('any')
+groups=('dev-python3')
+depends=('python3')
+makedepends=('python3-setuptools')
+depends=('ca-certificates')
+source=("https://github.com/httplib2/httplib2/archive/v$pkgver.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

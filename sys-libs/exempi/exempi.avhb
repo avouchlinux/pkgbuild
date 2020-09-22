@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=exempi
+pkgver=2.5.1
+pkgrel=1
+pkgdesc="A library to parse XMP metadata"
+arch=('x86_64')
+groups=('sys-libs')
+url="https://libopenraw.pages.freedesktop.org/exempi/"
+license=(custom:BSD)
+depends=(gcc-libs expat zlib)
+makedepends=(boost git autoconf-archive)
+source=("https://libopenraw.pages.freedesktop.org/download/$pkgname-$pkgver.tar.bz2")
+validpgpkeys=('6C44DB3E0BF3EAF5B433239A5FEE05E6A56E15A3') # Hubert Figuiere
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=terminology
+pkgver=1.1.1
+pkgrel=1
+pkgdesc="EFL based terminal emulator"
+arch=('x86_64')
+url="http://www.enlightenment.org/p.php?p=about/terminology"
+license=('BSD')
+depends=('elementary')
+groups=(enlightenment)
+repo=(extra)
+source=("http://download.enlightenment.org/rel/apps/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+install=terminology.install
+sha1sums=('c0f1f5d32abd2928476f168a8f58c5d3d4169f77')
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package(){
+	cd $srcdir/$pkgname-$pkgver
+	make DESTDIR=$pkgdir install
+	# install license files
+	install -Dm644 $srcdir/$pkgname-$pkgver/COPYING \
+	$pkgdir/usr/share/licenses/$pkgname/COPYING
+}

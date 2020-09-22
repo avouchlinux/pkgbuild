@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-idna
+_realname=idna
+pkgver=2.9
+pkgrel=1
+pkgdesc="Internationalized Domain Names in Applications (IDNA)"
+arch=('any')
+groups=('dev-python2')
+license=('BSD')
+url="https://github.com/kjd/idna"
+depends=('python2')
+makedepends=('python2-setuptools')
+source=("https://pypi.io/packages/source/i/idna/idna-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

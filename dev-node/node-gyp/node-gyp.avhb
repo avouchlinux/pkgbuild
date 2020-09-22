@@ -1,0 +1,34 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=node-gyp
+pkgver=6.1.0
+pkgrel=1
+pkgdesc='Node.js native addon build tool'
+arch=('any')
+groups=('dev-utils')
+url='https://github.com/nodejs/node-gyp'
+license=('MIT')
+depends=('nodejs' 'semver')
+makedepends=('npm')
+source=(https://registry.npmjs.org/$pkgname/-/$pkgname-$pkgver.tgz)
+noextract=($pkgname-$pkgver.tgz)
+
+package() {
+  npm install -g --user root --prefix "$pkgdir"/usr "$srcdir"/$pkgname-$pkgver.tgz
+
+  # Non-deterministic race in npm gives 777 permissions to random directories.
+  # See https://github.com/npm/npm/issues/9359 for details.
+  chmod -R u=rwX,go=rX "$pkgdir"
+
+  # npm installs package.json owned by build user
+  # https://bugs.archlinux.org/task/63396
+  chown -R root:root "$pkgdir"
+
+  # Experimental dedup
+  rm -r "$pkgdir"/usr/lib/node_modules/$pkgname/node_modules/semver
+
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s ../../../lib/node_modules/$pkgname/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

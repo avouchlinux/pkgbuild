@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-crypt-openssl-rsa
+_realname=Crypt-OpenSSL-RSA
+pkgver=0.28
+pkgrel=1
+pkgdesc="Interface to OpenSSL RSA methods"
+arch=('i686' 'x86_64')
+url="http://search.cpan.org/dist/Crypt-OpenSSL-RSA"
+depends=('perl-crypt-openssl-random' 'perl-crypt-openssl-bignum')
+license=('GPL')
+options=('!emptydirs')
+source=("http://search.cpan.org/CPAN/authors/id/P/PE/PERLER/Crypt-OpenSSL-RSA-$pkgver.tar.gz")
+md5sums=('86217a5036fc63779c30420b5fd84129')
+
+prepare() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	patch -p1 -i "$srcdir/0001-Adapt-to-OpenSSL-1.1.0.patch"
+}
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make pure_install doc_install DESTDIR="$pkgdir"
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

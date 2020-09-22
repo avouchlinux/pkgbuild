@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gwenhywfar
+pkgver=5.3.0
+_dnrel=319
+pkgrel=1
+pkgdesc="OS abstraction functions for various projects"
+arch=('x86_64')
+groups=('science')
+url="https://www.aquamaniac.de/"
+license=(LGPL)
+depends=(gnutls libgcrypt openssl)
+makedepends=(git gtk3 qt5-base)
+optdepends=('gtk3: for the GTK3 UI'
+            'qt5-base: for the Qt5 UI')
+source=("https://www.aquamaniac.de/rdm/attachments/download/$_verid/$pkgname-$pkgver.tar.gz"
+        https://www.aquamaniac.de/rdm/attachments/download/318/$pkgname-$pkgver.tar.gz.asc)
+validpgpkeys=(42400AF5EB2A17F0A69BB551E9899D784A977416) # AqBanking Package Key <packages@aqbanking.de>
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --enable-system-certs --with-guis="gtk2 qt5"
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+    cd $pkgname-$pkgver
+    make DESTDIR="$pkgdir" install
+}

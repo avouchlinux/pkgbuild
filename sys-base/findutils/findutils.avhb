@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=findutils
+pkgver=4.7.0
+pkgrel=1
+pkgdesc="GNU utilities to locate files"
+arch=('x86_64')
+groups=('sys-base')
+depends=('glibc' 'sh')
+url='https://www.gnu.org/software/findutils/'
+source=("https://ftp.gnu.org/pub/gnu/findutils/${pkgname}-${pkgver}.tar.gz"
+        "gnulib-fflush.patch"
+        "gnulib-makedev.patch")
+#validpgpkeys=('A15B725964A95EE5') # James Youngman <james@youngman.org>  - NOTE: PGP-2 key
+
+prepare(){
+	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	# Don't build or install locate because we use mlocate,
+  	# which is a secure version of locate.
+  	sed -e '/^SUBDIRS/s/locate//' -e 's/frcode locate updatedb//' -i Makefile.in
+
+}
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	# don't build locate, but the docs want a file in there.
+	make ${MAKEFLAGS} -C locate dblocation.texi
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	# make ${MAKEFLAGS} check
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR=${pkgdir} install
+}

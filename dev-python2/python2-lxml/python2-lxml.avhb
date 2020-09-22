@@ -1,0 +1,79 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-lxml
+pkgname=('python-lxml' 'python2-lxml' 'python-lxml-docs')
+_realname=lxml
+pkgver=3.8.0
+pkgrel=1
+arch=('i686' 'x86_64')
+license=('BSD' 'custom')
+url="http://lxml.de/"
+makedepends=('libxslt' 'python-cssselect' 'python2-cssselect')
+source=(http://pypi.python.org/packages/source/l/lxml/lxml-${pkgver}.tar.gz{,.asc})
+md5sums=('a9a65972afc173ec7a39c585f4eea69c'
+         'SKIP')
+validpgpkeys=('1737D5FB8DACC53CA96A77AB0D3D536908D3A01E')  # Stefan Behnel
+
+prepare() {
+	cp -a lxml-${pkgver} python-build
+	cp -a lxml-${pkgver} python2-build
+}
+
+build() {
+	cd ${srcdir}/python-build
+	python setup.py build
+
+	cd ${srcdir}/python2-build
+	python2 setup.py build
+}
+
+package_python2-lxml() {
+	pkgdesc="Python2 binding for the libxml2 and libxslt libraries"
+	depends=('python2' 'libxslt')
+	optdepends=('python2-beautifulsoup3: support for parsing not well formed HTML'
+				  'python-lxml-docs: offline docs')
+
+	cd ${srcdir}/python2-build
+	python2 setup.py install --root="${pkgdir}" --skip-build --optimize=1
+	 
+	install -Dm644 LICENSES.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+	install -Dm644 doc/licenses/BSD.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/BSD.txt
+	install -Dm644 doc/licenses/elementtree.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/elementtree.txt
+}
+
+package_python-lxml() {
+	pkgdesc="Python3 binding for the libxml2 and libxslt libraries"
+	depends=('python' 'libxslt')
+	optdepends=('python-lxml-docs: offline docs')
+
+	cd ${srcdir}/python-build
+	python setup.py install --root="${pkgdir}" --skip-build --optimize=1
+	  
+	install -Dm644 LICENSES.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+	install -Dm644 doc/licenses/BSD.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/BSD.txt
+	install -Dm644 doc/licenses/elementtree.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/elementtree.txt
+}
+
+package_python-lxml-docs() {
+	pkgdesc="Python binding for the libxml2 and libxslt libraries (docs)"
+	options=('docs')
+
+	cd ${srcdir}/lxml-$pkgver
+	install -d "${pkgdir}"/usr/share/doc/${pkgbase}
+	cp -r doc/html "${pkgdir}"/usr/share/doc/${pkgbase}
+
+	install -Dm644 LICENSES.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+	install -Dm644 doc/licenses/BSD.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/BSD.txt
+	install -Dm644 doc/licenses/elementtree.txt \
+	"${pkgdir}"/usr/share/licenses/$pkgname/elementtree.txt
+}

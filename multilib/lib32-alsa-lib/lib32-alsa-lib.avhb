@@ -1,0 +1,37 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-alsa-lib
+pkgbase=alsa-lib
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="An alternative implementation of Linux sound support (32 bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://www.alsa-project.org"
+depends=('lib32-glibc' $_pkgbasename)
+makedepends=('gcc-multilib')
+license=('GPL')
+options=(!libtool)
+source=(ftp://ftp.alsa-project.org/pub/lib/${_pkgbasename}-$pkgver.tar.bz2)
+md5sums=('69129a7c37697f81ac092335e9fa452b')
+
+build() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+
+	export CC='gcc -m32'
+	export PKG_CONFIG_PATH=/usr/lib32/pkgconfig
+
+    ./configure --prefix=/usr --libdir=/usr/lib32 --disable-python
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgbase}-${pkgver}"
+	make DESTDIR=$pkgdir install
+
+	# Clean up lib32 package
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

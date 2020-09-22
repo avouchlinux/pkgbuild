@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ffmulticonverter
+pkgver=1.8.0
+pkgrel=1
+pkgdesc="Convert audio, video, image and document files between all popular formats"
+arch=(any)
+groups=('media-video')
+url="https://sites.google.com/site/ffmulticonverter/"
+license=('GPL3')
+depends=('python-pyqt5')
+optdepends=('ffmpeg: for video conversions'
+            'imagemagick: for image conversions'
+            'unoconv: for document conversions')
+conflicts=('ffmulticonverter-git')
+source=(https://sourceforge.net/projects/ffmulticonv/files/$pkgname-$pkgver.tar.gz)
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	python setup.py install --root="${pkgdir}/" --optimize=1
+}

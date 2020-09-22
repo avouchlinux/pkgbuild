@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libtiger
+_realname=tiger
+pkgver=0.3.4
+pkgrel=1
+pkgdesc="A rendering library for Kate streams using Pango and Cairo"
+arch=('x86_64')
+groups=('media-libs')
+url="https://git.xiph.org/?p=users/oggk/tiger.git;a=summary"
+license=('LGPL')
+depends=('pango' 'libkate')
+makedepends=('pkg-config' 'git')
+source=("$pkgname::git+git://git.xiph.org/users/oggk/tiger.git#tag=tiger-${pkgver}"
+        "0001-Fix-automake.patch")
+
+prepare() {
+  cd "${srcdir}/${_realname}"
+  patch -Np1 -i "${srcdir}/0001-Fix-automake.patch"
+  ./autogen.sh
+}
+
+build() {
+  cd "${srcdir}/${_realname}"
+  ./configure --prefix=/usr --enable-static=no --disable-doc
+  make
+}
+
+package() {
+  cd "${srcdir}/${_realname}"
+
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python3-mistune
+_realname=mistune
+pkgver=0.8.4
+pkgrel=1
+pkgdesc="The fastest markdown parser in pure Python with renderer feature."
+arch=('any')
+groups=('dev-python3')
+url="https://github.com/lepture/mistune"
+license=('BSD')
+depends=('python3')
+makedepends=('python3-setuptools')
+source=("https://github.com/lepture/mistune/archive/v${pkgver}.tar.gz")
+
+build() {
+  cd $_realname-$pkgver
+  python3 setup.py build
+}
+
+check() {
+  cd $_realname-$pkgver
+  python3 setup.py pytest
+}
+
+package() {
+  cd $_realname-$pkgver
+  python3 setup.py install --skip-build --root="${pkgdir}" --optimize='1'
+}

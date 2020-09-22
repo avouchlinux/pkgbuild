@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-attrs
+_realname=attrs
+pkgver=19.3.0
+pkgrel=1
+pkgdesc="Attributes without boilerplate."
+arch=('any')
+groups=('dev-python2')
+license=('MIT')
+url="https://attrs.readthedocs.org/"
+depends=('python2')
+makedepends=('python2-setuptools')
+checkdepends=('python2-pytest-runner' 'python2-zope-interface' 'python2-hypothesis')
+source=("https://pypi.io/packages/source/a/attrs/attrs-$pkgver.tar.gz")
+
+build() { 
+	cd ${_realname}-${pkgver}
+   python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

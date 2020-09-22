@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=live-media
+_realname=live
+pkgver=2020.04.12
+pkgrel=1
+pkgdesc="A set of C++ libraries for multimedia streaming"
+arch=('x86_64')
+groups=('media-libs')
+license=('LGPL')
+url="http://live555.com/liveMedia"
+depends=('gcc-libs')
+options=('!strip' 'staticlibs')
+source=("http://live555.com/liveMedia/public/live.${pkgver}.tar.gz")
+
+build() {
+  cd $_realname
+  # avoid a condition which may overflow at runtime, compile with -fPIC
+  # sed -E 's|(\$\(INCLUDES\) -I. -O2 -DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux
+  # sed -E 's|(-O2 -DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux
+  # sed -E 's|(-O2 -DSOCKLEN_T=socklen_t)|\1 -fPIC -DRTSPCLIENT_SYNCHRONOUS_INTERFACE=1|g' -i config.linux-64bit
+  # sed -E 's|(-O2 -DSOCKLEN_T=socklen_t)|\1 -fPIC|g' -i config.linux
+  
+  # build shared libraries, static libraries have issue with vlc, vlc build failed
+  ./genMakefiles linux-with-shared-libraries
+  make
+}
+
+package() {
+  cd $_realname
+  mkdir -p "${pkgdir}"/usr/{bin,lib}
+  make DESTDIR="${pkgdir}" PREFIX=/usr install
+}

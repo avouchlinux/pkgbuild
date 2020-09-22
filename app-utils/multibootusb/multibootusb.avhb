@@ -1,0 +1,23 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=multibootusb
+pkgver=9.2.0
+pkgrel=1
+pkgdesc="Boot multiple live Linux distros from a usb flash drive."
+arch=("any")
+groups=('app-utils')
+url="http://multibootusb.org"
+license=("GPL")
+depends=("python-pyqt5" "pyqt5-common" "python-dbus" "mtools" "util-linux" "parted" "p7zip" "python-six" "python-pyudev")
+source=("https://github.com/mbusb/$pkgname/archive/v${pkgver}.tar.gz"
+        "https://github.com/mbusb/multibootusb/commit/0b71b418293f46c05be78e1afe5efaa31de409f9.patch")
+
+package () {
+    cd "$srcdir/$pkgname"
+    chmod 755 "$srcdir/$pkgname-$pkgver/data/multibootusb.desktop"
+    python3 setup.py install --root="$pkgdir/" --optimize=1
+    sed -i 's/\/usr\/local\/bin/\/usr\/bin/' "$pkgdir/usr/share/polkit-1/actions/org.debian.pkexec.run-multibootusb.policy"
+}

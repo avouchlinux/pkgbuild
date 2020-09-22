@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=yajl
+pkgver=2.1.0
+pkgrel=1
+pkgdesc='Yet Another JSON Library'
+arch=('x86_64')
+groups=('dev-libs')
+url='http://lloyd.github.com/yajl/'
+license=('ISC')
+makedepends=('cmake')
+source=("https://github.com/lloyd/$pkgname/archive/$pkgver.tar.gz")
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  ninja -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+}

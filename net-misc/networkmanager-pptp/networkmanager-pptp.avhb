@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=networkmanager-pptp
+_realname=NetworkManager-pptp
+pkgver=1.2.8
+pkgrel=1
+pkgdesc="NetworkManager VPN plugin for PPTP"
+arch=('x86_64')
+groups=('net-misc')
+url="https://wiki.gnome.org/Projects/NetworkManager"
+license=(GPL)
+_pppver=2.4.7
+depends=(libnm libsecret "ppp=$_pppver" pptpclient)
+makedepends=(libnma intltool python git)
+optdepends=('libnma: GUI support')
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
+
+prepare() {
+  cd NetworkManager-pptp-$pkgver
+  intltoolize --automake --copy
+  autoreconf -fvi
+}
+
+build() {
+  cd NetworkManager-pptp-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --libexecdir=/usr/lib --disable-static \
+    --with-pppd-plugin-dir=/usr/lib/pppd/$_pppver
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd NetworkManager-pptp-$pkgver
+  make DESTDIR="$pkgdir" install dbusservicedir=/usr/share/dbus-1/system.d
+}

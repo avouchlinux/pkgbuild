@@ -1,0 +1,66 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=jsoncpp
+pkgname=('jsoncpp' 'jsoncpp-doc')
+pkgver=1.9.2
+pkgrel=1
+pkgdesc='C++ library for interacting with JSON'
+arch=('x86_64')
+groups=('sys-libs')
+url='https://github.com/open-source-parsers/jsoncpp'
+license=('MIT' 'custom:Public_Domain')
+makedepends=('gcc-libs' 'doxygen' 'graphviz' 'python' 'meson')
+options=('staticlibs')
+source=(https://github.com/open-source-parsers/${pkgbase}/archive/${pkgver}.tar.gz)
+
+prepare() {
+  cd ${pkgbase}-${pkgver}
+  mkdir -p build
+}
+
+build() {
+  cd ${pkgbase}-${pkgver}
+  message "Building docs..."
+  python doxybuild.py \
+    --doxygen="$(which doxygen)" \
+    --with-dot
+
+  message "Building shared library..."
+  avouch-meson --default-library shared build
+  ninja -C build
+
+  message "Building static library..."
+  avouch-meson --default-library static build-static
+  ninja -C build-static
+}
+
+check() {
+  cd ${pkgbase}-${pkgver}
+  ninja -C build test
+  cd test
+  python runjsontests.py ../build/jsontestrunner
+  python rununittests.py ../build/jsoncpp_test
+}
+
+package_jsoncpp() {
+  depends=('gcc-libs')
+  optdepends=('jsoncpp-doc: documentation')
+
+  cd ${pkgbase}-${pkgver}
+  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="${pkgdir}" ninja -C build-static install
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+}
+
+package_jsoncpp-doc() {
+  pkgdesc+=' (documentation)'
+  optdepends=('jsoncpp')
+
+  cd ${pkgbase}-${pkgver}
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -dm 755 "${pkgdir}/usr/share/doc/${pkgbase}"
+  cp -a dist/doxygen/jsoncpp-api-html-${pkgver} "${pkgdir}/usr/share/doc/${pkgbase}/html"
+}

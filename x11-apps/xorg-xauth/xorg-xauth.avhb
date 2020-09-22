@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xauth
+_realname=xauth
+pkgver=1.1
+pkgrel=1
+pkgdesc="X.Org authorization settings program"
+arch=('x86_64')
+groups=('x11-apps')
+license=('custom')
+url="http://xorg.freedesktop.org/"
+depends=('libxmu')
+makedepends=('xorg-util-macros')
+source=(${url}/releases/individual/app/xauth-${pkgver}.tar.bz2)
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

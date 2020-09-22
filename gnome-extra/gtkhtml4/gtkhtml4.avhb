@@ -1,0 +1,39 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtkhtml4
+_realname=gtkhtml
+pkgver=4.10.0
+pkgrel=1
+pkgdesc="A lightweight HTML renderer/editor widget for GTK3"
+arch=('x86_64')
+groups=('gnome-extra')
+repo=('extra')
+license=('GPL')
+depends=('gtk3' 'enchant' 'iso-codes' 'gnome-icon-theme' 'libsoup')
+makedepends=('intltool')
+url="http://www.gnome.org"
+groups=('gnome-base')
+repo=('core')
+source=(http://ftp.gnome.org/pub/gnome/sources/$_pkgbasename/${pkgver%.*}/$_pkgbasename-$pkgver.tar.xz)
+
+prepare() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    patch -Np0 < ../enchant-2.patch
+}
+
+build() {
+    cd ${srcdir}/${_realname}-${pkgver}
+    ./configure --prefix=/usr --sysconfdir=/etc \
+        --libexecdir=/usr/lib/gtkhtml4 \
+        --localstatedir=/var --disable-static
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd ${srcdir}/gtkhtml-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

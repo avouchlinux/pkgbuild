@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-pytest
+_realname=pytest
+pkgver=4.6.9
+pkgrel=1
+pkgdesc="Simple powerful testing with python2"
+arch=('any')
+groups=('dev-python2')
+license=('MIT')
+url="https://pytest.org/"
+depends=('python2-py' 'python2-setuptools' 'python2-pluggy' 'python2-attrs' 'python2-more-itertools'
+         'python2-atomicwrites' 'python2-wcwidth' 'python2-funcsigs' 'python2-pathlib2'
+         'python2-importlib-metadata')
+makedepends=('python2-setuptools-scm')
+source=("https://github.com/pytest-dev/pytest/archive/$pkgver.tar.gz")
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+build() {
+  cd pytest-$pkgver
+  python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {
+  cd pytest-$pkgver
+  python2 setup.py install --root="$pkgdir" --optimize=1
+
+  mv "$pkgdir"/usr/bin/py.test{,2}
+  mv "$pkgdir"/usr/bin/pytest{,2}
+
+  install -D -m644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

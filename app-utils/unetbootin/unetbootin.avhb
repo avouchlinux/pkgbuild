@@ -1,0 +1,65 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=unetbootin
+pkgver=677
+pkgrel=1
+arch=('x86_64')
+groups=('app-utils')
+license=('GPL')
+pkgdesc='Create bootable Live USB drives'
+url='https://unetbootin.github.io'
+depends=('syslinux' 'p7zip' 'qt4' 'mtools' 'zenity')
+makedepends=('setconf')
+optdepends=('polkit: run unetbootin directly from menu'
+            'zenity: display an error if no authentication agent is found')
+source=("https://github.com/unetbootin/unetbootin/archive/${pkgver}.tar.gz"
+        'org.avouch.pkexec.unetbootin.policy'
+        'unetbootin.sh'
+		'https://dev.gentoo.org/~asturm/distfiles/unetbootin-661-qt5.patch.tar.xz')
+
+prepare() {
+	cd "${pkgname}-${pkgver}/src/${pkgname}"
+
+	# thanks to gentoo 
+	#https://dev.gentoo.org/~asturm/distfiles/unetbootin-661-qt5.patch.tar.xz
+	patch -Np1 -i $srcdir/unetbootin-661-qt5.patch
+	patch -Np1 -i $srcdir/unetbootin-581-desktop.patch
+
+
+	sed -i -e '/^RESOURCES/d' unetbootin.pro || die
+
+	setconf unetbootin.desktop Exec /usr/bin/unetbootin
+}
+
+build() {
+	cd "${pkgname}-${pkgver}/src/${pkgname}"
+	lrelease-qt5 unetbootin.pro
+	qmake-qt5 -config release "DEFINES += NOSTATIC" "RESOURCES -= unetbootin.qrc" unetbootin.pro
+	make
+}
+
+package() {
+	cd "${pkgname}-${pkgver}/src/${pkgname}"
+
+	install -d "${pkgdir}/usr/share/${pkgname}"
+	install -m644 "${pkgname}"_*.qm "${pkgdir}/usr/share/${pkgname}/"
+	install -Dm755 "${pkgname}" "${pkgdir}/usr/bin/${pkgname}.elf"
+
+	# Application shortcut
+	install -Dm644 "${pkgname}.desktop" \
+		"${pkgdir}/usr/share/applications/${pkgname}.desktop"
+	for i in 16 22 24 32 48 256; do
+		install -Dm644 "${pkgname}_${i}.png" \
+			"${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps/${pkgname}.png"
+	done
+
+	cd "$srcdir"
+
+	install -m755 "${pkgname}.sh" "${pkgdir}/usr/bin/${pkgname}"
+
+	# Polkit policy
+	install -Dm644 'org.avouch.pkexec.unetbootin.policy' \
+		"${pkgdir}/usr/share/polkit-1/actions/org.avouch.pkexec.unetbootin.policy"
+}

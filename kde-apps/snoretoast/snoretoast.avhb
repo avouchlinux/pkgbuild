@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=snoretoast
+pkgver=0.7.0
+pkgrel=1
+pkgdesc="A command line application capable of creating Windows Toast notifications."
+arch=('x86_64')
+groups=('kde-apps')
+url="https://skrooge.org/"
+license=('GPL')
+depends=('')
+makedepends=('')
+options=('!emptydirs')
+install=$pkgname.install
+changelog=$pkgname.changelog
+source=(https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
+validpgpkeys=('103DC6D087B3A4A2ED975D7EF0C8CED3382A5C4D') #Stephane MANKOWSKI (Perso) <stephane@mankowski.fr>
+
+build() {
+  cd $pkgname-$pkgver
+
+  cmake . -DCMAKE_INSTALL_PREFIX=/usr \
+          -DKDE_INSTALL_LIBDIR=/usr/lib \
+          -DSKG_WEBENGINE=ON \
+          -DSKG_BUILD_TEST=OFF
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+
+  make DESTDIR="${pkgdir}" install
+}

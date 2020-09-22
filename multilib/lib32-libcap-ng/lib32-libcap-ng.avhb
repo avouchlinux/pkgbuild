@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libcap-ng
+pkgbase=libcap-ng
+pkgver=0.7.10
+pkgrel=1
+pkgdesc="A library making programming with POSIX capabilities easier than traditional libcap"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://people.redhat.com/sgrubb/libcap-ng/"
+license=('GPL2' 'LGPL2.1')
+depends=('glibc')
+source=(http://people.redhat.com/sgrubb/$pkgname/$pkgname-$pkgver.tar.gz)
+md5sums=('610afb774f80a8032b711281df126283')
+
+build() {
+	cd ${srcdir}/libcap-ng-${pkgver}
+
+	export CC="gcc -m32"
+	export CXX="g++ -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	./autogen.sh
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--enable-static=no \
+		--with-python=no \
+		--with-python3=no
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/libcap-ng-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{bin,include,share}
+}

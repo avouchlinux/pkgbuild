@@ -1,0 +1,33 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=tinycompress
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="tinycompress is a userspace library to use the ALSA compressed APIs introduced in Linux 3.3"
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/alsa-project/tinycompress"
+depends=('glibc')
+optdepends=('python2: for python smixer plugin')
+makedepends=('python2')
+license=('GPL')
+source=(https://github.com/alsa-project/tinycompress/archive/v$pkgver.tar.gz)
+
+prepare() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./autogen.sh
+}
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}
+

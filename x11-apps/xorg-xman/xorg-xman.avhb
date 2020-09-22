@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xorg-xman
+_realname=xman
+pkgver=1.1.5
+pkgrel=1
+pkgdesc="Unix manual page viewer"
+arch=('x86_64')
+groups=('x11-apps')
+url="https://xorg.freedesktop.org/"
+license=('custom')
+depends=('libxaw' 'libxt')
+makedepends=('xorg-util-macros' 'xproto' 'libxmu')
+source=(https://xorg.freedesktop.org/archive/individual/app/xman-${pkgver}.tar.bz2{,.sig})
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+
+build() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${_realname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

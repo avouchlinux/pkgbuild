@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=nvidia-settings-418xx
+_realname=nvidia-settings
+pkgver=418.88
+pkgrel=1
+pkgdesc="Tool for configuring the NVIDIA graphics driver"
+url='https://github.com/NVIDIA/nvidia-settings'
+arch=('x86_64')
+groups=('media-video')
+license=('GPL2')
+makedepends=('git' 'inetutils' 'gtk2' 'jansson' 'gtk3' 'libxv' 'libvdpau' 'nvidia-utils' 'libxext')
+options=('staticlibs')
+source=(${pkgbase}-${pkgver}.tar.gz::https://github.com/NVIDIA/nvidia-settings/archive/${pkgver}.tar.gz
+        libxnvctrl_so.patch)
+
+prepare() {
+  export PREFIX=/usr
+  export NV_USE_BUNDLED_LIBJANSSON=0
+  export OUTPUTDIR=out
+  cd ${_realname}-${pkgver}
+  #patch -p0 < "${srcdir}/libxnvctrl_so.patch"
+}
+
+build() {
+  cd ${_realname}-${pkgver}
+  export CFLAGS+=' -fcommon'
+  make
+  make -C src/libXNVCtrl
+}
+
+package() {
+  depends=('jansson' 'gtk3' 'libxv' 'libvdpau' 'nvidia-utils' 'libxnvctrl')
+
+  cd ${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -D -m644 doc/nvidia-settings.desktop "${pkgdir}/usr/share/applications/nvidia-settings.desktop"
+  install -D -m644 doc/nvidia-settings.png "${pkgdir}/usr/share/pixmaps/nvidia-settings.png"
+  sed -e 's:__UTILS_PATH__:/usr/bin:' -e 's:__PIXMAP_PATH__:/usr/share/pixmaps:' -i "${pkgdir}/usr/share/applications/nvidia-settings.desktop"
+}

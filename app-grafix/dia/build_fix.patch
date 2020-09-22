@@ -1,0 +1,10 @@
+--- plug-ins/wmf/wmf.cpp	2018-02-04 13:35:35.482071828 +0000
++++ ../wmf.cpp	2018-02-04 13:36:06.648738827 +0000
+@@ -1273,7 +1273,6 @@
+         renderer->use_pango = FALSE;
+ #endif
+     } else {
+-        renderer->hPrintDC = (W32::HDC)user_data;
+         renderer->use_pango = (user_data != NULL); // always for printing
+     }
+ 

@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libgda
+# pkgname=(libgda libgda-{firebird,jdbc,mysql,postgres})
+pkgname=libgda
+pkgver=6.0.0
+pkgrel=1
+pkgdesc="Database access library"
+url="http://www.gnome-db.org/"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL)
+depends=(gtksourceview3 libxslt python2 libsecret graphviz goocanvas iso-codes)
+makedepends=(glade libmariadbclient postgresql-libs libfbclient jdk8-openjdk intltool
+             gobject-introspection gtk-doc vala itstool gnome-common git)
+source=("https://gitlab.gnome.org/GNOME/libgda/-/archive/LIBGDA_5_2_9/libgda-LIBGDA_5_2_9.tar.bz2")
+
+_apiver=6.0
+
+prepare() {
+    cd $pkgbase
+
+    # patch -Np1 -i ../fix-crash.diff
+
+    find -name '*.py' -exec sed -i '1s/python$/&2/' {} +
+    #autoreconf -vif
+
+}
+
+build() {
+  avouch-meson $pkgname build \
+    -D enable-json=true \
+    -D gtk_doc=true
+
+  meson compile -C build
+}
+
+package() {
+   DESTDIR="${pkgdir}" meson install -C build  
+}

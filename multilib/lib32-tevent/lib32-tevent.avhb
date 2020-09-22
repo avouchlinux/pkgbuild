@@ -1,0 +1,38 @@
+# Maintainer: Fabian Maurer <dark.shadow4@web.de>
+# Contributor: Rafael Fontenelle <rafaelff@gnome.org>
+
+_realname=tevent
+pkgname=lib32-${_realname}
+pkgver=0.10.2
+pkgrel=1
+pkgdesc="An event system based on the talloc memory management library (lib32)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="https://tevent.samba.org"
+license=('GPL3')
+source=("https://samba.org/ftp/${_realname}/${_realname}-${pkgver}.tar.gz")
+depends=('lib32-talloc' 'tevent' 'python')
+sha256sums=('f68d0fcc616119d27ebace162499e73f4ae3998e49b98d1f454bb467cdb1d4e6')
+
+build() {
+  cd ${_realname}-${pkgver}
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+  
+  ./configure --prefix=/usr \
+    --libdir=/usr/lib32 \
+    --bundled-libraries=NONE \
+    --builtin-libraries=replace \
+    --disable-python
+    
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd ${_realname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/{include,share}
+}

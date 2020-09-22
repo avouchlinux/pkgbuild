@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmpdclient
+pkgver=2.18
+pkgrel=1
+pkgdesc='Asynchronous API library for interfacing MPD in the C, C plus plus and Objective C languages'
+url='https://www.musicpd.org/libs/libmpdclient/'
+license=('custom:BSD')
+arch=('x86_64')
+groups=('media-libs')
+makedepends=('meson')
+validpgpkeys=('0392335A78083894A4301C43236E8A58C6DB4512')
+source=("https://www.musicpd.org/download/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"{,.sig})
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	avouch-meson . build
+	ninja -C build
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	DESTDIR="${pkgdir}" ninja -C build install
+
+	cd "${pkgdir}"
+	install -d usr/share/licenses/libmpdclient
+	ln -s ../../doc/libmpdclient/COPYING usr/share/licenses/libmpdclient/COPYING
+}

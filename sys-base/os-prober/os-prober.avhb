@@ -1,0 +1,75 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=os-prober
+pkgver=1.77
+pkgrel=1
+pkgdesc="Utility to detect other OSes on a set of drives"
+url="http://joey.kitenet.net/code/os-prober/"
+arch=('x86_64')
+groups=('base')
+repo=('core')
+license=('GPL3')
+depends=('sh')
+source=(http://http.debian.net/debian/pool/main/o/${pkgname}/${pkgname}_${pkgver}.tar.xz)
+sha256sums=('d3a580610e0148ee1fea98de993b27b856870fb0a31e9ce1a33be2654e2c64ed')
+
+prepare() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    
+    patch -p0 -i "$srcdir"/avouch-release.patch
+
+	#patch -p1 -i "$srcdir"/os-prober-no-dummy-mach-kernel.patch
+	# Sent upstream
+	patch -p1 -i "$srcdir"/os-prober-mdraidfix.patch
+	patch -p1 -i "$srcdir"/os-prober-btrfsfix.patch
+	patch -p1 -i "$srcdir"/os-prober-bootpart-name-fix.patch
+	patch -p1 -i "$srcdir"/os-prober-mounted-partitions-fix.patch
+	patch -p1 -i "$srcdir"/os-prober-factor-out-logger.patch
+	# To be sent upstream
+	patch -p1 -i "$srcdir"/os-prober-factored-logger-efi-fix.patch
+	patch -p1 -i "$srcdir"/os-prober-umount-fix.patch
+    patch -p1 -i "$srcdir"/os-prober-gentoo-fix.patch
+    patch -p1 -i "$srcdir"/os-prober-grub2-parsefix.patch
+
+    # adjust lib dir to allow detection of 64-bit distros
+    sed -i -e "s:/lib/ld\*\.so\*:/lib*/ld*.so*:g" os-probes/mounted/common/90linux-distro
+
+    find -type f -exec sed -i -e 's|usr/libexec|usr/lib|g' {} \;
+
+
+
+    rm -f Makefile
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make newns
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+
+    install -Dm755 linux-boot-prober "$pkgdir"/usr/bin/linux-boot-prober
+    install -Dm755 os-prober "$pkgdir"/usr/bin/os-prober
+    install -Dm755 newns "$pkgdir"/usr/lib/os-prober/newns
+    install -Dm755 common.sh $pkgdir/usr/share/os-prober/common.sh
+
+    # remove patched orig file
+    rm os-probes/mounted/common/90linux-distro.orig
+    rm os-probes/common/50mounted-tests.orig
+
+    for dir in os-probes os-probes/mounted os-probes/init linux-boot-probes linux-boot-probes/mounted; do
+        install -dm755 "$pkgdir/usr/lib/$dir"
+        install -m755 -t "$pkgdir/usr/lib/$dir" "$dir"/common/*
+        [[ -d "$dir"/x86 ]] && cp -r "$dir"/x86/* "$pkgdir/usr/lib/$dir"
+    done
+
+    install -Dm755 os-probes/mounted/powerpc/20macosx "$pkgdir"/usr/lib/os-probes/mounted/20macosx
+    install -dm755 "$pkgdir"/var/lib/os-prober
+
+    # license
+    install -D -m644 debian/copyright ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+

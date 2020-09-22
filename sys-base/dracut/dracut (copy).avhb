@@ -1,0 +1,94 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dracut
+pkgver=050
+pkgrel=1
+pkgdesc="Generic, modular, cross-distribution initramfs generation tool"
+arch=('x86_64')
+groups=('sys-base')
+url="https://dracut.wiki.kernel.org"
+license=('GPL')
+depends=('bash' 'coreutils' 'cpio' 'filesystem' 'findutils' 'grep' 'gzip'
+         'kmod' 'procps-ng' 'sed' 'systemd' 'util-linux' 'xz')
+makedepends=('asciidoc' 'bash-completion' 'git')
+provides=('initramfs')
+backup=('etc/dracut.conf')
+source=("git+https://github.com/dracutdevs/dracut#tag=${_tag_blob}?signed"
+        "0001-90crypt-Change-the-module-setup.sh-to-use-uname-r-in.patch")
+sha512sums=('SKIP'
+            'a4ed8da197fde60cf69803431a61273b0db921fe84589879fdd37697df6e0d95275daf6273eee86077ba93687be6e88da0b26fff60451d5dec2a69fafcf6094d')
+validpgpkeys=(
+  '4C96E1500F9421CCF82D5DCA034EB370014DF270') # Harald Hoyer <harald@redhat.com>
+
+getsrc() {
+	cd ${srcdir}
+	#git clone git://git.kernel.org/pub/scm/boot/dracut/dracut.git
+}
+
+prepare() {	
+	cd ${srcdir}/${pkgname}-${pkgver}
+	# For it to work with current dependencies # as arch command is depricated
+	sed -i 's|$(arch)|$(uname -m)|g' "modules.d/90crypt/module-setup.sh"	
+}
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--sbindir=/usr/bin \
+		--libdir=/usr/lib \
+		--systemdsystemunitdir=/usr/lib/systemd/system \
+		--bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
+	make
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}" install
+
+	sed -i 's/libexec/lib/g' "${pkgdir}"/usr/lib/dracut/modules.d/50plymouth/module-setup.sh
+	
+	# install update-initramfs
+	install -m755 ../update-initramfs "${pkgdir}"/usr/bin/update-initramfs
+
+	# for systemd, better use systemd-bootchart
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00bootchart
+	# systemd-bootchart droped in systemd-229
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00systemd-bootchart
+	
+	# systemd-bootchart droped in systemd-229
+	#rm -fr ${pkgdir}/usr/lib/dracut/modules.d/02caps
+
+	# we do not support dash in the initramfs
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/00dash
+
+	# remove gentoo specific modules
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/50gensplash
+
+	# do not overwrite the origional multipathd.service shipped with multipath
+	# origional is better
+	rm -fr ${pkgdir}/usr/lib/systemd/system/multipathd.service
+
+	# with systemd IMA and selinux modules do not make sense
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/96securityfs
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/97masterkey
+	rm -fr ${pkgdir}/usr/lib/dracut/modules.d/98integrity
+
+
+	cp "${srcdir}/01-common.conf" "${pkgdir}/etc/dracut.conf.d"
+	cp "${srcdir}/02-dist.conf" "${pkgdir}/etc/dracut.conf.d"
+	#cp "${srcdir}/03-generic-image.conf" "${pkgdir}/etc/dracut.conf.d"
+	#cp "${srcdir}/04-livecd.conf" "${pkgdir}/etc/dracut.conf.d"
+
+	
+	mkdir -p ${pkgdir}/boot/dracut
+	mkdir -p ${pkgdir}/var/lib/initramfs
+	mkdir -p ${pkgdir}/var/lib/dracut/overlay
+	mkdir -p ${pkgdir}/var/log
+
+	touch ${pkgdir}/var/log/dracut.log
+}
+

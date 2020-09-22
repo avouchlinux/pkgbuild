@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ppl
+pkgver=1.2
+pkgrel=1
+pkgdesc="A modern library for convex polyhedra and other numerical abstractions"
+arch=('x86_64')
+groups=('dev-libs')
+url="http://bugseng.com/products/ppl"
+license=('GPL3')
+depends=(glpk)
+makedepends=(swi-prolog)
+optdepends=('swi-prolog: SWI Prolog interface')
+options=(!docs)
+source=(https://bugseng.com/products/ppl/download/ftp/releases/$pkgver/ppl-$pkgver.tar.gz)
+
+prepare() {
+  cd ppl-$pkgver
+    # Adapt to SWI Prolog 8.x (Fedora)
+  sed -i 's/-dump-runtime-variables/-&/g' configure            
+    # Fix detection of C++11 features (Fedora)
+  sed -i 's,== 201103L,>= 201103L,g' configure            
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    ./configure --prefix=/usr --enable-interfaces="c,cxx,swi_prolog"
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    # make ${MAKEFLAGS} check || /bin/true # https://www.cs.unipr.it/mantis/view.php?id=2120
+}
+
+package() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    # license
+    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

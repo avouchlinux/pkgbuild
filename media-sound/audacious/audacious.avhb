@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=audacious
+pkgver=4.0.2
+pkgrel=1
+pkgdesc="Lightweight, advanced audio player focused on audio quality"
+arch=('x86_64')
+groups=('media-sound')
+url="http://audacious-media-player.org/"
+license=('BSD')
+depends=('gtk2' 'glib2' 'libguess' 'libsm' 'audacious-plugins'
+         'gnome-icon-theme' 'hicolor-icon-theme' 'desktop-file-utils')
+makedepends=('python') # for gdbus-codegen
+optdepends=('unzip: zipped skins support')
+source=(http://distfiles.audacious-media-player.org/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+	./configure --prefix=/usr \
+	--with-buildstamp='Avouch OS'
+	make ${MAKEFLAGS}
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+}

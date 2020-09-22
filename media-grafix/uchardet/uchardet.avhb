@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=uchardet
+pkgver=0.0.6
+pkgrel=1
+pkgdesc='Encoding detector library ported from Mozilla'
+arch=('x86_64')
+groups=('media-grafix')
+url='https://www.freedesktop.org/wiki/Software/uchardet'
+license=('MPL')
+depends=('gcc-libs')
+makedepends=('cmake')
+source=("https://www.freedesktop.org/software/${pkgname}/releases/${pkgname}-${pkgver}.tar.xz")
+
+build() {
+	cd ${pkgname}-${pkgver}
+	cmake \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_INSTALL_LIBDIR=lib \
+		-DCMAKE_BUILD_TYPE=Release
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${pkgname}-${pkgver}
+	make DESTDIR="${pkgdir}/" install
+}

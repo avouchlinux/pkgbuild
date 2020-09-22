@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=librevenge
+pkgver=0.0.4
+pkgrel=1
+pkgdesc="library for REVerses ENGineered formats filters"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://sf.net/p/libwpd/librevenge/"
+license=('MPL')
+depends=('boost-libs')
+makedepends=('boost' 'doxygen' 'cppunit')
+source=(http://sourceforge.net/projects/libwpd/files/librevenge/$pkgname-$pkgver/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd $pkgname-$pkgver
+	./configure --prefix=/usr --disable-werror
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd $pkgname-$pkgver
+	make ${MAKEFLAGS} check
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make DESTDIR="$pkgdir/" install
+}

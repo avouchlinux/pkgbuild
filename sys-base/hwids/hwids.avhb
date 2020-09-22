@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=hwids
+pkgver=20200706
+pkgrel=1
+pkgdesc="hardware identification databases"
+arch=('any')
+groups=('sys-base')
+makedepends=('git')
+url=https://github.com/gentoo/hwids
+license=('GPL2')
+source=("git://github.com/gentoo/hwids.git#tag=${pkgname}-${pkgver}")
+
+# getsrc() {
+# 	cd "${srcdir}"
+# 	git clone git://github.com/gentoo/hwids.git
+# }
+
+# pkgver() {
+# 	cd "${srcdir}/${pkgname}"
+# 	git describe --tag
+# }
+
+prepare() {
+	cd "${srcdir}/${pkgname}"
+	grep -A 36 '^License' README.md > LICENSE
+}
+
+build() {
+	cd "${srcdir}/${pkgname}"
+	
+	make UDEV=yes MISCDIR=/usr/share/hwdata
+}
+
+package() {
+	cd "${srcdir}/${pkgname}"
+
+	#make DESTDIR=${pkgdir} MISCDIR=/usr/share/hwdata install
+
+	for ids in pci.ids usb.ids; do
+		install -Dm644 "$ids" "${pkgdir}/usr/share/hwdata/${ids}"
+	done
+}

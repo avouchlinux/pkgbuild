@@ -1,0 +1,35 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-test-mockmodule
+_realname=Test-MockModule
+pkgver=0.173.0
+pkgrel=1
+pkgdesc="Override subroutines in a module for unit testing"
+arch=('any')
+groups=('dev-perl')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl-super')
+makedepends=('perl-module-build')
+checkdepends=('perl-test-pod' 'perl-test-pod-coverage' 'perl-test-warnings')
+url='https://search.cpan.org/dist/Test-MockModule'
+source=("https://search.cpan.org/CPAN/authors/id/G/GF/GFRANKS/Test-MockModule-v$pkgver.tar.gz")
+
+build() {
+	cd "$srcdir/Test-MockModule-v$pkgver"
+	perl Build.PL installdirs=vendor
+	perl Build
+}
+
+check() {
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	perl Build test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-v${pkgver}"
+	perl Build install destdir="$pkgdir"
+}

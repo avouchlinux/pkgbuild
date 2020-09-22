@@ -1,0 +1,32 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-online-miners
+pkgver=3.34.0
+pkgrel=1
+pkgdesc="Crawls through your online content"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/GnomeOnlineMiners"
+license=(GPL)
+depends=(libgdata gnome-online-accounts grilo libzapojit tracker gfbgraph dleyna-server)
+makedepends=(git autoconf-archive python)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:3}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+	--sysconfdir=/etc \
+	--localstatedir=/var \
+	--libexecdir=/usr/lib \
+	--disable-static
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}
+

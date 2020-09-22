@@ -1,0 +1,73 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=seabios
+_realname=seabios-rel
+pkgver=1.13.0
+pkgrel=1
+pkgdesc="A 16-bit x86 bios"
+arch=('any')
+groups=('sys-firmware')
+url="https://www.coreboot.org/SeaBIOS"
+license=('GPL3' 'LGPL3')
+makedepends=('iasl' 'python' 'inetutils')
+options=('!makeflags' '!strip')
+_tag=rel-$pkgver
+source=(seabios-$pkgver.zip::https://github.com/coreboot/seabios/archive/$_tag.zip
+        config.coreboot
+        config.seabios-128k
+        config.seabios-256k
+        config.vga.isavga
+        config.vga.stdvga
+        config.csm
+        config.vga.cirrus
+        config.vga.qxl
+        config.vga.vmware
+        config.vga.bochs-display
+        config.vga.ramfb
+        config.vga.virtio)
+
+# build routine from fedora
+build_bios() {
+  disable_ld_gold
+
+  make clean distclean
+  cp $1 .config
+  make oldnoconfig V=1
+
+  # with ld.gold build fails
+  # make LD=ld.bfd oldnoconfig V=1
+
+  # make LD=ld.bfd V=1 $4
+  make V=1 $4
+
+  cp out/$2 binaries/$3
+}
+
+prepare() {
+  cd seabios-$_tag
+  rm -rf binaries
+  mkdir binaries
+}
+
+build() {
+  cd seabios-$_tag
+  # seabios
+  build_bios ${srcdir}/config.csm Csm16.bin bios-csm.bin
+  build_bios ${srcdir}/config.coreboot bios.bin.elf bios-coreboot.bin
+  build_bios ${srcdir}/config.seabios-128k bios.bin bios.bin
+  build_bios ${srcdir}/config.seabios-256k bios.bin bios-256k.bin
+
+  # seavgabios
+  for config in ${srcdir}/{config.vga.isavga,config.vga.stdvga,config.vga.cirrus,config.vga.qxl,config.vga.vmware,config.vga.ramfb,config.vga.virtio,config.vga.bochs-display}; do
+    name=${config#*config.vga.}
+    build_bios ${config} vgabios.bin vgabios-${name}.bin out/vgabios.bin
+  done
+}
+
+package() {
+  cd seabios-$_tag
+  install -Dm644 -t "${pkgdir}/usr/share/qemu" binaries/*.bin
+}

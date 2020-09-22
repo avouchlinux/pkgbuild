@@ -1,0 +1,59 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-distribute
+pkgname=('python-distribute' 'python2-distribute')
+_realname=distribute
+pkgver=0.6.49
+pkgrel=1
+pkgdesc="Easily build and distribute Python packages"
+arch=('any')
+license=('PSF')
+url="http://pypi.python.org/pypi/distribute"
+makedepends=('python' 'python2')
+source=(http://pypi.python.org/packages/source/d/distribute/distribute-${pkgver}.tar.gz
+        distribute-python2_and_3.patch)
+sha1sums=('55b15037f2222828496a96f38447c0fa0228df85'
+          '420bc5d35e1dbfff8015f12e1a13d46973e34c68')
+
+prepare() {
+	cp -a distribute-${pkgver} python-build
+	cp -a distribute-${pkgver} python2-build
+
+	cd "${srcdir}"/python-build
+	sed -i -e "s|^#\!.*/usr/bin/python|#!/usr/bin/python3|" setuptools/tests/test_resources.py
+	sed -i -e "s|^#\!.*/usr/bin/env python|#!/usr/bin/env python3|" setuptools/command/easy_install.py
+
+	cd "${srcdir}"/python2-build
+	sed -i -e "s|^#\!.*/usr/bin/python|#!/usr/bin/python2|" setuptools/tests/test_resources.py
+	sed -i -e "s|^#\!.*/usr/bin/env python|#!/usr/bin/env python2|" setuptools/command/easy_install.py
+}
+
+build() { 
+	# Build python 3 module
+	cd "${srcdir}"/python-build
+	python setup.py build
+
+	# Build python 2 module
+	cd "${srcdir}"/python2-build
+	python2 setup.py build
+}
+
+package_python-distribute() {
+	depends=('python>=3.3')
+
+	cd "${srcdir}"/python-build
+	python setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1 --skip-build
+	# license
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/pygobject/LICENSE"
+}
+
+package_python2-distribute() {
+	depends=('python2>=2.7')
+	provides=('setuptools')
+	conflicts=('setuptools')
+
+	cd "${srcdir}"/python2-build
+	python2 setup.py install --prefix=/usr --root="${pkgdir}" --optimize=1 --skip-build
+}

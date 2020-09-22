@@ -1,0 +1,47 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libmemcached
+pkgver=1.0.18
+pkgrel=1
+pkgdesc="C and C++ client library to the memcached server"
+arch=('x86_64')
+groups=('net-libs')
+url="http://libmemcached.org/"
+license=('GPL')
+depends=('glibc' 'libsasl' 'libevent')
+makedepends=('perl' 'memcached' 'python-sphinx')
+source=(https://launchpad.net/$pkgname/1.0/$pkgver/+download/$pkgname-$pkgver.tar.gz
+        libmemcached-fix-linking-with-libpthread.patch
+        libmemcached-build.patch)
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  # Fix linking against libpthread (patch from Fedora)
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1037707
+  # https://bugs.launchpad.net/libmemcached/+bug/1281907
+  patch -Np1 -i ../libmemcached-fix-linking-with-libpthread.patch
+  # https://bugs.launchpad.net/libmemcached/+bug/1663985
+  patch -Np1 -i ../libmemcached-build.patch
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  ./configure --prefix=/usr
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  #make -k check
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  make DESTDIR="$pkgdir" install
+}

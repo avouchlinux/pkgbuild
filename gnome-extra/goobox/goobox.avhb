@@ -1,0 +1,29 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=goobox
+pkgver=3.6.0
+pkgrel=1
+pkgdesc="CD player and ripper for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://people.gnome.org/~paobac/goobox/"
+license=('GPL')
+depends=('gst-plugins-base' 'brasero' 'libmusicbrainz5' 'libdiscid' 'libcoverart' 'libnotify')
+makedepends=('itstool' 'meson')
+optdepends=('gst-plugins-good: rip CDs into flac and wav formats')
+source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

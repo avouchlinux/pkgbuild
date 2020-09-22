@@ -1,0 +1,40 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-gdbm
+_realname=gdbm
+pkgver=1.18.1
+pkgrel=1
+pkgdesc='GNU database library (32-bit)'
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url='http://www.gnu.org/software/gdbm/gdbm.html'
+license=('GPL')
+depends=('gdbm' 'lib32-glibc')
+makedepends=('gcc-multilib' 'lib32-gcc-libs')
+source=("ftp://ftp.gnu.org/gnu/gdbm/gdbm-${pkgver}.tar.gz")
+options=('!makeflags')
+sha256sums=('86e613527e5dba544e73208f42b78b7c022d4fa5a6d5498bf18c8d6f745b91dc')
+
+build() {
+  cd gdbm-${pkgver}
+
+  export CC='gcc -m32'
+  export CXX='g++ -m32'
+  export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+  ./configure \
+    --prefix='/usr' \
+    --libdir='/usr/lib32' \
+    --enable-libgdbm-compat
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd gdbm-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/{bin,share,include}
+}

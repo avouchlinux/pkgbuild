@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-http-cookies
+_realname=HTTP-Cookies
+pkgver=6.01
+pkgrel=1
+pkgdesc="HTTP cookie jars"
+arch=(any)
+license=(PerlArtistic GPL)
+options=('!emptydirs')
+depends=('perl>=5.8.8' 'perl-http-date>=6' 'perl-http-message')
+makedepends=()
+checkdepends=()
+conflicts=('perl-libwww<6')
+url=http://search.cpan.org/dist/HTTP-Cookies
+source=(http://search.cpan.org/CPAN/authors/id/G/GA/GAAS/HTTP-Cookies-6.00.tar.gz)
+md5sums=('21bed72b30a46604c152b7e25cf1cb45')
+sha512sums=('6399383e61a2fbad1dd130e67f51be32c118ed104065c109cde1e1262aed986fe3790231937dbdee861755bb58d365bc6f1dec316750f02700fce5014d1a1753')
+_distdir="${srcdir}/HTTP-Cookies-6.00"
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make test
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

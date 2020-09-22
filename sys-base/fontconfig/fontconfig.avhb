@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=fontconfig
+pkgver=2.13.1
+pkgrel=1
+pkgdesc="A library for configuring and customizing font access"
+arch=('x86_64')
+groups=('sys-base')
+url="https://www.freedesktop.org/wiki/Software/fontconfig/"
+license=('custom')
+depends=('expat' 'freetype2')
+makedepends=(git autoconf-archive gperf python-lxml python-six docbook-utils docbook-sgml
+             perl-sgmls 'texlive-formatsextra>=2017' lynx)
+install=fontconfig.install
+source=(https://www.freedesktop.org/software/$pkgname/release/$pkgname-$pkgver.tar.bz2)
+sha256sums=('b449a3e10c47e1d1c7a6ec6e2016cca73d3bd68fbbd4f0ae5cc6b573f7d6c7f3')
+
+# a nice page to test font matching:
+# http://zipcon.net/~swhite/docs/computers/browsers/fonttest.html
+# http://getemoji.com/
+
+build() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	./configure --prefix=/usr \
+		--sysconfdir=/etc \
+		--with-templatedir=/etc/fonts/conf.avail \
+		--with-xmldir=/etc/fonts \
+		--localstatedir=/var \
+		--disable-static \
+		--with-default-fonts=/usr/share/fonts \
+		--with-add-fonts=/usr/local/share/fonts \
+		--disable-docs
+	make ${MAKEFLAGS}
+}
+
+check() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make ${MAKEFLAGS} -k check
+}
+
+_install_conf() {
+	install -m644 "$1" "$pkgdir/etc/fonts/conf.avail"
+	ln -s "../conf.avail/${1##*/}" "$pkgdir/etc/fonts/conf.d"
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	make DESTDIR="$pkgdir" install
+}
+

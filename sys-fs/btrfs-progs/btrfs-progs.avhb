@@ -1,0 +1,60 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+
+pkgname=btrfs-progs
+pkgver=5.7
+pkgrel=1
+pkgdesc='Btrfs filesystem utilities'
+arch=('x86_64')
+groups=('sys-fs')
+url='https://btrfs.wiki.kernel.org'
+license=('GPL2')
+makedepends=('git' 'asciidoc' 'xmlto' 'systemd' 'python' 'python-setuptools' 'e2fsprogs' 'reiserfsprogs')
+depends=('glibc' 'libutil-linux' 'lzo' 'zlib' 'zstd' 'libgcrypt')
+optdepends=('python: libbtrfsutil python bindings'
+            'e2fsprogs: btrfs-convert'
+            'reiserfsprogs: btrfs-convert')
+source=("https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v$pkgver.tar."{sign,xz}
+        'btrfs-scrub@.service'
+        'btrfs-scrub@.timer')
+install=btrfs-progs.install
+options=(!staticlibs)
+validpgpkeys=('F2B41200C54EFB30380C1756C565D5F9D76D583B')
+
+prepare() {
+  cd $pkgname-v$pkgver
+  # apply patch from the source array (should be an eaglesye feature)
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    msg2 "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+}
+
+build() {
+  cd $pkgname-v$pkgver
+  ./configure --prefix=/usr --with-crypto=libgcrypt
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd $pkgname-v$pkgver
+ ./btrfs filesystem show
+}
+
+package() {
+  cd $pkgname-v$pkgver
+  make DESTDIR="$pkgdir" install install_python
+
+  # install bash completion (FS#44618)
+  install -Dm644 btrfs-completion "$pkgdir/usr/share/bash-completion/completions/btrfs"
+
+  # install scrub service/timer
+  install -Dm644 $srcdir/btrfs-scrub@.service "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.service"
+  install -Dm644 $srcdir/btrfs-scrub@.timer "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.timer"
+}

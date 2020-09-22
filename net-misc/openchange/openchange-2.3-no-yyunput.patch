@@ -1,0 +1,12 @@
+diff -up openchange-openchange-2.3-VULCAN/libocpf/lex.l.no-yyunput openchange-openchange-2.3-VULCAN/libocpf/lex.l
+--- openchange-openchange-2.3-VULCAN/libocpf/lex.l.no-yyunput	2016-04-07 21:57:52.155596453 +0200
++++ openchange-openchange-2.3-VULCAN/libocpf/lex.l	2016-04-07 21:58:19.397595467 +0200
+@@ -29,7 +29,7 @@
+ #include "libocpf/lex.h"
+ 
+ #define	YY_EXTRA_TYPE	struct ocpf_context *
+-#define	YY_NO_UNPUT
++/*#define	YY_NO_UNPUT*/
+ 
+ static void unterminated(struct ocpf_context *, const char *, unsigned int);
+ 

@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=x11-ssh-askpass
+pkgver=1.2.4.1
+pkgrel=1
+pkgdesc='Lightweight passphrase dialog for SSH'
+url='http://www.jmknoble.net/software/x11-ssh-askpass/'
+license=('custom')
+arch=('x86_64')
+groups=('net-misc')
+depends=('libxt')
+makedepends=('imake')
+source=("https://src.fedoraproject.org/repo/pkgs/openssh/x11-ssh-askpass-$pkgver.tar.gz/")
+install=${pkgname}.install
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	./configure \
+		--mandir=/usr/share/man \
+		--libexecdir=/usr/lib/ssh \
+		--with-app-defaults-dir=/usr/share/X11/app-defaults \
+
+	xmkmf
+	make includes
+	make
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install install.man
+	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+	sed '109,174p;d' README > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

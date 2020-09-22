@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=muparser
+pkgver=2.2.6.1
+pkgrel=1
+pkgdesc="A fast math parser library"
+arch=('x86_64')
+groups=('sys-libs')
+url="http://muparser.sourceforge.net/"
+depends=('gcc-libs')
+license=('custom')
+options=('!makeflags')
+source=("https://github.com/beltoforion/muparser/archive/v$pkgver.tar.gz")
+
+build() {
+  cd $srcdir/${pkgname}-${pkgver}
+  sh ./configure --prefix=/usr 
+	make ${MAKEFLAGS}
+}
+
+package() {
+  cd $srcdir/${pkgname}-${pkgver}
+  make DESTDIR=$pkgdir install
+
+  # license
+  install -D -m644 License.txt \
+	$pkgdir/usr/share/licenses/${pkgname}/LICENSE
+}

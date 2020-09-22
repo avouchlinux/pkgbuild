@@ -1,0 +1,49 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=selinux-python
+pkgname=(selinux-python selinux-python2)
+pkgver=3.0
+pkgrel=1
+pkgdesc="SELinux python tools and libraries"
+arch=('x86_64')
+groups=('sys-security')
+url='https://github.com/SELinuxProject/selinux/wiki'
+license=('GPL2')
+makedepends=('python2' 'python' 'python-ipy' 'libsemanage>=2.8' 'setools')
+source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('3650b5393b0d1790cac66db00e34f059aa91c23cfe3c2559676594e295d75fde')
+
+build() {
+  cd "${pkgbase}-${pkgver}"
+  make PYTHON=/usr/bin/python2
+  make PYTHON=/usr/bin/python3
+}
+
+package_selinux-python() {
+  depends=('python' 'python-audit' 'python-ipy' 'libsemanage>=2.8' 'setools>=4.0.0')
+
+  cd "${pkgbase}-${pkgver}"
+  make PYTHON=/usr/bin/python3 DESTDIR="${pkgdir}" SBINDIR=/usr/bin install
+  /usr/bin/python3 -m compileall "${pkgdir}/$(/usr/bin/python3 -c 'import site; print(site.getsitepackages()[0])')"
+}
+
+package_selinux-python2() {
+  depends=('python2' 'python2-audit' 'libsemanage>=2.8' 'setools>=4.0.0')
+
+  cd "${pkgbase}-${pkgver}"
+
+  # Guide the files which would conflict with selinux-python package into a
+  # special directory, which would then be removed
+  make PYTHON=/usr/bin/python2 DESTDIR="${pkgdir}" \
+    BASHCOMPLETIONDIR=/removed \
+    BINDIR=/removed \
+    LIBDIR=/removed \
+    MANDIR=/removed \
+    SBINDIR=/removed \
+    SHAREDIR=/removed \
+    install
+  rm -r "${pkgdir}/removed"
+  /usr/bin/python2 -m compileall "${pkgdir}/$(/usr/bin/python2 -c 'import site; print(site.getsitepackages()[0])')"
+}

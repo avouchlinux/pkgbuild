@@ -1,0 +1,25 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ttf-droid
+pkgver=20121017
+pkgrel=1
+pkgdesc="General-purpose fonts released by Google as part of Android"
+arch=('any')
+groups=('media-fonts')
+license=('Apache')
+url='https://www.droidfonts.com/'
+provides=('ttf-font')
+source=("https://sources.archlinux.org/other/community/$pkgname/$pkgname-$pkgver.tar.xz"
+        60-droid-sans-mono.conf 65-droid-sans.conf 65-droid-serif.conf 65-droid-kufi.conf)
+
+package() {
+  # Install fonts
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname#ttf-}" -m644 google-droid-fonts-$pkgver/*.ttf
+
+  # Install fontconfig
+  install -Dt "$pkgdir/etc/fonts/conf.avail" -m644 *.conf
+  mkdir "$pkgdir/etc/fonts/conf.d"
+  ln -srt "$pkgdir/etc/fonts/conf.d" "$pkgdir"/etc/fonts/conf.avail/*
+}

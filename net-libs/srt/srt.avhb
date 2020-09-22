@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=srt
+pkgver=1.4.1
+pkgrel=1
+pkgdesc="Secure Reliable Transport library"
+url="https://www.srtalliance.org/"
+arch=('x86_64')
+groups=('net-libs')
+license=(MPL2)
+depends=(openssl)
+makedepends=(git cmake ninja)
+source=("https://github.com/Haivision/srt/archive/v$pkgver.tar.gz"
+        no-rpath.diff)
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i ../no-rpath.diff
+}
+
+build() {
+  cmake -S $pkgname-$pkgver -B build -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_BINDIR=bin \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_INCLUDEDIR=include \
+    -DENABLE_TESTING=True
+  ninja -C build
+}
+
+check() {
+  cd build
+  ./utility-test
+}
+
+package() {
+  DESTDIR="$pkgdir" ninja -C build install
+  rm "$pkgdir"/usr/bin/*-test
+}

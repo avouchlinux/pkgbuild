@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=poppler-data
+pkgver=0.4.9
+pkgrel=1
+pkgdesc="Encoding data for the poppler PDF rendering library"
+arch=('any')
+groups=('media-grafix')
+license=('custom' 'GPL2')
+conflicts=('poppler')
+url="https://poppler.freedesktop.org/"
+source=(https://poppler.freedesktop.org/${pkgname}-${pkgver}.tar.gz)
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make prefix=/usr DESTDIR="${pkgdir}" install
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING COPYING.adobe \
+    "${pkgdir}/usr/share/licenses/${pkgname}/"
+}

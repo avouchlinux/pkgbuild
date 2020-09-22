@@ -1,0 +1,54 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=xarchiver
+pkgname=(xarchiver xarchiver-gtk2)
+pkgver=0.5.4.14
+pkgrel=1
+pkgdesc="GTK+ frontend to various command line archivers"
+arch=('x86_64')
+groups=('app-archive')
+url="https://github.com/ib/xarchiver"
+license=('GPL')
+depends=('gtk2' 'gtk3')
+makedepends=('docbook-xsl' 'intltool' 'xmlto')
+optdepends=('zip: ZIP support'
+            'unzip: ZIP support'
+            'p7zip: 7z support'
+            'lzop: LZOP support'
+            'cpio: RPM support'
+            'unrar: RAR support')
+source=(https://github.com/ib/xarchiver/archive/$pkgver.tar.gz)
+
+build() {
+  # GTK+ 3 version
+  [ -d gtk3 ] || cp -r $pkgbase-$pkgver gtk3
+  cd gtk3
+  ./configure --prefix=/usr --libexecdir=/usr/lib/xfce4
+  make -j1
+
+  cd "$srcdir"
+  # GTK+ 2 version
+  [ -d gtk2 ] || cp -r $pkgbase-$pkgver gtk2
+  cd gtk2
+  ./configure --prefix=/usr --libexecdir=/usr/lib/xfce4 --enable-gtk2
+  make -j1
+}
+
+package_xarchiver() {
+  depends=('gtk3')
+
+  cd gtk3
+  make DESTDIR="$pkgdir" install
+}
+
+package_xarchiver-gtk2() {
+  pkgdesc+=' (GTK+ 2 version)'
+  depends=('gtk2')
+  conflicts=('xarchiver')
+
+  cd gtk2
+  make DESTDIR="$pkgdir" install
+}

@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-six
+_realname=six
+pkgver=1.14.0
+pkgrel=1
+pkgdesc="Python 2 compatibility utilities"
+arch=('any')
+groups=('dev-python2')
+url="http://pypi.python.org/pypi/six/"
+license=('MIT')
+depends=('python2')
+makedepends=('python2')
+source=(http://pypi.python.org/packages/source/s/six/six-$pkgver.tar.gz)
+
+build() { 
+	cd ${_realname}-${pkgver}
+	python2 setup.py build
+}
+
+check() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py test
+}
+
+package() {	
+	cd ${_realname}-${pkgver}
+	python2 setup.py install --root "${pkgdir}" --optimize=1
+	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

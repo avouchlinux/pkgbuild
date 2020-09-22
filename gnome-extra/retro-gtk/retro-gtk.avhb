@@ -1,0 +1,26 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=retro-gtk
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Toolkit to write Gtk+ 3 based libretro frontends'
+arch=('x86_64')
+groups=('gnome-extra')
+license=('GPL3')
+url='https://git.gnome.org/browse/retro-gtk/'
+depends=('gtk3' 'libpulse' 'meson')
+makedepends=('gobject-introspection' 'gtk3' 'intltool' 'libtool' 'libpulse' 'vala')
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

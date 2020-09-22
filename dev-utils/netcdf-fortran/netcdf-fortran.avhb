@@ -1,0 +1,40 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=netcdf-fortran
+pkgver=4.5.3
+pkgrel=1
+pkgdesc="NetCDF fortran bindings"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/Unidata/netcdf-fortran"
+license=(custom)
+depends=(gcc-libs netcdf curl)
+makedepends=(gcc-fortran doxygen)
+checkdepends=(valgrind)
+options=(!makeflags staticlibs)
+source=(${url}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+
+build() {
+    cd ${pkgname}-${pkgver}
+    ./configure \
+        --prefix=/usr \
+        --enable-extra-tests \
+        --enable-extra-example-tests \
+        --enable-large-file-tests \
+        --enable-valgrind-tests
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd ${pkgname}-${pkgver}
+    make check
+}
+
+package() {
+    cd ${pkgname}-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    install -Dm644 COPYRIGHT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
+}

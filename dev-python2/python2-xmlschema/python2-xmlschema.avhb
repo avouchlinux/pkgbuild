@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python2-xmlschema
+_realname=xmlschema
+pkgver=1.0.17
+pkgrel=1
+pkgdesc="An XML Schema validator and decoder"
+url="https://github.com/sissaschool/xmlschema"
+license=('MIT')
+arch=('any')
+groups=('dev-python')
+depends=('python-elementpath')
+makedepends=('python-setuptools')
+checkdepends=('python-lxml')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/sissaschool/xmlschema/archive/v$pkgver.tar.gz")
+sha512sums=('05bbf79afa61d407f7b940e7ee42f3e87f87cc12871bcdb41df37d2753a96b46a60fcab54f7e24aca43123abea350b2a19dbf4938909c97950f9d439763377ec')
+
+prepare() {
+  sed -i 's/~=/>=/' xmlschema-$pkgver/setup.py
+}
+
+build() {
+  cd xmlschema-$pkgver
+  python2 setup.py build
+}
+
+check() {
+  cd xmlschema-$pkgver
+  python2 -c "import xmlschema.codepoints; xmlschema.codepoints.save_unicode_categories()"
+  cp xmlschema/unicode_categories.json build/lib/xmlschema/
+  PYTHONPATH="$PWD/build/lib" python -m unittest
+}
+
+package() {
+  cd xmlschema-$pkgver
+  python2 setup.py install --root="$pkgdir" --optimize=1
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

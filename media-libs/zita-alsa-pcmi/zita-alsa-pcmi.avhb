@@ -1,0 +1,52 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=zita-alsa-pcmi
+pkgver=0.3.2
+pkgrel=1
+pkgdesc="The successor of clalsadrv, provides easy access to ALSA PCM devices."
+arch=('x86_64')
+groups=('media-libs')
+url="http://kokkinizita.linuxaudio.org/linuxaudio/"
+license=('GPL3')
+depends=('gcc-libs' 'alsa-lib')
+source=("${url}downloads/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  # remove optimization
+  # call ldconfig in local context
+  sed -e '/native/d' \
+      -e 's/ldconfig/& -N $(DESTDIR)\/$(LIBDIR)/' \
+      -i source/Makefile
+  # fix use of BINDIR without preceeding DESTDIR
+  sed -e 's/\ $(BINDIR)/\ $(DESTDIR)$(BINDIR)/' \
+      -i apps/Makefile
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  make -C source
+
+  (
+    cd source
+    # create lib link for building apps
+    ln -sv lib$pkgname.so.$pkgver lib$pkgname.so
+  )
+
+  CXXFLAGS+=" -I../source" \
+  LDFLAGS+=" -L../source" \
+  make -C apps
+
+  rm -v source/lib$pkgname.so
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  # libs
+  make -C source DESTDIR="$pkgdir/" PREFIX=/usr SUFFIX="" install
+  install -vDm 644 {AUTHORS,README} -t "${pkgdir}/usr/share/doc/${pkgname}"
+  # apps
+  make -C apps DESTDIR="$pkgdir/" PREFIX=/usr install
+}

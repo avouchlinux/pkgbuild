@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sord
+pkgver=0.16.4
+pkgrel=1
+pkgdesc="A lightweight C library for storing RDF data in memory"
+arch=('x86_64')
+groups=('media-libs')
+url="https://drobilla.net/software/sord/"
+license=('custom:ISC')
+depends=('serd' 'pcre')
+makedepends=('python2')
+source=("https://download.drobilla.net/${pkgname}-${pkgver}.tar.bz2"{,.sig})
+validpgpkeys=('907D226E7E13FA337F014A083672782A9BF368F3') # David Robillard
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # remove local call to ldconfig
+  sed -i "/ldconfig/d" wscript
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+  python3 waf configure --prefix=/usr --test
+  python3 waf build
+}
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  python3 waf test
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  python3 waf install --destdir="$pkgdir"
+  # license
+  install -vDm 644 COPYING \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

@@ -1,0 +1,52 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=aircrack-ng
+_pkgver=1.6
+pkgver=${_pkgver//-/}
+pkgrel=1
+pkgdesc="Key cracker for the 802.11 WEP and WPA-PSK protocols"
+arch=('x86_64')
+groups=('app-utils')
+url="https://www.aircrack-ng.org"
+license=('GPL2')
+depends=('openssl' 'sqlite' 'iw' 'net-tools' 'wireless_tools' 'ethtool'
+         'pcre' 'libpcap' 'python' 'zlib' 'libnl' 'hwloc')
+checkdepends=('cmocka')
+source=(https://download.aircrack-ng.org/$pkgname-$_pkgver.tar.gz
+        https://github.com/aircrack-ng/aircrack-ng/commit/5815bfe2ede99c094709a3289172335c3ba5b255.patch
+        https://github.com/aircrack-ng/aircrack-ng/commit/b9ee19bcf868d4f4f0197cb0d886d0ebe91a6636.patch)
+
+prepare() {
+  cd $pkgname-$_pkgver
+  patch -Np1 -i ../aircrack-ng-1.6-airgraphviz-py.patch
+  patch -Np1 -i ../aircrack-ng-1.6-airgraphviz-make.patch
+  autoreconf -fiv
+}
+
+build() {
+  cd $pkgname-$_pkgver
+
+  ./configure \
+    --prefix=/usr \
+    --libexecdir=/usr/lib \
+    --sbindir=/usr/bin \
+    --with-ext-scripts \
+    --with-experimental
+
+  make
+}
+
+check() {
+  cd $pkgname-$_pkgver
+
+  make check
+}
+
+package() {
+  cd $pkgname-$_pkgver
+
+  make DESTDIR="$pkgdir" install
+}

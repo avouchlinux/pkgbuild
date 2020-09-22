@@ -1,0 +1,23 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sound-themes-smooth
+_realname=Smooth
+_themename=Smooth
+pkgver=1.2
+pkgrel=1
+pkgdesc="Smooth - complete system sound theme, 58 sound events included"
+arch=('any')
+groups=('media-libs')
+url="https://www.xfce-look.org/p/1187979/"
+license=('LGPL2.1')
+source=('https://www.xfce-look.org/p/1187979/startdownload?file_id=1577954078&file_name=Smooth_v1.2.tar.gz&file_type=application/x-gzip&file_size=1583367')
+
+package() {
+	mkdir -p ${pkgdir}/usr/share/sounds
+	cp -r $_themename ${pkgdir}/usr/share/sounds/
+	# docs
+	install -d 755 ${pkgdir}/usr/share/doc
+	ln -sv /usr/share/sound/Smooth/documentation ${pkgdir}/usr/share/doc/$pkgname
+}

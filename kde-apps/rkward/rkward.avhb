@@ -1,0 +1,35 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rkward
+pkgver=0.7.1
+pkgrel=1
+pkgdesc="KDE easy to use and easily extensible IDE/GUI for R"
+url="http://rkward.kde.org/"
+arch=('x86_64')
+license=('GPL')
+depends=('kdewebkit' 'ktexteditor' 'r')
+makedepends=('kdoctools' 'extra-cmake-modules')
+provides=('rkward')
+source=("http://download.kde.org/stable/rkward/${pkgver//b/}/src/rkward-$pkgver.tar.gz")
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../$pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DR_LIBDIR=/usr/lib/R/library
+  make ${MAKEFLAGS}
+}
+
+package() {
+  make -C build DESTDIR="$pkgdir" install
+  rm -vf "${pkgdir}/usr/share/apps/katepart/syntax/r.xml"
+}
+

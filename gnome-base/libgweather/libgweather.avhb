@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgweather
+pkgver=3.36.1
+pkgrel=1
+pkgdesc="Location and timezone database and weather-lookup library"
+url="https://wiki.gnome.org/Projects/LibGWeather"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL)
+depends=(libsoup gtk3 geocode-glib dconf)
+makedepends=(gobject-introspection vala git gtk-doc glade meson)
+source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+
+build() {
+  avouch-meson ${pkgname}-${pkgver}-fixed build -D gtk_doc=true
+  ninja -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

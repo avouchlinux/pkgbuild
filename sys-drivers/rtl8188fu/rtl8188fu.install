@@ -1,0 +1,14 @@
+post_install() {
+    echo ">>> Running depmod..."
+    depmod -a "$(uname -r)"
+}
+
+post_upgrade() {
+    echo ">>> Running depmod..."
+    depmod -a "$(uname -r)"
+}
+
+post_remove() {
+    echo ">>> Running depmod..."
+    depmod -a "$(uname -r)"
+}

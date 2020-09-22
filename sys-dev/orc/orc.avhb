@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=orc
+pkgver=0.4.31
+pkgrel=1
+pkgdesc="Optimized Inner Loop Runtime Compiler"
+arch=('x86_64')
+groups=('sys-devel')
+license=(custom)
+url="https://cgit.freedesktop.org/gstreamer/orc/"
+depends=(glibc)
+makedepends=(valgrind git gtk-doc meson)
+source=(https://gstreamer.freedesktop.org/data/src/orc/orc-${pkgver}.tar.xz{,.asc})
+validpgpkeys=('7F4BC7CC3CA06F97336BBFEB0668CC1486C2D7B5') #Sebastian Dröge
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname/COPYING
+}

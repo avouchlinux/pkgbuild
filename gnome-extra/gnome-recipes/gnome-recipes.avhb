@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-recipes
+pkgver=2.0.2
+pkgrel=1
+pkgdesc="Recipe management application for GNOME"
+arch=('x86_64')
+groups=('gnome-extra')
+url="https://wiki.gnome.org/Apps/Recipes"
+license=(GPL3)
+depends=(gnome-autoar gnome-online-accounts gspell libcanberra libsoup)
+makedepends=(git itstool meson)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+prepare() {
+  mkdir build
+  cd $pkgname-$pkgver
+
+  # Don't use legacy path for AppStream metainfo file
+  # https://gitlab.gnome.org/GNOME/recipes/issues/54
+  sed -i "s/install_dir: join_paths(\[datadir,'appdata'\])/install_dir: join_paths([datadir,'metainfo'])/
+          s|'../po'|join_paths (meson.source_root (), 'po')|" data/meson.build
+}
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

@@ -1,0 +1,12 @@
+post_install() {
+  echo "Avouch Linux release" >> /etc/arch-release
+}
+
+post_upgrade() {
+  sed -e "/Avouch Linux release/d" -i /etc/arch-release
+  echo "Avouch Linux release" >> /etc/arch-release
+}
+
+pre_remove() {
+  sed -e "/Avouch Linux release/d" -i /etc/arch-release
+}

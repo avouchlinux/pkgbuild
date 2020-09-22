@@ -1,0 +1,34 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2016-06-25
+Initial Package Version: 2.5.1
+Upstream Status: Applied
+Origin: Upstream
+Description: Selected fixes up to svn r41315, omitting changes for spaces in
+pathnames and other changes to align with miktex.
+
+diff -Naur xindy-2.5.1/user-commands/xindy.in xindy-2.5.1-b/user-commands/xindy.in
+--- xindy-2.5.1/user-commands/xindy.in	2014-05-11 14:45:44.000000000 +0100
++++ xindy-2.5.1-b/user-commands/xindy.in	2016-06-24 09:30:43.427098718 +0100
+@@ -353,6 +353,7 @@
+ 
+ use Cwd;
+ use File::Basename;
++use File::Glob qw(bsd_glob);
+ use File::Spec;
+ use File::Temp qw(tempfile tmpnam);
+ use Getopt::Long qw(:config bundling);
+@@ -790,7 +791,13 @@
+ 	push (@temp_files, $style_file);
+ 	$style_file=quotify($style_file);
+ 	foreach my $module ( @modules ) {
+-	    print $sf "(require \"$module\")\n";
++	    my $fnmodule=`kpsewhich -progname=xindy -format=othertext $module`;
++	    if ($fnmodule) {
++		chomp($fnmodule);
++		print $sf "(require \"$fnmodule\")\n";
++	    } else {
++		print $sf "(require \"$module\")\n";
++	    }
+ 	}
+ 	close ($sf);
+     }

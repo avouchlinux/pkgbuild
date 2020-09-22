@@ -1,0 +1,43 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vulkan-docs
+_realname=Vulkan-Docs
+pkgver=1.2.140
+pkgrel=1
+epoch=1
+pkgdesc="Vulkan html documentation"
+arch=(any)
+groups=('dev-vulkan')
+url="https://www.khronos.org/vulkan/"
+license=('custom')
+makedepends=(asciidoctor python3 dblatex source-highlight cmake ghostscript nodejs npm git)
+source=("https://github.com/KhronosGroup/Vulkan-Docs/archive/v$pkgver.tar.gz")
+
+prepare() {
+  npm install escape-string-regexp
+  npm install he
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  ./makeAllExts html manhtmlpages styleguide registry
+}
+
+package() {
+  cd "${_realname}-${pkgver}"
+
+  install -dm755 "${pkgdir}/usr/share/doc/vulkan"
+  install -dm755 "${pkgdir}/usr/share/licenses/${pkgname}"
+
+  mv -v out/man "${pkgdir}/usr/share/doc/vulkan/"
+  mv -v out/html/* "${pkgdir}/usr/share/doc/vulkan/"
+  mv -v out/registry.html "${pkgdir}/usr/share/doc/vulkan/"
+  mv -v out/styleguide.html "${pkgdir}/usr/share/doc/vulkan/"
+
+  install -m644 copyright-ccby.txt ${pkgdir}/usr/share/licenses/${pkgname}/copyright-ccby.txt
+  install -m644 copyright-spec.txt ${pkgdir}/usr/share/licenses/${pkgname}/copyright-spec.txt
+}

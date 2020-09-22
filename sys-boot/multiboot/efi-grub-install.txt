@@ -1,0 +1,62 @@
+### chroot
+AVOUCH=/run/media/avouch/2ed1322f-72b1-4474-84cd-93b25ef8ad8c
+cd $AVOUCH
+
+# creating directories onto which the file systems will be mounted
+mkdir -pv $AVOUCH/{dev,proc,sys}
+
+# Creating Initial Device Nodes
+mknod -m 600 $AVOUCH/dev/console c 5 1
+mknod -m 666 $AVOUCH/dev/null c 1 3
+
+# Mounting and Populating /dev
+mount -v --bind /dev $AVOUCH/dev
+
+# mount the remaining virtual kernel filesystems
+mount -vt devpts devpts $AVOUCH/dev/pts -o gid=5,mode=620
+mount -vt proc proc $AVOUCH/proc
+mount -vt sysfs sysfs $AVOUCH/sys
+
+if [ -h $AVOUCH/dev/shm ]; then
+  link=$(readlink $AVOUCH/dev/shm)
+  mkdir -pv $AVOUCH/$link
+  mount -vt tmpfs shm $AVOUCH/$link
+  unset link
+else
+  mount -vt tmpfs shm $AVOUCH/dev/shm
+fi
+
+# /usr chroot
+chroot "$AVOUCH" /usr/bin/env -i \
+HOME=/root \
+TERM="$TERM" \
+PS1='\u:\w\$ ' \
+PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+/bin/bash --login +h
+
+### end chroot
+
+
+EFI_DRIVE="/dev/sdb1"
+#DATA_DRIVE="/dev/sdb4"
+EFI_MOUNTPOINT="/boot/efi"
+#DATA_MOUNTPOINT="/run/media/avouch/5d608152-f28d-45c1-82f1-14c6b7e28bbb"
+
+sudo mount -t vfat /dev/sdb1 ${EFI_MOUNTPOINT}
+#sudo mount -t ext4 /dev/sdb4 ${DATA_MOUNTPOINT}
+
+
+#sudo mkdir -p ${DATA_MOUNTPOINT}/boot/grub
+sudo mkdir -p ${EFI_MOUNTPOINT}/boot/grub
+
+#sudo grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --boot-directory=${DATA_MOUNTPOINT}/boot  --recheck
+sudo grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --boot-directory=${EFI_MOUNTPOINT}/boot  --recheck
+
+sed -i "s/#GRUB_DISABLE_OS_PROBER/GRUB_DISABLE_OS_PROBER/g" ${MOUNTPOINT}/etc/default/grub
+
+#sudo /usr/bin/grub-mkconfig -o ${DATA_MOUNTPOINT}/boot/grub/grub.cfg
+sudo /usr/bin/grub-mkconfig -o ${EFI_MOUNTPOINT}/boot/grub/grub.cfg
+
+# enable os-prober
+sed -i "s/GRUB_DISABLE_OS_PROBER/#GRUB_DISABLE_OS_PROBER/g" ${MOUNTPOINT}/etc/default/grub
+

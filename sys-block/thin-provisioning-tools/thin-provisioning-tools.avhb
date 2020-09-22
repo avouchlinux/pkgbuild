@@ -1,0 +1,28 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=thin-provisioning-tools
+pkgver=0.8.5
+pkgrel=1
+pkgdesc='Suite of tools for manipulating the metadata of the dm-thin device-mapper target'
+arch=('x86_64')
+groups=('sys-block')
+url="https://github.com/jthornber/thin-provisioning-tools"
+license=('GPL3')
+depends=('expat' 'gcc-libs' 'libaio')
+makedepends=('boost')
+source=(https://github.com/jthornber/${pkgname}/archive/v${pkgver}.tar.gz)
+
+build() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	autoconf
+	./configure --prefix=/usr
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" BINDIR="${pkgdir}"/usr/bin MANDIR=/usr/share/man install 
+}
+

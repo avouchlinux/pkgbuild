@@ -1,0 +1,32 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-at-spi2-atk
+pkgbase=at-spi2-atk
+pkgver=2.34.2
+pkgrel=1
+pkgdesc="A GTK+ module that bridges ATK to D-Bus at-spi"
+arch=('x86_64')
+groups=('multilib')i
+repo=('extra')
+url="http://www.gnome.org"
+license=('GPL2')
+depends=('at-spi2-core' 'libx11' 'atk' )
+makedepends=('intltool' 'meson')
+source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+sha256sums=('e348a811c4830251f0c3018019072e7979ef35fb9b7f0b1b0a0dd1e66942d0f5')
+
+build() {
+    export CC='gcc -m32'
+    export CXX='g++ -m32'
+    export PKG_CONFIG_PATH='/usr/lib32/pkgconfig'
+
+    avouch-meson $pkgbase-$pkgver build -D enable_docs=false --libdir=/usr/lib32 -D introspection=no
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    rm -r "$pkgdir"/usr/include
+}

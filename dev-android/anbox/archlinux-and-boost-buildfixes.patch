@@ -1,0 +1,264 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3901428..10d0c3e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -18,7 +18,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -Wno-variadic-macros -Wextra
+ # setting of LINK_FLAGS below).
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default")
+ 
+-set(C_AND_CXX_WARNINGS "-pedantic -Wall -Wextra")
++set(C_AND_CXX_WARNINGS "-pedantic -Wall -Wextra -Wno-narrowing") 
+ 
+ # Some additional warnings not included by the general flags set above.
+ set(EXTRA_C_WARNINGS "-Wcast-align -Wcast-qual -Wformat -Wredundant-decls -Wswitch-default")
+@@ -96,7 +96,7 @@ find_package(GMock)
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
+ 
+ set(ANBOX_TRANSLATOR_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/anbox/translators)
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRANSLATOR_INSTALL_DIR=\\\"${CMAKE_INSTALL_PREFIX}/${ANBOX_TRANSLATOR_INSTALL_DIR}\\\"")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRANSLATOR_INSTALL_DIR=\\\"${ANBOX_TRANSLATOR_INSTALL_DIR}\\\"")
+ 
+ if (NOT ANBOX_VERSION)
+     exec_program("git" ${CMAKE_SOURCE_DIR} ARGS "rev-parse --short HEAD" OUTPUT_VARIABLE GIT_COMMIT_HASH)
+diff --git a/cmake/FindGMock.cmake b/cmake/FindGMock.cmake
+index 2078030..e69de29 100644
+--- a/cmake/FindGMock.cmake
++++ b/cmake/FindGMock.cmake
+@@ -1,92 +0,0 @@
+-# Copyright (C) 2014 Canonical Ltd
+-#
+-# This program is free software: you can redistribute it and/or modify
+-# it under the terms of the GNU Lesser General Public License version 3 as
+-# published by the Free Software Foundation.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-# GNU Lesser General Public License for more details.
+-#
+-# You should have received a copy of the GNU Lesser General Public License
+-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-
+-# Build with system gmock and embedded gtest
+-#
+-# Usage:
+-#
+-# find_package(GMock)
+-#
+-# ...
+-#
+-# target_link_libraries(
+-#   my-target
+-#   ${GTEST_BOTH_LIBRARIES}
+-# )
+-#
+-# NOTE: Due to the way this package finder is implemented, do not attempt
+-# to find the GMock package more than once.
+-
+-find_package(Threads)
+-
+-if (EXISTS "/usr/src/googletest")
+-    # As of version 1.8.0
+-    set(GMOCK_SOURCE_DIR "/usr/src/googletest/googlemock" CACHE PATH "gmock source directory")
+-    set(GMOCK_INCLUDE_DIRS "${GMOCK_SOURCE_DIR}/include" CACHE PATH "gmock source include directory")
+-    set(GTEST_INCLUDE_DIRS "/usr/src/googletest/googletest/include" CACHE PATH "gtest source include directory")
+-else()
+-    set(GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
+-    set(GMOCK_INCLUDE_DIRS "/usr/include" CACHE PATH "gmock source include directory")
+-    set(GTEST_INCLUDE_DIRS "/usr/include" CACHE PATH "gtest source include directory")
+-endif()
+-
+-# We add -g so we get debug info for the gtest stack frames with gdb.
+-# The warnings are suppressed so we get a noise-free build for gtest and gmock if the caller
+-# has these warnings enabled.
+-set(findgmock_cxx_flags "${CMAKE_CXX_FLAGS} -g -Wno-old-style-cast -Wno-missing-field-initializers -Wno-ctor-dtor-privacy -Wno-switch-default")
+-
+-set(findgmock_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/gmock")
+-set(findgmock_gtest_lib "${findgmock_bin_dir}/gtest/libgtest.a")
+-set(findgmock_gtest_main_lib "${findgmock_bin_dir}/gtest/libgtest_main.a")
+-set(findgmock_gmock_lib "${findgmock_bin_dir}/libgmock.a")
+-set(findgmock_gmock_main_lib "${findgmock_bin_dir}/libgmock_main.a")
+-
+-include(ExternalProject)
+-ExternalProject_Add(GMock SOURCE_DIR "${GMOCK_SOURCE_DIR}"
+-                          BINARY_DIR "${findgmock_bin_dir}"
+-                          BUILD_BYPRODUCTS "${findgmock_gtest_lib}"
+-                                           "${findgmock_gtest_main_lib}"
+-                                           "${findgmock_gmock_lib}"
+-                                           "${findgmock_gmock_main_lib}"
+-                          INSTALL_COMMAND ""
+-                          CMAKE_ARGS "-DCMAKE_CXX_FLAGS=${findgmock_cxx_flags}")
+-
+-add_library(gtest INTERFACE)
+-target_include_directories(gtest INTERFACE ${GTEST_INCLUDE_DIRS})
+-target_link_libraries(gtest INTERFACE ${findgmock_gtest_lib} ${CMAKE_THREAD_LIBS_INIT})
+-add_dependencies(gtest GMock)
+-
+-add_library(gtest_main INTERFACE)
+-target_include_directories(gtest_main INTERFACE ${GTEST_INCLUDE_DIRS})
+-target_link_libraries(gtest_main INTERFACE ${findgmock_gtest_main_lib} gtest)
+-
+-add_library(gmock INTERFACE)
+-target_include_directories(gmock INTERFACE ${GMOCK_INCLUDE_DIRS})
+-target_link_libraries(gmock INTERFACE ${findgmock_gmock_lib} gtest)
+-
+-add_library(gmock_main INTERFACE)
+-target_include_directories(gmock_main INTERFACE ${GMOCK_INCLUDE_DIRS})
+-target_link_libraries(gmock_main INTERFACE ${findgmock_gmock_main_lib} gmock)
+-
+-set(GTEST_LIBRARIES gtest)
+-set(GTEST_MAIN_LIBRARIES gtest_main)
+-set(GMOCK_LIBRARIES gmock gmock_main)
+-set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+-
+-unset(findgmock_cxx_flags)
+-unset(findgmock_bin_dir)
+-unset(findgmock_gtest_lib)
+-unset(findgmock_gtest_main_lib)
+-unset(findgmock_gmock_lib)
+-unset(findgmock_gmock_main_lib)
+diff --git a/scripts/gen-emugl-entries.py b/scripts/gen-emugl-entries.py
+index d651fb2..b88137e 100755
+--- a/scripts/gen-emugl-entries.py
++++ b/scripts/gen-emugl-entries.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python2
+ 
+ # Copyright 2015 The Android Open Source Project
+ #
+diff --git a/src/anbox/cmds/install.cpp b/src/anbox/cmds/install.cpp
+index ff3c4af..6e3362e 100644
+--- a/src/anbox/cmds/install.cpp
++++ b/src/anbox/cmds/install.cpp
+@@ -18,7 +18,7 @@
+ #include "anbox/cmds/install.h"
+ #include "anbox/dbus/stub/application_manager.h"
+ 
+-#include <core/dbus/asio/executor.h>
++#include "anbox/hacks/executor.h"
+ 
+ #include <boost/filesystem.hpp>
+ 
+diff --git a/src/anbox/cmds/launch.cpp b/src/anbox/cmds/launch.cpp
+index e5cc5a9..4ded820 100644
+--- a/src/anbox/cmds/launch.cpp
++++ b/src/anbox/cmds/launch.cpp
+@@ -24,7 +24,7 @@
+ #include "anbox/runtime.h"
+ #include "anbox/logger.h"
+ 
+-#include <core/dbus/asio/executor.h>
++#include "anbox/hacks/executor.h"
+ 
+ #include <boost/filesystem.hpp>
+ 
+diff --git a/src/anbox/cmds/session_manager.cpp b/src/anbox/cmds/session_manager.cpp
+index 4988967..18e4c0f 100644
+--- a/src/anbox/cmds/session_manager.cpp
++++ b/src/anbox/cmds/session_manager.cpp
+@@ -53,7 +53,9 @@ std::istream& operator>>(std::istream& in, anbox::graphics::GLRendererServer::Co
+ 
+ #include <sys/prctl.h>
+ 
+-#include <core/dbus/asio/executor.h>
++#undef io_service
++
++#include "anbox/hacks/executor.h"
+ #include <core/dbus/bus.h>
+ #pragma GCC diagnostic pop
+ 
+diff --git a/src/anbox/hacks/executor.h b/src/anbox/hacks/executor.h
+new file mode 100644
+index 0000000..967240e
+--- /dev/null
++++ b/src/anbox/hacks/executor.h
+@@ -0,0 +1,37 @@
++/*
++ * Copyright © 2012 Canonical Ltd.
++ *
++ * This program is free software: you can redistribute it and/or modify it
++ * under the terms of the GNU Lesser General Public License version 3,
++ * as published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public License
++ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
++ *
++ * Authored by: Thomas Voß <thomas.voss@canonical.com>
++ */
++#ifndef CORE_DBUS_ASIO_EXECUTOR_H_
++#define CORE_DBUS_ASIO_EXECUTOR_H_
++
++#include <core/dbus/bus.h>
++#include <core/dbus/executor.h>
++#include <core/dbus/visibility.h>
++
++namespace core
++{
++namespace dbus
++{
++namespace asio
++{
++ORG_FREEDESKTOP_DBUS_DLL_PUBLIC Executor::Ptr make_executor(const Bus::Ptr& bus);
++ORG_FREEDESKTOP_DBUS_DLL_PUBLIC Executor::Ptr make_executor(const Bus::Ptr& bus, boost::asio::io_service& io);
++}
++}
++}
++
++#endif // CORE_DBUS_ASIO_EXECUTOR_H_
+diff --git a/src/anbox/network/base_socket_messenger.cpp b/src/anbox/network/base_socket_messenger.cpp
+index fb093f3..23efc78 100644
+--- a/src/anbox/network/base_socket_messenger.cpp
++++ b/src/anbox/network/base_socket_messenger.cpp
+@@ -138,7 +138,7 @@ unsigned short BaseSocketMessenger<stream_protocol>::local_port() const {
+ 
+ template <typename stream_protocol>
+ void BaseSocketMessenger<stream_protocol>::set_no_delay() {
+-  const auto fd = socket->native();
++  const auto fd = socket->native_handle();
+   int flag = 1;
+   const auto ret =
+       ::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+index f9b17a8..e69de29 100644
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -1,33 +0,0 @@
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+-
+-include_directories(
+-  ${Boost_INCLUDE_DIRS}
+-  ${CMAKE_SOURCE_DIR}
+-  ${CMAKE_SOURCE_DIR}/external/android-emugl/host/include
+-  ${CMAKE_SOURCE_DIR}/src
+-)
+-
+-macro(ANBOX_ADD_TEST test_name src)
+-  add_executable(
+-    ${test_name}
+-    ${src}
+-  )
+-
+-  target_link_libraries(
+-    ${test_name}
+-
+-    anbox-core
+-
+-    ${GMOCK_LIBRARIES}
+-    ${GTEST_BOTH_LIBRARIES}
+-
+-    ${ARGN}
+-
+-    ${Boost_LIBRARIES}
+-    ${CMAKE_THREAD_LIBS_INIT}
+-  )
+-
+-  add_test(${test_name} ${CMAKE_CURRENT_BINARY_DIR}/${test_name} --gtest_filter=*-*requires*)
+-endmacro(ANBOX_ADD_TEST)
+-
+-add_subdirectory(anbox)

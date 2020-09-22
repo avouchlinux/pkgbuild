@@ -1,0 +1,36 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ftgl
+pkgver=2.4.0
+pkgrel=1
+arch=('x86_64')
+groups=('media-libs')
+url="https://github.com/frankheckenbach/ftgl"
+license=(MIT)
+depends=(freetype2 glu)
+makedepends=(doxygen mesa graphviz git)
+source=("https://github.com/frankheckenbach/ftgl/archive/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  cd $pkgname-$pkgver
+  ./autogen.sh
+}
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --with-pic --disable-static --disable-doc
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+  # FS#23283: install missing headers for OpenCascade
+  install -Dt "$pkgdir/usr/include/FTGL" -m644 src/FT{Face,Size}.h
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
+}

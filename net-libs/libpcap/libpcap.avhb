@@ -1,0 +1,48 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libpcap
+pkgver=1.9.1
+pkgrel=1
+pkgdesc="A system-independent interface for user-level packet capture"
+arch=('x86_64')
+groups=('net-libs')
+url='https://www.tcpdump.org/'
+license=('BSD')
+depends=('glibc' 'libnl' 'sh' 'libusbx' 'dbus')
+makedepends=('flex' 'bluez-libs')
+source=(https://www.tcpdump.org/release/libpcap-${pkgver}.tar.gz{,.sig}
+        mgmt.h)
+validpgpkeys=('1F166A5742ABB9E0249A8D30E089DEF1D9C15D0D') # The Tcpdump Group
+
+prepare() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+
+	mkdir -p ${srcdir}/include/bluetooth
+	cp ${srcdir}/mgmt.h ${srcdir}/include/bluetooth/
+}
+
+build() {
+    cd ${srcdir}/${pkgname}-${pkgver}
+    CFLAGS="$CFLAGS -I${srcdir}/include $(pkg-config libnl-genl-3.0 --cflags)" \
+    ./configure --prefix=/usr \
+        --enable-ipv6 \
+        --enable-bluetooth \
+        --with-libnl
+    make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/${pkgname}-${pkgver}
+	install -d -m755 ${pkgdir}/usr/bin
+	make DESTDIR=${pkgdir} install
+	  # license
+	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+
+	# backwards compatibility, programs often look for net/bpf.h
+	mkdir -p ${pkgdir}/usr/include/net
+	cd ${pkgdir}/usr/include/net
+	ln -s ../pcap-bpf.h bpf.h
+}
+

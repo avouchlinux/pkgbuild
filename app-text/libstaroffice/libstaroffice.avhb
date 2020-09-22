@@ -1,0 +1,33 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libstaroffice
+pkgver=0.0.7
+pkgrel=1
+pkgdesc="filter for old StarOffice documents(.sdc, .sdw, ...) based on librevenge"
+url="https://github.com/fosnola/libstaroffice"
+arch=('x86_64')
+groups=('app-text')
+license=('MPL2' 'LGPL2.1')
+depends=('librevenge')
+makedepends=('doxygen')
+source=(https://github.com/fosnola/$pkgname/releases/download/$pkgver/libstaroffice-$pkgver.tar.xz)
+
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    ./configure --prefix=/usr
+    make ${MAKEFLAGS}
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    make ${MAKEFLAGS} check
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    make DESTDIR="${pkgdir}" install
+}

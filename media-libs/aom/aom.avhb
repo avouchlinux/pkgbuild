@@ -1,0 +1,42 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=aom
+pkgver=1.0.0.errata1+avif
+pkgrel=1
+pkgdesc="Alliance for Open Media video codec"
+url="https://aomedia.org/"
+arch=('x86_64')
+groups=('media-libs')
+license=(BSD custom:PATENTS)
+depends=(gcc-libs)
+makedepends=(git cmake ninja doxygen graphviz yasm)
+_commit=4eb1e7795b9700d532af38a2d9489458a8038233  # tags/v1.0.0-errata1-avif^0
+source=("https://aomedia.googlesource.com/aom/+archive/$_commit.tar.gz")
+
+prepare() {
+  mkdir build
+  # Reduce docs size
+  printf '%s\n' >>libs.doxy_template \
+    HAVE_DOT=yes DOT_IMAGE_FORMAT=svg INTERACTIVE_SVG=yes
+}
+
+build() {
+  cd build
+  cmake -G Ninja ../ \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_SHARED_LIBS=1 \
+    -DENABLE_TESTS=0
+  cmake --build .
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --build build --target install
+
+  mkdir -p "$pkgdir/usr/share/doc"
+  cp -r build/docs/html "$pkgdir/usr/share/doc/$pkgname"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 {LICENSE,PATENTS}
+}

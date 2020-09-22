@@ -1,0 +1,41 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=perl-encode
+_realname=Encode
+pkgver=3.06
+pkgrel=1
+pkgdesc="character encodings in Perl"
+arch=('x86_64')
+groups=('dev-perl')
+license=('PerlArtistic' 'GPL')
+options=('!emptydirs')
+depends=('perl')
+makedepends=()
+url='http://search.mcpan.org/dist/Encode'
+source=('http://search.mcpan.org/CPAN/authors/id/D/DA/DANKOGAI/${_realname}-${pkgver}.tar.gz')
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	# install module in vendor directories.
+	PERL_MM_USE_DEFAULT=1 perl Makefile.PL INSTALLDIRS=vendor
+	make
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	export PERL_MM_USE_DEFAULT=1 PERL5LIB=""
+	make test
+}
+
+package() {
+	cd "${srcdir}/Encode-${pkgver}"
+	make install DESTDIR=${pkgdir}
+
+
+	find $pkgdir -name '.packlist' -delete
+	find $pkgdir -name '*.pod' -delete
+}
+
+

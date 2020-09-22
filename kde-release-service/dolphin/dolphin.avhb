@@ -1,0 +1,43 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dolphin
+pkgver=20.04.2
+pkgrel=1
+pkgdesc="File Manager"
+arch=('x86_64')
+groups=('kde-apps')
+url="http://kde.org/applications/system/dolphin/"
+license=(LGPL)
+depends=(baloo-widgets knewstuff kio-extras kactivities)
+makedepends=(extra-cmake-modules kdoctools python)
+optdepends=('kde-cli-tools: For editing file type options' 'ffmpegthumbs: Video thumbnails' 
+            'ruby: installing new service menus with GHNS' 'plasma-workspace: remote:// protocol')
+source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
+install=$pkgname.install
+md5sums=('30f452fd08914cd302b37c29143428f9')
+
+prepare() {	
+	mkdir -p ${srcdir}/build
+}
+
+build() {
+
+	cd ${srcdir}/build
+	cmake ../$pkgname-$pkgver \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON \
+		-DBUILD_TESTING=OFF
+	make ${MAKEFLAGS}
+}
+
+package() {
+	cd ${srcdir}/build
+	make DESTDIR="${pkgdir}" install
+	# License
+	install -Dm644 "${srcdir}/${pkgname}-${pkgver}/COPYING" \
+	"${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

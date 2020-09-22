@@ -1,0 +1,29 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gxml
+pkgver=0.20.0
+pkgrel=1
+pkgdesc="GXml is a GObject API that wraps around libxml2"
+url="https://wiki.gnome.org/Apps/gxml"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL3)
+depends=(libxml2)
+makedepends=(intltool itstool)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+    avouch-meson $pkgname-$pkgver build
+    ninja -C build
+}
+
+check() {
+    ninja test -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

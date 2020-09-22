@@ -1,0 +1,31 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libgme
+_realname=game-music-emu
+pkgver=0.6.3
+pkgrel=1
+pkgdesc="Video game music file emulation/playback library"
+url="https://bitbucket.org/mpyne/game-music-emu"
+license=('LGPL')
+arch=('x86_64')
+groups=('media-libs')
+depends=('gcc-libs')
+makedepends=('cmake')
+source=("https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-$pkgver.tar.xz"{,.asc})
+validpgpkeys=(5406ECE83665DA9D201D35720BAF0C9C7B6AE9F2) # Michael Pyne <mpyne@kde.org>
+
+build() {
+  cd game-music-emu-${pkgver}
+  mkdir build
+  cd build
+
+  cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+  make ${MAKEFLAGS}
+}
+
+package() {
+  cd game-music-emu-${pkgver}/build
+  make DESTDIR="${pkgdir}" install
+}

@@ -1,0 +1,45 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=lib32-libx11
+_realname=libX11
+pkgver=1.6.9
+pkgrel=1
+pkgdesc="X11 client-side library (32-bit)"
+arch=('x86_64')
+groups=('multilib')
+repo=('extra')
+url="http://xorg.freedesktop.org/"
+depends=('lib32-libxcb' $_pkgbasename)
+makedepends=('xorg-util-macros' 'xextproto' 'xtrans' 'inputproto' 'gcc-multilib')
+options=('!libtool')
+license=('custom:XFREE86')
+source=(${url}/releases/individual/lib/libX11-${pkgver}.tar.bz2)
+sha256sums=('2aa027e837231d2eeea90f3a4afe19948a6eb4c8b2bec0241eba7dbc8106bd16')
+
+
+build() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	
+	export CC="gcc -m32"
+	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+
+	./configure --prefix=/usr \
+		--libdir=/usr/lib32 \
+		--disable-static \
+		--disable-xf86bigfont \
+		--disable-specs
+    make ${MAKEFLAGS}
+}
+
+check() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make check
+}
+
+package() {
+	cd "${srcdir}/${_realname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+	rm -rf "${pkgdir}"/usr/{include,share}
+}

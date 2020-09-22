@@ -1,0 +1,30 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mousetweaks
+pkgver=3.32.0
+pkgrel=1
+pkgdesc="Mouse accessibility enhancements"
+url="https://wiki.gnome.org/Projects/Mousetweaks"
+arch=('x86_64')
+groups=('gnome-extra')
+license=(GPL3 FDL)
+depends=(libxtst gtk3 gsettings-desktop-schemas)
+makedepends=(python git)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+sha256sums=('SKIP')
+
+build() {
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make ${MAKEFLAGS}
+}
+
+check() {
+  make -C $pkgname-$pkgver check
+}
+
+package() {
+  DESTDIR="$pkgdir" make install -C $pkgname-$pkgver
+}

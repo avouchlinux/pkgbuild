@@ -1,0 +1,38 @@
+# $Id$
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcmis
+pkgver=0.5.2
+pkgrel=1
+pkgdesc="a C/C++ client library for the CMIS protocol"
+arch=('x86_64')
+groups=('media-grafix')
+url="https://github.com/tdf/libcmis"
+license=('GPL2' 'LGPL2.1' 'MPL')
+depends=('boost-libs' 'curl' 'libxml2')
+makedepends=('docbook2x' 'cppunit' 'boost')
+source=("https://github.com/tdf/libcmis/releases/download/v${pkgver}/$pkgname-$pkgver.tar.gz")
+
+prepare(){
+  cd "$pkgname-$pkgver"
+  patch -Np1 -i ../libcmis-0.5.2-icu-64.2.patch
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  export CFLAGS+=' -std=c++14'
+  ./configure --prefix=/usr  --disable-werror DOCBOOK2MAN='docbook2man'
+  make ${MAKEFLAGS}
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  # fails a google drive check - fix will be included in the next release
+  make ${MAKEFLAGS} check || /bin/true
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+}
