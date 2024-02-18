@@ -1,9 +1,14 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libnotify
-pkgver=0.7.9
+pkgbase=libnotify
+pkgname=(
+  libnotify
+  libnotify-docs
+)
+pkgver=0.8.3
 pkgrel=1
 pkgdesc="Desktop notification library"
 arch=('x86_64')
@@ -11,18 +16,42 @@ groups=('sys-libs')
 url="https://developer.gnome.org/notification-spec/"
 license=(LGPL)
 depends=(gdk-pixbuf2)
-makedepends=(gtk3 gobject-introspection git meson docbook-xsl xmlto gtk-doc)
+makedepends=(
+  docbook-xsl
+  gi-docgen
+  git
+  gobject-introspection
+  gtk3
+  meson
+  xmlto
+)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {
   avouch-meson $pkgname-$pkgver build
-  ninja -C build
+  meson compile -C build
 }
 
 check() {
   meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+package_libnotify() {
+  depends+=(
+    libg{lib,object,io}-2.0.so
+    libgdk_pixbuf-2.0.so
+  )
+  provides=(libnotify.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_libnotify-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

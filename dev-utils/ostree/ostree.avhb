@@ -1,70 +1,116 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ostree
-pkgver=2021.2
+_realname=libostree
+pkgver=2024.2
 pkgrel=1
 pkgdesc="Operating system and container binary deployment and upgrades"
 arch=('x86_64')
 groups=('dev-utils')
 url="https://ostree.readthedocs.org/en/latest/"
-license=(GPL)
-depends=(glib2 xz zlib libsoup gpgme libarchive fuse2 util-linux mkinitcpio openssl avahi)
-makedepends=(e2fsprogs gobject-introspection gtk-doc libxslt systemd git python2)
-checkdepends=(parallel syslinux gjs cpio elfutils)
-source=("https://github.com/ostreedev/ostree/archive/v$pkgver.tar.gz")
-sha256sums=('SKIP')
-
-getsrc(){
-    git clone https://github.com/ostreedev/ostree
-    git clone https://github.com/mendsley/bsdiff
-    git clone https://gitlab.gnome.org/GNOME/libglnx.git
-}
-
-pkgver() {
-  cd $pkgname
-  git describe | sed 's/^v//;s/-/+/g'
-}
+license=(LGPL-2.0-or-later)
+depends=(
+  bash
+  fuse3
+  gcc-libs
+  glibc
+  libgpg-error
+  libsodium
+  sh
+  util-linux
+  zlib
+)
+makedepends=(
+  avahi
+  curl
+  e2fsprogs
+  git
+  glib2
+  gobject-introspection
+  gpgme
+  gtk-doc
+  libarchive
+  libsoup
+  libxslt
+  mkinitcpio
+  openssl
+  python
+  systemd
+  xz
+)
+checkdepends=(
+  cpio
+  elfutils
+  gjs
+  parallel
+  python-yaml
+  syslinux
+)
+provides=(libostree-1.so)
+source=(https://github.com/ostreedev/ostree/releases/download/v$pkgver/$_realname-$pkgver.tar.xz)
+b2sums=('SKIP'
+        'SKIP'
+        'SKIP'
+        'SKIP'
+        'cfff162120f70995e18ec56454711501391b97456e2a0f34643c9d2a9c2b50b4d76afc2e2fc50ea28e8a773c618215d6cb855b96663f69dc5cc93bc5766f3f28')
+# upstream ticket about chain of trust:
+# https://github.com/ostreedev/ostree/issues/2349
+validpgpkeys=('1CEC7A9DF7DA85ABEF843DC0A866D7CCAE087291') # Colin Walters <walters@redhat.com>
 
 prepare() {
-  cd $pkgname
+  cd $_realname-$pkgver
 
-  git submodule init
-  git config --local submodule.bsdiff.url "$srcdir/bsdiff"
-  git config --local submodule.libglnx.url "$srcdir/libglnx"
-  git submodule update
+  # use fusemount3 (fuse3)
+  patch -Np1 -i ../$pkgname-2023.1-use_fuse3.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-    cd $pkgname
-    ./configure \
-        --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --sbindir=/usr/bin \
-        --libexecdir=/usr/lib \
-        --with-openssl \
-        --with-builtin-grub2-mkconfig \
-        --with-dracut=yesbutnoconf \
-        --enable-experimental-api \
-        --disable-static \
-        --enable-gtk-doc
+  local configure_options=(
+    --disable-static
+    --enable-experimental-api
+    --enable-gtk-doc
+    --libexecdir=/usr/lib
+    --localstatedir=/var
+    --prefix=/usr
+    --sbindir=/usr/bin
+    --sysconfdir=/etc
+    --with-curl
+    --with-dracut=yesbutnoconf
+    --with-ed25519-libsodium
+    --with-grub2-mkconfig-path=/usr/bin/grub-mkconfig
+    --with-mkinitcpio
+    --with-modern-grub
+    --with-openssl
+  )
 
-    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-
-    make ${MAKEFLAGS}
+  cd $_realname-$pkgver
+  ./configure "${configure_options[@]}"
+  # prevent overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
-check() {
-    cd $pkgname
-    #make ${MAKEFLAGS} check || :
-}
+# check() {
+#   make check -k -C $_realname-$pkgver
+# }
 
 package() {
-    cd $pkgname
-    make DESTDIR="$pkgdir" install
+  depends+=(
+    avahi libavahi-client.so libavahi-common.so libavahi-glib.so
+    curl libcurl.so
+    glib2 libgio-2.0.so libglib-2.0.so libgobject-2.0.so
+    gpgme libgpgme.so
+    libarchive libarchive.so
+    libsoup
+    openssl libcrypto.so
+    systemd-libs libsystemd.so
+    xz liblzma.so
+  )
+
+  make DESTDIR="$pkgdir" install -C $_realname-$pkgver
 }

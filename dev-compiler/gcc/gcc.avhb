@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,13 +8,13 @@
 
 pkgbase=gcc
 pkgname=(gcc gcc-libs lib32-gcc-libs gcc-ada gcc-d gcc-fortran gcc-go gcc-objc lto-dump libgccjit)
-_pkgver=13
-pkgver=13.2.1
+_pkgver=14
+pkgver=14.0.1
 #_majorver=${pkgver:0:2}
 _majorver=${pkgver%%.*}
 pkgrel=1
 _islver=0.26
-#_snapshot=20210328
+_snapshot=20240128
 pkgdesc='The GNU Compiler Collection'
 arch=('x86_64')
 groups=('dev-compiler')
@@ -43,8 +43,7 @@ checkdepends=(
 options=(!emptydirs !lto)
 
 
-source=(https://ftp.gnu.org/gnu/gcc/gcc-$pkgver/gcc-$pkgver.tar.xz
-        http://isl.gforge.inria.fr/isl-${_islver}.tar.xz
+source=(https://gcc.gnu.org/pub/gcc/snapshots/LATEST-$_majorver/gcc-$_majorver-$_snapshot.tar.xz
         c89 c99)
 validpgpkeys=(F3691687D867B81B51CE07D9BBE43771487328A9  # bpiotrowski@archlinux.org
               86CFFCA918CF3AF47147588051E8B148A9999C34  # evangelos@foutrelis.com
@@ -62,7 +61,7 @@ CHOST="x86_64-pc-linux-gnu"
 _libdir=usr/lib/gcc/$CHOST/${pkgver%%+*}
 
 prepare() {	
-  [[ ! -d gcc ]] && ln -s gcc-${pkgver/+/-}-20231113 gcc
+  [[ ! -d gcc ]] && ln -s $_basedir gcc
   cd gcc
 
 	# Do not run fixincludes

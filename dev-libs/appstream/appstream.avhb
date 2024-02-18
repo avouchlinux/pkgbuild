@@ -6,7 +6,7 @@
 pkgbase=appstream
 pkgname=(appstream appstream-qt)
 _realname=AppStream
-pkgver=0.16.3
+pkgver=0.16.4
 pkgrel=1
 pkgdesc="Provides a standard for creating app stores across distributions"
 arch=('x86_64')

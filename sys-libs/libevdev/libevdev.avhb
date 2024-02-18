@@ -1,38 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libevdev
-pkgver=1.8.0
+pkgver=1.13.1
 pkgrel=1
 pkgdesc="Wrapper library for evdev devices"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://www.freedesktop.org/wiki/Software/libevdev/"
-license=(custom:X11)
+license=(custom:MIT)
 depends=('glibc')
-makedepends=('python2' 'check' 'valgrind' 'doxygen')
-#checkdepends=('kmod')
+makedepends=('python' 'check' 'valgrind' 'doxygen' 'meson')
+provides=('libevdev.so')
 source=(https://freedesktop.org/software/$pkgname/$pkgname-$pkgver.tar.xz{,.sig})
+sha512sums=('9b75bad4bc13948854c8dff7a7a46aca6c06d1410ccb000f881bf76055ccac040595c3b24fb1a574be875b5c262eb86820b9ec3383752641bc2047135e5a412f'
+            'SKIP')
 validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+  avouch-meson $pkgname-$pkgver build \
+    -D documentation=disabled
+  meson compile -C build
 }
-
 check() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	# test suite requires root access and needs to load uinput module
-	# that's not possible in our chroot
-	#modprobe uinput
-	#make check || /bin/true
+  meson test -C build
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+  DESTDIR="$pkgdir" meson install -C build
+
+  install -Dm644 $pkgname-$pkgver/COPYING \
+    "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }

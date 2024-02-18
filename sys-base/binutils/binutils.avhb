@@ -6,14 +6,14 @@
 # toolchain build order: linux-api-headers->glibc->binutils->gcc->binutils->glibc
 
 pkgname=binutils
-pkgver=2.41
+pkgver=2.42
 pkgrel=1
 pkgdesc="A set of programs to assemble and manipulate binary and object files"
 arch=('x86_64')
 groups=('sys-base')
 url="http://www.gnu.org/software/binutils/"
-license=('GPL3' 'GPL' 'FDL1.3' 'custom:FSFAP')
-depends=('glibc' 'zlib')
+license=(GPL-2.0-or-later GPL-3.0-or-later LGPL-2.0-or-later LGPL-3.0-or-later GFDL-1.3 FSFAP)
+depends=(glibc jansson libelf zlib zstd)
 makedepends=('git')
 checkdepends=('dejagnu' 'bc')
 options=('staticlibs' '!distcc' '!ccache')
@@ -57,7 +57,7 @@ prepare() {
 
   # fix incorrect "undefined reference" errors
   # https://sourceware.org/bugzilla/show_bug.cgi?id=28879
-  patch -Np1 -i ${srcdir}/fix-incorrect-undefined-symbol.patch
+  # patch -Np1 -i ${srcdir}/fix-incorrect-undefined-symbol.patch
 
 # Stop libtool from inserting useless runpaths into binaries. from fedora
 patch -Np1 -i ${srcdir}/binutils-libtool-no-rpath.patch
@@ -68,6 +68,8 @@ patch -Np1 -i ${srcdir}/binutils-libtool-no-rpath.patch
 }
 
 build() {
+
+  use_linker 'ld.bfd'
   cd ${srcdir}/binutils-build
 
   ../${_basedir}/configure \
@@ -100,8 +102,8 @@ build() {
     --with-pic \
     --with-system-zlib
 
-
-  make -O ${MAKEFLAGS} tooldir=/usr
+  # no paralel build
+  make -j1 -O tooldir=/usr
 
   # Extract the FSF All Permissive License
   # <https://www.gnu.org/prep/maintain/html_node/License-Notices-for-Other-Files.html>

@@ -1,0 +1,85 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=suil
+pkgname=(suil{,-docs})
+pkgver=0.10.20
+pkgrel=1
+pkgdesc="A lightweight C library for loading and wrapping LV2 plugin UIs"
+arch=(x86_64)
+groups=('media-sound')
+url="https://drobilla.net/software/suil.html"
+license=('0BSD OR ISC')
+makedepends=(
+  doxygen
+  gtk2
+  gtk3
+  lv2
+  meson
+  python-sphinx
+  python-sphinx-lv2-theme
+  python-sphinxygen
+  qt5-base
+  qt5-x11extras
+)
+source=(https://download.drobilla.net/$pkgname-$pkgver.tar.xz{,.sig})
+sha512sums=('fb3735d0856c826f46ad2334b6965f4116df2fa3132d10bdfcd2b2d39f8e40142801ce3f352425845adfac90bf4a60d76d09fdf0a99b2cec82faa0f5f127c3f8'
+            'SKIP')
+b2sums=('4ce6dcba544b4fb606d2b97dd347e5098cd1373643059fe80e2a7f9d7022432063e4391017e106a4092056999dcb7b99729339536c4c73cdaa5a3f091f1100ee'
+        'SKIP')
+validpgpkeys=('907D226E7E13FA337F014A083672782A9BF368F3') # David Robillard <d@drobilla.net>
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+build() {
+  avouch-meson $pkgname-$pkgver build -D cocoa=disabled -D html=disabled -D singlehtml=disabled
+  meson compile -C build
+}
+
+check() {
+  meson test -C build
+}
+
+package_suil() {
+  depends=(
+    gcc-libs
+    glibc
+    lv2
+  )
+  optdepends=(
+    'glib2: support for wrapping X11 and Qt5 in GTK3 and GTK2'
+    'gtk2: support for wrapping X11 and Qt5 in GTK2 and GTK2 in Qt5'
+    'gtk3: support for wrapping X11 and Qt5 in GTK3'
+    'libx11: support for wrapping X11 directly and in GTK3 and GTK2'
+    'qt5-base: support for wrapping X11 in Qt5 and Qt5 in GTK3 and GTK2'
+    'qt5-x11extras: support for wrapping X11 in Qt5'
+  )
+  provides=(libsuil-0.so)
+
+  meson install -C build --destdir "$pkgdir"
+  (
+    cd "$pkgdir"
+    _pick $pkgbase-docs usr/share/doc
+  )
+  install -vDm 644 $pkgbase-$pkgver/LICENSES/* -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 $pkgbase-$pkgver/{AUTHORS,NEWS,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
+}
+
+package_suil-docs() {
+  pkgdesc+=" - documentation"
+
+  mv -v $pkgname/* "$pkgdir"
+  mv -v "$pkgdir/usr/share/doc/$pkgbase"{-0,}
+  find "$pkgdir" -type f -iname "*.buildinfo" -delete
+  install -vDm 644 $pkgbase-$pkgver/LICENSES/* -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

@@ -63,8 +63,7 @@ build() {
       --prefix=/usr
       --with-headers=/usr/include
       --with-bugurl=https://bugs.avouch.org/
-      --enable-bind-now
-      --enable-cet
+      --enable-bind-now      
       --enable-fortify-source
       --enable-kernel=4.4
       --enable-multi-arch
@@ -88,9 +87,12 @@ build() {
     # remove fortify for building libraries
     # CFLAGS=${CFLAGS/-Wp,-D_FORTIFY_SOURCE=2/}
 
+    # from glibc-2.39 cet is only avalable for x86_64 or x32
+
     "${srcdir}"/glibc/configure \
         --libdir=/usr/lib \
         --libexecdir=/usr/lib \
+        --enable-cet \
         "${_configure_flags[@]}"
 
     make -O

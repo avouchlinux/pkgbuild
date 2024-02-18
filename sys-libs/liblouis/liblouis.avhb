@@ -1,24 +1,36 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=liblouis
-pkgver=3.13.0
+pkgver=3.28.0
 pkgrel=1
 pkgdesc="Open-source braille translator and back-translator"
 arch=('x86_64')
 groups=('sys-libs')
-url="http://liblouis.org/"
-license=('GPL3')
-depends=(glibc)
-makedepends=(help2man python2 python)
-source=(https://github.com/liblouis/liblouis/releases/download/v$pkgver/liblouis-$pkgver.tar.gz)
+url='https://liblouis.io/'
+license=('GPL-3.0-or-later AND LGPL-2.1-or-later')
+depends=('glibc')
+makedepends=('help2man' 'libyaml' 'python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+optdepends=('libyaml: lou_checkyaml command'
+            'python: Python bindings')
+source=("https://github.com/liblouis/liblouis/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('69eddef2cf2118748a1d548cab3671ba31140c37dd821a2d893d95bc2796e1b0')
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --disable-static --enable-ucs4
-  make ${MAKEFLAGS}
+  ./configure --prefix=/usr --enable-ucs4
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+
+  cd python
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make check
 }
 
 package() {
@@ -26,6 +38,5 @@ package() {
   make DESTDIR="$pkgdir" install
 
   cd python
-  LD_PRELOAD+=":$srcdir/$pkgname-$pkgver/liblouis/.libs/liblouis.so"
-  python3 setup.py install --root="$pkgdir" --prefix="/usr" --optimize=1
+  python -m installer --destdir="$pkgdir" dist/*.whl
 }

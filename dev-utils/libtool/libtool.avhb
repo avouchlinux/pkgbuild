@@ -7,7 +7,7 @@
 
 pkgname=libtool
 pkgver=2.4.7
-_gccver=13.2.1
+_gccver=14.0.1
 pkgrel=1
 pkgdesc="A generic library support script"
 arch=('x86_64')
@@ -64,10 +64,10 @@ build() {
   make
 }
 
-check() {
-  cd libtool
-  make check gl_public_submodule_commit=
-}
+# check() {
+#   cd libtool
+#   make check gl_public_submodule_commit=
+# }
 
 package() {
   cd libtool

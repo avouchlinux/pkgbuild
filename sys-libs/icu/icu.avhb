@@ -1,11 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=icu
 _realname=icu4c
-pkgver=74.1
+pkgver=74.2
 pkgrel=1
 pkgdesc="International Components for Unicode library"
 arch=('x86_64')
@@ -30,12 +30,12 @@ prepare() {
 build() {
   cd icu/source
   ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --sbindir=/usr/bin
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
   cd icu/source
-  make  ${MAKEFLAGS} -k check
+  make -k check
 }
 
 package() {

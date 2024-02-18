@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=librest
-pkgver=1.0.0
+pkgver=0.9.1
 pkgrel=1
 pkgdesc="A helper library for RESTful services."
 arch=('x86_64')
@@ -17,7 +17,7 @@ source=("https://gitlab.gnome.org/GNOME/librest/-/archive/$pkgver/librest-$pkgve
 sha256sums=('SKIP')
 
 build() {
-	avouch-meson ${pkgname}-${pkgver} build
+	avouch-meson ${pkgname}-${pkgver} build -D vapi=true
 	meson compile -C build
 }
 

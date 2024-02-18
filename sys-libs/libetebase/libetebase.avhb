@@ -1,23 +1,33 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libetebase
-pkgver=0.4.1
+pkgver=0.5.6
 pkgrel=1
 pkgdesc="Etebase C library"
 arch=(x86_64)
 groups=('sys-libs')
-url="https://github.com/etesync/libetebase"
+url='https://github.com/etesync/libetebase'
 license=(BSD)
-depends=(openssl)
+depends=(gcc-libs
+         glibc
+         libsodium
+         openssl)
 makedepends=(rust)
-source=($pkgname-$pkgver.tar.gz::"https://github.com/etesync/libetebase/archive/v$pkgver.tar.gz")
+source=(https://github.com/etesync/libetebase/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('b149afcabce839347cb3cef870e781d34df32016885bfed50c08dcab0ab9b1f0')
+
+prepare() {
+  cd $pkgname-$pkgver
+  cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
 
 build() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS}
+  env CARGO_INCREMENTAL=0 SODIUM_USE_PKG_CONFIG= cargo build --release --locked --offline
+  make pkgconfig
 }
 
 package() {

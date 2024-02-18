@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal-gnome
-pkgver=45.0
+pkgver=45.1
 pkgrel=1
 pkgdesc="A backend implementation for xdg-desktop-portal for the GNOME desktop environment"
 url="https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome"
@@ -14,7 +14,7 @@ license=(LGPL)
 depends=(xdg-desktop-portal-gtk gtk4 gnome-keyring evince)
 makedepends=(xdg-desktop-portal meson git)
 provides=(xdg-desktop-portal-impl)
-source=("git+https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome.git#commit=$_commit")
+source=("https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/archive/$pkgver/xdg-desktop-portal-gnome-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 
 build() {

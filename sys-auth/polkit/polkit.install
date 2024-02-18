@@ -1,7 +1,8 @@
 post_install() {
-       getent group polkitd >/dev/null || groupadd -g 70 polkitd
-       getent passwd polkitd >/dev/null || useradd -c 'Policy Kit Daemon' -u 70 -g polkitd -d '/' -s /bin/false polkitd
-       passwd -l polkitd &>/dev/null
+       #getent group polkitd >/dev/null || groupadd -g 70 polkitd
+       #getent passwd polkitd >/dev/null || useradd -c 'Policy Kit Daemon' -u 70 -g polkitd -d '/' -s /bin/false polkitd
+       #passwd -l polkitd &>/dev/null
+       install -d -o root -g root -m 755 usr/share/polkit-1/rules.d
 }
 
 post_upgrade() {

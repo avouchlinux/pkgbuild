@@ -1,23 +1,35 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=json-glib
-pkgver=1.6.6
+pkgbase=json-glib
+pkgname=(
+  json-glib
+  json-glib-docs
+)
+pkgver=1.8.0
 pkgrel=1
 pkgdesc="JSON library built on GLib"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://wiki.gnome.org/Projects/JsonGlib"
 license=(GPL)
-depends=(glib2)
-makedepends=(gobject-introspection git gtk-doc meson)
+depends=(
+  glib2
+)
+makedepends=(
+  docbook-xsl
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+)
 source=("https://gitlab.gnome.org/GNOME/json-glib/-/archive/$pkgver/json-glib-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 
 build() {
-    avouch-meson $pkgname-$pkgver build -D gtk_doc=disabled -D man=true
+    avouch-meson $pkgname-$pkgver build -D man=true
     ninja -C build
 }
 
@@ -25,7 +37,17 @@ check() {
     meson test -C build
 }
 
-package() {
+package_json-glib() {
     DESTDIR="$pkgdir" meson install -C build
+    mkdir -p doc/usr/share
+    mv {"$pkgdir",doc}/usr/share/doc
+
     rm -r "$pkgdir"/usr/{lib,share}/installed-tests
+}
+
+package_json-glib-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

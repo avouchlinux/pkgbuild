@@ -1,24 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libosinfo
-pkgver=1.8.0
+pkgver=1.11.0
 pkgrel=1
 pkgdesc="GObject based library API for managing information about operating systems, hypervisors and the (virtual) hardware devices they can support"
 arch=('x86_64')
 groups=('sys-libs')
-url="https://libosinfo.org/"
-license=('GPL' 'LGPL')
-depends=('glib2' 'libxslt' 'osinfo-db')
-makedepends=('check' 'gobject-introspection' 'libsoup' 'vala' 'gtk-doc' 'meson')
-source=(https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.gz{,.asc})
+url='https://libosinfo.org/'
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+depends=('gcc-libs' 'glib2' 'glibc' 'hwdata' 'libsoup3' 'libxml2' 'libxslt' 'osinfo-db')
+makedepends=('gobject-introspection' 'meson' 'vala')
+source=("https://releases.pagure.org/libosinfo/$pkgname-$pkgver.tar.xz"{,.asc})
 validpgpkeys=('DAF3A6FDB26B62912D0E8E3FBE86EBB415104FDF'  # Daniel P. Berrange
-              '09B9C8FF223EF113AFA06A39EE926C2BDACC177B') # Fabiano Fidêncio <fidencio@redhat.com>
+              '09B9C8FF223EF113AFA06A39EE926C2BDACC177B'  # Fabiano Fidêncio
+              '206D3B352F566F3B0E6572E997D9123DE37A484F') # Victor Toso de Carvalho <me@victortoso.com>
+sha256sums=('1bf96eec9e1460f3d1a713163cca1ff0d480a3490b50899292f14548b3a96b60'
+            'SKIP')
 
 build() {
-  avouch-meson $pkgname-$pkgver build
-  ninja -C build
+  local meson_options=(
+    -D with-usb-ids-path=/usr/share/hwdata/usb.ids
+    -D with-pci-ids-path=/usr/share/hwdata/pci.ids
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
@@ -26,5 +35,5 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

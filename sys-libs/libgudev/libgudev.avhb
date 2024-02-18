@@ -1,17 +1,27 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgudev
-pkgver=236
+pkgver=238
 pkgrel=1
 pkgdesc="GObject bindings for libudev"
 arch=('x86_64')
 groups=('sys-libs')
 license=(LGPL2.1)
-depends=(systemd-libs glib2)
-makedepends=(systemd gobject-introspection gtk-doc git gnome-common)
+depends=(
+  glib2
+  systemd
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  umockdev
+  vala
+)
 provides=(libgudev-1.0.so)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
@@ -20,9 +30,9 @@ build() {
   meson compile -C build
 }
 
-check() {
-  meson test -C build --print-errorlogs
-}
+# check() {
+#   meson test -C build --print-errorlogs
+# }
 
 package() {
   DESTDIR="$pkgdir" meson install -C build

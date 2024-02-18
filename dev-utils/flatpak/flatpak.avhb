@@ -70,6 +70,7 @@ build() {
     -D system_dbus_proxy=xdg-dbus-proxy
     -D docbook_docs=disabled
     -D gtkdoc=disabled
+    -D http_backend=curl
   )
 
   avouch-meson flatpak-$pkgver build "${meson_options[@]}"
