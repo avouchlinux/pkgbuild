@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,40 +9,63 @@ pkgrel=1
 pkgdesc="Panel of GNOME Flashback"
 arch=('x86_64')
 groups=('gnome-base')
-url="https://wiki.gnome.org/Projects/GnomePanel"
-license=('GPL')
-depends=('evolution-data-server' 'gnome-desktop' 'gnome-menus' 'libgdm' 'libwnck3' 'nautilus' 'polkit')
-makedepends=('intltool' 'itstool' 'python' 'git' 'gtk-doc' 'yelp-tools' 'autoconf-archive')
+url='https://wiki.gnome.org/Projects/GnomePanel'
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+depends=('at-spi2-core' 'cairo' 'dconf' 'evolution-data-server' 'gdk-pixbuf2' 'geocode-glib-2'
+         'glib2' 'glibc' 'gnome-desktop' 'gnome-menus' 'gsettings-desktop-schemas' 'gtk3'
+         'hicolor-icon-theme' 'libgdm' 'libgweather-4' 'libical' 'libwnck3' 'libx11' 'libxrandr'
+         'nautilus' 'pango' 'polkit' 'systemd-libs')
+makedepends=('itstool')
 optdepends=('alacarte: Main menu editor'
             'gnome-applets: Extra applets for the panel')
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-sha256sums=('a41c45c5512e796b8602ce50bf0d205993eab364c860aae31afa582d77b77079')
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
+        'gnome-panel-git-fixes.patch'
+        'gnome-panel-60.patch'
+        'gnome-panel-64.patch'
+        'gnome-panel-65.patch'
+        'gnome-panel-66.patch'
+        'gnome-panel-69.patch')
+sha256sums=('025ec889d04262d41c95bee85be6421ba3a6050e269b9ce99f692cad49a2eb13'
+            '142fa5d209c36dcf3b980726a85d01f95b855f195bcaf13fa9672caa769543e6'
+            '3ea598905185d8f19381c93766734ae0f99491329548a816740ff6bc2449c848'
+            '83a951c262707e4e8baf218e3da05abb041560268bb0afd93f61bd95f27b7c8b'
+            'f0a9ac2d5cf69e276d9446925df79dc633b4f58b7cd6757e4313f4dffa7403f7'
+            '8d53c1689c8ebf3ab78fb02704997637c4126582fd9a87420d26939b934a81eb'
+            'f8562b965867f12363767cb7ce957d6c1ec27a5e057cfab560b67970de47f804')
 
 prepare() {
-    cd $pkgname-$pkgver
-    # NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname-$pkgver
+
+  # Apply fixes from git master
+  patch -Np1 -i ../gnome-panel-git-fixes.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/60
+  patch -Np1 -i ../gnome-panel-60.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/64
+  patch -Np1 -i ../gnome-panel-64.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/65
+  patch -Np1 -i ../gnome-panel-65.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/66
+  patch -Np1 -i ../gnome-panel-66.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/69
+  patch -Np1 -i ../gnome-panel-69.patch
+
+  # Regenerate resources file
+  rm gnome-panel/panel-resources.{c,h}
 }
 
 build() {
-    cd $pkgname-$pkgver
-    ./configure --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --disable-static \
-        --libexecdir=/usr/lib/gnome-panel \
-        --disable-schemas-compile \
-        --enable-compile-warnings=minimum \
-        --enable-gtk-doc
-        
-    #https://bugzilla.gnome.org/show_bug.cgi?id=656231
-    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    
-    make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-    cd $pkgname-$pkgver
-    make DESTDIR="$pkgdir" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }
-
-

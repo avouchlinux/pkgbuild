@@ -1,16 +1,15 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-control-center
-pkgver=45.0
+pkgver=45.3
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
-license=(GPL2)
+license=(GPL-2.0-or-later)
 arch=(x86_64)
-groups=('gnome-base')
 depends=(
   accountsservice
   bolt
@@ -38,7 +37,6 @@ depends=(
   libcolord
   libcups
   libepoxy
-  libgnomekbd
   libgoa
   libgtop
   libgudev
@@ -91,15 +89,49 @@ optdepends=(
   'rygel: media sharing'
   'system-config-printer: printer settings'
 )
+groups=(gnome)
+_commit=4e107fa21250416812d64da8cf32946babb7728d  # tags/45.3^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+  pixmaps-dir.diff
+)
+b2sums=('SKIP'
+        'SKIP'
+        'a133d524de9e8a2a27b61dd68b95238fa916c30d60e092f7ed3a371edb1e4ca233f46941d004dbfa2b8c13f464dab2e2729bb023ddd0e8c4d7e147b11e8e82ef')
 
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-
-build() {
-    avouch-meson ${pkgname}-${pkgver} build -D documentation=true
-    ninja -C build
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
+prepare() {
+  cd $pkgname
+
+  # Install bare logos into pixmaps, not icons
+  git apply -3 ../pixmaps-dir.diff
+
+  git submodule init subprojects/gvc
+  git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
+  git -c protocol.file.allow=always submodule update
+}
+
+
+build() {
+  local meson_options=(
+    -D documentation=true
+    -D malcontent=true
+  )
+
+  avouch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+#check() {
+#  GTK_A11Y=none dbus-run-session xvfb-run -s '-nolisten local +iglx -noreset' \
+#    meson test -C build --print-errorlogs
+#}
+
 package() {
-    DESTDIR="$pkgdir" meson install -C build
-    install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+  meson install -C build --destdir "$pkgdir"
 }

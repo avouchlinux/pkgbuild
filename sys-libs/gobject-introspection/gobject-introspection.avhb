@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -7,6 +7,7 @@ pkgbase=gobject-introspection
 pkgname=('gobject-introspection' 'gobject-introspection-runtime')
 pkgver=1.78.1
 pkgrel=1
+_glibver=2.78.4
 arch=('x86_64')
 groups=('sys-libs')
 pkgdesc="Introspection system for GObject-based libraries"
@@ -15,14 +16,8 @@ license=(LGPL GPL)
 depends=(python-mako python-markdown)
 makedepends=(cairo gtk-doc python-sphinx meson)
 options=(!emptydirs)
-source=("https://gitlab.gnome.org/GNOME/$realname/-/archive/$pkgver/$realname-$pkgver.tar.bz2"
+source=("https://gitlab.gnome.org/GNOME/gobject-introspection/-/archive/$pkgver/gobject-introspection-$pkgver.tar.bz2"
         "https://gitlab.gnome.org/GNOME/glib/-/archive/$_glibver/glib-$_glibver.tar.bz2")
-
-_glibver=2.78.3
-
-prepare() {  
-  bsdtar -xf $srcarchivedir/glib-$_glibver.tar.xz
-}
 
 build() {
   avouch-meson $pkgbase-$pkgver build \

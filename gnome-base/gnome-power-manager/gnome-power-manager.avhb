@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,23 +13,28 @@ groups=('gnome-base')
 license=(GPL)
 depends=(gtk3 upower dconf)
 makedepends=(git meson)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+_commit=98f8ac8275d413f141a3f422e731e3213fc1db03  # tags/GNOME_POWER_MANAGER_43_0^0
+source=("git+https://gitlab.gnome.org/GNOME/gnome-power-manager.git#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^GNOME_POWER_MANAGER_//;s/_/./g;s/-/+/g'
+}
 
 prepare() {
-    cd ${pkgname}-${pkgver}
-    # do not build man pages as build breaks
-    sed -i "/subdir('man')/d" meson.build
+  cd $pkgname
 }
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    ninja -C build
+  avouch-meson $pkgname build
+  meson compile -C build
 }
 
 check() {
-    meson test -C build
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

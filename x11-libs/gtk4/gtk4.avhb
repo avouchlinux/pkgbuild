@@ -11,7 +11,7 @@ pkgname=(
   gtk-update-icon-cache
 )
 _realname=gtk
-pkgver=4.12.3
+pkgver=4.12.5
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit"
 arch=(x86_64)
@@ -79,7 +79,7 @@ checkdepends=(
   wireplumber
 )
 license=(LGPL)
-source=(http://ftp.gnome.org/pub/gnome/sources/gtk+/${pkgver%.*}/gtk+-$pkgver.tar.xz
+source=(https://download.gnome.org/sources/gtk/4.12/gtk-$pkgver.tar.xz
         settings.ini)
 
 build() {
@@ -171,6 +171,5 @@ package_gtk-update-icon-cache() {
   ln -s gtk4-update-icon-cache "$pkgdir/usr/bin/gtk-update-icon-cache"
   ln -s gtk4-update-icon-cache.1 "$pkgdir/usr/share/man/man1/gtk-update-icon-cache.1"
 
-  install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-update-icon-cache.hook
   install -D gtk-update-icon-cache.script "$pkgdir/usr/share/libalpm/scripts/gtk-update-icon-cache"
 }

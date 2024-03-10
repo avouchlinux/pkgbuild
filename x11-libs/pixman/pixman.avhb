@@ -1,20 +1,21 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pixman
-pkgver=0.40.0
+pkgver=0.43.4
 pkgrel=1
 pkgdesc="The pixel-manipulation library for X and cairo"
 arch=('x86_64')
 groups=('x11-libs')
 url="https://cgit.freedesktop.org/pixman/"
-license=('custom')
+license=('MIT')
 depends=('glibc')
 makedepends=('meson' 'libpng')
-source=(https://xorg.freedesktop.org/releases/individual/lib/${pkgname}-${pkgver}.tar.bz2)
-sha1sums=('87e1abc91ac4e5dfcc275f744f1d0ec3277ee7cd')
+provides=('libpixman-1.so')
+source=(https://xorg.freedesktop.org/releases/individual/lib/${pkgname}-${pkgver}.tar.xz)
+sha512sums=('b40fb05bd58dc78f4e4e9b19c86991ab0611b708657c9a7fb42bfe82d57820a0fde01a34b00a0848a41da6c3fb90c2213942a70f435a0e9467631695d3bc7e36')
 #validpgpkeys=('') # Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
 build() {
@@ -23,6 +24,7 @@ build() {
     -D vmx=disabled \
     -D arm-simd=disabled \
     -D neon=disabled \
+    -D a64-neon=disabled \
     -D iwmmxt=disabled \
     -D mips-dspr2=disabled \
     -D gtk=disabled

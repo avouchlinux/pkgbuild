@@ -1,36 +1,74 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=folks
-pkgver=0.15.6
+pkgver=0.15.7
 pkgrel=1
 pkgdesc="Library to aggregates people into metacontacts"
 arch=(x86_64)
 groups=('gnome-base')
-url="https://wiki.gnome.org/Projects/Folks"
-license=(LGPL2.1)
-depends=(telepathy-glib libgee libxml2 evolution-data-server)
-makedepends=(gobject-introspection gtk-doc vala git meson python)
-checkdepends=(python-dbusmock)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+license=(LGPL-2.1-or-later)
+depends=(
+  evolution-data-server
+  libgee
+  libxml2
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  libsysprof-capture
+  meson
+  python-dbusmock
+  vala
+)
+provides=(
+  libfolks.so
+  libfolks-{dummy,eds}.so
+)
+options=(!lto)
+_commit=fd570fa84f2e5e549187490ee89a9b77e9371785  # tags/0.15.7^0
+source=("git+https://gitlab.gnome.org/GNOME/folks.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd folks
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  cd $pkgname-$pkgver
-  # patch -Np1 -i ../0001-eds-add-persona-Test-fails-when-eds-is-compiled-with.patch
+  cd folks
+
+  # Fix tests: python-dbusmock 0.30.1+ dropped the class_ parameter again
+  git revert -n b6b7d41aad9e36e0d0e6ec9822ed2e310923c8fd
+
+  # gcc 14
+  # implicit function declaration (Modern C porting):
+	# - https://bugs.gentoo.org/920098
+	# - https://gitlab.gnome.org/GNOME/folks/-/merge_requests/68
+  patch -Np1 -i ../folks-0.15.6-implicit-decl.patch
 }
 
 build() {
-  avouch-meson $pkgname-$pkgver build -D b_lto=false -D telepathy_backend=false
-  ninja -C build
+  # gcc 14
+	# export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
+  local meson_options=(
+    -D b_lto=false  # LTO copies some GType constructors
+    -D docs=true
+    -D profiling=true
+    -D telepathy_backend=false
+  )
+
+  avouch-meson folks build "${meson_options[@]}"
+  meson compile -C build
 }
 
-# check() {
-#   # ** (/build/folks/src/build/tests/eds/eds-add-persona:3157): ERROR **: 11:55:16.528: test-utils.vala:71: Timed out
-#   meson test -C build --print-errorlogs || :
-# }
+check() {
+  meson test -C build --print-errorlogs -t 4
+}
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

@@ -1,0 +1,83 @@
+From 8580e7acc8badfec3dd1be4257d46352f3a4a840 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Fri, 2 Feb 2024 00:45:11 +0100
+Subject: [PATCH] menus: Add new Science category
+
+Science is a valid main category defined by the Desktop Menu Specification since 2012. Add a new directory for this.
+---
+ data/directories/Makefile.am                         |  1 +
+ .../X-GNOME-Flashback-Science.directory.desktop.in   |  6 ++++++
+ data/menus/gnome-flashback-applications.menu         | 12 ++++++++++++
+ po/POTFILES.in                                       |  1 +
+ 4 files changed, 20 insertions(+)
+ create mode 100644 data/directories/X-GNOME-Flashback-Science.directory.desktop.in
+
+diff --git a/data/directories/Makefile.am b/data/directories/Makefile.am
+index f8d2870..13930b2 100644
+--- a/data/directories/Makefile.am
++++ b/data/directories/Makefile.am
+@@ -1,6 +1,7 @@
+ NULL =
+ 
+ directory_in_files = \
++	X-GNOME-Flashback-Science.directory.desktop.in \
+ 	X-GNOME-Flashback-Settings.directory.desktop.in \
+ 	X-GNOME-Flashback-Settings-System.directory.desktop.in \
+ 	$(NULL)
+diff --git a/data/directories/X-GNOME-Flashback-Science.directory.desktop.in b/data/directories/X-GNOME-Flashback-Science.directory.desktop.in
+new file mode 100644
+index 0000000..2171526
+--- /dev/null
++++ b/data/directories/X-GNOME-Flashback-Science.directory.desktop.in
+@@ -0,0 +1,6 @@
++[Desktop Entry]
++Type=Directory
++Name=Science
++Comment=Scientific applications
++# TRANSLATORS: Don't translate this text (this is icon name)
++Icon=applications-engineering
+diff --git a/data/menus/gnome-flashback-applications.menu b/data/menus/gnome-flashback-applications.menu
+index 7bb330e..46f31fb 100644
+--- a/data/menus/gnome-flashback-applications.menu
++++ b/data/menus/gnome-flashback-applications.menu
+@@ -64,6 +64,7 @@
+     <Include>
+       <And>
+         <Category>Education</Category>
++        <Not><Category>Science</Category></Not>
+       </And>
+     </Include>
+   </Menu> <!-- End Education -->
+@@ -138,6 +139,17 @@
+     </Include>
+   </Menu> <!-- End Office -->
+ 
++  <!-- Science -->
++  <Menu>
++    <Name>Science</Name>
++    <Directory>X-GNOME-Flashback-Science.directory</Directory>
++    <Include>
++      <And>
++        <Category>Science</Category>
++      </And>
++    </Include>
++  </Menu> <!-- End Science -->
++
+   <!-- System Tools-->
+   <Menu>
+     <Name>System</Name>
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index cf61d75..1364c6d 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -13,6 +13,7 @@ data/autostart/gnome-flashback-idle-monitor.desktop.in.in
+ data/autostart/gnome-flashback-media-keys.desktop.in.in
+ data/autostart/gnome-flashback-nm-applet.desktop.in
+ data/autostart/gnome-flashback-polkit.desktop.in.in
++data/directories/X-GNOME-Flashback-Science.directory.desktop.in
+ data/directories/X-GNOME-Flashback-Settings.directory.desktop.in
+ data/directories/X-GNOME-Flashback-Settings-System.directory.desktop.in
+ data/keybindings/50-gnome-flashback-screenshots.xml
+-- 
+2.44.0
+

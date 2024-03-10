@@ -4,17 +4,37 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vala
-pkgver=0.56.13
+pkgver=0.56.15
 pkgrel=1
 pkgdesc="Compiler for the GObject type system"
 arch=('x86_64')
 groups=('dev-compiler')
 url="https://wiki.gnome.org/Projects/Vala"
-license=(LGPL)
-depends=(glib2 gtk-doc graphviz ttf-font pkg-config gcc)
-makedepends=(libxslt vala git help2man autoconf-archive)
-checkdepends=(dbus libx11 gobject-introspection)
-provides=(valadoc libvala-${pkgver%.*}.so libvaladoc-${pkgver%.*}.so)
+license=(LGPL-2.1-or-later)
+depends=(
+  gcc
+  glib2
+  graphviz
+  gtk-doc
+  pkg-config
+  ttf-font
+)
+makedepends=(
+  autoconf-archive
+  git
+  help2man
+  libxslt
+  vala
+)
+checkdepends=(
+  dbus
+  gobject-introspection
+  libx11
+)
+provides=(
+  libvala{,doc}-${pkgver%.*}.so
+  valadoc
+)
 conflicts=(valadoc)
 source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 

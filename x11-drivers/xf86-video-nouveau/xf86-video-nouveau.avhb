@@ -26,12 +26,18 @@ prepare() {
 build() {
   cd $pkgname-$pkgver
 
-  # Hardened flags are now enabled in ee.conf
+  # Since pacman 5.0.2-2, hardened flags are now enabled in makepkg.conf
   # With them, module fail to load with undefined symbol.
-  # See https://bugs.avouch.org/ / https://bugs.avouch.org/
-  export CFLAGS=${CFLAGS/-fno-plt}
-  export CXXFLAGS=${CXXFLAGS/-fno-plt}
-  export LDFLAGS=${LDFLAGS/-z now}
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  #export CFLAGS=${CFLAGS/-fno-plt}
+  #export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  #export LDFLAGS=${LDFLAGS/,-z,now}
+  
+  export CFLAGS=""
+  export CXXFLAGS=""
+  export LDFLAGS=""
+  
+  export CFLAGS+=" -Wno-implicit-function-declaration"
 
   ./configure --prefix=/usr
   make

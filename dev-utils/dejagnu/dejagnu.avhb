@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dejagnu
-pkgver=1.6.2
+pkgver=1.6.3
 pkgrel=1
 pkgdesc="Framework for testing other programs"
 arch=('any')

@@ -6,7 +6,7 @@
 pkgbase=glib2
 pkgname=('glib2' 'glib2-docs')
 _realname=glib
-pkgver=2.78.3
+pkgver=2.78.4
 pkgrel=1
 pkgdesc="Low level core library"
 arch=('x86_64')
@@ -19,7 +19,7 @@ checkdepends=(desktop-file-utils)
 optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
             'libelf: gresource inspection tool')
 options=(!strip)
-source=("https://gitlab.gnome.org/GNOME/$realname/-/archive/$pkgver/$realname-$pkgver.tar.bz2"
+source=("https://download.gnome.org/sources/glib/2.78/glib-$pkgver.tar.xz"
         noisy-glib-compile-schemas.diff
         glib-compile-schemas.hook gio-querymodules.hook)
 

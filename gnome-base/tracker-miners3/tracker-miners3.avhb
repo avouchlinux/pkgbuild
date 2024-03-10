@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -15,7 +15,7 @@ license=(GPL)
 depends=(tracker gst-plugins-base-libs exempi flac libexif libcue libgrss libgsf libgxps
          libiptcdata libosinfo libvorbis poppler-glib taglib totem-plparser giflib)
 makedepends=(intltool git python meson vala)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
 
 build() {
     avouch-meson $_realname-$pkgver build -D tests_tap_protocol=true

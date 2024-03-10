@@ -6,7 +6,7 @@
 pkgbase=gtk3
 pkgname=(gtk3 gtk-update-icon-cache)
 _realname=gtk
-pkgver=3.24.38
+pkgver=3.24.41
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (v3)"
 arch=('x86_64')

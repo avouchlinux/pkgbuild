@@ -1,33 +1,44 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxcb
-pkgver=1.14
+pkgver=1.16.1
 pkgrel=1
 pkgdesc="X11 client-side library"
 arch=('x86_64')
 groups=('x11-libs')
-url="http://xcb.freedesktop.org/"
-depends=('xcb-proto' 'libxdmcp' 'libxau')
+url="https://gitlab.freedesktop.org/xorg/lib/libxcb"
+depends=('xcb-proto' 'libxdmcp' 'libxau' 'glibc')
 makedepends=('libxslt' 'python' 'xorg-util-macros' 'xorgproto')
-license=('custom')
-source=($url/dist/$pkgname-$pkgver.tar.bz2)
+license=('X11')
+source=(https://xorg.freedesktop.org/archive/individual/lib/$pkgname-$pkgver.tar.xz{,.sig})
+sha512sums=('e3afdae1c0e2a5ae2add7b2c4fdd3283cb86023ef6448f5b8b29a4bb72c274e34eaf0fc7523762bcd3f5116910fe7374490e8f26c25744301563ced80acc3e7f'
+            'SKIP')
+#validpgpkeys=('A66D805F7C9329B4C5D82767CCC4F07FAC641EFF') # "Daniel Stone <daniels@collabora.com>"
+#validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # "Matt Turner <mattst88@gmail.com>"
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    ./configure --prefix=/usr --enable-xinput --enable-xkb --disable-static
-    make ${MAKEFLAGS}
+  cd "$pkgname-$pkgver"
+  export LNAG="en_US"
+  ./configure --prefix=/usr \
+    --enable-xinput \
+    --enable-xkb \
+    --disable-static
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make -k check
+  cd $pkgname-$pkgver
+  make -k check
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" install
+  install -m755 -d "$pkgdir/usr/share/licenses/$pkgname"
+  install -m644 COPYING "$pkgdir/usr/share/licenses/$pkgname"
 }
-

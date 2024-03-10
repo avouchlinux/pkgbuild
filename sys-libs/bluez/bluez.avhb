@@ -38,7 +38,7 @@ build() {
           --enable-hid2hci \
           --enable-experimental \
           --enable-library # this is deprecated
-	make ${MAKEFLAGS}
+	make
 }
 
 # check() {

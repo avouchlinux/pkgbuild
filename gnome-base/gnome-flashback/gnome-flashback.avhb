@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,39 +10,82 @@ pkgdesc="GNOME Flashback session"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://wiki.gnome.org/Projects/GnomeFlashback"
-license=('GPL')
-depends=('gnome-bluetooth' 'gnome-panel' 'gnome-session' 'gnome-settings-daemon' 'gnome-themes-standard' 'libibus' 'metacity')
-makedepends=('autoconf-archive' 'git' 'intltool' 'python')
+license=('GPL-3.0-or-later')
+depends=('alsa-lib' 'at-spi2-core' 'bash' 'cairo' 'dconf' 'gcc-libs' 'gdk-pixbuf2' 'glib2' 'glibc'
+         'gnome-bluetooth-3.0' 'gnome-desktop' 'gnome-panel' 'gnome-session'
+         'gnome-settings-daemon' 'gsettings-desktop-schemas' 'gtk3' 'libcanberra' 'libgdm'
+         'libibus' 'libpulse' 'libx11' 'libxcb' 'libxext' 'libxfixes' 'libxi' 'libxkbfile'
+         'libxrandr' 'libxxf86vm' 'metacity' 'nautilus' 'pam' 'pango' 'polkit' 'systemd-libs')
+makedepends=('python')
 optdepends=('gnome-backgrounds: Default background'
             'gnome-control-center: System settings'
-            'gnome-screensaver: Lock screen'
             'network-manager-applet: Network management')
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
+        '0001-background-Support-dark-wallpapers.patch'
+        '0001-polkit-Don-t-reset-the-idle_id.patch'
+        '0001-application-honor-color-scheme-setting.patch'
+        '0001-theme-improve-screensaver-style.patch'
+        '0001-autostart-add-launcher-for-Geoclue-Demo-agent.patch'
+        '0001-menus-Add-new-Science-category.patch'
+        '0001-theme-Add-drop-shadow-for-desktop-icon-labels.patch'
+        '0001-notifications-Allow-configuration-of-notification-lo.patch'
+        'gnome-flashback.pam')
+sha256sums=('d04c434822022c9fa7e60874e5c8cd2060c8f3c0703c19f2b4032be254272afe'
+            'f02afd29538555ab408085c60d8a7139f34fa639add7cd4c3c08a236dc027dc8'
+            'c5e4f4cab9d7c2f34e7ee2adfa5ff9228c6313011efdc927cb49a12dc4f4d8c8'
+            '56d008682e0290ebfb2c16e0d42bcb3e1a022db3488ce33dd1a751c3f4dcbdc3'
+            '095a05c12ca0689149f9c9543ebea2229c62755a85be35b34087437dbbfe31a3'
+            '4cfe7f5b5bb103b3ee9bcc043a3543e8d9bdcc7b5578487ea7deb2f8a544c9ff'
+            '76a574b57fd59a9bccedecac0d8c4bdfa5aaa6232bf9562991810443b828100a'
+            '8d2b272739ac485abba624179b7f5caa3bee81150251be750096ecb397d4b33a'
+            '4469e7a17874eabb6192c806b8344e1f1c2a9d7abf472069be6b177a2e268d1f'
+            '7148b3b1773fa312d6cd14798338cc70cffb6df7504ff1787687edd0363138d2')
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	#NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname-$pkgver
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/51
+  patch -Np1 -i ../0001-background-Support-dark-wallpapers.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/52
+  patch -Np1 -i ../0001-polkit-Don-t-reset-the-idle_id.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/53
+  patch -Np1 -i ../0001-application-honor-color-scheme-setting.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/54
+  patch -Np1 -i ../0001-theme-improve-screensaver-style.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/55
+  patch -Np1 -i ../0001-autostart-add-launcher-for-Geoclue-Demo-agent.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/56
+  patch -Np1 -i ../0001-menus-Add-new-Science-category.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/57
+  patch -Np1 -i ../0001-theme-Add-drop-shadow-for-desktop-icon-labels.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/59
+  patch -Np1 -i ../0001-notifications-Allow-configuration-of-notification-lo.patch
+
+  # Regenerate resources file
+  rm gnome-flashback/gf-resources.{c,h}
+
+  # Recreate autotools
+  autoreconf -fi
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--libexecdir=/usr/lib/$pkgname \
-		--disable-schemas-compile \
-		--enable-compile-warnings=minimum \
-		--enable-gtk-doc
-	make ${MAKEFLAGS}
-}
-
-check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
-}
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 
+  # Install pam file for the screensaver
+  install -Dm644 ../gnome-flashback.pam "$pkgdir/etc/pam.d/gnome-flashback"
+}

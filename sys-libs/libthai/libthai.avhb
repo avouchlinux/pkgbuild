@@ -1,28 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libthai
-pkgver=0.1.28
+pkgver=0.1.29
 pkgrel=1
 pkgdesc="Thai language support routines"
 arch=('x86_64')
 groups=('sys-libs')
 url="http://linux.thai.net/projects/libthai"
-license=('LGPL')
-depends=('libdatrie')
-makedepends=('pkgconfig')
-options=('!emptydirs')
+license=('LGPL-2.1-or-later')
+depends=('glibc' 'libdatrie')
+makedepends=('doxygen')
 source=(https://linux.thai.net/pub/thailinux/software/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+sha256sums=('fc80cc7dcb50e11302b417cebd24f2d30a8b987292e77e003267b9100d0f4bcd')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd $pkgname-$pkgver
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }
-

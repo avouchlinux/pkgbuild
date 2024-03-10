@@ -1,0 +1,124 @@
+From 1ff015baef703c9e9bd6a866783b0d0264a16786 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Mon, 4 Mar 2024 11:50:24 +0100
+Subject: [PATCH] notifications: Allow configuration of notification location
+
+The support is already there, but it was not exposed as a setting.
+---
+ data/schemas/Makefile.am                        |  1 +
+ .../org.gnome.gnome-flashback.gschema.xml       |  1 +
+ ...me.gnome-flashback.notifications.gschema.xml | 16 ++++++++++++++++
+ gnome-flashback/libnotifications/nd-stack.c     | 17 ++++++++++++++++-
+ po/POTFILES.in                                  |  1 +
+ 5 files changed, 35 insertions(+), 1 deletion(-)
+ create mode 100644 data/schemas/org.gnome.gnome-flashback.notifications.gschema.xml
+
+diff --git a/data/schemas/Makefile.am b/data/schemas/Makefile.am
+index 4566912..2aae1b1 100644
+--- a/data/schemas/Makefile.am
++++ b/data/schemas/Makefile.am
+@@ -14,6 +14,7 @@ gsettings_SCHEMAS = \
+ 	org.gnome.gnome-flashback.desktop.background.gschema.xml \
+ 	org.gnome.gnome-flashback.desktop.icons.gschema.xml \
+ 	org.gnome.gnome-flashback.keybindings.gschema.xml \
++	org.gnome.gnome-flashback.notifications.gschema.xml \
+ 	org.gnome.gnome-flashback.system-indicators.input-sources.gschema.xml \
+ 	$(NULL)
+ 
+diff --git a/data/schemas/org.gnome.gnome-flashback.gschema.xml b/data/schemas/org.gnome.gnome-flashback.gschema.xml
+index 4d22847..a48b0fc 100644
+--- a/data/schemas/org.gnome.gnome-flashback.gschema.xml
++++ b/data/schemas/org.gnome.gnome-flashback.gschema.xml
+@@ -99,5 +99,6 @@
+ 
+     <child schema="org.gnome.gnome-flashback.desktop" name="desktop" />
+     <child schema="org.gnome.gnome-flashback.keybindings" name="keybindings" />
++    <child schema="org.gnome.gnome-flashback.notifications" name="notifications" />
+   </schema>
+ </schemalist>
+diff --git a/data/schemas/org.gnome.gnome-flashback.notifications.gschema.xml b/data/schemas/org.gnome.gnome-flashback.notifications.gschema.xml
+new file mode 100644
+index 0000000..a31acd5
+--- /dev/null
++++ b/data/schemas/org.gnome.gnome-flashback.notifications.gschema.xml
+@@ -0,0 +1,16 @@
++<schemalist gettext-domain="gnome-flashback">
++  <enum id="org.gnome.gnome-flashback.notifications.location">
++    <value nick="top-left" value="0"/>
++    <value nick="top-right" value="1"/>
++    <value nick="bottom-left" value="2"/>
++    <value nick="bottom-right" value="3"/>
++  </enum>
++
++  <schema id="org.gnome.gnome-flashback.notifications" path="/org/gnome/gnome-flashback/notifications/">
++    <key name="location" enum="org.gnome.gnome-flashback.notifications.location">
++      <default>'top-right'</default>
++      <summary>Location of the notifications</summary>
++      <description>The corner of the screen where notifications will be shown.</description>
++    </key>
++  </schema>
++</schemalist>
+diff --git a/gnome-flashback/libnotifications/nd-stack.c b/gnome-flashback/libnotifications/nd-stack.c
+index 8c48418..ef9c9c2 100644
+--- a/gnome-flashback/libnotifications/nd-stack.c
++++ b/gnome-flashback/libnotifications/nd-stack.c
+@@ -32,6 +32,7 @@ struct NdStackPrivate
+         NdStackLocation location;
+         GList          *bubbles;
+         guint           update_id;
++        GSettings      *settings;
+ };
+ 
+ static void     nd_stack_finalize    (GObject       *object);
+@@ -122,6 +123,14 @@ translate_coordinates (NdStackLocation stack_location,
+         }
+ }
+ 
++static void
++location_changed_cb (GSettings     *settings,
++                     const char    *key,
++                     NdStack       *stack)
++{
++  stack->priv->location = g_settings_get_enum (stack->priv->settings, "location");
++}
++
+ static void
+ nd_stack_class_init (NdStackClass *klass)
+ {
+@@ -134,7 +143,11 @@ static void
+ nd_stack_init (NdStack *stack)
+ {
+         stack->priv = nd_stack_get_instance_private (stack);
+-        stack->priv->location = ND_STACK_LOCATION_DEFAULT;
++        stack->priv->settings = g_settings_new ("org.gnome.gnome-flashback.notifications");
++        stack->priv->location = g_settings_get_enum (stack->priv->settings, "location");
++
++        g_signal_connect (stack->priv->settings, "changed::location",
++                          G_CALLBACK (location_changed_cb), stack);
+ }
+ 
+ static void
+@@ -149,6 +162,8 @@ nd_stack_finalize (GObject *object)
+ 
+         g_return_if_fail (stack->priv != NULL);
+ 
++        g_clear_object (&stack->priv->settings);
++
+         if (stack->priv->update_id != 0) {
+                 g_source_remove (stack->priv->update_id);
+         }
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index cf61d75..ef4c68a 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -21,6 +21,7 @@ data/schemas/org.gnome.gnome-flashback.desktop.gschema.xml
+ data/schemas/org.gnome.gnome-flashback.desktop.background.gschema.xml
+ data/schemas/org.gnome.gnome-flashback.desktop.icons.gschema.xml
+ data/schemas/org.gnome.gnome-flashback.keybindings.gschema.xml
++data/schemas/org.gnome.gnome-flashback.notifications.gschema.xml
+ data/schemas/org.gnome.gnome-flashback.system-indicators.input-sources.gschema.xml
+ data/ui/gf-confirm-display-change-dialog.ui
+ data/xsessions/gnome-flashback-compiz.desktop.in.in
+-- 
+2.44.0
+

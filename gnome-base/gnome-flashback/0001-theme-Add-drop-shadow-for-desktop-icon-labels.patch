@@ -1,0 +1,27 @@
+From 5570a53ee053dc45099a4bb1ea02423c3aac4e8c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Mon, 26 Feb 2024 17:38:12 +0100
+Subject: [PATCH] theme: Add drop shadow for desktop icon labels
+
+This makes the text more readable with light backgrounds.
+
+https://gitlab.gnome.org/GNOME/gnome-flashback/-/issues/89
+---
+ data/theme/common.css | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/data/theme/common.css b/data/theme/common.css
+index 2193a87..c928904 100644
+--- a/data/theme/common.css
++++ b/data/theme/common.css
+@@ -59,6 +59,7 @@ gf-icon {
+ 
+ gf-icon label {
+   border-radius: 3px;
++  text-shadow: 1px 1px black;
+   padding: 2px;
+ }
+ 
+-- 
+2.44.0
+

@@ -17,9 +17,10 @@ source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
+	  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration"
 	./configure --prefix=/usr --sysconfdir=/etc \
 	--localstatedir=/var --disable-static --enable-gtk-doc
-	make ${MAKEFLAGS}
+	make -j1
 }
 
 package() {

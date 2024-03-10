@@ -4,6 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-console
+_realname=console
 pkgver=45.0
 pkgrel=1
 pkgdesc="A simple user-friendly terminal emulator for the GNOME desktop"
@@ -22,10 +23,10 @@ makedepends=(
   meson
 )
 groups=(gnome)
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2)
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  avouch-meson $_realname-$pkgver build
   ninja -C build
 }
 

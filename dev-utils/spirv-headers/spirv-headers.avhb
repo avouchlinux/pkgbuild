@@ -1,25 +1,29 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=spirv-headers
 _realname=SPIRV-Headers-sdk
-pkgver=1.3.204.1
+pkgver=1.3.275.0
 pkgrel=1
 pkgdesc='SPIR-V Headers'
 arch=('x86_64')
 groups=('dev-utils')
-url='https://www.khronos.org/registry/spir-v/'
-license=('MIT')
-source=("https://github.com/KhronosGroup/SPIRV-Headers/archive/$_commit.tar.gz")
+url="https://www.khronos.org/registry/spir-v/"
+license=(MIT)
+makedepends=(cmake)
+source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/vulkan-sdk-${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('c9d448a74006a5fdf59993e6d6a9c617bab4c5df23c333b7ada386e4ca25caaae28fc83f71963ce8468646113d83d6e7b17c26c46c3b6485c8df91f142755977')
 
 build() {
-  cmake -B build -S $_realname-${pkgver} -DCMAKE_INSTALL_PREFIX=/usr .
+  cmake -B build \
+    -S SPIRV-Headers-vulkan-sdk-${pkgver} \
+    -DCMAKE_INSTALL_PREFIX=/usr
   make -C build
 }
 
 package() {
   make -C build DESTDIR="${pkgdir}" install
-  install -Dm644 $_realname-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
+  install -Dm644 SPIRV-Headers-vulkan-sdk-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }

@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,8 +12,8 @@ groups=('sys-libs')
 url="https://github.com/dell/libsmbios"
 license=('GPL' 'custom')
 depends=('gcc-libs')
-makedepends=('libxml2' 'python2' 'chrpath' 'doxygen' 'git' 'cppunit')
-optdepends=('python2: tools')
+makedepends=('libxml2' 'python' 'chrpath' 'doxygen' git cppunit help2man)
+optdepends=('python: tools')
 source=("https://github.com/dell/libsmbios/archive/v$pkgver.tar.gz")
 sha256sums=('SKIP')
 
@@ -28,7 +28,7 @@ build() {
   mkdir build
   cd build
   ../configure --prefix=/usr --sbindir=/usr/bin --sysconfdir=/etc --disable-static
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

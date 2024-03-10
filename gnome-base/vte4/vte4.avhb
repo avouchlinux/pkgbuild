@@ -1,0 +1,43 @@
+# Copyright 2010-2023 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=vte4
+_realname=vte
+pkgname=(vte4 vte-common)
+pkgver=0.74.2
+pkgrel=1
+pkgdesc="Virtual Terminal Emulator widget for use with GTK3"
+url="https://wiki.gnome.org/Apps/Terminal/VTE"
+arch=('x86_64')
+groups=('gnome-base')
+license=(LGPL)
+options=(!emptydirs)
+depends=(gtk3 pcre2 gnutls fribidi)
+makedepends=(gobject-introspection vala git gtk-doc gperf meson)
+source=(https://gitlab.gnome.org/GNOME/vte/-/archive/$pkgver/vte-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson vte-$pkgver build -D docs=false -D b_lto=false
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_vte4(){
+  depends+=(vte-common)
+
+  DESTDIR="$pkgdir" meson install -C build
+
+  mv "$pkgdir/etc/profile.d/vte.sh" "$srcdir"
+}
+
+package_vte-common() {
+  pkgdesc="Common files used by vte and vte3"
+  depends=(sh)
+
+  install -Dt "$pkgdir/etc/profile.d" -m644 vte.sh
+}

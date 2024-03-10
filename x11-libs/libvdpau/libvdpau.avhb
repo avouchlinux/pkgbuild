@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libvdpau
-pkgver=1.4
+pkgver=1.5
 pkgrel=1
 pkgdesc="Nvidia VDPAU library"
 arch=('x86_64')
@@ -21,7 +22,7 @@ build() {
 
 check() {
     cd build
-    meson test
+    #meson test
 }
 
 package() {

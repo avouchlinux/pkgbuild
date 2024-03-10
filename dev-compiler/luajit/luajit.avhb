@@ -1,27 +1,44 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=luajit
+# LuaJIT has a "rolling release" where you should follow git HEAD
+_commit=ff204d0350575cf710f6f4af982db146cb454e1a
+# The patch version is the timestamp of the above git commit, obtain via `git show -s --format=%ct`
+_ct=1702233742
+pkgver="2.1.${_ct}"
 _realname=LuaJIT
-pkgver=2.0.5
 pkgrel=1
 pkgdesc='Just-in-time compiler and drop-in replacement for Lua 5.1'
 arch=('x86_64')
-groups=('dev-lang')
-url='http://luajit.org/'
+groups=('dev-compiler')
+url='https://luajit.org/'
 license=('MIT')
 depends=('gcc-libs')
-source=(http://luajit.org/download/LuaJIT-$pkgver.tar.gz)
+source=("LuaJIT-${_commit}.tar.gz::https://github.com/LuaJIT/LuaJIT/archive/${_commit}.tar.gz")
+md5sums=('97486356d223510a6e3c31a20bcd32ed')
+sha256sums=('3ec37f78ab3b1afd4c3af0fde743c332da3da32eadc8500489c1cc2e4f0ec7eb')
+b2sums=('6ba03fa107baadf0ac980d515debd638b1a166014ee46c6fa95865a12678a831fbae04d14ccb737723a69874af2b0637bbaa516973830ca4c7e5311aa3f91b76')
 
 build() {
-    cd "${srcdir}/LuaJIT-${pkgver}"
-    make amalg PREFIX=/usr
+  cd "LuaJIT-${_commit}"
+
+  # Avoid early stripping
+  make amalg PREFIX=/usr BUILDMODE=dynamic TARGET_STRIP=" @:"
+}
+
+check() {
+  cd "LuaJIT-${_commit}"
+
+  # Make sure that _ct was updated
+  test "${_ct}" == "$(cat .relver)"
 }
 
 package() {
-    cd "${srcdir}/LuaJIT-${pkgver}"
-    make install DESTDIR="$pkgdir" PREFIX=/usr
-    # license
-    install -Dm644 COPYRIGHT "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+  cd "LuaJIT-${_commit}"
+
+  make install DESTDIR="$pkgdir" PREFIX=/usr
+  install -Dm644 COPYRIGHT "$pkgdir/usr/share/licenses/$pkgname/COPYRIGHT"
 }

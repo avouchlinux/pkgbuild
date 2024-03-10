@@ -1,31 +1,69 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orca
-pkgver=45.0
+pkgver=45.2
+_srcname=${pkgname^^}_${pkgver/./_}
 pkgrel=1
 pkgdesc="Screen reader for individuals who are blind or visually impaired"
-url="https://wiki.gnome.org/Projects/Orca"
 arch=(any)
 groups=('gnome-base')
-license=(LGPL)
-depends=(gtk3 at-spi2-atk python-atspi python-dbus python-xdg speech-dispatcher liblouis brltty
-         xorg-xmodmap gsettings-desktop-schemas
-         gst-plugins-base # playbin, audiotestsrc, basic decoders
-         gst-plugins-good # pulsesink, more decoders
+url="https://wiki.gnome.org/Projects/Orca"
+arch=(any)
+license=(LGPL-2.1-or-later)
+depends=(
+  at-spi2-core
+  brltty
+  gobject-introspection-runtime
+  gsettings-desktop-schemas
+  gstreamer
+  gst-plugins-base # playbin, audiotestsrc, basic decoders
+  gst-plugins-good # pulsesink, more decoders
+  gtk3
+  hicolor-icon-theme
+  liblouis
+  libwnck3
+  pango
+  python
+  python-atspi
+  python-cairo
+  python-gobject
+  python-setproctitle
+  speech-dispatcher
+  xorg-xkbcomp
+  xorg-xmodmap
 )
-makedepends=(itstool intltool git yelp-tools)
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+makedepends=(
+  git
+  itstool
+  yelp-tools
+)
+groups=(gnome)
+_commit=cd1c1f25fbea6b6d815ce4403364e78e635919be  # tags/ORCA_45_2^0
+# source=("git+https://gitlab.gnome.org/GNOME/orca.git#commit=$_commit")
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$_srcname/$pkgname-$_srcname.tar.bz2")
+b2sums=('SKIP')
+
+prepare() {
+  cd $pkgname-$_srcname
+  NOCONFIGURE=1 ./autogen.sh
+}
 
 build() {
-    cd ${srcdir}/${pkgname}-${pkgver}
-    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
-    make ${MAKEFLAGS}
+  local configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --localstatedir=/var
+  )
+
+  cd $pkgname-$_srcname
+  ./configure "${configure_options[@]}"
+  make
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  cd $pkgname-$_srcname
+  make DESTDIR="$pkgdir" install
 }

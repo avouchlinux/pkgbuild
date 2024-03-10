@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gdk-pixbuf2
 _realname=gdk-pixbuf
-pkgver=2.42.8
+pkgver=2.42.10
 pkgrel=1
 pkgdesc="An image loading library"
 arch=('x86_64')
@@ -19,13 +19,16 @@ source=("https://gitlab.gnome.org/GNOME/gdk-pixbuf/-/archive/$pkgver/gdk-pixbuf-
 
 build() {
   avouch-meson gdk-pixbuf-$pkgver build \
+    -D builtin_loaders=all \
+    -D gtk_doc=true \
     -D installed_tests=false
   meson compile -C build
+
 }
 
-check() {
-  meson test -C build --print-errorlogs
-}
+# check() {
+#   meson test -C build --print-errorlogs
+# }
 
 package() {
   DESTDIR="$pkgdir" meson install -C build

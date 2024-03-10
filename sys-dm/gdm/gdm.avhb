@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -38,6 +38,9 @@ prepare() {
 }
 
 build() {
+
+  # GCC 14
+  export CFLAGS+=" -Wno-incompatible-pointer-types"
 	avouch-meson ${pkgname}-${pkgver} build \
         -Ddbus-sys=/usr/share/dbus-1/system.d \
         -Dgdm-xsession=true \

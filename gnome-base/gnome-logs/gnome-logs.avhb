@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -15,14 +15,14 @@ makedepends=('intltool' 'gtk-doc')
 options=('!emptydirs')
 url="http://www.gnome.org"
 install=gnome-keyring.install
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.gnome.org/GNOME/gnome-logs/-/archive/$pkgname-$pkgver/$pkgname-$pkgname-$pkgver.tar.bz2)
 
 build() {
     local meson_options=(
         -D man=true
     )
 
-    avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+    avouch-meson $pkgname-$pkgname-$pkgver build "${meson_options[@]}"
     meson compile -C build
 
 }

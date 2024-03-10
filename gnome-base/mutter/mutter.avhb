@@ -8,7 +8,7 @@ pkgname=(
   mutter
   mutter-docs
 )
-pkgver=45.0
+pkgver=45.4
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 arch=('x86_64')
@@ -57,7 +57,7 @@ checkdepends=(
 )
 
 install=mutter.install
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+source=(https://gitlab.gnome.org/GNOME/mutter/-/archive/$pkgver/mutter-$pkgver.tar.bz2)
 
 prepare() {
   cd $pkgname-$pkgver

@@ -17,7 +17,13 @@ provides=(xdg-desktop-portal-impl)
 source=("https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/archive/$pkgver/xdg-desktop-portal-gnome-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -Np1 -i ../45.1-c99.patch
+}
+
 build() {
+  # export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
   avouch-meson ${pkgname}-${pkgver} build
   meson compile -C build
 }

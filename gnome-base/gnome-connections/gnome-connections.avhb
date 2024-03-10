@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,23 +9,25 @@ pkgrel=1
 pkgdesc="A remote desktop client for the GNOME desktop environment"
 arch=('x86_64')
 groups=('gnome-base')
-url="https://gitlab.gnome.org/felipeborges/connections"
-license=(GPL)
-depends=(libsecret gtk-vnc vte3 telepathy-glib avahi dconf spice-gtk3 gnutls freerdp)
-makedepends=(docbook-xsl intltool openssh itstool spice-protocol vala gnome-common appstream-glib meson)
-replaces=(Vinagre)
-optdepends=('openssh: SSH plugin')
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+url='https://apps.gnome.org/Connections/'
+license=('GPL-3.0-or-later')
+depends=('cairo' 'dconf' 'freerdp' 'fuse3' 'gdk-pixbuf2' 'glib2' 'glibc' 'gtk3'
+         'gtk-vnc' 'hicolor-icon-theme' 'libhandy' 'libsecret' 'libxml2')
+makedepends=('appstream-glib' 'gobject-introspection' 'itstool' 'meson' 'vala')
+groups=('gnome')
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+sha256sums=('b9fab525b90a3e27d113c16fb868c2b9c47bf8149310d14db862ea1912c06fb8')
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    ninja -C build
+    export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
 }
 
-# check() {
-#     meson test -C build
-# }
+check() {
+  meson test -C build --print-errorlogs
+}
 
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

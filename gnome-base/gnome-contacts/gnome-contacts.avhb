@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,7 +8,7 @@
 # https://gitlab.gnome.org/GNOME/gnome-contacts/-/issues/222
 
 pkgname=gnome-contacts
-pkgver=45.0
+pkgver=45.1
 pkgrel=1
 pkgdesc="Contacts Manager for GNOME"
 url="https://wiki.gnome.org/Apps/Contacts"
@@ -20,6 +20,7 @@ makedepends=(vala gobject-introspection git meson)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {
+  	export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration -Wno-return-mismatch"
     avouch-meson ${pkgname}-${pkgver} build
     ninja -C build
 }

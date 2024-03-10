@@ -1,46 +1,50 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=spirv-llvm-translator
 _realname=SPIRV-LLVM-Translator
-pkgver=14.0.0
+pkgver=17.0.0.r6+g70883514
 pkgrel=1
 pkgdesc="Tool and a library for bi-directional translation between SPIR-V and LLVM IR"
 arch=(x86_64)
 groups=('dev-utils')
-url="https://github.com/KhronosGroup/SPIRV-LLVM-Translator/"
+url="https://github.com/KhronosGroup/SPIRV-LLVM-Translator"
 license=(custom)
-depends=(llvm-libs)
-makedepends=(cmake llvm spirv-tools)
+depends=(llvm-libs spirv-tools)
+makedepends=(git cmake llvm spirv-headers)
 checkdepends=(python python-setuptools clang)
-source=(${url}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
-sha256sums=('6464a722278d37fca783cb505caf44cc8473c22fd22ff6a5d07198bc92059c4f')
+# Current point in the used LLVM branch
+_commit=7088351420a8f0c3e5f9be678fd1d16ae826e37f
+source=(git+${url}.git#commit=$_commit)
+sha256sums=('SKIP')
 
-prepare() {
-    cd ${_realname}
-    # llvm 14.0.0
-    git checkout e02c210fece5f39a97822e56e41fa6e2fdbd1f25
+pkgver() {
+  cd ${_realname}
+  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./;s/-/+/'
 }
+
 build() {
-    cmake -B build -S ${_realname} \
-        -DBUILD_SHARED_LIBS=ON \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-        -DCMAKE_SKIP_RPATH=ON \
-        -DLLVM_INCLUDE_TESTS=ON \
-        -DLLVM_EXTERNAL_LIT=/usr/bin/lit \
-        -Wno-dev
-    make ${MAKEFLAGS} -C build
+  cmake -B build -S ${_realname} \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DLLVM_INCLUDE_TESTS=ON \
+    -DLLVM_EXTERNAL_LIT=/usr/bin/lit \
+    -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/include/spirv/ \
+    -Wno-dev
+  make -C build
 }
 
-# check() {
-#     LD_LIBRARY_PATH="${srcdir}/build/lib/SPIRV" make -C build test
-# }
+check() {
+  LD_LIBRARY_PATH="${srcdir}/build/lib/SPIRV" make -C build test
+}
 
 package() {
-    make -C build DESTDIR="${pkgdir}" install
-    install -Dm755 build/tools/llvm-spirv/llvm-spirv "${pkgdir}"/usr/bin/llvm-spirv
+  make -C build DESTDIR="${pkgdir}" install
+  install -Dm755 build/tools/llvm-spirv/llvm-spirv -t "${pkgdir}"/usr/bin
+  install -Dm644 ${_realname}/LICENSE.TXT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }

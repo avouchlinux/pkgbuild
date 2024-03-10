@@ -1,119 +1,152 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=llvm
-pkgname=('llvm' 'llvm-libs' 'llvm-ocaml')
-pkgver=14.0.0
+pkgname=('llvm' 'llvm-libs')
+pkgver=17.0.6
 pkgrel=1
-_ocaml_ver=4.14.0
 arch=('x86_64')
 groups=('dev-compiler')
 url="https://llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
-makedepends=('cmake' 'ninja' 'libffi' 'libedit' 'ncurses' 'libxml2'
-             "ocaml>=$_ocaml_ver" 'ocaml-ctypes' 'ocaml-findlib'
-             'python3-setuptools' 'python3-psutil' 'python3-sphinx'
-             'python3-recommonmark')
-options=('staticlibs')
-source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/llvm-$pkgver.src.tar.xz
-        llvm-config.h)
-validpgpkeys+=('B6C8F98282B944E3B0D5C2530FC3042E345AD05D') # Hans Wennborg <hans@chromium.org>
-validpgpkeys+=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
+makedepends=('cmake' 'ninja' 'zlib' 'zstd' 'libffi' 'libedit' 'ncurses'
+             'libxml2' 'python-setuptools' 'python-psutil' 'python-sphinx'
+             'python-recommonmark')
+options=('staticlibs' '!lto') # tools/llvm-shlib/typeids.test fails with LTO
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+source=($_source_base/llvm-$pkgver.src.tar.xz{,.sig}
+        $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
+        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
+sha256sums=('b638167da139126ca11917b6880207cc6e8f9d1cbb1a48d87d017f697ef78188'
+            'SKIP'
+            '807f069c54dc20cb47b21c1f6acafdd9c649f3ae015609040d6182cab01140f4'
+            'SKIP'
+            '3054d0a9c9375dab1a4539cc2cc45ab340341c5d71475f9599ba7752e222947b'
+            'SKIP')
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
+              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+
+# Utilizing LLVM_DISTRIBUTION_COMPONENTS to avoid
+# installing static libraries; inspired by Gentoo
+_get_distribution_components() {
+  local target
+  ninja -t targets | grep -Po 'install-\K.*(?=-stripped:)' | while read -r target; do
+    case $target in
+      llvm-libraries|distribution)
+        continue
+        ;;
+      # shared libraries
+      LLVM|LLVMgold)
+        ;;
+      # libraries needed for clang-tblgen
+      LLVMDemangle|LLVMSupport|LLVMTableGen)
+        ;;
+      # testing libraries
+      LLVMTestingAnnotations|LLVMTestingSupport)
+        ;;
+      # exclude static libraries
+      LLVM*)
+        continue
+        ;;
+      # exclude llvm-exegesis (doesn't seem useful without libpfm)
+      llvm-exegesis)
+        continue
+        ;;
+    esac
+    echo $target
+  done
+}
 
 prepare() {
-  cd "$srcdir/llvm-$pkgver.src"
+  rename -v -- "-$pkgver.src" '' {cmake,third-party}-$pkgver.src
+  cd llvm-$pkgver.src
   mkdir build
 }
 
 build() {
-    cmake -S llvm-$pkgver.src -B build -G Ninja \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DLLVM_HOST_TRIPLE=$CHOST \
-        -DLLVM_BUILD_LLVM_DYLIB=ON \
-        -DLLVM_LINK_LLVM_DYLIB=ON \
-        -DLLVM_INSTALL_UTILS=ON \
-        -DLLVM_ENABLE_RTTI=ON \
-        -DLLVM_ENABLE_FFI=ON \
-        -DLLVM_BUILD_TESTS=ON \
-        -DLLVM_BUILD_DOCS=ON \
-        -DLLVM_ENABLE_SPHINX=ON \
-        -DLLVM_ENABLE_DOXYGEN=OFF \
-        -DLLVM_INCLUDE_BENCHMARKS=OFF \
-        -DLLVM_BUILD_BENCHMARKS=OFF \
-        -DSPHINX_WARNINGS_AS_ERRORS=OFF \
-        -DLLVM_BINUTILS_INCDIR=/usr/include
-    ninja -C build all ocaml_doc
+  cd llvm-$pkgver.src/build
+
+  # Build only minimal debug info to reduce size
+  export CFLAGS=${CFLAGS/-g /-g1 }
+  export CXXFLAGS=${CXXFLAGS/-g /-g1 }
+
+  local cmake_args=(
+    -G Ninja
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_DOCDIR=share/doc
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_SKIP_RPATH=ON
+    -DLLVM_BINUTILS_INCDIR=/usr/include
+    -DLLVM_BUILD_DOCS=ON
+    -DLLVM_BUILD_LLVM_DYLIB=ON
+    -DLLVM_BUILD_TESTS=ON
+    -DLLVM_ENABLE_BINDINGS=OFF
+    -DLLVM_ENABLE_FFI=ON
+    -DLLVM_ENABLE_RTTI=ON
+    -DLLVM_ENABLE_SPHINX=ON
+    -DLLVM_HOST_TRIPLE=$CHOST
+    -DLLVM_INCLUDE_BENCHMARKS=OFF
+    -DLLVM_INSTALL_GTEST=ON
+    -DLLVM_INSTALL_UTILS=ON
+    -DLLVM_LINK_LLVM_DYLIB=ON
+    -DLLVM_USE_PERF=ON
+    -DSPHINX_WARNINGS_AS_ERRORS=OFF
+  )
+
+  cmake .. "${cmake_args[@]}"
+  local distribution_components=$(_get_distribution_components | paste -sd\;)
+  test -n "$distribution_components"
+  cmake_args+=(-DLLVM_DISTRIBUTION_COMPONENTS="$distribution_components")
+
+  cmake .. "${cmake_args[@]}"
+  ninja
 }
 
-# check() {
-#     ninja -C build check
-# }
+check() {
+  cd llvm-$pkgver.src/build
+  LD_LIBRARY_PATH=$PWD/lib ninja check
+}
 
 package_llvm() {
-    pkgdesc="Collection of modular and reusable compiler and toolchain technologies"
-    depends=('llvm-libs' 'perl')
-    optdepends=('python-setuptools: for using lit (LLVM Integrated Tester)')
+  pkgdesc="Compiler infrastructure"
+  depends=('llvm-libs' 'perl')
 
+  cd llvm-$pkgver.src/build
 
-    DESTDIR="$pkgdir" ninja -C build install
+  DESTDIR="$pkgdir" ninja install-distribution
 
-    # Include lit for running tests with clang and friends
-    pushd llvm-$pkgver.src/utils/lit
-        python3 setup.py install --root="$pkgdir" -O1
-    popd
+  # Include lit for running lit-based tests in other projects
+  pushd ../utils/lit
+  python3 setup.py install --root="$pkgdir" -O1
+  popd
 
-    # Remove documentation sources
-    rm -r "$pkgdir"/usr/share/doc/$pkgname/html/{_sources,.buildinfo}
+  # The runtime libraries go into llvm-libs
+  mv -f "$pkgdir"/usr/lib/lib{LLVM,LTO,Remarks}*.so* "$srcdir"
+  mv -f "$pkgdir"/usr/lib/LLVMgold.so "$srcdir"
 
-    # The runtime libraries go into llvm-libs
-    mv -f "$pkgdir"/usr/lib/lib{LLVM,LTO,Remarks}*.so* "$srcdir"
-    mv -f "$pkgdir"/usr/lib/LLVMgold.so "$srcdir"
+  # Remove documentation sources
+  rm -r "$pkgdir"/usr/share/doc/llvm/html/{_sources,.buildinfo}
 
-    # OCaml bindings go to a separate package
-    rm -rf "$srcdir"/ocaml.{lib,doc}
-    mv "$pkgdir/usr/lib/ocaml" "$srcdir/ocaml.lib"
-    mv "$pkgdir/usr/share/doc/$pkgname/ocaml-html" "$srcdir/ocaml.doc"
-
-    if [[ $CARCH == x86_64 ]]; then
-        # Needed for multilib (https://bugs.archlinux.org/task/29951)
-        # Header stub is taken from Fedora
-        mv "$pkgdir/usr/include/llvm/Config/llvm-config"{,-64}.h
-        cp "$srcdir/llvm-config.h" "$pkgdir/usr/include/llvm/Config/llvm-config.h"
-    fi
-
-    install -Dm644 llvm-$pkgver.src/LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
 
 package_llvm-libs() {
-    pkgdesc="LLVM runtime libraries"
-    depends=('gcc-libs' 'zlib' 'libffi' 'libedit' 'ncurses' 'libxml2')
+  pkgdesc="LLVM runtime libraries"
+  depends=('gcc-libs' 'zlib' 'zstd' 'libffi' 'libedit' 'ncurses' 'libxml2')
 
-    install -d "$pkgdir/usr/lib"
-    cp -P \
-        "$srcdir"/lib{LLVM,LTO,Remarks}*.so* \
-        "$srcdir"/LLVMgold.so \
-        "$pkgdir/usr/lib/"
+  install -d "$pkgdir/usr/lib"
+  cp -P \
+    "$srcdir"/lib{LLVM,LTO,Remarks}*.so* \
+    "$srcdir"/LLVMgold.so \
+    "$pkgdir/usr/lib/"
 
-    # Symlink LLVMgold.so from /usr/lib/bfd-plugins
-    # https://bugs.archlinux.org/task/28479
-    install -d "$pkgdir/usr/lib/bfd-plugins"
-    ln -s ../LLVMgold.so "$pkgdir/usr/lib/bfd-plugins/LLVMgold.so"
+  # Symlink LLVMgold.so from /usr/lib/bfd-plugins
+  # https://bugs.archlinux.org/task/28479
+  install -d "$pkgdir/usr/lib/bfd-plugins"
+  ln -s ../LLVMgold.so "$pkgdir/usr/lib/bfd-plugins/LLVMgold.so"
 
-    install -Dm644 "$srcdir/llvm-$pkgver.src/LICENSE.TXT" \
-        "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-}
-
-package_llvm-ocaml() {
-    pkgdesc="OCaml bindings for LLVM"
-    depends=('llvm' "ocaml=$_ocaml_ver" 'ocaml-ctypes')
-
-    install -d "$pkgdir"/{usr/lib,usr/share/doc/$pkgname}
-    cp -a "$srcdir/ocaml.lib" "$pkgdir/usr/lib/ocaml"
-    cp -a "$srcdir/ocaml.doc" "$pkgdir/usr/share/doc/$pkgname/html"
-
-    install -Dm644 "$srcdir/llvm-$pkgver.src/LICENSE.TXT" \
-        "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 "$srcdir/llvm-$pkgver.src/LICENSE.TXT" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

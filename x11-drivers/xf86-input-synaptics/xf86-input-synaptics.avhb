@@ -1,32 +1,40 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-input-synaptics
-pkgver=1.9.1
+pkgver=1.9.2
 pkgrel=1
 pkgdesc="Synaptics driver for notebook touchpads"
 arch=('x86_64')
 groups=('x11-drivers')
 license=('custom')
-url="http://xorg.freedesktop.org/"
-depends=('libxtst' 'mtdev')
-makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.0' 'libxi' 'libx11' 'resourceproto' 'scrnsaverproto')
+url="https://xorg.freedesktop.org/"
+depends=('libxtst' 'libevdev')
+makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.4' 'libxi' 'libx11' 'xorgproto')
+conflicts=('xorg-server<21.1.2' 'X-ABI-XINPUT_VERSION<24' 'X-ABI-XINPUT_VERSION>=25')
 replaces=('synaptics')
 provides=('synaptics')
 conflicts=('synaptics')
-backup=('etc/X11/xorg.conf.d/50-synaptics.conf')
-source=(http://xorg.freedesktop.org/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2
-        add_tapbuttons.diff)
+groups=('xorg-drivers')
+install=xf86-input-synaptics.install
+source=(https://xorg.freedesktop.org/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('6fd46505f22bba79f612fbd48dddd4818f7d874cc29caac71840744de27f1d224c68861e3a18d2a866b78178924d2f093f5260e27b221aa1fb17dbc09d66b649'
+            'SKIP')
+#validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
-

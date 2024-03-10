@@ -17,11 +17,6 @@ options=(!emptydirs)
 _commit=8ad9883ace9b38905af9ff1dd1a8c19cdc560141  # master
 source=(https://gitlab.gnome.org/GNOME/caribou.git)
 
-getsrc() {
-  git clone $source
-  git checkout ${_commit[0]}
-}
-
 prepare() {
   cd $pkgname
 
@@ -55,6 +50,7 @@ prepare() {
 
 build() {
   cd $pkgname
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration"
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \

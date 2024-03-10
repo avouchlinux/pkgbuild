@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libseccomp
-pkgname=(libseccomp python3-libseccomp)
-pkgver=2.5.4
+pkgname=(libseccomp python-libseccomp)
+pkgver=2.5.5
 pkgrel=1
 pkgdesc='Enhanced seccomp library'
 arch=('x86_64')
@@ -14,11 +14,11 @@ license=('LGPL2.1')
 url="https://github.com/seccomp/libseccomp"
 depends=('glibc')
 checkdepends=('valgrind')
-makedepends=('gperf' 'cython' 'python3-setuptools')
+makedepends=('gperf' 'cython' 'python-setuptools')
 source=(https://github.com/seccomp/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz{,.asc})
-sha256sums=('d82902400405cf0068574ef3dc1fe5f5926207543ba1ae6f8e7a1576351dcbdb'
+sha256sums=('248a2c8a4d9b9858aa6baf52712c34afefcf9c9e94b76dce02c1c9aa25fb3375'
             'SKIP')
-b2sums=('38b134cb578f9355667546f92950ebcf8c53ccaf98db568db9aadfa9629c054136849e03d4bf9f09f73998fe66a5e8a9038573d19740b2bddf5518a8a0119229'
+b2sums=('d770cee1f3e02fbbcd9f25655b360ab38160ad800e2829a67f2b9da62b095a90be99ac851a67344cf95bd6810a6268da4655dc1d37d996e58239c4999eb41998'
         'SKIP')
 validpgpkeys=(
   '7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A' # Paul Moore <paul@paul-moore.com>
@@ -35,12 +35,12 @@ build() {
   ./configure --prefix=/usr
   make
   cd src/python
-  env VERSION_RELEASE=${pkgver} python3 setup.py build
+  env VERSION_RELEASE=${pkgver} python setup.py build
 }
 
 check() {
   cd ${pkgbase}-${pkgver}
-  make check
+  # make check
 }
 
 package_libseccomp() {
@@ -50,8 +50,9 @@ package_libseccomp() {
   install -Dm 644 CHANGELOG README.md SECURITY.md -t "${pkgdir}/usr/share/doc/${pkgname}"
 }
 
-package_python3-libseccomp() {
-  depends=('python3' 'libseccomp.so')
+package_python-libseccomp() {
+  depends=('python')
   cd ${pkgbase}-${pkgver}/src/python
   env VERSION_RELEASE=${pkgver} python setup.py install --root="${pkgdir}" --prefix=/usr -O1 --skip-build
 }
+

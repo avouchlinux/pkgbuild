@@ -1,29 +1,83 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-settings-daemon
-pkgver=45.0
+pkgver=45.1
 pkgrel=1
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
 arch=(x86_64)
-groups=('gnome-base')
-license=(GPL)
-depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify systemd-libs
-         libwacom pulseaudio pulseaudio-alsa upower librsvg libgweather geocode-glib geoclue2 nss
-         libgudev gtk3-print-backends libnm)
-makedepends=(xf86-input-wacom libxslt docbook-xsl python3 git meson)
-checkdepends=(python3-pygobject python3-dbusmock)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-sha256sums=('')
+groups=(gnome-base)
+license=(
+  GPL-2.0-or-later
+  LGPL-2.0-or-later
+)
+depends=(
+  dconf
+  gcr-4
+  geoclue
+  geocode-glib-2
+  gnome-desktop
+  gsettings-desktop-schemas
+  gtk3
+  libcanberra-pulse
+  libgudev
+  libgweather-4
+  libnm
+  libnotify
+  librsvg
+  libwacom
+  nss
+  pulse-native-provider
+  systemd
+  upower
+)
+makedepends=(
+  docbook-xsl
+  git
+  libxslt
+  meson
+  python
+  usbguard
+)
+checkdepends=(
+  python-dbusmock
+  python-gobject
+)
+optdepends=('usbguard: USB protection support')
+backup=(etc/xdg/Xwayland-session.d/00-xrdb)
+_commit=1b887600d457014b1e1c9258699e4df9dedf5749  # tags/45.1^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-settings-daemon.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
+)
+b2sums=('SKIP'
+        'SKIP')
 
-build() {
-    avouch-meson $pkgname-$pkgver build
-    meson compile -C build
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed -r 's/\.([a-z])/\1/;s/([a-z])\./\1/;s/[^-]*-g/r&/;s/-/+/g'
 }
 
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
+  git -c protocol.file.allow=always submodule update
+}
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+#check() {
+#  meson test -C build --print-errorlogs
+#}
+
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

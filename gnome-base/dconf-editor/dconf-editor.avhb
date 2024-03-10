@@ -16,6 +16,7 @@ makedepends=(vala meson appstream-glib git)
 source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 
 build() {
+    export CFLAGS=" -Wno-incompatible-pointer-types"
     avouch-meson ${pkgname}-${pkgver} build
     meson compile -C build
 }

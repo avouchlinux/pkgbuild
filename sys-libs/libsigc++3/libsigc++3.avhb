@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libsigcplusplus3
+pkgname=libsigc++3
 _realname=libsigc++
-pkgver=3.2.0
+pkgver=3.6.0
 pkgrel=1
 pkgdesc="Callback Framework for C++"
 url="https://libsigcplusplus.github.io/libsigcplusplus/"
@@ -15,10 +15,17 @@ license=('LGPL')
 depends=(gcc-libs)
 makedepends=(git mm-common meson)
 options=(!emptydirs)
-source=("https://github.com/libsigcplusplus/libsigcplusplus/releases/download/$pkgver/libsigc++-$pkgver.tar.xz")
+_commit=eb7db8ef3b5cba44ec4b46d158ec03e2aa3c537a  # tags/3.6.0^0
+source=("git+https://github.com/libsigcplusplus/libsigcplusplus#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd libsigcplusplus
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
 
 build() {
-  avouch-meson $_realname-$pkgver build -D maintainer-mode=true
+  avouch-meson libsigcplusplus build -D maintainer-mode=true
   ninja -C build
 }
 

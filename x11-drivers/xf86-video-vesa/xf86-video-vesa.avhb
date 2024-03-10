@@ -1,35 +1,39 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-video-vesa
-pkgver=2.5.0
+pkgver=2.6.0
 pkgrel=1
 pkgdesc="X.org vesa video driver"
 arch=('x86_64')
 groups=('x11-drivers')
-license=('custom')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 depends=('glibc')
-makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
-source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
-
-prepare() {
-  cd ${pkgname}-${pkgver}
-  patch -Np1 -R -i "${srcdir}/revert-kernelcheck.patch"
-}
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.2')
+conflicts=('xorg-server<21.1.1' 'X-ABI-VIDEODRV_VERSION<25' 'X-ABI-VIDEODRV_VERSION>=26')
+groups=('xorg-drivers' 'xorg')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('494e117c1e6e0ce4c66ac7798de54667862c62605bfd76dd9373447d40dcd0521100810c9285cbe9c159440e217954c0cad6d5219c5894e075509c7c0bc353c7'
+            'SKIP')
+#validpgpkeys=('DD38563A8A8224537D1F90E45B8A2D50A0ECD0D3') #  "Adam Jackson <ajax@nwnk.net>"
+#validpgpkeys+=('995ED5C8A6138EB0961F18474C09DD83CAAA50B2') # "Adam Jackson <ajax@nwnk.net>"
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
   cd ${pkgname}-${pkgver}
 
-    # Since hardened flags are now enabled in ee.conf
+  # Since pacman 5.0.2-2, hardened flags are now enabled in makepkg.conf
   # With them, module fail to load with undefined symbol.
-  # filter out the hardend flags
-
-  export CFLAGS=${CFLAGS/-fno-plt}
-  export CXXFLAGS=${CXXFLAGS/-fno-plt}
-  export LDFLAGS=${LDFLAGS/-z now}
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  #export CFLAGS=${CFLAGS/-fno-plt}
+  #export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  #export LDFLAGS=${LDFLAGS/,-z,now}
+  
+  export CFLAGS=""
+  export CXXFLAGS=""
+  export LDFLAGS=""
 
   ./configure --prefix=/usr
   make
