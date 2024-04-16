@@ -4,12 +4,13 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-control-center
-pkgver=45.3
+pkgver=46.0.1
 pkgrel=1
 pkgdesc="GNOME's main interface to configure various aspects of the desktop"
 url="https://gitlab.gnome.org/GNOME/gnome-control-center"
 license=(GPL-2.0-or-later)
 arch=(x86_64)
+groups=(gnome-base)
 depends=(
   accountsservice
   bolt
@@ -89,33 +90,12 @@ optdepends=(
   'rygel: media sharing'
   'system-config-printer: printer settings'
 )
-groups=(gnome)
-_commit=4e107fa21250416812d64da8cf32946babb7728d  # tags/45.3^0
 source=(
-  "git+https://gitlab.gnome.org/GNOME/gnome-control-center.git#commit=$_commit"
-  "git+https://gitlab.gnome.org/GNOME/libgnome-volume-control.git"
-  pixmaps-dir.diff
+  ""https://download.gnome.org/sources/$pkgname/${pkgver%%.*}/$pkgname-$pkgver.tar.xz""
 )
 b2sums=('SKIP'
         'SKIP'
         'a133d524de9e8a2a27b61dd68b95238fa916c30d60e092f7ed3a371edb1e4ca233f46941d004dbfa2b8c13f464dab2e2729bb023ddd0e8c4d7e147b11e8e82ef')
-
-pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd $pkgname
-
-  # Install bare logos into pixmaps, not icons
-  git apply -3 ../pixmaps-dir.diff
-
-  git submodule init subprojects/gvc
-  git submodule set-url subprojects/gvc "$srcdir/libgnome-volume-control"
-  git -c protocol.file.allow=always submodule update
-}
-
 
 build() {
   local meson_options=(
@@ -123,7 +103,7 @@ build() {
     -D malcontent=true
   )
 
-  avouch-meson $pkgname build "${meson_options[@]}"
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 

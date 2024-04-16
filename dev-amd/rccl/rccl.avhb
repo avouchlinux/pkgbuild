@@ -1,0 +1,45 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rccl
+pkgver=6.0.2
+pkgrel=1
+pkgdesc="ROCm Communication Collectives Library"
+arch=('x86_64')
+groups=('dev-amd')
+url='https://rocm.docs.amd.com/projects/rccl/en/latest/index.html'
+license=('BSD-3-Clause')
+depends=('rocm-core' 'glibc' 'gcc-libs' 'hip' 'rocm-smi-lib')
+makedepends=('cmake' 'rocm-cmake' 'hipify-clang' 'python')
+_git='https://github.com/ROCm/rccl'
+source=("$pkgname-$pkgver.tar.gz::$_git/archive/rocm-$pkgver.tar.gz")
+sha256sums=('5c8495acba3d620b751e729d1157e7b4eea8f5e5692c50ce47c5204d3dfd443c')
+options=(!lto)
+_dirname="$(basename $_git)-$(basename ${source[0]} .tar.gz)"
+
+build() {
+  # Compile source code for supported GPU archs in parallel
+  export HIPCC_COMPILE_FLAGS_APPEND="-parallel-jobs=$(nproc)"
+  export HIPCC_LINK_FLAGS_APPEND="-parallel-jobs=$(nproc)"
+  # -fcf-protection is not supported by HIP, see
+  # https://rocm.docs.amd.com/en/latest/reference/rocmcc.html#support-status-of-other-clang-options
+  local cmake_args=(
+    -Wno-dev
+    -S "$_dirname"
+    -B build
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc
+    -D CMAKE_CXX_FLAGS="${CXXFLAGS} -fcf-protection=none"
+    -D CMAKE_INSTALL_PREFIX=/opt/rocm
+  )
+  cmake "${cmake_args[@]}"
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -Dm644 "$srcdir/$_dirname/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

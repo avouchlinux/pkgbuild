@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=babl
-pkgver=0.1.92
+pkgver=0.1.98
 pkgrel=1
 pkgdesc="Dynamic, any to any, pixel format conversion library"
 arch=('x86_64')
@@ -13,7 +13,7 @@ url="https://gegl.org/babl/"
 license=(LGPL3)
 depends=(glibc)
 makedepends=(git)
-source=("https://download.gimp.org/pub/babl/0.1/babl-$pkgver.tar.bz2")
+source=("https://download.gimp.org/pub/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
 sha256sums=('SKIP')
 
 build() {

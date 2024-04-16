@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-panel
-pkgver=3.50.0
+pkgver=3.52.0
 pkgrel=1
 pkgdesc="Panel of GNOME Flashback"
 arch=('x86_64')

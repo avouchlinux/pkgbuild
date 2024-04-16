@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-online-accounts
-pkgver=3.48.0
+pkgver=3.50.1
 pkgrel=1
 pkgdesc="Single sign-on framework for GNOME"
 url="https://wiki.gnome.org/Projects/GnomeOnlineAccounts"
@@ -20,8 +20,6 @@ source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgv
 build() {
   export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration"
   avouch-meson $pkgname-$pkgver build \
-    -D lastfm=true \
-    -D media_server=true \
     -D gtk_doc=true \
     -D man=true
   ninja -C build

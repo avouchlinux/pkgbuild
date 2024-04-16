@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orca
-pkgver=45.2
+pkgver=46.1
 _srcname=${pkgname^^}_${pkgver/./_}
 pkgrel=1
 pkgdesc="Screen reader for individuals who are blind or visually impaired"
@@ -16,6 +16,7 @@ license=(LGPL-2.1-or-later)
 depends=(
   at-spi2-core
   brltty
+  glib2
   gobject-introspection-runtime
   gsettings-desktop-schemas
   gstreamer
@@ -27,9 +28,9 @@ depends=(
   libwnck3
   pango
   python
-  python-atspi
   python-cairo
   python-gobject
+  python-psutil
   python-setproctitle
   speech-dispatcher
   xorg-xkbcomp
@@ -38,32 +39,25 @@ depends=(
 makedepends=(
   git
   itstool
+  meson
   yelp-tools
 )
-groups=(gnome)
-_commit=cd1c1f25fbea6b6d815ce4403364e78e635919be  # tags/ORCA_45_2^0
-# source=("git+https://gitlab.gnome.org/GNOME/orca.git#commit=$_commit")
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$_srcname/$pkgname-$_srcname.tar.bz2")
 b2sums=('SKIP')
 
-prepare() {
-  cd $pkgname-$_srcname
-  NOCONFIGURE=1 ./autogen.sh
-}
-
 build() {
-  local configure_options=(
-    --prefix=/usr
-    --sysconfdir=/etc
-    --localstatedir=/var
+  local meson_options=(
+    -D spiel=false
   )
 
-  cd $pkgname-$_srcname
-  ./configure "${configure_options[@]}"
-  make
+  avouch-meson $pkgname-$_srcname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  cd $pkgname-$_srcname
-  make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }

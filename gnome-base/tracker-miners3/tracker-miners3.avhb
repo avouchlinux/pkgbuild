@@ -5,7 +5,7 @@
 
 pkgname=tracker-miners3
 _realname=tracker-miners
-pkgver=3.6.1
+pkgver=3.7.1
 pkgrel=1
 pkgdesc="Collection of data extractors for Tracker/Nepomuk"
 url="https://wiki.gnome.org/Projects/Tracker"

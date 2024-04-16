@@ -1,29 +1,92 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=malcontent
-pkgver=0.7.0
+pkgbase=malcontent
+pkgname=(
+  malcontent
+  libmalcontent
+)
+pkgver=0.11.1
 pkgrel=1
 pkgdesc="Parental control support for applications"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://gitlab.freedesktop.org/pwithnall/malcontent"
-license=(LGPL2.1)
-depends=(accountsservice dbus flatpak glib2 gtk3 polkit)
-makedepends=(git meson gobject-introspection gtk-doc)
-source=("https://gitlab.freedesktop.org/pwithnall/malcontent/-/archive/$pkgver/malcontent-$pkgver.tar.bz2")
+arch=(x86_64)
+license=(LGPL-2.1-or-later)
+depends=(
+  accountsservice
+  appstream
+  dbus
+  flatpak
+  glib2
+  gtk4
+  libadwaita
+  polkit
+  python-gobject
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  libglib-testing
+  meson
+  yelp-tools
+)
+_commit=0979e6056745efe4bdfbcd1b31ef7546c367838f  # tags/0.11.1^0
+source=("git+https://gitlab.freedesktop.org/pwithnall/malcontent.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+}
 
 build() {
-  avouch-meson $pkgname-$pkgver build
-  ninja -C build
+  avouch-meson $pkgname build
+  meson compile -C build
 }
 
 check() {
   meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
-  install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_malcontent() {
+  depends+=("libmalcontent=$pkgver-$pkgrel")
+  provides=(libmalcontent-ui-1.so)
+  groups=(gnome)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick libs usr/include/malcontent-0
+  _pick libs usr/lib/girepository-1.0/Malcontent-0.typelib
+  _pick libs usr/lib/libmalcontent-0.so*
+  _pick libs usr/lib/pkgconfig/malcontent-0.pc
+  _pick libs usr/share/gir-1.0/Malcontent-0.gir
+}
+
+package_libmalcontent() {
+  pkgdesc="Parental control library"
+  depends=(libg{lib,object,io}-2.0.so gcc-libs)
+  provides=(libmalcontent-0.so)
+
+  mv libs/* "$pkgdir"
 }

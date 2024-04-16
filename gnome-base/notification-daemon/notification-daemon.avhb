@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -14,6 +14,16 @@ url="https://wiki.gnome.org/Projects/NotificationDaemon"
 depends=(gtk3)
 makedepends=(intltool)
 source=("https://download.gnome.org/sources/${pkgname}/${pkgver:0:4}/${pkgname}-${pkgver}.tar.xz")
+
+prepare() {
+	cd "${pkgname}-${pkgver}"
+	# Patch taken from the Gnome Flashback project to remove the default limit of 20 notifications at a time:
+	# https://gitlab.gnome.org/GNOME/gnome-flashback/-/commit/40c5db2e6b343c5afad78034a2fa93b9b000ef11
+	# See the following issue for more details:
+	# https://gitlab.gnome.org/GNOME/gnome-flashback/-/issues/75
+	patch -Np1 <${srcdir}/remove-notifications-limit.patch
+}
+
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}

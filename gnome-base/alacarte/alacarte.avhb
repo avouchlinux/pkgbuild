@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=alacarte
-pkgver=3.50.0
+pkgver=3.52.0
 pkgrel=1
 pkgdesc="Menu editor for gnome"
 url="https://gitlab.gnome.org/GNOME/alacarte"

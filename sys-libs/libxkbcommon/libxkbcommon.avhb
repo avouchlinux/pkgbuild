@@ -1,64 +1,120 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libxkbcommon
-pkgname=(libxkbcommon libxkbcommon-doc libxkbcommon-x11)
-pkgver=1.0.1
+pkgname=(
+  libxkbcommon
+  libxkbcommon-x11
+  libxkbcommon-doc
+)
+pkgver=1.6.0
 pkgrel=1
-pkgdesc="Keymap handling library for toolkits and window systems"
 arch=('x86_64')
 groups=('sys-libs')
+pkgdesc='Keymap handling library for toolkits and window systems'
 url="https://xkbcommon.org/"
 license=(custom)
-depends=(xkeyboard-config glibc)
-checkdepends=(xorg-server-xvfb libgl)
-makedepends=(libxcb doxygen git graphviz wayland wayland-protocols meson)
-source=("https://github.com/xkbcommon/libxkbcommon/archive/xkbcommon-$pkgver.tar.gz")
+makedepends=(
+  bash-completion
+  doxygen
+  git
+  libxcb
+  libxml2
+  meson
+  wayland
+  wayland-protocols
+  xkeyboard-config
+  xorgproto
+)
+checkdepends=(
+  libgl
+  xorg-server-xvfb
+)
+options=(
+  debug
+)
+_commit=d2a08f761c796733e42fac4099f5c38d443e88e1  # tags/xkbcommon-1.6.0^0
+source=("git+https://github.com/xkbcommon/libxkbcommon#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd libxkbcommon
+  git describe --tags | sed 's/^xkbcommon-//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  cd $pkgbase-xkbcommon-$pkgver
-
-  printf '%s\n' >>doc/Doxyfile.in \
-    HAVE_DOT=yes DOT_IMAGE_FORMAT=svg INTERACTIVE_SVG=yes
+  cd libxkbcommon
 }
 
 build() {
-  avouch-meson $pkgbase-xkbcommon-$pkgver build
-  ninja -C build
+  avouch-meson libxkbcommon build
+  meson compile -C build
 }
 
 # check() {
-#   xvfb-run -a meson test -C build
+#   xvfb-run -s '-nolisten local' meson test -C build --print-errorlogs
 # }
 
-package_libxkbcommon() {
-  DESTDIR="$pkgdir" meson install -C build
-
-### Split libxkbcommon-doc
-
-  mkdir -p "$srcdir"/doc/usr/share
-  mv "$pkgdir"/usr/share/doc "$srcdir/doc/usr/share"
-
-### Split libxkbcommon-x11
-
-  mkdir -p "$srcdir"/x11/usr/{include/xkbcommon,lib/pkgconfig}
-  mv "$pkgdir"/usr/lib/*x11* "$srcdir/x11/usr/lib"
-  mv "$pkgdir"/usr/lib/pkgconfig/*x11* "$srcdir/x11/usr/lib/pkgconfig"
-  mv "$pkgdir"/usr/include/xkbcommon/*x11* "$srcdir/x11/usr/include/xkbcommon"
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
-package_libxkbcommon-doc() {
-  pkgdesc="API documentation for libxkbcommon"
-  depends=(libxkbcommon)
+package_libxkbcommon() {
+  depends=(
+    libxml2
+    xkeyboard-config
+  )
+  optdepends=(
+    'libxkbcommon-x11: xkbcli interactive-x11'
+    'wayland: xkbcli interactive-wayland'
+  )
+  provides=(
+    libxkbcommon.so
+    libxkbregistry.so
+  )
 
-  mv doc/* "$pkgdir"
+  meson install -C build --destdir "$pkgdir"
 
+  _pick x11 "$pkgdir"/usr/lib/*x11*
+  _pick x11 "$pkgdir"/usr/lib/pkgconfig/*x11*
+  _pick x11 "$pkgdir"/usr/lib/xkbcommon/*x11*
+  _pick x11 "$pkgdir"/usr/include/xkbcommon/*x11*
+  _pick x11 "$pkgdir"/usr/share/man/man1/*x11*
+
+  _pick doc "$pkgdir"/usr/share/doc
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
 }
 
 package_libxkbcommon-x11() {
-  pkgdesc="Keyboard handling library using XKB data for X11 XCB clients"
-  depends=(libxkbcommon libxcb)
+  pkgdesc='Keyboard handling library using XKB data for X11 XCB clients'
+  depends=(
+    libxcb
+    libxkbcommon
+    libxkbcommon.so
+  )
+  provides=(
+    libxkbcommon-x11.so
+  )
 
-  mv x11/* "$pkgdir"
+  mv x11/* "$pkgdir"/
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
 }
+
+package_libxkbcommon-doc() {
+  pkgdesc='API documentation for libxkbcommon'
+
+  mv doc/* "$pkgdir"/
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libxkbcommon/LICENSE
+}
+

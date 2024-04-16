@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -20,7 +20,7 @@ sha1sums=('d85717035cb9bd6c45557a1eb1351d3af9a69ff7')
 build() {
 	cd ${pkgname}-${pkgver}
 	./configure --prefix=/usr --sysconf=/etc
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

@@ -1,9 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libepoxy
+pkgbase=libepoxy
+pkgname=(libepoxy libepoxy-docs)
 pkgver=1.5.10
 pkgrel=1
 pkgdesc="Library handling OpenGL function pointer management"
@@ -11,29 +12,49 @@ url="https://github.com/anholt/libepoxy"
 arch=('x86_64')
 groups=('media-libs')
 license=(MIT)
-depends=(glibc)
-makedepends=(python mesa-libgl git meson doxygen graphviz)
-options=('!libtool')
-source=("https://github.com/anholt/${pkgname}/archive/v${pkgver}.tar.gz")
+depends=(glibc libglvnd libx11)
+makedepends=(git meson mesa-libgl systemd doxygen graphviz)
+checkdepends=(xorg-server-xvfb)
+_commit=c84bc9459357a40e46e2fec0408d04fbdde2c973  # tags/1.5.10^0
+source=("git+https://github.com/anholt/libepoxy#commit=$_commit")
+sha256sums=('SKIP')
+validpgpkeys=('53EF3DC3B63E2899271BD26322E8091EEA11BBB7') # Emmanuele Bassi <ebassi@gnome.org>
+
+pkgver() {
+  cd libepoxy
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-    cd $pkgname-$pkgver
-    # Reduce docs size
-    printf '%s\n' >>doc/Doxyfile.in \
-        HAVE_DOT=yes DOT_IMAGE_FORMAT=svg INTERACTIVE_SVG=yes
+  cd libepoxy
 }
 
 build() {
-    avouch-meson $pkgname-$pkgver build -Ddocs=true
-    ninja -C build
+  avouch-meson libepoxy build -D docs=true
+  meson compile -C build
 }
 
-# check() {
-#     cd build
-#     meson test
-# }
+check() {
+  xvfb-run -s '-nolisten local' \
+    meson test -C build --print-errorlogs
+}
 
-package() {
-    DESTDIR="$pkgdir" ninja -C build install
-    install -Dm644 $pkgname-$pkgver/COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+package_libepoxy() {
+  provides=(libepoxy.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libepoxy/COPYING
+}
+
+package_libepoxy-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libepoxy/COPYING
 }

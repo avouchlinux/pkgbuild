@@ -147,8 +147,8 @@ build() {
   )
 
   # Build only minimal debug info to reduce size
-  CFLAGS=' -O2 -g1'
-  CXXFLAGS=' -O2 -g1'
+  export CFLAGS=' -O2 -g1'
+  export CXXFLAGS=' -O2 -g1'
   export LDFLAGS=""
 
   avouch-meson mesa-$pkgver build "${meson_options[@]}"

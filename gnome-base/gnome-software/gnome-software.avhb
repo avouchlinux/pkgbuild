@@ -1,0 +1,61 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+### we build without packagekit support
+
+pkgname=gnome-software
+pkgver=46.0
+pkgrel=1
+pkgdesc="GNOME Software Tools"
+url="https://wiki.gnome.org/Apps/Software/"
+arch=('x86_64')
+groups=('gnome-base')
+arch=(x86_64)
+license=(GPL-2.0-or-later)
+depends=(
+  appstream
+  gsettings-desktop-schemas
+  gtk4
+  libadwaita
+  libsoup3
+  libsysprof-capture
+  libxmlb
+  polkit
+)
+makedepends=(
+  docbook-xsl
+  flatpak
+  fwupd
+  git
+  gobject-introspection
+  gtk-doc
+  libglib-testing
+  malcontent
+  meson
+)
+optdepends=(
+  'flatpak: Flatpak support plugin'
+  'fwupd: fwupd support plugin'
+  'malcontent: Parental control plugin'
+)
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+b2sums=('SKIP'
+        'SKIP')
+
+build() {
+  local meson_options=(
+    -D packagekit=false
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+# Not running tests - need root and a D-Bus system bus
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+

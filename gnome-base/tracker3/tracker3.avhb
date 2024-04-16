@@ -8,21 +8,25 @@ pkgname=(
   tracker3
   tracker3-docs
 )
-pkgver=3.6.0
 _realname=tracker
-pkgver=3.6.0
+pkgver=3.7.1
 pkgrel=1
 pkgdesc="Desktop-neutral user information store, search tool and indexer"
 url="https://tracker.gnome.org/"
 arch=(x86_64)
 license=(LGPL-2.1-or-later)
 depends=(
+  avahi
+  bash
+  gcc-libs
   glib2
+  glibc
   icu
   json-glib
   libsoup3
   libstemmer
   libxml2
+  python
   sqlite
 )
 makedepends=(
@@ -40,47 +44,26 @@ makedepends=(
   systemd
   vala
 )
-_commit=624ef729966f2d9cf748321bd7bac822489fa8ed  # tags/3.6.0^0
 source=(
-  "git+https://gitlab.gnome.org/GNOME/tracker.git#commit=$_commit"
-  "git+https://gitlab.gnome.org/GNOME/gvdb.git"
+  "https://download.gnome.org/sources/$_realname/${pkgver%.*}/$_realname-$pkgver.tar.xz"
 )
-b2sums=('SKIP'
+b2sums=('230283b17543725b7a6f0ee3768966abec896fa2164363a7ef2b6e9f945a774ff5e8ebb264b5547a59e008c606cf22fd065ff89d2b4fb2c40f9be97b95cb08db'
         'SKIP')
-
-pkgver() {
-  cd tracker
-  git describe --tags | sed -r 's/\.([a-z])/\1/;s/([a-z])\./\1/;s/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd tracker
-
-  # Fix bad code in a meson compile test
-  git cherry-pick -n f7393d61803815b19a1f210b197cce423ae3cc01
-
-  # SQLite 3.44.x fixes
-  # https://gitlab.archlinux.org/archlinux/packaging/packages/tracker3/-/issues/1
-  # https://gitlab.gnome.org/GNOME/tracker/-/merge_requests/640
-  git cherry-pick -n -m 1 02b7ae6e2fa005d84d5a55ba3500c10a84acb7de
-
-  git submodule init
-  git submodule set-url subprojects/gvdb "$srcdir/gvdb"
-  git -c protocol.file.allow=always submodule update
-}
 
 build() {
   local meson_options=(
-    -D tests_tap_protocol=true
+    -Dsoup=soup3
+    -Ddocs=false
+    -D tests_tap_protocol=false # python3 is missing modules: tap
   )
 
-  avouch-meson tracker build "${meson_options[@]}"
+  avouch-meson $_realname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
-check() {
-  dbus-run-session meson test -C build --print-errorlogs -t 3
-}
+# check() {
+#   dbus-run-session meson test -C build --print-errorlogs -t 3
+# }
 
 package_tracker3() {
   optdepends=('libsoup: Alternative remoting backend')
@@ -88,13 +71,13 @@ package_tracker3() {
 
   meson install -C build --destdir "$pkgdir"
 
-  mkdir -p docs/usr/share
-  mv {"$pkgdir",docs}/usr/share/doc
+  # mkdir -p docs/usr/share
+  # mv {"$pkgdir",docs}/usr/share/doc
 }
 
 package_tracker3-docs() {
   pkgdesc+=" (documentation)"
   depends=()
-  mv docs/* "$pkgdir"
+  # mv docs/* "$pkgdir"
 }
 

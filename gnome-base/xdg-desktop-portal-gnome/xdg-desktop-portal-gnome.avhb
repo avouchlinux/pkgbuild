@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal-gnome
-pkgver=45.1
+pkgver=46.0
 pkgrel=1
 pkgdesc="A backend implementation for xdg-desktop-portal for the GNOME desktop environment"
 url="https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome"
@@ -19,7 +19,6 @@ sha256sums=('SKIP')
 
 prepare() {
   cd ${pkgname}-${pkgver}
-  patch -Np1 -i ../45.1-c99.patch
 }
 
 build() {

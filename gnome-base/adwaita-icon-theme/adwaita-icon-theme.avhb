@@ -1,29 +1,60 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=adwaita-icon-theme
-pkgver=45.0
+pkgbase=adwaita-icon-theme
+pkgname=(
+  adwaita-icon-theme
+  adwaita-cursors
+)
+pkgver=46.0
 pkgrel=1
 pkgdesc="GNOME standard icons"
 url="https://gitlab.gnome.org/GNOME/adwaita-icon-theme"
 arch=(any)
 groups=('gnome-base')
-license=(LGPL3 CCPL:by-sa)
-depends=(hicolor-icon-theme gtk-update-icon-cache librsvg)
-makedepends=(git gtk3)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+license=(
+  CC-BY-SA-3.0
+  LGPL-3.0-only
+)
+depends=(
+  hicolor-icon-theme
+  gtk-update-icon-cache
+  librsvg
+)
+makedepends=(
+  git
+  gtk3
+  meson
+)
+source=("https://download.gnome.org/sources/$pkgbase/${pkgver%.*}/$pkgbase-$pkgver.tar.xz")
+b2sums=('83aa51edbe09cf021c33411687ddaae421b96f3356960947d29491f52147a94d9a8b3976a9a020e8de0eda536cc40b32d1912a17adbf2949d6abb234299673d3')
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    ninja -C build
+  avouch-meson $pkgbase-$pkgver build
+  meson compile -C build
 }
 
 check() {
-    meson test -C build
+  meson test -C build --print-errorlogs
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+package_adwaita-icon-theme() {
+  depends+=(adwaita-cursors)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p cursors/usr/share/icons/Adwaita
+  mv {"$pkgdir",cursors}/usr/share/icons/Adwaita/cursors
+}
+
+package_adwaita-cursors() {
+  pkgdesc="GNOME standard cursors"
+  depends=()
+
+  mv cursors/* "$pkgdir"
+
+  # deduplicate cursors
+  hardlink -c "$pkgdir/usr"
 }

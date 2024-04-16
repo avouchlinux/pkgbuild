@@ -1,0 +1,89 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=ucc
+pkgname=openucc
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="Unified Collective Communication Library"
+arch=(x86_64)
+groups=('sys-libs')
+url="https://github.com/openucx/ucc"
+license=(BSD-3-Clause)
+depends=(
+  glibc
+  openucx
+)
+makedepends=(
+  cuda
+  hip-runtime-amd
+  nccl
+  rccl
+  rdma-core
+)
+checkdepends=(
+  gtest
+)
+optdepends=(
+  'cuda: for CUDA execution engine and transport layer'
+  'hip-runtime-amd: for HIP execution engine'
+  'nccl: for NCCL transport layer'
+  'rccl: for RCCL transport layer'
+  'rdma-core: for InfiniBand transport layer'
+)
+provides=(
+  libucc.so
+)
+source=(
+  "$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz"
+  "$pkgname-fix-cuda-build.patch::https://patch-diff.githubusercontent.com/raw/openucx/ucc/pull/847.patch"
+  "$pkgname-fix-rocm-build.patch::https://patch-diff.githubusercontent.com/raw/openucx/ucc/pull/858.patch"
+)
+sha256sums=('c1552797600835c0cf401b82dc89c4d27d5717f4fb805d41daca8e19f65e509d'
+            '8560f3c8468917b406ed9314c26f40764e561f228522a9090e1b99f74007a2d9'
+            '70082939d699a973e15e5fe67b8d22dbc4f826a7d585b2a57d3b82cf9d876d1f')
+
+prepare() {
+  cd $_name-$pkgver
+  # backport CUDA fixes https://github.com/openucx/ucc/pull/847
+  patch -Np1 < ../$pkgname-fix-cuda-build.patch
+  # backport ROCm fixes https://github.com/openucx/ucc/pull/858
+  patch -Np1 < ../$pkgname-fix-rocm-build.patch
+}
+
+build() {
+  export CFLAGS=""
+  local configure_options=(
+    --prefix=/usr
+    --with-ucx=/usr
+    --with-cuda=/opt/cuda
+    --with-rocm=/opt/rocm
+    --enable-gtest
+    CFLAGS="$CFLAGS"
+    CXXFLAGS="$CXXFLAGS"
+    LDFLAGS="$LDFLAGS"
+    NVCC_CFLAGS="--threads 0"
+  )
+
+  cd $_name-$pkgver
+  ./autogen.sh
+  ./configure "${configure_options[@]}"
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make V=1
+}
+
+check() {
+  # exclude test_mc_rocm.* - we cannot test ROCm without a GPU
+  # exclude test_*reduce*:test_bcast_*:test_barrier.*:test_team.*:test_mc.*:test_active_set_2.*:test_scatter*:test_*gather*:*test_alltoall* - UCC ERROR no components supported memory type host available
+  make gtest -C $_name-$pkgver GTEST_FILTER='-test_mc_rocm.*:test_*reduce*:test_bcast_*:test_barrier.*:test_team.*:test_mc.*:test_active_set_2.*:test_scatter*:test_*gather*:*test_alltoall*'
+}
+
+package() {
+  make DESTDIR="$pkgdir" install -C $_name-$pkgver
+
+  # install the license
+  install -Dm644 $_name-$pkgver/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

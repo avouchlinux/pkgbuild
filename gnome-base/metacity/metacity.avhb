@@ -1,34 +1,39 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=metacity
-pkgver=3.50.0
+pkgver=3.52.0
 pkgrel=1
 pkgdesc="Window manager of GNOME Flashback"
 url="https://wiki.gnome.org/Projects/Metacity"
 groups=('gnome-base')
-license=('GPL')
-depends=('dconf' 'libcanberra' 'libgtop' 'libsm' 'gsettings-desktop-schemas' 'gtk3' 'startup-notification' 'zenity')
-makedepends=('intltool' 'itstool')
-source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+license=('GPL-2.0-or-later')
+depends=('at-spi2-core' 'cairo' 'dconf' 'gdk-pixbuf2' 'glib2' 'glibc' 'gsettings-desktop-schemas'
+         'gtk3' 'libcanberra' 'libice' 'libgtop' 'libsm' 'libx11' 'libxcomposite' 'libxcursor'
+         'libxdamage' 'libxext' 'libxfixes' 'libxinerama' 'libxpresent' 'libxrandr' 'libxres'
+         'libxrender' 'pango' 'startup-notification' 'zenity')
+makedepends=('python')
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
+        '0001-frames-Add-basic-color-scheme-support.patch')
+sha256sums=('a72438ace6d5903ae79338c6098b1b35ab91c8a97c4323701d3bef1f3eeb191c'
+            '66e54af887dbc41742f5845f195f202113b38861e5b481dc401f9e8b78d665fb')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # https://gitlab.gnome.org/GNOME/metacity/-/merge_requests/36
+  patch -Np1 -i ../0001-frames-Add-basic-color-scheme-support.patch
+}
 
 build() {
-    cd ${srcdir}/${pkgname}-${pkgver}
-    ./configure --prefix=/usr --sysconfdir=/etc \
-        --libexecdir=/usr/lib/mutter \
-        --localstatedir=/var \
-        --libexecdir=/usr/lib/$pkgname \
-        --disable-static \
-        --disable-schemas-compile
-
-    #https://bugzilla.gnome.org/show_bug.cgi?id=655517
-    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --disable-vulkan
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }

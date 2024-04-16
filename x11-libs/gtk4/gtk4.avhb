@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,7 +11,7 @@ pkgname=(
   gtk-update-icon-cache
 )
 _realname=gtk
-pkgver=4.12.5
+pkgver=4.14.2
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit"
 arch=(x86_64)
@@ -79,7 +79,7 @@ checkdepends=(
   wireplumber
 )
 license=(LGPL)
-source=(https://download.gnome.org/sources/gtk/4.12/gtk-$pkgver.tar.xz
+source=(https://download.gnome.org/sources/gtk/${pkgver%.*}/gtk-$pkgver.tar.xz
         settings.ini)
 
 build() {

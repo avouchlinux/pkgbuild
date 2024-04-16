@@ -6,7 +6,7 @@
 pkgbase=vte4
 _realname=vte
 pkgname=(vte4 vte-common)
-pkgver=0.74.2
+pkgver=0.76.0
 pkgrel=1
 pkgdesc="Virtual Terminal Emulator widget for use with GTK3"
 url="https://wiki.gnome.org/Apps/Terminal/VTE"

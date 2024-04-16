@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-flashback
-pkgver=3.50.0
+pkgver=3.52.0
 pkgrel=1
 pkgdesc="GNOME Flashback session"
 arch=('x86_64')

@@ -24,19 +24,15 @@ makedepends=(
   gtk-doc
   vala
 )
-_commit=cbb3ae2e21234eae84e1f827bf1f27fdd0e32299  # tags/1.12.2^0
-source=("git+https://gitlab.gnome.org/GNOME/gspell.git#commit=$_commit")
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 b2sums=('SKIP')
 
-pkgver() {
-  cd gspell
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
 
 prepare() {
-  cd gspell
+  cd gspell-$pkgver
   NOCONFIGURE=1 ./autogen.sh
 }
+
 
 build() {
   local configure_options=(
@@ -46,7 +42,7 @@ build() {
     --enable-gtk-doc
   )
 
-  cd gspell
+  cd gspell-$pkgver
   ./configure "${configure_options[@]}"
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
@@ -62,7 +58,7 @@ package(){
   )
   provides+=("libgspell-${pkgver%%.*}.so")
 
-  cd gspell
+  cd gspell-$pkgver
   make DESTDIR="$pkgdir" install
 }
 

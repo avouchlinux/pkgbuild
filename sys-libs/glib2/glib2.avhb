@@ -6,7 +6,7 @@
 pkgbase=glib2
 pkgname=('glib2' 'glib2-docs')
 _realname=glib
-pkgver=2.78.4
+pkgver=2.80.0
 pkgrel=1
 pkgdesc="Low level core library"
 arch=('x86_64')
@@ -30,14 +30,27 @@ prepare() {
 }
 
 build() {
-    # export CFLAGS+=" -DG_DISABLE_CAST_CHECKS" # https://gitlab.gnome.org/GNOME/glib/issues/1833
-    CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
-    avouch-meson ${_realname}-${pkgver} build \
-      -D glib_debug=disabled \
-      -D selinux=enabled \
-      -D man=true \
-      -D gtk_doc=true 
-    meson compile -C build
+  local meson_options=(
+    --default-library both
+    -D glib_debug=disabled
+    -D documentation=true
+    -D introspection=disabled
+    -D man-pages=enabled
+    # -D selinux=disabled
+    -D sysprof=enabled
+  )
+
+  # Produce more debug info: GLib has a lot of useful macros
+  export CFLAGS+=" -DG_DISABLE_CAST_CHECKS -g3"
+  export CXXFLAGS+=" -g3"
+
+  # use fat LTO objects for static libraries
+  export CFLAGS+=" -ffat-lto-objects"
+  export CXXFLAGS+=" -ffat-lto-objects"
+
+  avouch-meson ${_realname}-${pkgver} build "${meson_options[@]}"
+  meson compile -C build
+
 }
 
 # check() {
@@ -63,7 +76,7 @@ package_glib2() {
 
   # Split docs
   mkdir -p docs/usr/share
-  mv {"$pkgdir",docs}/usr/share/gtk-doc
+  # mv {"$pkgdir",docs}/usr/share/gtk-doc
 }
 
 package_glib2-docs() {

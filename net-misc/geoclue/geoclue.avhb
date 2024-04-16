@@ -1,40 +1,66 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=geoclue
-pkgver=2.5.6
+pkgver=2.7.1
 pkgrel=1
 pkgdesc="Modular geoinformation service built on the D-Bus messaging system"
 arch=('x86_64')
 groups=('net-misc')
 url="https://www.freedesktop.org/wiki/Software/GeoClue/"
-license=(LGPL)
-depends=(libsoup json-glib libmm-glib avahi geocode-glib)
-makedepends=(systemd gobject-introspection git vala meson gtk-doc libnotify)
+license=(
+  LGPL-2.1-or-later
+  GPL-2.0-or-later
+)
+depends=(
+  avahi
+  json-glib
+  libmm-glib
+  libsoup3
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  libnotify
+  meson
+  systemd
+  vala
+)
 optdepends=('libnotify: Demo Agent')
 provides=("geoclue2=$pkgver-$pkgrel")
 backup=(etc/geoclue/geoclue.conf)
 source=("https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/$pkgver/geoclue-$pkgver.tar.bz2")
 
+# Mozilla API keys (see https://location.services.mozilla.com/api)
+# Note: These are for Avouch use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact support@avouch.org for
+# more information.
+_mozilla_api_key=7dca4b7b-6085-4ebb-9633-d566ed2de0fd
+
 build() {
-  message $pkgname-$pkgver
-  avouch-meson $pkgname-$pkgver build \
-    -D dbus-srv-user=geoclue \
-    -D dbus-sys-dir=/usr/share/dbus-1/system.d
-  ninja -C build
+  local meson_options=(
+    -D dbus-srv-user=geoclue
+    -D mozilla-api-key="$_mozilla_api_key"
+  )
+
+  avouch-meson geoclue-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-  meson test -C build
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 
   echo 'u geoclue - "Geoinformation service" /var/lib/geoclue' |
-    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/geoclue.conf"
 
   echo 'd /var/lib/geoclue 0755 geoclue geoclue' |
-    install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
+    install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/geoclue.conf"
 }
+

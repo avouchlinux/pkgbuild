@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=nettle
-pkgver=3.6
+pkgver=3.9.1
 pkgrel=1
 pkgdesc="A low-level cryptographic library"
 arch=('x86_64')

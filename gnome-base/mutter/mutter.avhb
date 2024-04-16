@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,33 +8,68 @@ pkgname=(
   mutter
   mutter-docs
 )
-pkgver=45.4
+pkgver=46.0
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://gitlab.gnome.org/GNOME/mutter"
-license=(GPL)
+license=(GPL-2.0-or-later)
 depends=(
+  at-spi2-core
+  cairo
   colord
   dconf
+  fontconfig
+  fribidi
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
   gnome-desktop-4
   gnome-settings-daemon
   graphene
   gsettings-desktop-schemas
+  gtk4
+  harfbuzz
   iio-sensor-proxy
   lcms2
   libcanberra
+  libcolord
   libdisplay-info
+  libdrm
   libei
+  libglvnd
   libgudev
+  libice
   libinput
+  libpipewire
   libsm
   libsysprof-capture
+  libwacom
+  libx11
+  libxau
+  libxcb
+  libxcomposite
+  libxcursor
+  libxdamage
+  libxext
+  libxfixes
+  libxi
+  libxinerama
+  libxkbcommon
   libxkbcommon-x11
   libxkbfile
+  libxrandr
+  libxtst
+  mesa
+  pango
   pipewire
+  pixman
+  python
   startup-notification
+  systemd-libs
+  wayland
   xorg-xwayland
 )
 makedepends=(
@@ -55,46 +90,60 @@ checkdepends=(
   wireplumber
   zenity
 )
-
-install=mutter.install
-source=(https://gitlab.gnome.org/GNOME/mutter/-/archive/$pkgver/mutter-$pkgver.tar.bz2)
+source=(
+  # Mutter tags use SSH signatures which makepkg doesn't understand
+  "git+https://gitlab.gnome.org/GNOME/mutter.git#tag=$pkgver"
+  0001-drm-buffer-gbm-Do-not-call-ensure_fb_id-from-lock_fr.patch
+)
+b2sums=('04a14854c8ec2668a340b241102b7b2ebbc0387a9771a5bd2c2366419ee08e7ebb308f2288f4a64b9d08053e1897eb514a46802584d1590f8bcebde4a613afaa'
+        'fed7d496b658a43b306e62a57c817c54990e8764103eae5479b8a96fbdf25da1ae6028126aa3cccda6239ff1f0c4e69bbe6f12e29804651c1a7b6ca40d6bf36c')
 
 prepare() {
-  cd $pkgname-$pkgver
-  # Make tests run
-  sed -i '/catchsegv/d' meson.build
+  cd mutter
+
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/mutter/-/issues/3
+  # https://gitlab.gnome.org/GNOME/mutter/-/issues/3384
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/3685
+  git cherry-pick -n 22689d722ab4e13ab272c3534f5d18a55c94084f
+
+  # https://gitlab.gnome.org/GNOME/mutter/-/issues/3389
+  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/3674
+  git apply -3 ../0001-drm-buffer-gbm-Do-not-call-ensure_fb_id-from-lock_fr.patch
 }
 
 build() {
-local meson_options=(
+  local meson_options=(
     -D docs=true
     -D egl_device=true
     -D installed_tests=false
-    -D libdisplay_info=true
+    -D libdisplay_info=enabled
     -D wayland_eglstream=true
   )
 
   CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"
   LDFLAGS+=" -Wl,-Bsymbolic-functions"
 
-  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  avouch-meson mutter build "${meson_options[@]}"
   meson compile -C build
-
 }
 
-# check() (
-#   export XDG_RUNTIME_DIR="$PWD/rdir" GSETTINGS_SCHEMA_DIR="$PWD/build/data"
-#   mkdir -p -m 700 "$XDG_RUNTIME_DIR"
-#   glib-compile-schemas "$GSETTINGS_SCHEMA_DIR"
+check() (
+  export XDG_RUNTIME_DIR="$PWD/rdir" GSETTINGS_SCHEMA_DIR="$PWD/build/data"
+  mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+  glib-compile-schemas "$GSETTINGS_SCHEMA_DIR"
 
-#   export NO_AT_BRIDGE=1 GTK_A11Y=none
-#   export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
+  export NO_AT_BRIDGE=1 GTK_A11Y=none
+  export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
 
-#   xvfb-run -s '-nolisten local +iglx -noreset' \
-#     mutter/src/tests/meta-dbus-runner.py --launch=pipewire --launch=wireplumber \
-#     meson test -C build --print-errorlogs -t 5 --setup plain
-# )
-
+  # Tests fail:
+  # mutter:cogl+cogl/conform / cogl-test-offscreen-texture-formats-gles2
+  # mutter:core+mutter/stacking / fullscreen-maximize
+  ## https://gitlab.gnome.org/GNOME/mutter/-/issues/3343
+  xvfb-run -s '-nolisten local +iglx -noreset' \
+    mutter/src/tests/meta-dbus-runner.py --launch=pipewire --launch=wireplumber \
+    meson test -C build --no-suite 'mutter/kvm' --no-rebuild \
+    --print-errorlogs --timeout-multiplier 10 --setup plain ||:
+)
 
 _pick() {
   local p="$1" f d; shift
@@ -107,7 +156,7 @@ _pick() {
 }
 
 package_mutter() {
-  provides=(libmutter-13.so)
+  provides=(libmutter-14.so)
 
   meson install -C build --destdir "$pkgdir"
 
@@ -120,3 +169,4 @@ package_mutter-docs() {
 
   mv docs/* "$pkgdir"
 }
+

@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,20 +11,51 @@ url="https://wiki.gnome.org/Projects/libgdata"
 arch=('x86_64')
 groups=('gnome-base')
 license=(GPL)
-depends=(libsoup liboauth gcr gnome-online-accounts)
-makedepends=(gobject-introspection vala uhttpmock git gtk-doc meson)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+depends=(
+  gcr
+  libgoa
+  libsoup
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+_commit=eb7db048e5445ad567817dced344c47a20c6ea6b  # tags/0.18.1^0
+source=("git+https://gitlab.gnome.org/GNOME/libgdata.git#commit=$_commit")
+b2sums=('SKIP')
 
-
-build() {
-  avouch-meson $pkgname-$pkgver build -D installed_tests=false -D man=true
-  ninja -C build
+pkgver() {
+  cd libgdata
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
-# check() {
-#   meson test -C build --print-errorlogs
-# }
+prepare() {
+  cd libgdata
+}
+
+build() {
+  local meson_options=(
+    # needs uhttpmock with libsoup 2
+    -D always_build_tests=false
+
+    -D gtk_doc=true
+    -D man=true
+  )
+
+  avouch-meson libgdata build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  depends+=(libsoup-2.4.so)
+  provides+=(libgdata.so)
+
+  meson install -C build --destdir "$pkgdir"
 }

@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vala
-pkgver=0.56.15
+pkgver=0.56.16
 pkgrel=1
 pkgdesc="Compiler for the GObject type system"
 arch=('x86_64')
@@ -12,8 +12,10 @@ groups=('dev-compiler')
 url="https://wiki.gnome.org/Projects/Vala"
 license=(LGPL-2.1-or-later)
 depends=(
+  bash
   gcc
   glib2
+  glibc
   graphviz
   gtk-doc
   pkg-config
@@ -41,12 +43,13 @@ source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$p
 build() {
     cd "${srcdir}/${pkgname}-${pkgver}"
     ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make 
 }
 
 # check() {
 #     cd "${srcdir}/${pkgname}-${pkgver}"
-    #make ${MAKEFLAGS} check
+    #make check
 # }
 
 package() {

@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tecla
-pkgver=45.0
+pkgver=46.0
 pkgrel=1
 pkgdesc="Keyboard layout viewer"
 url="https://gitlab.gnome.org/GNOME/tecla"
@@ -24,7 +24,7 @@ makedepends=(
   git
   meson
 )
-source=("https://download.gnome.org/sources/tecla/45/tecla-45.0.tar.xz")
+source=("https://download.gnome.org/sources/tecla/${pkgver%.*}/tecla-$pkgver.tar.xz")
 b2sums=('SKIP')
 
 prepare() {

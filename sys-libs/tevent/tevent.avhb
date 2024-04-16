@@ -1,30 +1,36 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tevent
-pkgver=0.11.0
+pkgver=0.16.1
 pkgrel=1
 pkgdesc="An event system based on the talloc memory management library"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://tevent.samba.org/"
-license=('GPL3')
+source=(https://samba.org/ftp/tevent/${pkgname}-${pkgver}.tar{.gz,.asc})
+license=('GPL-3.0-or-later')
 depends=('talloc')
-makedepends=('python3')
-optdepends=('python3: for python3 bindings')
-source=("https://samba.org/ftp/tevent/${pkgname}-${pkgver}.tar.gz")
+makedepends=('python' 'cmocka')
+optdepends=('python: for python bindings')
+provides=(libtevent.so)
+validpgpkeys=('9147A339719518EE9011BCB54793916113084025') # Samba Library Distribution Key <samba-bugs@samba.org>
+sha512sums=('cda001d91728b2f28dd081e9c5f6d8ede345dcd9ce1dca04394860cd83090c15aa8dfef1c53b73e120bd17f0d95551fa9301eb4927963314556d016fe5420a39'
+            'SKIP')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr \
-		--bundled-libraries=NONE \
-		--builtin-libraries=replace
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --bundled-libraries=NONE \
+    --builtin-libraries=replace
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR=${pkgdir}/ install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }
+

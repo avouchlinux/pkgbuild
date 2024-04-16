@@ -3,29 +3,48 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=sysprof
-pkgver=45.1
+pkgbase=sysprof
+pkgname=(
+  sysprof
+  libsysprof-capture
+)
+pkgver=46.0
 pkgrel=1
 pkgdesc="a profiling tool that helps in finding the functions in which a program uses most of its time"
 arch=('x86_64')
 groups=('gnome-base')
 url="http://www.daimi.au.dk/~sandmann/sysprof/"
-license=("GPL")
-depends=(gtk3 polkit libdazzle)
-makedepends=(yelp-tools git meson)
+license=(GPL-3.0-or-later)
+arch=(x86_64)
+depends=(
+  cairo
+  gcc-libs
+  glib2
+  glibc
+  graphene
+  gtk4
+  hicolor-icon-theme
+  json-glib
+  libadwaita
+  libdex
+  libpanel
+  libunwind
+  pango
+  polkit
+  systemd-libs
+)
+makedepends=(
+  git
+  meson
+  python-packaging
+  yelp-tools
+)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 
 build() {
 	# Ensure static library is non-LTO compatible
-	export CFLAGS="$CFLAGS -ffat-lto-objects"
-
-
-	## Force to use ld.bdf instead of default ld.gold 
-	## as upstream does not come up with a solution yet.
-	## otherwise gjs, mutter build faild
-	#export LD=ld.bfd
-	#export LDFLAGS="$LDFLAGS -fuse-ld=bfd"
+	export CFLAGS+=" -ffat-lto-objects"
 
 	avouch-meson ${pkgname}-${pkgver} build
 	meson compile -C build
@@ -35,6 +54,38 @@ check() {
 	meson test -C build
 }
 
-package() {
-	DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_sysprof() {
+  depends+=(libsysprof-capture)
+  groups=(gnome-extra)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick capture usr/lib/libsysprof-capture-*
+  _pick capture usr/lib/pkgconfig/sysprof-capture-*
+  _pick capture usr/include/sysprof-*/sysprof-{address,capture,clock,collector,macros}.h
+  _pick capture usr/include/sysprof-*/sysprof-{platform,version,version-macros}.h
+  _pick capture usr/include/sysprof-*/sysprof-capture-{condition,cursor,reader,types,writer}.h
+}
+
+package_libsysprof-capture() {
+  pkgdesc+=" - capture library"
+  depends=()
+  license=(BSD-2-Clause-Patent)
+
+  mv capture/* "$pkgdir"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    sysprof-$pkgver/src/libsysprof-capture/COPYING
 }

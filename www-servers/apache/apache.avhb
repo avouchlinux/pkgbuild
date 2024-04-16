@@ -53,8 +53,9 @@ prepare() {
 
   cat "${srcdir}/avouch.layout" >> config.layout
 
-  # https://github.com/openssl/openssl/issues/2865
-  patch -Np1 -i ../openssl-malloc-init.patch
+  # from Gentoo
+  patch -Np1 -i ../libxmlv212.patch
+
 }
 
 build() {
@@ -80,10 +81,11 @@ build() {
       --enable-proxy-http --enable-proxy-ftp \
       --enable-dbd --enable-imagemap --enable-ident --enable-cern-meta \
       --enable-lua --enable-xml2enc --enable-http2 \
-      --enable-proxy-http2 --enable-md --enable-brotli \
+      --enable-proxy-http2 --enable-md --enable-brotli --enable-systemd \
       --with-apr=/usr/bin/apr-1-config \
       --with-apr-util=/usr/bin/apu-1-config \
-      --with-pcre=/usr
+      --with-pcre2
+
 
   make
 }

@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vulkan-headers
 _realname=Vulkan-Headers
-pkgver=1.2.186
+pkgver=1.3.279
 pkgrel=1
 epoch=1
 pkgdesc="Vulkan header files"
@@ -14,21 +14,23 @@ groups=('dev-vulkan')
 url="https://www.khronos.org/vulkan/"
 license=('APACHE')
 makedepends=(cmake git)
-source=(https://github.com/KhronosGroup/Vulkan-Headers/archive/v$pkgver.tar.gz)
+provides=("vulkan-hpp=${pkgver}")
+groups=(vulkan-devel)
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/Vulkan-Headers/archive/v${pkgver}.tar.gz")
+sha256sums=('7844631d7765bcaebb8db5cce9837a4561285640a4d3e9ea144c6d27fdd50d61')
 
 build() {
-  cd "${srcdir}/$_realname-$pkgver"
+  cd Vulkan-Headers*
 
   rm -rf build ; mkdir build ; cd build
   cmake -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_LIBDIR=lib \
     ..
   make
 }
 
 package() {
-  cd "${srcdir}/$_realname-$pkgver/build"
+  cd Vulkan-Headers*/build
   
   make DESTDIR="${pkgdir}" install
 }
