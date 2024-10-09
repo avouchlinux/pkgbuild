@@ -9,7 +9,7 @@ pkgname=(
   libnautilus-extension
   libnautilus-extension-docs
 )
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="Default file manager for GNOME"
 url="https://wiki.gnome.org/Apps/Nautilus"
@@ -19,8 +19,10 @@ license=(GPL-3.0-or-later)
 depends=(
   cairo
   dconf
+  gcc-libs
   gdk-pixbuf2
   glib2
+  glibc
   gnome-autoar
   gnome-desktop-4
   graphene
@@ -34,16 +36,20 @@ depends=(
   libgexiv2
   libportal
   libportal-gtk4
+  libx11
+  localsearch
   pango
-  tracker3
+  tinysparql
+  wayland
+  xdg-user-dirs-gtk
 )
 makedepends=(
   appstream-glib
   gi-docgen
   git
+  glib2-devel
   gobject-introspection
   meson
-  tracker3-miners
 )
 checkdepends=(python-gobject)
 _commit=dcd221d57d0180d9d5cc0524bc6e3278d3d3a04c  # tags/46.0^0

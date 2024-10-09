@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libpciaccess
-pkgver=0.18
+pkgver=0.18.1
 pkgrel=1
 pkgdesc="X11 PCI access library"
 arch=('x86_64')

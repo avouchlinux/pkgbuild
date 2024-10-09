@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -15,11 +15,7 @@ source=('git+https://github.com/hagabaka/sddm-config-editor.git')
 md5sums=('SKIP')
 depends=('qt5-quickcontrols' 'sddm' 'polkit')
 makedepends=('git' 'qt5-tools')
-
-
-getsrc(){	
-	git clone https://github.com/hagabaka/sddm-config-editor.git
-}
+source=('git+https://github.com/hagabaka/sddm-config-editor.git')
 
 pkgver() {
   cd "$srcdir/$pkgname"

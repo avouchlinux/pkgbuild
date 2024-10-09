@@ -1,32 +1,46 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=oxygen
-pkgver=5.27.8
+pkgver=6.2.0
 pkgrel=1
 pkgdesc='KDE Oxygen style'
-url='https://www.kde.org/workspaces/plasmadesktop/'
 arch=('x86_64')
 groups=('kde-plasma')
-depends=(frameworkintegration kdecoration kcmutils kwayland hicolor-icon-theme)
-license=(LGPL)
-makedepends=(frameworkintegration kcmutils kdecoration extra-cmake-modules kdoctools kdelibs automoc4 python)
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcoreaddons
+         kcrash
+         ki18n
+         kio
+         libksysguard
+         lm_sensors
+         qt6-base
+         solid)
+makedepends=(extra-cmake-modules
+             libnl
+             networkmanager-qt)
+optdepends=('libnl: network usage monitor'
+            'networkmanager-qt: network usage monitor'
+            'systemd-libs: GPU monitor')
 source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
 validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell
               '348C8651206633FD983A8FC4DEACEA00075E1D76'  # KDE Neon
               'D07BD8662C56CB291B316EB2F5675605C74E02CF') # David Edmundson
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=umbrello
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='UML modeller'
 arch=(x86_64)

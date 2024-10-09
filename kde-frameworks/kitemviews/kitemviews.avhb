@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kitemviews
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Widget addons for Qt Model/View'
 arch=('x86_64')

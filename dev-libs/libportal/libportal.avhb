@@ -3,8 +3,16 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libportal
-pkgver=0.6
+pkgbase=libportal
+pkgname=(
+  libportal
+  libportal-docs
+  libportal-gtk3
+  libportal-gtk4
+  libportal-qt5
+  libportal-qt6
+)
+pkgver=0.8.1
 pkgrel=1
 pkgdesc="GIO-style async APIs for most Flatpak portals"
 arch=('x86_64')
@@ -12,20 +20,146 @@ groups=('dev-libs')
 url="https://github.com/flatpak/libportal"
 arch=(x86_64)
 license=(LGPL)
-depends=(glib2)
-makedepends=(git meson gtk-doc)
+makedepends=(
+  gcc-libs
+  gi-docgen
+  git
+  gjs
+  glib2
+  glib2-devel
+  glibc
+  gobject-introspection
+  gtk3
+  gtk4
+  meson
+  qt5-base
+  qt5-tools
+  qt5-x11extras
+  qt6-base
+  qt6-tools
+  vala
+)
+checkdepends=(
+  python-dbusmock
+  python-pytest
+  xorg-server-xvfb
+)
 source=("https://github.com/flatpak/libportal/archive/refs/tags/$pkgver.tar.gz")
 
 
 build() {
   avouch-meson $pkgname-$pkgver build
-  ninja -C build
+  meson compile -C build
 }
 
 check() {
-  meson test -C build --print-errorlogs
+  xvfb-run -s '-nolisten local' \
+    meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
+
+package_libportal() {
+  depends=(
+    gcc-libs
+    glib2
+    glibc
+    libg{lib,object,io}-2.0.so
+  )
+  optdepends=(
+    'libportal-docs: API documentation'
+    'libportal-gtk3: GTK 3 backend'
+    'libportal-gtk4: GTK 4 backend'
+    'libportal-qt5: Qt 5 backend'
+    'libportal-qt6: Qt 6 backend'
+    'xdg-desktop-portal: Portal service'
+  )
+  provides=(libportal.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick docs usr/share/doc
+
+  local x
+  for x in gtk3 gtk4 qt5 qt6; do
+    _pick $x usr/include/libportal-$x
+    _pick $x usr/lib{,/pkgconfig}/libportal-$x.*
+
+    if [[ $x == gtk* ]]; then
+      _pick $x {usr/lib/girepository-1.0,usr/share/gir-1.0}/Xdp${x^}-1.0.*
+      _pick $x usr/share/vala/vapi/libportal-$x.*
+    fi
+  done
+}
+
+package_libportal-docs() {
+  pkgdesc+=" - API documentation"
+
+  mv docs/* "$pkgdir"
+}
+
+package_libportal-gtk3() {
+  pkgdesc+=" - GTK 3 backend"
+  depends=(
+    gcc-libs
+    glib2
+    libg{d,t}k-3.so
+    libportal
+  )
+  provides=(libportal-gtk3.so)
+
+  mv gtk3/* "$pkgdir"
+}
+
+package_libportal-gtk4() {
+  pkgdesc+=" - GTK 4 backend"
+  depends=(
+    gcc-libs
+    glib2
+    libgtk-4.so
+    libportal
+  )
+  provides=(libportal-gtk4.so)
+
+  mv gtk4/* "$pkgdir"
+}
+
+package_libportal-qt5() {
+  pkgdesc+=" - Qt 5 backend"
+  depends=(
+    gcc-libs
+    glib2
+    glibc
+    libportal
+    qt5-base
+    qt5-x11extras
+  )
+  provides=(libportal-qt5.so)
+
+  mv qt5/* "$pkgdir"
+}
+
+package_libportal-qt6() {
+  pkgdesc+=" - Qt 6 backend"
+  depends=(
+    gcc-libs
+    glib2
+    glibc
+    libportal
+    qt6-base
+  )
+  provides=(libportal-qt6.so)
+
+  mv qt6/* "$pkgdir"
+}
+

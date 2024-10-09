@@ -5,7 +5,7 @@
 
 pkgname=gnome-console
 _realname=console
-pkgver=46.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="A simple user-friendly terminal emulator for the GNOME desktop"
 url="https://gitlab.gnome.org/GNOME/console"
@@ -13,16 +13,23 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL3)
 depends=(
+  dconf
+  gcc-libs
+  gtk4
+  glib2
+  glibc
+  hicolor-icon-theme
   libadwaita
   libgtop
+  pango
   vte4
 )
 makedepends=(
-  appstream-glib
+  appstream
   git
+  glib2-devel
   meson
 )
-groups=(gnome)
 source=(https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2)
 
 build() {

@@ -1,12 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=haproxy
-pkgver=2.6.6
+pkgver=2.9.7
 pkgrel=1
-
 pkgdesc='Reliable, high performance TCP/HTTP load balancer'
 url='https://www.haproxy.org/'
 arch=('x86_64')
@@ -16,7 +15,6 @@ license=('GPL')
 depends=('openssl' 'pcre2' 'zlib' 'libxcrypt' 'libcrypt.so' 'lua' 'systemd-libs')
 makedepends=('systemd')
 
-options=('debug')
 backup=('etc/haproxy/haproxy.cfg')
 
 install=haproxy.install
@@ -26,10 +24,10 @@ source=(https://www.haproxy.org/download/${pkgver%.*}/src/haproxy-$pkgver.tar.gz
         haproxy.sysusers
         0001-Use-CFLAGS-and-LDFLAGS-when-building-admin.patch)
 
-sha256sums=('d0c80c90c04ae79598b58b9749d53787f00f7b515175e7d8203f2796e6a6594d'
+sha256sums=('d1a0a56f008a8d2f007bc0c37df6b2952520d1f4dde33b8d3802710e5158c131'
             'f6babef513b99a3fa0e50f2b144c73c980f1b78b119874ffa2580af1e651e7a9'
             'b02b4088205039f0979aef0ef3e22957f493dd54eabefaee7011f2d795303b3e'
-            '8cdbb8be7a712f7b2c7f4823a96d2d2926d96b57632e9669069354d7f2df9fd2')
+            'a1e3a1c2923465081383eb431bae55ff9841d89909469311cdba4b394ec4a998')
 
 prepare() {
   cd haproxy-$pkgver
@@ -82,5 +80,7 @@ package() {
   install -D -m0644 ../haproxy.cfg "$pkgdir"/etc/haproxy/haproxy.cfg
   install -D -m0644 admin/systemd/haproxy.service \
     "$pkgdir"/usr/lib/systemd/system/haproxy.service
+  install -D -m0644 admin/syntax-highlight/haproxy.vim \
+    "$pkgdir"/usr/share/nvim/runtime/syntax/haproxy.vim
   cp -r examples "$pkgdir"/usr/share/haproxy/examples
 }

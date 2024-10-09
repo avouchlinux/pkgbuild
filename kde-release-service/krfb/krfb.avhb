@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=krfb
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='Desktop Sharing'
 url='http://www.kde.org/applications/system/krfb'

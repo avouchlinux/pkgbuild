@@ -1,41 +1,54 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=visual-studio-code
 _realname=code-stable
-pkgver=1.66
+pkgver=1.89.1
 pkgrel=1
 pkgdesc="Visual Studio Code: Editor for building and debugging modern web and cloud applications (official binary version)"
 arch=('x86_64')
 groups=('dev-ide')
 url="https://code.visualstudio.com/"
 license=('custom: commercial')
-depends=(fontconfig libxtst gtk3 python cairo alsa-lib nss gcc-libs libnotify libxss gconf 'glibc>=2.28-4')
-optdepends=('gvfs: Needed for move to trash functionality' 'libdbusmenu-glib: Needed for KDE global menu')
-source_x86_64=(https://update.code.visualstudio.com/$pkgver/linux-x64/stable
+provides=('code' 'vscode')
+conflicts=('code')
+install=$pkgname.install
+# lsof: needed for terminal splitting, see https://github.com/Microsoft/vscode/issues/62991
+# xdg-utils: needed for opening web links with xdg-open
+depends=(libxkbfile gnupg gtk3 libsecret nss gcc-libs libnotify libxss glibc lsof shared-mime-info xdg-utils alsa-lib)
+optdepends=('glib2: Needed for move to trash functionality'
+            'libdbusmenu-glib: Needed for KDE global menu'
+            'org.freedesktop.secrets: Needed for settings sync'
+             # See https://github.com/MicrosoftDocs/live-share/issues/4650
+            'icu69: Needed for live share' )
+source=(code_x64_${pkgver}.tar.gz::https://update.code.visualstudio.com/$pkgver/linux-x64/stable
                ${_realname}.desktop
+		code.desktop 
+		code-url-handler.desktop 
+		${pkgname}-workspace.xml ${pkgname}-bin.sh
                )
 package() {
-  _pkg=VSCode-linux-x64
+	_pkg=VSCode-linux-x64
 
-  install -d "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -d "${pkgdir}/opt/${pkgname}"
-  install -d "${pkgdir}/usr/bin"
-  install -d "${pkgdir}/usr/share/applications"
-  install -d "${pkgdir}/usr/share/icons" 
+	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+	install -d "${pkgdir}/opt/${pkgname}"
+	install -d "${pkgdir}/usr/bin"
+	install -d "${pkgdir}/usr/share/applications"
+	install -d "${pkgdir}/usr/share/icons"
+	install -d "${pkgdir}/usr/share/mime/packages"
 
-  install -m644 "${srcdir}/${_pkg}//resources/app/LICENSE.rtf" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-  install -m644 "${srcdir}/${_pkg}/resources/app/resources/linux/code.png" "${pkgdir}/usr/share/icons/${pkgname}.png"
-  install -m644 "${srcdir}/${pkgname}.desktop" "${pkgdir}/usr/share/applications/${pkgname}.desktop"
-  install -m644 "${srcdir}/${pkgname}-url-handler.desktop" "${pkgdir}/usr/share/applications/${_pkgname}-url-handler.desktop"
+	install -m644 "${srcdir}/${_pkg}/resources/app/LICENSE.rtf" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.rtf"
+	install -m644 "${srcdir}/${_pkg}/resources/app/resources/linux/code.png" "${pkgdir}/usr/share/icons/${pkgname}.png"
+	install -m644 "${srcdir}/code.desktop" "${pkgdir}/usr/share/applications/code.desktop"
+	install -m644 "${srcdir}/code-url-handler.desktop" "${pkgdir}/usr/share/applications/code-url-handler.desktop"
+	install -m644 "${srcdir}/${pkgname}-workspace.xml" "${pkgdir}/usr/share/mime/packages/${pkgname}-workspace.xml"
+	install -Dm 644 "${srcdir}/${_pkg}/resources/completions/bash/code" "${pkgdir}/usr/share/bash-completion/completions/code"
+	install -Dm 644 "${srcdir}/${_pkg}/resources/completions/zsh/_code" "${pkgdir}/usr/share/zsh/site-functions/_code"
 
-  cp -r "${srcdir}/${_pkg}/"* "${pkgdir}/opt/${pkgname}" -R
-  ln -s /opt/${pkgname}/bin/code "${pkgdir}"/usr/bin/code
+	cp -r "${srcdir}/${_pkg}/"* "${pkgdir}/opt/${pkgname}"
 
-  # XFCE bug workaround
-  # see https://aur.archlinux.org/packages/visual-studio-code-bin/#comment-692211
-  mkdir -p "${pkgdir}/usr/share/icons/hicolor/512x512/apps"
-  install -m644 "${srcdir}/code.png" "${pkgdir}/usr/share/icons/hicolor/512x512/apps/visual-studio-code.png"
+	# Launcher
+	install -m755 "${srcdir}/${pkgname}.sh" "${pkgdir}/usr/bin/code"
 }

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-verve-plugin
-pkgver=2.0.1
+pkgver=2.0.3
 pkgrel=1
 pkgdesc="Command line plugin Xfce4 panel"
 arch=('x86_64')
@@ -21,7 +21,7 @@ build() {
   ./configure \
     --prefix=/usr \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -15,13 +16,24 @@ epends=('gcc-libs' 'glibc' 'libgl' 'libvdpau' 'libx11'
 makedepends=('cmake')
 source=("https://github.com/i-rinat/libvdpau-va-gl/archive/v${pkgver}.tar.gz")
 
-build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
-	make ${MAKEFLAGS}
+prepare() {
+  if [[ -d build ]]; then
+    rm -rf build
+  fi
+  mkdir build
 }
 
-package() {	
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="$pkgdir" install
+build() {
+  cd build
+
+  cmake ../libvdpau-va-gl-${pkgver} \
+    -DCMAKE_BUILD_TYPE='Release' \
+    -DCMAKE_INSTALL_PREFIX='/usr'
+  make
+}
+
+package() {
+  cd build
+
+  make DESTDIR="${pkgdir}" install
 }

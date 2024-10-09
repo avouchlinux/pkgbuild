@@ -1,39 +1,48 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=cryfs
-pkgver=0.10.2
+pkgver=0.11.4
 pkgrel=1
 pkgdesc="Cryptographic filesystem for the cloud"
 arch=(x86_64)
 groups=('sys-fs')
-depends=(fuse2 curl)
-makedepends=(cmake python boost)
 url="https://www.cryfs.org"
-license=(LGPL3)
-source=("https://github.com/cryfs/cryfs/releases/download/$pkgver/cryfs-$pkgver.tar.xz"{,.asc})
-validpgpkeys=(C3111FE656732704EF6DF059017DC932549E65B2) # CryFS Team <messmer@cryfs.org>
+depends=(boost-libs
+         curl
+         fmt
+         fuse2
+         gcc-libs
+         glibc
+         spdlog)
+makedepends=(boost
+             cmake
+             python
+             range-v3)
+license=(LGPL-3.0-only)
+source=(https://github.com/cryfs/cryfs/releases/download/$pkgver/cryfs-$pkgver.tar.xz{,.asc})
+sha256sums=('a71e2d56f9e7a907f4b425b74eeb8bef064ec49fa3a770ad8a02b4ec64c48828'
+            'SKIP')
+validpgpkeys=(5D5EC7BC6F1443EC2AF7177A9E6C996C991D25E1) # CryFS Team <messmer@cryfs.org>
 
 prepare() {
-  mkdir -p build
+  sed -e '/Release/d' -i doc/CMakeLists.txt # Install man page also with dafault build type
 }
 
 build() {
-  cd build
-
-  cmake ../ \
+  cmake -B build -S . \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_TESTING=OFF \
-    -DCRYFS_UPDATE_CHECKS=OFF
-  make ${MAKEFLAGS}
+    -DCRYFS_UPDATE_CHECKS=OFF \
+    -DDEPENDENCY_CONFIG="cmake-utils/DependenciesFromLocalSystem.cmake"
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 
-  install -Dm 644 ../LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
-  install -Dm 644 "$srcdir"/README.md -t "$pkgdir"/usr/share/doc/$pkgname
+  install -Dm 644 LICENSE.txt -t "$pkgdir"/usr/share/licenses/$pkgname
+  install -Dm 644 README.md -t "$pkgdir"/usr/share/doc/$pkgname
 }

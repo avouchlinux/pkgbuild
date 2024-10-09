@@ -1,12 +1,16 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=glib2
-pkgname=('glib2' 'glib2-docs')
+pkgname=(
+  glib2
+  glib2-devel
+  glib2-docs
+)
 _realname=glib
-pkgver=2.80.0
+pkgver=2.82.1
 pkgrel=1
 pkgdesc="Low level core library"
 arch=('x86_64')
@@ -19,7 +23,7 @@ checkdepends=(desktop-file-utils)
 optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
             'libelf: gresource inspection tool')
 options=(!strip)
-source=("https://download.gnome.org/sources/glib/2.78/glib-$pkgver.tar.xz"
+source=("https://download.gnome.org/sources/glib/${pkgver%.*}/glib-$pkgver.tar.xz"
         noisy-glib-compile-schemas.diff
         glib-compile-schemas.hook gio-querymodules.hook)
 
@@ -32,16 +36,20 @@ prepare() {
 build() {
   local meson_options=(
     --default-library both
-    -D glib_debug=disabled
     -D documentation=true
-    -D introspection=disabled
+    -D dtrace=disabled
+    -D glib_debug=disabled
+    -D introspection=enabled
     -D man-pages=enabled
     # -D selinux=disabled
     -D sysprof=enabled
+    -D systemtap=disabled
+
   )
 
+
   # Produce more debug info: GLib has a lot of useful macros
-  export CFLAGS+=" -DG_DISABLE_CAST_CHECKS -g3"
+  export CFLAGS+=" -g3"
   export CXXFLAGS+=" -g3"
 
   # use fat LTO objects for static libraries
@@ -57,33 +65,79 @@ build() {
 #   meson test -C build --no-suite flaky --no-suite slow --print-errorlogs
 # }
 
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
 package_glib2() {
-  depends+=(libmount.so)
-  provides+=(libgio-2.0.so libglib-2.0.so libgmodule-2.0.so libgobject-2.0.so
-             libgthread-2.0.so)
-  optdepends=('python: gdbus-codegen, glib-genmarshal, glib-mkenums, gtester-report'
-              'libelf: gresource inspection tool')
+  depends+=(
+    libffi.so
+    libmount.so
+  )
+  provides+=(libg{lib,io,irepository,module,object,thread}-2.0.so)
+  optdepends=(
+    'dconf: GSettings storage backend'
+    'glib2-devel: development tools'
+    'gvfs: most gio functionality'
+  )
+  options=(staticlibs)
 
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 
-  install -D gio-querymodules.script "$pkgdir/usr/share/libalpm/scripts/gio-querymodules"
+  install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 *.hook
+  touch "$pkgdir/usr/lib/gio/modules/.keep"
 
-  export PYTHONHASHSEED=0
   python -m compileall -d /usr/share/glib-2.0/codegen \
     "$pkgdir/usr/share/glib-2.0/codegen"
   python -O -m compileall -d /usr/share/glib-2.0/codegen \
     "$pkgdir/usr/share/glib-2.0/codegen"
 
+  cd "$pkgdir"
+
   # Split docs
-  mkdir -p docs/usr/share
-  # mv {"$pkgdir",docs}/usr/share/gtk-doc
+  _pick docs usr/share/doc
+
+  # Split devel
+  _pick devel usr/bin/gdbus-codegen
+  _pick devel usr/bin/glib-{mkenums,genmarshal}
+  _pick devel usr/bin/gresource
+  _pick devel usr/bin/gtester{,-report}
+
+  _pick devel usr/share/gdb/
+  _pick devel usr/share/glib-2.0/gdb/
+  _pick devel usr/share/glib-2.0/codegen/
+
+  _pick devel usr/share/bash-completion/completions/gresource
+
+  _pick devel usr/share/man/man1/gdbus-codegen.1
+  _pick devel usr/share/man/man1/glib-{mkenums,genmarshal}.1
+  _pick devel usr/share/man/man1/gresource.1
+  _pick devel usr/share/man/man1/gtester{,-report}.1
+}
+
+package_glib2-devel() {
+  pkgdesc+=" - development files"
+  depends=(
+    glib2
+    glibc
+    libelf
+    python
+    python-packaging
+  )
+  mv devel/* "$pkgdir"
 }
 
 package_glib2-docs() {
-  pkgdesc="Documentation for GLib"
+  pkgdesc+=" - documentation"
   depends=()
-  license+=(custom)
+  license+=(LicenseRef-Public-Domain)
 
-  mv -t "$pkgdir" docs/*
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 ${_realname}-${pkgver}/docs/reference/COPYING
+  mv docs/* "$pkgdir"
 }
+

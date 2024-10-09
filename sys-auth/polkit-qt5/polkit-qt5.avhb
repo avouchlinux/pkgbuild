@@ -1,18 +1,25 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
+pkgbase=polkit-qt
 pkgname=polkit-qt5
 _realname=polkit-qt-1
-pkgver=0.114.0
+pkgver=0.200.0
 pkgrel=1
 pkgdesc='A library that allows developers to access PolicyKit API with a nice Qt-style API'
 arch=('x86_64')
 groups=('sys-auth')
 url='https://www.kde.org/'
 license=('LGPL')
-depends=('polkit' 'qt5-base')
-makedepends=(cmake)
+depends=(gcc-libs
+         glib2
+         glibc
+         polkit)
+makedepends=(cmake
+             qt5-base
+             qt6-base)
 source=("https://download.kde.org/stable/$pkgbase-1/$pkgbase-1-$pkgver.tar.xz"{,.sig})
 validpgpkeys=(D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heirecka@exherbo.org>
 

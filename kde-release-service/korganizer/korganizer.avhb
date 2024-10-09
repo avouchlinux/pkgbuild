@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=korganizer
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Calendar and scheduling Program"
 arch=('x86_64')

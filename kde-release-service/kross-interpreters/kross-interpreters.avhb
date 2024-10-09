@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kross-interpreters
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='Language interpreters to enable in-process scripting with Kross'
 arch=('x86_64')

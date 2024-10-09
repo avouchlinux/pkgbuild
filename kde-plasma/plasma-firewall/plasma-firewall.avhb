@@ -1,33 +1,48 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-firewall
-pkgver=5.27.8
+pkgver=6.2.0
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Control Panel for your system firewall'
 arch=(x86_64)
 groups=('kde-plasma')
 url='https://kde.org/plasma-desktop/'
-license=(GPL LGPL)
-source=(https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz{,.sig})
-depends=(systemsettings)
-makedepends=(extra-cmake-modules)
-optdepends=('iproute2: netstat backend'
-            'firewalld: firewalld backend'
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kauth
+         kcmutils
+         kconfig
+         kcoreaddons
+         ki18n
+         kirigami
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules
+             python)
+optdepends=('firewalld: firewalld backend'
+            'iproute2: netstat backend'
+            'python: ufw backend'
             'ufw: ufw backend')
-sha256sums=('5c2504836b28c95edcbe048b937db400ac39b4398590434ba200e6426b411c10'
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('59fd0579a6c9913f97466ebbe562b00c27b590d9c3874c239c8a51fe61903e65'
             'SKIP')
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
               'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
+
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 

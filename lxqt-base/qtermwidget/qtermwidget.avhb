@@ -1,31 +1,44 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qtermwidget
-pkgver=1.1.0
+pkgver=2.0.1
 pkgrel=1
 pkgdesc="A terminal widget for Qt, used by QTerminal"
 arch=("x86_64")
 groups=('lxqt-base')
-url="https://lxqt.org"
+url="https://github.com/lxqt/qtermwidget"
 # Yep, it's messy when you're talking about licenses
-license=("LGPL" "custom:BSD" "custom:Public Domain")
-depends=("qt5-base")
-makedepends=("lxqt-build-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+# https://github.com/lxqt/qtermwidget/blob/2.0.0/README.md?plain=1#L13-L42
+license=('LGPL-2.0-or-later' 'BSD-3-Clause')
+depends=("qt6-base")
+makedepends=("git" "lxqt-build-tools"
+             "python-pyqt6" "pyqt-builder" "sip" "python-installer")
+optdepends=(
+  'python: PyQt bindings'
+)
+source=(
+  "git+https://github.com/lxqt/qtermwidget.git?signed#tag=$pkgver"
+)
+sha256sums=('7502ef3ca75f5c98514e0590756570df4af447b777600dc948290f4d60850191')
 validpgpkeys=(
-  "169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
-  "7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+  "19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # https://github.com/tsujan.gpg
 )
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+  cmake -B build -S qtermwidget \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
+
+  cd "$srcdir"/qtermwidget/pyqt
+  # CXXFLAGS="$CXXFLAGS -I$PWD/../lib -I$PWD/../../build/lib" LDFLAGS="$LDFLAGS -L$PWD/../../build" sip-wheel --verbose --qmake "/usr/bin/qmake6"
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  make -C build DESTDIR="$pkgdir" install
+  install -Dm644 "$srcdir"/qtermwidget/README.md -t "$pkgdir"/usr/share/licenses/$pkgname
+
+#   python -m installer --destdir="$pkgdir" "$srcdir"/qtermwidget/pyqt/*.whl
 }

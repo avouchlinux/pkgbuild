@@ -1,18 +1,19 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-panel
-pkgver=4.16.2
+pkgver=4.18.6
 pkgrel=1
 pkgdesc="Panel for the Xfce desktop environment"
 arch=('x86_64')
 groups=('xfce4-base')
 url="http://www.xfce.org/"
 license=('GPL2')
-depends=('exo' 'garcon' 'libxfce4ui' 'libwnck' 'hicolor-icon-theme' 'desktop-file-utils')
-makedepends=('intltool' 'gtk-doc')
+depends=('exo' 'garcon' 'libxfce4ui' 'xfconf' 'libwnck3' 'libdbusmenu-gtk3'
+         'hicolor-icon-theme' 'desktop-file-utils')
+makedepends=('intltool' 'gobject-introspection' 'vala')
 source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
 
 build() {
@@ -23,9 +24,8 @@ build() {
         --localstatedir=/var \
         --disable-static \
         --enable-gio-unix \
-        --enable-gtk3 \
         --disable-debug
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

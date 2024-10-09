@@ -4,15 +4,36 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal-gnome
-pkgver=46.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="A backend implementation for xdg-desktop-portal for the GNOME desktop environment"
 url="https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome"
 arch=(x86_64)
 groups=('gnome-base')
 license=(LGPL)
-depends=(xdg-desktop-portal-gtk gtk4 gnome-keyring evince)
-makedepends=(xdg-desktop-portal meson git)
+depends=(
+  cairo
+  dconf
+  fontconfig
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-desktop-4
+  graphene
+  gtk4
+  libadwaita
+  libx11
+  wayland
+  xdg-desktop-portal
+  'xdg-desktop-portal-gtk>=1.10.0-2'
+)
+makedepends=(
+  git
+  glib2-devel
+  meson
+)
+optdepends=('evince: Print previews')
 provides=(xdg-desktop-portal-impl)
 source=("https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/archive/$pkgver/xdg-desktop-portal-gnome-$pkgver.tar.bz2")
 sha256sums=('SKIP')

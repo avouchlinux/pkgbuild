@@ -1,4 +1,4 @@
-From 9b13ef61756ea09f5b8781e8e3443caff42b2b45 Mon Sep 17 00:00:00 2001
+From 047219d27ff7d3258d6c71a001af1ec5b814dbc1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
 Date: Wed, 24 Jan 2024 18:51:51 +0100
 Subject: [PATCH] theme: improve screensaver style
@@ -10,7 +10,7 @@ Subject: [PATCH] theme: improve screensaver style
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/data/theme/common.css b/data/theme/common.css
-index 2193a87..5def8f4 100644
+index c928904..145a8ec 100644
 --- a/data/theme/common.css
 +++ b/data/theme/common.css
 @@ -1,7 +1,7 @@
@@ -18,7 +18,7 @@ index 2193a87..5def8f4 100644
    font-weight: bold;
    padding: 4px 10px;
 -  background: rgba (0, 0, 0, 0.8);
-+  background: rgba (0, 0, 0, 0.3);
++  background: rgba (0, 0, 0, 0.5);
    color: #cccccc;
  }
  
@@ -35,5 +35,5 @@ index 2193a87..5def8f4 100644
    border-radius: 10px;
  }
 -- 
-2.44.0
+2.46.0
 

@@ -1,31 +1,45 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libfm-qt
-pkgver=1.1.0
+pkgver=2.0.2
 pkgrel=1
 pkgdesc="Core library of PCManFM-Qt (Qt binding for libfm)"
 arch=('x86_64')
 groups=('lxqt-base')
 url="https://lxqt.org"
-license=("GPL2")
-depends=("menu-cache" "libexif" "qt5-x11extras")
+license=("LGPL-2.1-or-later")
+depends=("menu-cache" "libexif" "qt6-base" "lxqt-menu-data")
 makedepends=("lxqt-build-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+optdepends=(
+  "org.freedesktop.secrets: allow to remember mount passwords"
+)
+provides=("libfm-qt6.so")
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha512sums=('479a7de05096b0c7763676e8eef5fa83ec06b4a5bc7bde697a265b2ba3ec79f6733169bf4b4aeef807df44660790b3d68f873c3a428f45aa38820bd861ca881b'
+            'SKIP')
 validpgpkeys=(
 	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
 	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
 )
+# Work-around https://gitlab.kitware.com/cmake/cmake/-/issues/17122
+# Relevant CMake codes: https://github.com/lxqt/libfm-qt/blob/1.2.1/src/CMakeLists.txt#L179
+options=('!emptydirs')
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_BUILD_TYPE=None
-    cmake --build build
+	cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+	make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" cmake --install build
+	cd build
+	make DESTDIR="$pkgdir" install
 }

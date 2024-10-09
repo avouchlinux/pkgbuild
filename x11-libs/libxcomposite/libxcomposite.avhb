@@ -1,27 +1,34 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxcomposite
 _realname=libXcomposite
-pkgver=0.4.5
+pkgver=0.4.6
 pkgrel=1
 pkgdesc="X11 Composite extension library"
 arch=('x86_64')
 groups=('x11-libs')
 url="http://xorg.freedesktop.org/"
 license=('custom')
-depends=('libxfixes' 'compositeproto')
-makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/lib/libXcomposite-${pkgver}.tar.bz2")
+depends=('libxfixes')
+makedepends=('xorg-util-macros' 'xorgproto')
+source=("${url}/releases/individual/lib/libXcomposite-${pkgver}.tar.xz"{,.sig})
+sha512sums=('f35a0da8f9f22fd788eee01209557fe3a1b1abdc9744f76330ba42b21b6e3af5464ca4451c33415856417c30da5aa5624e3707980c644327249bfeda5a62a59b'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  cd libXcomposite-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc --disable-static
+  make
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd libXcomposite-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

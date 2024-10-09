@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pim-data-exporter
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Import and export KDE PIM settings"
 arch=('x86_64')

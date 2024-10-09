@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=parley
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Vocabulary Trainer"
 url="http://kde.org/applications/education/parley/"

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=modemmanager-qt
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Qt wrapper for ModemManager DBus API'
 arch=('x86_64')

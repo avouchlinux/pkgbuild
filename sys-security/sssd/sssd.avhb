@@ -1,16 +1,16 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sssd
-pkgver=2.4.2
+pkgver=2.9.4
 pkgrel=1
 pkgdesc="System Security Services Daemon"
 arch=('x86_64')
 groups=('sys-security')
 url="https://pagure.io/SSSD/sssd"
-license=('GPL3')
+license=('GPL-3.0-or-later')
 depends=(
   'bind'          # for nsupdate
   'c-ares'
@@ -21,8 +21,11 @@ depends=(
   'smbclient'     # for libndr-nbt
   'nfsidmap'
   'jansson'
+  'jose'
   'libtevent.so'
   'libldb.so'
+  'curl'
+  'pcre2'
 )
 makedepends=(
   'docbook-xsl'
@@ -32,6 +35,8 @@ makedepends=(
   'systemd'
   'tevent'
   'ldb'
+  'bc'
+  'python-setuptools'
 )
 checkdepends=(
   'check'
@@ -40,29 +45,36 @@ checkdepends=(
   'openssh'
   'softhsm'
 )
-source=("https://github.com/SSSD/$pkgname/releases/download/$pkgname-${pkgver//./_}/$pkgname-$pkgver.tar.gz"{,.asc})
-validpgpkeys=('E4E366758CA0716AAB8048671EC6AB7532E7BC25')
+options=('!lto')
+backup=('etc/logrotate.d/sssd')
+source=("https://github.com/SSSD/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.gz"{,.asc}
+        "https://patch-diff.githubusercontent.com/raw/SSSD/sssd/pull/7151/sssd-openssl3-no-ext.patch"
+        "https://github.com/SSSD/sssd/commit/1bf51929a48b84d62ac54f2a42f17e7fbffe1612.patch" # samba 4.20
+        "https://github.com/SSSD/sssd/commit/9efd79b010dbb46d9968c3d3ab073b8e585cb2ad.patch" # setuptools
+       )
+sha512sums=('9546cf074628f32137b16ca0c763988785271124244b645d1e786762e8578f10d983793a29bffcc004b064452fe8d465476a3041688d2f3c11c2751fb5bec3e2'
+            'SKIP'
+            '4b2024d01d5f4a718f3aa954909941baa74c00769c087296934bdc7502ca1b18e26697d0406aa4e8708ec7e460d88a9457ce8471496b45522b50e727fc2891f2'
+            'bbd546fb580f496b4a766029ac67b42fed485c3bcca867a1ec5533e169cd2d04a4badc701d5b33c3b2216939c5d050081758658f71a797bf7c90b1682c39cbaa'
+            '8433f4a7ed7064690ce67cf209b9e7ab97d509a27df29374bbb86e3489b42154b34e7361418de8a1741d91e8b12a68b139bc365c58037e58263bd8f3494e9e73')
+validpgpkeys=('C13CD07FFB2DB1408E457A3CD3D21B2910CF6759')
 
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
   for f in "${source[@]}"; do
+    f=$(basename "$f")
     if [[ $f == *.patch ]]; then
-      msg2 "Applying $f"
       patch -p1 < "$srcdir/$f"
     fi
   done
 
-# Fix issue with autoconf 2.70+
-  sed '/AM_PROG_CC_C_O/ i AC_PROG_CPP' -i configure.ac
-  
   sed -i 's#/var/run/#/run/#' src/examples/logrotate
+
+  # Fix issue with autoconf 2.70+
+  sed '/AM_PROG_CC_C_O/ i AC_PROG_CPP' -i configure.ac
 
   # dbus policy files in /usr/share/dbus-1
   sed -i 's/^dbuspolicydir = $(sysconfdir)/dbuspolicydir = $(datadir)/' Makefile.in
-
-  # fix search path for libsofthsm2.so
-  # see: https://github.com/SSSD/sssd/issues/5329
-  sed -i 's#/usr/lib64/pkcs11/libsofthsm2.so ##' src/external/test_ca.m4
 
   # remove flaky network test
   sed '/fail_over-tests/d' -i Makefile.am
@@ -79,16 +91,25 @@ build() {
     --libexecdir=/usr/lib/sssd                    \
     --datadir=/usr/share                          \
     --enable-pammoddir=/usr/lib/security          \
+    --enable-pac-responder                        \
     --with-initscript=systemd                     \
     --with-os=fedora                              \
     --with-pid-path=/run                          \
+    --without-python2-bindings                    \
     --with-python3-bindings                       \
     --with-syslog=journald                        \
-    --with-selinux                             \
-    --with-semanage                            \
-    --with-systemdunitdir=/usr/lib/systemd/system
+    --with-files-provider                         \
+    --without-selinux                             \
+    --without-semanage                            \
+    --with-systemdunitdir=/usr/lib/systemd/system \
+    ;
   sed -i '/\<HAVE_KRB5_SET_TRACE_CALLBACK\>/d' config.h
-  make ${MAKEFLAGS}
+  make
+}
+
+check() {
+  cd "$srcdir/$pkgname-$pkgver"
+  # make check
 }
 
 package() {
@@ -101,6 +122,9 @@ package() {
   find "$pkgdir"/usr -depth -type d \
     -exec rmdir --ignore-fail-on-non-empty {} \;
 
+  install -Dm0644 src/examples/logrotate "$pkgdir/etc/logrotate.d/sssd"
+
   cd "$srcdir"
   rm -rf "$pkgdir/etc/systemd" # remove the drop-in
 }
+

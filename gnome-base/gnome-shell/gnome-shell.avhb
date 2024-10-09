@@ -8,7 +8,7 @@ pkgname=(
   gnome-shell
   gnome-shell-docs
 )
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 epoch=1
 pkgdesc="Next generation desktop shell"
@@ -67,17 +67,13 @@ makedepends=(
   evolution-data-server
   gi-docgen
   git
-  gnome-control-center
+  glib2-devel
+  gnome-keybindings
   gobject-introspection
   meson
+  python-docutils
   sassc
 )
-checkdepends=(
-  appstream-glib
-  python-dbusmock
-  xorg-server-xvfb
-)
-
 source=(
   "https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
 )
@@ -122,7 +118,7 @@ package_gnome-shell() {
     'python-simplejson: gnome-shell-test-tool performance tester'
     'switcheroo-control: Multi-GPU support'
   )
-  groups=(gnome)
+  groups=(gnome-base)
 
   meson install -C build --destdir "$pkgdir"
 

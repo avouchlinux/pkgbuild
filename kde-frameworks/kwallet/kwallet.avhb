@@ -4,16 +4,37 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kwallet
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Secure and unified container for user passwords'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://community.kde.org/Frameworks'
 license=('LGPL')
-depends=('knotifications' 'kiconthemes' 'kservice' 'gpgme')
-makedepends=('extra-cmake-modules' 'python' 'kdoctools' 'boost' 'doxygen' 'qt5-tools')
+depends=(gcc-libs
+         glibc
+         gpgme
+         kcolorscheme
+         kconfig
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         ki18n
+         knotifications
+         kwidgetsaddons
+         kwindowsystem
+         libgcrypt
+         qca-qt6
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             kdoctools
+             kservice
+             qt6-doc
+             qt6-tools)
 optdepends=('kwalletmanager: Configuration GUI')
+provides=(org.freedesktop.secrets)
+
 source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
 
 build() {

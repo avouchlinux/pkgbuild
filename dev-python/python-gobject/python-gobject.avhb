@@ -9,14 +9,18 @@ pkgname=(
   python-gobject-docs
 )
 _realname=pygobject
-pkgver=3.46.0
+pkgver=3.50.0
 pkgrel=1
 arch=('x86_64')
 groups=('dev-python')
 url="https://live.gnome.org/PyGObject"
 license=(LGPL)
 depends=(
+  glib2
+  glibc
   gobject-introspection-runtime
+  libffi
+  libgirepository
   python
 )
 makedepends=(
@@ -24,8 +28,10 @@ makedepends=(
   gobject-introspection
   meson
   python-cairo
+  python-setuptools
   python-sphinx
-  python-sphinx_rtd_theme
+  python-sphinx-copybutton
+  python-sphinx-furo
 )
 checkdepends=(
   gtk3
@@ -49,7 +55,11 @@ prepare() {
 }
 
 build() {
-  avouch-meson pygobject build
+  local meson_options=(
+    -D tests=false
+  )
+
+  avouch-meson $pkgbase build "${meson_options[@]}"
   meson compile -C build
 }
 

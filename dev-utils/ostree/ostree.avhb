@@ -5,7 +5,7 @@
 
 pkgname=ostree
 _realname=libostree
-pkgver=2024.2
+pkgver=2024.5
 pkgrel=1
 pkgdesc="Operating system and container binary deployment and upgrades"
 arch=('x86_64')

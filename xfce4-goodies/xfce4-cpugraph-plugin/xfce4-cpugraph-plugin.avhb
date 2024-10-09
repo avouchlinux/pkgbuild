@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-cpugraph-plugin
-pkgver=1.2.3
+pkgver=1.2.10
 pkgrel=1
 pkgdesc="CPU graph plugin for the Xfce4 panel"
 arch=('x86_64')
@@ -25,7 +25,7 @@ build() {
     --localstatedir=/var \
     --disable-static \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
@@ -33,5 +33,3 @@ package() {
   make DESTDIR="$pkgdir" install
   install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 }
-
-# vim:set ts=2 sw=2 et:

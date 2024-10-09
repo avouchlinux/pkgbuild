@@ -4,24 +4,37 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ki18n
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Advanced internationalization framework'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://projects.kde.org/projects/frameworks/ki18n'
 license=('LGPL')
-depends=('qt5-script')
-makedepends=('extra-cmake-modules' 'python' 'qt5-declarative')
-ssource=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+depends=(gcc-libs
+         glibc
+         iso-codes
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             python
+             qt6-declarative
+             qt6-doc
+             qt6-tools)
+source=(https://download.kde.org/stable/frameworks/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('582b4c58bb69803412322d3db656fd4f5fde154eac1ac89b2c6bc905c5b61e6e'
+            'SKIP')
+validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB # David Faure <faure@kde.org>
+              E0A3EB202F8E57528E13E72FD7574483BB57B18D # Jonathan Esk-Riddell <jr@jriddell.org>
+              90A968ACA84537CC27B99EAF2C8DF587A6D4AAC1 # Nicolas Fella <nicolas.fella@kde.org>
+              )
 
 build() {
 	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
 		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON \
-		-DCMAKE_DISABLE_FIND_PACKAGE_PythonModuleGeneration=ON
+		-DBUILD_QCH=ON
 	ninja -C build
 }
 

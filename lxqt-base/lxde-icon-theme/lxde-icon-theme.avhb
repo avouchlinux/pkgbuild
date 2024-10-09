@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,16 +13,17 @@ url="http://lxde.org"
 license=('GPL')
 depends=('gtk-update-icon-cache')
 install=lxde-icon-theme.install
-source=(http://downloads.sourceforge.net/lxde/$pkgname-$pkgver.tar.bz2)
+source=(https://github.com/lxde/lxde-icon-theme/archive/refs/tags/$pkgver.tar.gz)
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+	cd ${pkgname}-${pkgver}
+    autoreconf -vif
 	./configure --prefix=/usr
 	make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+	cd ${pkgname}-${pkgver}
 	make DESTDIR="$pkgdir" install
 	# license
 	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE

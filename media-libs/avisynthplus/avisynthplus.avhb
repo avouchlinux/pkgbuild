@@ -1,0 +1,44 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=avisynthplus
+pkgver=3.7.3
+pkgrel=1
+pkgdesc='An improved version of the AviSynth frameserver'
+arch=('x86_64')
+groups=('media-libs')
+url='https://avs-plus.net/'
+license=('GPL')
+depends=('gcc-libs' 'hicolor-icon-theme')
+optdepends=('devil: for ImageSeq plugin')
+makedepends=('cmake' 'devil')
+provides=('libavisynth.so')
+source=("https://github.com/AviSynth/AviSynthPlus/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+        'avisynthplus.xml')
+sha256sums=('b847705af6f16fa26664d06e0fea2bda14a7f6aac8249a9c37e4106ecb8fd44c'
+            'c4b270a3df7fbe1c153400215169c4ae4cae3b7a8710c843393e3a6ed0fd8a3e')
+
+build() {
+    cmake -B build -S "AviSynthPlus-${pkgver}" \
+        -G 'Unix Makefiles' \
+        -DCMAKE_BUILD_TYPE:STRING='None' \
+        -DCMAKE_INSTALL_PREFIX:PATH='/usr' \
+        -Wno-dev
+    cmake --build build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+    install -D -m644 avisynthplus.xml -t "${pkgdir}/usr/share/mime/packages"
+    
+    local _icon
+    local _res
+    while read -r -d '' _icon
+    do
+        _res="$(sed 's/[[:alpha:]]*\([0-9]\+\)\.png/\1/' <<< "${_icon##*/}")"
+        [ -n "$_res" ] && install -D -m644 "$_icon" \
+            "${pkgdir}/usr/share/icons/hicolor/${_res}x${_res}/mimetypes/avisynthplus-script.png"
+    done < <(find "AviSynthPlus-${pkgver}/distrib/Icons/Rastered" -type f -name 'AvsPlusIcon*.png' -print0)
+}

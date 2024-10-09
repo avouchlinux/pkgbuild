@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdeclarative
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Provides integration of QML and KDE Frameworks'
 arch=('x86_64')

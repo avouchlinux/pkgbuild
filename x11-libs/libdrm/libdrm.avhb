@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libdrm
-pkgver=2.4.120
+pkgver=2.4.123
 pkgrel=1
 pkgdesc="Userspace interface to kernel DRM services"
 url="https://dri.freedesktop.org/"
@@ -30,10 +30,6 @@ sha512sums=('6dc16e5134a669eeb59debb1dc2d15b857483ab7476dc2b94bd05a32d8953f046f5
 validpgpkeys=('34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48') # Simon Ser <contact@emersion.fr>
 
 build() {
-  export CFLAGS=" -Wno-incompatible-pointer-types"
-  export CXXFLAGS=""
-  export LDFLAGS=""
-
   avouch-meson $pkgname-$pkgver build \
     -D udev=true \
     -D etnaviv=disabled \

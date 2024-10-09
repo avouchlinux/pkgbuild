@@ -1,34 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xcb-util-keysyms
-pkgver=0.4.0
+pkgver=0.4.1
 pkgrel=1
 pkgdesc="Utility libraries for XC Binding - Standard X key constants and conversion to/from keycodes"
 arch=('x86_64')
 groups=('x11-libs')
-url="http://xcb.freedesktop.org"
+url="https://xcb.freedesktop.org"
 license=('custom')
-depends=('libxcb>=1.7')
-makedepends=('xorg-util-macros')
-source=("http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
-        'LICENSE')
-sha256sums=('7be1acf053bd68a1910fc861b2cbcbad7637b5618590dd5484d43a96f7995c6e'
-            'ded299aa179dcf0d885bf89274a4db77a530e03f9f5e7cf1c3c4ef1d60e914b9')
+depends=('libxcb')
+makedepends=('xorg-util-macros' 'xorgproto')
+source=(https://xorg.freedesktop.org/archive/individual/lib/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('dd53a36b52647f22bf0da8cded4b2974a51899eaac799797017ed8534f14bc2d2d339a14fa5ef387ae4528b7d9a5d31920bb0c71b09ca34f58e5081e768e2bbf'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-static
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd ${pkgname}-${pkgver}
+  make check
 }
 
-package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+package() { 
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

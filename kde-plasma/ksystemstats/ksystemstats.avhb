@@ -1,22 +1,37 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ksystemstats
-pkgver=5.27.8
+pkgver=6.2.0
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='A plugin based system monitoring daemon'
 arch=(x86_64)
 groups=('kde-plasma')
 url='https://kde.org/plasma-desktop/'
-license=(LGPL)
-depends=(libksysguard)
-makedepends=(extra-cmake-modules networkmanager-qt)
-optdepends=('networkmanager-qt: network usage monitor')
-conflicts=('ksysguard')
-source=(https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('a58d9ddc472bbd61582e7dd76404c99141da12cdea9aaef7f31860808cbcadeb'
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcoreaddons
+         kcrash
+         ki18n
+         kio
+         libksysguard
+         lm_sensors
+         qt6-base
+         solid)
+makedepends=(extra-cmake-modules
+             libnl
+             networkmanager-qt)
+optdepends=('libnl: network usage monitor'
+            'networkmanager-qt: network usage monitor'
+            'systemd-libs: GPU monitor')
+groups=(plasma)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('05815d01acdb199c052fa994c48f49f694b4356a7fc23eff38bb00614ae4687e'
             'SKIP')
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
@@ -24,13 +39,14 @@ validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

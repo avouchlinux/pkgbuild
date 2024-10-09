@@ -1,11 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-202 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=util-linux
 pkgname=(util-linux util-linux-libs)
-_pkgmajor=2.39.2
+_pkgmajor=2.40
 pkgver=${_pkgmajor}
 pkgrel=1
 pkgdesc="Miscellaneous system utilities for Linux"

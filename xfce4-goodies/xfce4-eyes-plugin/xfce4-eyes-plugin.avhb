@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-eyes-plugin
-pkgver=4.5.1
+pkgver=4.6.0
 pkgrel=1
 pkgdesc="The eys comfort plugin for Xfce4 panel"
 arch=('x86_64')
@@ -25,7 +25,7 @@ build() {
     --localstatedir=/var \
     --disable-static \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

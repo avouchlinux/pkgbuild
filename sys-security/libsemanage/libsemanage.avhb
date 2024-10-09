@@ -1,43 +1,53 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libsemanage
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="SELinux binary policy manipulation library"
 arch=('x86_64')
 groups=('sys-security')
 url='http://userspace.selinuxproject.org'
 license=('LGPL2.1')
-makedepends=('flex' 'python2' 'python' 'ruby' 'swig')
-depends=('libselinux>=2.8' 'audit')
-optdepends=('python2: python2 bindings'
-            'python: python bindings'
+makedepends=('flex' 'pkgconf' 'python' 'ruby' 'swig')
+depends=('libselinux>=3.6' 'audit')
+optdepends=('python: python bindings'
             'ruby: ruby bindings')
+options=(!emptydirs) # For /var/lib/selinux
 install=libsemanage.install
 conflicts=("selinux-usr-${pkgname}")
 provides=("selinux-usr-${pkgname}=${pkgver}-${pkgrel}")
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz"
+validpgpkeys=(
+  '63191CE94183098689CAB8DB7EF137EC935B0EAF'  # Jason Zaman <perfinion@gentoo.org>
+  'B8682847764DF60DF52D992CBC3905F235179CF1'  # Petr Lautrbach <plautrba@redhat.com>
+)
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc}
         "semanage.conf")
+sha256sums=('41138f46222439e1242f27c1587e95cf54a059259aaf1681db642cc30c4e0d60'
+            'SKIP'
+            '5b0e6929428e095b561701ccdfa9c8b0c3d70dad3fc46e667eb46a85b246a4a0')
 
 build() {
-    cd "${pkgname}-${pkgver}"
-    make swigify
-    make all
-    # make PYTHON=/usr/bin/python2 pywrap
-    make PYTHON=/usr/bin/python3 pywrap
-    make RUBY=/usr/bin/ruby rubywrap
+  cd "${pkgname}-${pkgver}"
+
+  export CFLAGS="${CFLAGS} -fno-semantic-interposition"
+  make swigify
+  make all
+  make PYTHON=/usr/bin/python3 pywrap
+  make RUBY=/usr/bin/ruby rubywrap
 }
 
 package() {
+  provides+=(
+    libsemanage.so
+  )
+
   cd "${pkgname}-${pkgver}"
   make DESTDIR="${pkgdir}" LIBEXECDIR=/usr/lib SHLIBDIR=/usr/lib install
-  # make DESTDIR="${pkgdir}" PYTHON=/usr/bin/python2 LIBEXECDIR=/usr/lib SHLIBDIR=/usr/lib install-pywrap
   make DESTDIR="${pkgdir}" PYTHON=/usr/bin/python3 LIBEXECDIR=/usr/lib SHLIBDIR=/usr/lib install-pywrap
   make DESTDIR="${pkgdir}" RUBY=/usr/bin/ruby LIBEXECDIR=/usr/lib SHLIBDIR=/usr/lib install-rubywrap
-  # /usr/bin/python2 -m compileall "${pkgdir}/$(/usr/bin/python2 -c 'from distutils.sysconfig import *; print(get_python_lib(plat_specific=1))')"
   /usr/bin/python3 -m compileall "${pkgdir}/$(/usr/bin/python3 -c 'from distutils.sysconfig import *; print(get_python_lib(plat_specific=1))')"
 
   install -D -m0644 "${srcdir}/semanage.conf" "${pkgdir}/etc/selinux/semanage.conf"

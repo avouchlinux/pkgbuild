@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=uhttpmock
-pkgver=0.10.0
+pkgver=0.11.0
 pkgrel=1
 pkgdesc="HTTP web service mocking project for projects which use libsoup"
 arch=('x86_64')
@@ -24,9 +24,8 @@ makedepends=(
   vala
 )
 license=(LGPL-2.1-or-later)
-_commit=38a95734050f35165dd8d222476dd0828d80cbfa  # tags/0.10.0^0
-source=("git+https://gitlab.freedesktop.org/pwithnall/uhttpmock.git#commit=$_commit")
-sha256sums=('SKIP')
+source=("git+https://gitlab.freedesktop.org/pwithnall/uhttpmock.git#tag=$pkgver")
+b2sums=('121a8a8b71cb6f3d7faa8c044670ce6de574fc6f92d54a47870477751ef17967c7d4858cae21bb21c8445dc30a95d060a552d100a6901d1adcbc297ae87f898e')
 
 pkgver() {
   cd $pkgname

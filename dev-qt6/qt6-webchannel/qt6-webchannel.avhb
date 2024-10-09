@@ -1,0 +1,37 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt6-webchannel
+pkgver=6.7.3
+pkgrel=1
+_realname="${pkgname/6-/}"
+_tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
+arch=(x86_64)
+groups=(dev-qt6)
+url='https://www.qt.io'
+license=(GPL3 LGPL3 FDL custom)
+pkgdesc='Provides access to QObject or QML objects from HTML clients for seamless integration of Qt applications with HTML/JavaScript clients'
+depends=(gcc-libs
+         glibc
+         qt6-base
+         qt6-declarative)
+makedepends=(cmake
+             git
+             ninja)
+source=("http://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver}/submodules/${_tarname}.tar.xz")
+sha256sums=('f336db62db223fe13e3049fde148075c6019f8d31fc835da8405adecbf02eab4')
+
+build() {
+  cmake -B build -S $_tarname -G Ninja \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -d "$pkgdir"/usr/share/licenses
+  ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname
+}

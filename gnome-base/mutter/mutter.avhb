@@ -8,7 +8,7 @@ pkgname=(
   mutter
   mutter-docs
 )
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 arch=('x86_64')
@@ -76,74 +76,49 @@ makedepends=(
   egl-wayland
   gi-docgen
   git
+  glib2-devel
   gobject-introspection
-  gtk3
   meson
   sysprof
   wayland-protocols
-  xorg-server
-  xorg-server-xvfb
-)
-checkdepends=(
-  gnome-session
-  python-dbusmock
-  wireplumber
-  zenity
 )
 source=(
   # Mutter tags use SSH signatures which makepkg doesn't understand
-  "git+https://gitlab.gnome.org/GNOME/mutter.git#tag=$pkgver"
-  0001-drm-buffer-gbm-Do-not-call-ensure_fb_id-from-lock_fr.patch
+  "git+$url.git#tag=${pkgver/[a-z]/.&}"
+  "git+https://gitlab.gnome.org/GNOME/gvdb.git#commit=b54bc5da25127ef416858a3ad92e57159ff565b3"
 )
-b2sums=('04a14854c8ec2668a340b241102b7b2ebbc0387a9771a5bd2c2366419ee08e7ebb308f2288f4a64b9d08053e1897eb514a46802584d1590f8bcebde4a613afaa'
-        'fed7d496b658a43b306e62a57c817c54990e8764103eae5479b8a96fbdf25da1ae6028126aa3cccda6239ff1f0c4e69bbe6f12e29804651c1a7b6ca40d6bf36c')
+b2sums=('0dc3e7541707fe7c9fd24397f08fd29272bd3f104a51503f7657b9b4589a22ee3a6ce407c440785e06bd19b3347fd555c3187aae4f5c87052ce94783d599426d'
+        'f989bc2ceb52aad3c6a23c439df3bbc672bc11d561a247d19971d30cc85ed5d42295de40f8e55b13404ed32aa44f12307c9f5b470f2e288d1c9c8329255c43bf')
 
 prepare() {
   cd mutter
 
-  # https://gitlab.archlinux.org/archlinux/packaging/packages/mutter/-/issues/3
-  # https://gitlab.gnome.org/GNOME/mutter/-/issues/3384
-  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/3685
-  git cherry-pick -n 22689d722ab4e13ab272c3534f5d18a55c94084f
+  # Revert "window/wayland: Use scale for configured rect in configuration"
+  # https://gitlab.gnome.org/GNOME/mutter/-/commit/70c0eca6b08b7a5aed7a1951149f72f98331a6b4
+  git cherry-pick -n 70c0eca6b08b7a5aed7a1951149f72f98331a6b4
 
-  # https://gitlab.gnome.org/GNOME/mutter/-/issues/3389
-  # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/3674
-  git apply -3 ../0001-drm-buffer-gbm-Do-not-call-ensure_fb_id-from-lock_fr.patch
 }
 
 build() {
   local meson_options=(
     -D docs=true
     -D egl_device=true
-    -D installed_tests=false
+    -D installed_tests=true
     -D libdisplay_info=enabled
+    # -D tests=disabled
     -D wayland_eglstream=true
   )
 
-  CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"
-  LDFLAGS+=" -Wl,-Bsymbolic-functions"
+  export CFLAGS="${CFLAGS/-O2/-O3} -fno-semantic-interposition"
+  export LDFLAGS+=" -Wl,-Bsymbolic-functions"
+
+  # Inject gvdb
+  export MESON_PACKAGE_CACHE_DIR="$srcdir"
+
 
   avouch-meson mutter build "${meson_options[@]}"
   meson compile -C build
 }
-
-check() (
-  export XDG_RUNTIME_DIR="$PWD/rdir" GSETTINGS_SCHEMA_DIR="$PWD/build/data"
-  mkdir -p -m 700 "$XDG_RUNTIME_DIR"
-  glib-compile-schemas "$GSETTINGS_SCHEMA_DIR"
-
-  export NO_AT_BRIDGE=1 GTK_A11Y=none
-  export MUTTER_DEBUG_DUMMY_MODE_SPECS="800x600@10.0"
-
-  # Tests fail:
-  # mutter:cogl+cogl/conform / cogl-test-offscreen-texture-formats-gles2
-  # mutter:core+mutter/stacking / fullscreen-maximize
-  ## https://gitlab.gnome.org/GNOME/mutter/-/issues/3343
-  xvfb-run -s '-nolisten local +iglx -noreset' \
-    mutter/src/tests/meta-dbus-runner.py --launch=pipewire --launch=wireplumber \
-    meson test -C build --no-suite 'mutter/kvm' --no-rebuild \
-    --print-errorlogs --timeout-multiplier 10 --setup plain ||:
-)
 
 _pick() {
   local p="$1" f d; shift

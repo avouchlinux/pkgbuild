@@ -1,42 +1,120 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-desktop
-pkgver=5.27.8
+pkgver=6.2.0
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='KDE Plasma Desktop'
 arch=('x86_64')
 groups=('kde-plasma')
-url='https://www.kde.org/workspaces/plasmadesktop/'
-license=(LGPL)
-source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-depends=(polkit-kde-agent libcanberra libxkbfile kmenuedit appstream-qt systemsettings ksysguard kpeople baloo qt5-graphicaleffects)
-optdepends=('plasma-nm: Network manager applet'
-              'powerdevil: power management'
-              'ibus: kimpanel IBUS support'
-              'scim: kimpanel SCIM support'
-              'discover: manage applications installation from the launcher')
-makedepends=(extra-cmake-modules kdoctools boost xf86-input-evdev xf86-input-synaptics xorg-server-devel
-             libibus scim python kdesignerplugin)
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell
-              '348C8651206633FD983A8FC4DEACEA00075E1D76'  # KDE Neon
-              'D07BD8662C56CB291B316EB2F5675605C74E02CF') # David Edmundson
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(attica
+         baloo
+         emoji-font # for clock and language KCMs
+         gcc-libs
+         glibc
+         icu
+         kauth
+         kbookmarks
+         kcmutils
+         kcodecs
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kdeclarative
+         kglobalaccel
+         kguiaddons
+         ki18n
+         kiconthemes
+         kio
+         kirigami
+         kirigami-addons
+         kitemmodels
+         kitemviews
+         kjobwidgets
+         kmenuedit
+         knewstuff
+         knotifications
+         knotifyconfig
+         kpackage
+         kpipewire
+         krunner
+         kservice
+         ksvg
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         libcanberra
+         libksysguard
+         libx11
+         libxcb
+         libxcursor
+         libxi
+         libxkbcommon
+         libxkbfile
+         libplasma
+         plasma-activities
+         plasma-activities-stats
+         plasma-workspace
+         plasma5support
+         polkit-kde-agent
+         powerdevil
+         qt6-5compat
+         qt6-base
+         qt6-declarative
+         qt6-wayland
+         sdl2
+         solid
+         sonnet
+         systemsettings
+         wayland
+         xcb-util-keysyms
+         xdg-user-dirs)
+optdepends=('bluedevil: Bluetooth applet'
+            'glib2: kimpanel IBUS support'
+            'ibus: kimpanel IBUS support'
+            'kaccounts-integration: OpenDesktop integration plugin'
+            'kscreen: screen management'
+            'libaccounts-qt: OpenDesktop integration plugin'
+            'packagekit-qt6: to install new krunner plugins'
+            'plasma-nm: Network manager applet'
+            'plasma-pa: Audio volume applet'
+            'scim: kimpanel SCIM support')
+makedepends=(extra-cmake-modules
+             intltool
+             kaccounts-integration
+             kdoctools
+             libibus
+             packagekit-qt6
+             scim
+             wayland-protocols
+             xf86-input-libinput
+             xorg-server-devel)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('0ea38e20b9c4163857db920ea80c9740a29e561886b5feb9f20f938598692709'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
-prepare(){
-  cd ${pkgname}-${pkgver}
-}
 
 build() {
-    cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
-        -DLIB_INSTALL_DIR=lib \
         -DBUILD_TESTING=OFF
-    ninja -C build
+  cmake --build build
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

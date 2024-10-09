@@ -8,7 +8,7 @@ pkgname=(
   sysprof
   libsysprof-capture
 )
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="a profiling tool that helps in finding the functions in which a program uses most of its time"
 arch=('x86_64')
@@ -36,7 +36,7 @@ depends=(
 makedepends=(
   git
   meson
-  python-packaging
+  glib2-devel
   yelp-tools
 )
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")

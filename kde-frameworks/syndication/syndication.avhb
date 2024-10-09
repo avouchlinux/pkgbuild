@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=syndication
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc="RSS/Atom parser library"
 arch=('x86_64')

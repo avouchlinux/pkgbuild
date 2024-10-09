@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=zenity
-pkgver=4.0.1
+pkgver=4.0.2
 pkgrel=1
 pkgdesc="Display graphical dialog boxes from shell scripts"
 url="https://gitlab.gnome.org/GNOME/zenity"
@@ -12,18 +12,22 @@ arch=('x86_64')
 groups=('gnome-base')
 license=(LGPL-2.1-or-later)
 depends=(
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
   libadwaita
+  pango
 )
 makedepends=(
   git
+  glib2-devel
   help2man
   meson
   util-linux
   yelp-tools
 )
-
-optdepends=('perl: gdialog wrapper')
-
 source=(https://gitlab.gnome.org/GNOME/zenity/-/archive/$pkgver/zenity-$pkgver.tar.bz2)
 
 build() {
@@ -36,4 +40,5 @@ build() {
 
 package() {
     DESTDIR="$pkgdir" meson install -C build
+    hardlink -c "$pkgdir/usr/share/help"
 }

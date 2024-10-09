@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ktp-call-ui
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='Voice/Video Call UI for Telepathy'
 arch=('x86_64')

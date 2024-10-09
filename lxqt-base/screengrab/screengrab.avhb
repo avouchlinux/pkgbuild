@@ -1,26 +1,37 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=screengrab
-pkgver=2.4.0
+pkgver=2.8.0
 pkgrel=1
 pkgdesc="Crossplatform tool for grabbing screenshots of your desktop."
 arch=("x86_64")
 groups=('lxqt-base')
-url="http://screengrab.doomer.org/"
-license=('GPL2')
-depends=('qt5-base')
-makedepends=('cmake')
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+url="https://github.com/lxqt/screengrab"
+license=("GPL2")
+depends=("qt6-base" "kwindowsystem" "libqtxdg" "libx11" "libxcb" "libQt6Xdg.so")
+makedepends=("cmake" "qt6-tools")
+source=(
+  "https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"{,.asc}
+)
+sha256sums=('4c646ee834d49dd51aba5512f24b626d5178e6decd70f9bd2af6ed93ac7ba8b3'
+            'SKIP')
+validpgpkeys=(
+  '7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3'  # Alf Gaida <agaida@siduction.org>
+  '19DFDF3A579BD509DBB572D8BE793007AD22DF7E'  # Pedram Pourang <tsujan2000@gmail.com>
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+  mkdir -p build
+  cd build
+  cmake "$srcdir/$pkgname-$pkgver" \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  cd build
+  make DESTDIR="$pkgdir" install
 }

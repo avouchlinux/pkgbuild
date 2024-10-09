@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-color-manager
-pkgver=3.36.0+r51+gcf7ee2b5
+pkgver=3.36.0+r62+g82000f1d
 pkgrel=1
 pkgdesc="GNOME Color Profile Tools"
 url="https://gitlab.gnome.org/GNOME/gnome-color-manager"
@@ -12,10 +12,17 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL2)
 depends=(
+  cairo
   colord
+  gcc-libs
+  gdk-pixbuf2
   glib2
+  glibc
   gtk3
+  hicolor-icon-theme
   lcms2
+  libcolord
+  pango
 )
 makedepends=(
   appstream-glib
@@ -27,8 +34,7 @@ makedepends=(
   yelp-tools
 )
 checkdepends=(xorg-server-xvfb)
-groups=(gnome)
-_commit=cf7ee2b512c55ca96764aa3015b2ddbaea716b76  # master
+_commit=82000f1dd8c032f049ccd698324bce10b1ed13c2  # master
 source=("git+https://gitlab.gnome.org/GNOME/gnome-color-manager.git#commit=$_commit")
 b2sums=('SKIP')
 

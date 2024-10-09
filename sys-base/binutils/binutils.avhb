@@ -80,10 +80,10 @@ build() {
     --enable-colored-disassembly \
     --enable-default-execstack=no \
     --enable-deterministic-archives \
-    --enable-ld \
+    --enable-gold \
     --enable-install-libiberty \
     --enable-jansson \
-    --enable-gold=default \
+    --enable-ld=default \
     --enable-new-dtags \
     --enable-pgo-build=lto \
     --enable-plugins \

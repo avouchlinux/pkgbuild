@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=baobab
-pkgver=45.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="A graphical directory tree analyzer"
 url="https://wiki.gnome.org/Apps/DiskUsageAnalyzer"
@@ -12,11 +12,17 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL2)
 depends=(
+  cairo
   dconf
+  glib2
+  glibc
+  graphene
   gsettings-desktop-schemas
   gtk4
+  hicolor-icon-theme
   libadwaita
   librsvg
+  pango
 )
 makedepends=(
   appstream-glib
@@ -26,19 +32,12 @@ makedepends=(
   vala
   yelp-tools
 )
-groups=(gnome)
-_commit=c97b53788e8ce1c03e0fdfc4eb856c77e0053614  # tags/45.0^0
 source=(
-  "git+https://gitlab.gnome.org/GNOME/baobab.git#commit=$_commit"
+  "git+https://gitlab.gnome.org/GNOME/baobab.git#tag=${pkgver/[a-z]/.&}"
   no-mimetype.diff
 )
 b2sums=('SKIP'
         '71e04f307e842fa0676f5b64f55e8be908e3075a9b948a6ab3979b51a8db08fdd07c0f214adb74d5461b4f175a14a7bf9867cf2c9b044660a5b46bc8ea296a22')
-
-pkgver() {
-  cd baobab
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
 
 prepare() {
   cd baobab
@@ -48,7 +47,6 @@ prepare() {
 }
 
 build() {
-export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
   avouch-meson baobab build
   meson compile -C build
 }

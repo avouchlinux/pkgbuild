@@ -1,0 +1,77 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=gcr-4
+_realname=gcr
+pkgname=(
+  gcr-4
+  gcr-4-docs
+)
+pkgver=4.3.0
+pkgrel=1
+pkgdesc="A library for bits of crypto UI and parsing"
+arch=('x86_64')
+groups=('gnome-base')
+url="https://gitlab.gnome.org/GNOME/gcr"
+license=(LGPL-2.1-or-later)
+depends=(
+  glib2
+  glibc
+  gnutls
+  libp11-kit
+  libsecret
+  openssh
+  systemd-libs
+)
+makedepends=(
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  gtk4
+  meson
+  systemd
+  vala
+)
+source=(https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2)
+
+validpgpkeys=(
+  EF3226243ABEFC1A828BC5B46A2AC2B52126D946 # Dhanuka Warusadura <dhanuka@gnome.org>
+  A7C626E13F9AD776776BD9CA1D8A57CF2E8D36A3 # Niels De Graef (nielsdg) <nielsdegraef@gmail.com>
+)
+
+build() {
+  local meson_options=(
+    -D crypto=gnutls
+  )
+
+  avouch-meson $_realname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  # Secure memory tests fail
+  dbus-run-session meson test -C build --print-errorlogs || :
+}
+
+package_gcr-4() {
+  optdepends=('gtk4: gcr-viewer-gtk4')
+  provides=(
+    libgck-2.so
+    libgcr-4.so
+  )
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_gcr-4-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}

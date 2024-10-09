@@ -8,7 +8,7 @@ pkgname=(
   msgraph
   msgraph-docs
 )
-pkgver=0.2.1
+pkgver=0.2.3
 pkgrel=1
 pkgdesc="A shared library for accessing MS Graph API"
 url="https://gitlab.gnome.org/jbrummer/msgraph"
@@ -32,21 +32,12 @@ makedepends=(
   gobject-introspection
   meson
 )
-_commit=9f3e53a7f38fa178e4c78caf271f9b93b3cf4c9b  # tags/0.2.1^0
-source=("git+https://gitlab.gnome.org/jbrummer/msgraph.git#commit=$_commit")
+source=("https://gitlab.gnome.org/GNOME/msgraph/-/archive/$pkgver/msgraph-$pkgver.tar.bz2")
 b2sums=('SKIP')
 
-pkgver() {
-  cd msgraph
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd msgraph
-}
 
 build() {
-  avouch-meson msgraph build
+  avouch-meson msgraph-$pkgver build
   meson compile -C build
 }
 
@@ -67,5 +58,3 @@ package_msgraph-docs() {
 
   mv doc/* "$pkgdir"
 }
-
-# vim:set sw=2 sts=-1 et:

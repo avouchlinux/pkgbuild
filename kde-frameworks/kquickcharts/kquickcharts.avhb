@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kquickcharts
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='A QtQuick plugin providing high-performance charts'
 arch=('x86_64')

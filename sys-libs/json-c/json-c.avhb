@@ -4,17 +4,23 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=json-c
-pkgver=0.17
+pkgver=0.18
 pkgrel=1
-_date=20230812
+_date=20240915
 pkgdesc="A JSON implementation in C"
 license=(MIT)
 arch=(x86_64)
 groups=('sys-libs')
 url="https://github.com/json-c/json-c/wiki"
 license=(MIT)
-depends=(glibc)
-makedepends=(git)
+depends=(
+  glibc
+)
+makedepends=(
+  cmake
+  git
+  ninja
+)
 source=("https://github.com/json-c/json-c/archive/refs/tags/$pkgname-$pkgver-$_date.tar.gz")
 sha256sums=('SKIP')
 
@@ -28,16 +34,16 @@ build() {
     -DENABLE_RDRAND=OFF
   )
 
-  cmake -S ${pkgname}-${pkgname}-${pkgver}-${_date} -B build -G Ninja "${cmake_options[@]}"
+  cmake -S $pkgname-$pkgname-$pkgver-$_date -B build -G Ninja "${cmake_options[@]}"
   cmake --build build
 }
 
 # check() {
-#   cd build
-#   ctest --output-on-failure --stop-on-failure -j$(nproc)
+#   ctest --test-dir build --output-on-failure --stop-on-failure -j$(nproc)
 # }
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 ${pkgname}-${pkgname}-${pkgver}-${_date}/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgname-$pkgver-$_date/COPYING
 }
+

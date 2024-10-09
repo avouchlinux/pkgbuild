@@ -4,8 +4,8 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=linux
-pkgver=6.7.1
-_pkgver=6.7.1
+pkgver=6.8.7
+_pkgver=6.8.7
 _baseversion=${pkgver%%.*}
 pkgrel=1
 arch=('x86_64')
@@ -27,13 +27,17 @@ makedepends=(
   graphviz
   imagemagick
   python-sphinx
+  python-yaml
   texlive-latexextra
 )
-
-options=('!strip')
+options=(
+  !debug
+  !strip
+)
 _srcname=linux
 source=("https://cdn.kernel.org/pub/linux/kernel/v$_baseversion.x/linux-$pkgver.tar.xz"
   config         # the main kernel config file
+  linux-6.8.7-avouch.patch
 )
 validpgpkeys=(
   'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds
@@ -55,16 +59,12 @@ prepare() {
     message "Setting version..."
     scripts/setlocalversion --save-scmversion
     echo "${_localversion}" > localversion.10-pkgrel
-    echo "${_localname}" > localversion.20-pkgname
+    # echo "${_localname}" > localversion.20-pkgname
+    echo "${pkgbase#linux}" > localversion.20-pkgname
 
-    local src
-    for src in "${source[@]}"; do
-        src="${src%%::*}"
-        src="${src##*/}"
-        [[ $src = *.patch ]] || continue
-        message "Applying patch $src..."
-        patch -Np1 < "../$src"
-    done
+   
+    patch -Np1 < "../linux-6.8.7-avouch.patch"
+
 
     message "Setting config..."
     # cp ../kernel-$pkgver-x86_64.config .config
@@ -82,7 +82,7 @@ prepare() {
 
     # rewrite configuration
     # yes "" | make config >/dev/null
-    # +++++++++++++++++++++++++++++++yes "" | make config
+    # yes "" | make config
 
     make -s kernelrelease > version
     echo "Prepared $pkgbase version $(<version)"
@@ -99,6 +99,7 @@ build() {
     # export LANG=""
 
     make all
+    make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
     make htmldocs
 }
 
@@ -165,7 +166,7 @@ _package-headers() {
 
   echo "Installing build files..."
   install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
-    localversion.* version vmlinux
+    localversion.* version vmlinux tools/bpf/bpftool/vmlinux.h
   install -Dt "$builddir/kernel" -m644 kernel/Makefile
   install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
   cp -t "$builddir" -a scripts

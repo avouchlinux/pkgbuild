@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -18,7 +18,7 @@ source=("http://freedesktop.org/software/pulseaudio/$pkgname/$pkgname-$pkgver.ta
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr --disable-static
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

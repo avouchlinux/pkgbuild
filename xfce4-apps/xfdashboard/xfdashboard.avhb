@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfdashboard
-pkgver=0.9.1
+pkgver=1.0.0
 pkgrel=1
 pkgdesc="Maybe a Gnome shell like dashboard for Xfce"
 arch=('x86_64')
@@ -13,7 +13,7 @@ url="http://goodies.xfce.org/projects/applications/xfdashboard/start"
 license=('GPL')
 depends=('libwnck3' 'clutter' 'garcon')
 makedepends=('xfce4-dev-tools')
-source=("https://github.com/gmc-holle/xfdashboard/archive/${pkgver}.tar.gz")
+source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
 
 build() {
   cd "$srcdir/${pkgname}-${pkgver}"
@@ -21,7 +21,7 @@ build() {
   ./configure --prefix=/usr --sysconfdir=/etc --disable-dependency-tracking
   # -Wl,--as-needed should come before all libraries
   sed -i -e '/\$CC/s/-shared/\0 -Wl,--as-needed/' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -7,8 +7,8 @@
 
 pkgname=linux-api-headers
 _realname=linux
-pkgver=6.7.1
-_pkgver=6.7.1
+pkgver=6.10
+_pkgver=6.10
 _baseversion=${pkgver%%.*}
 pkgrel=1
 pkgdesc="Kernel headers sanitized for use in userspace"

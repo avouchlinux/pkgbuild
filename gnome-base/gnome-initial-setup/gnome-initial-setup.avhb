@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-initial-setup
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system"
 arch=('x86_64')
@@ -13,50 +13,46 @@ url="https://www.gnome.org/"
 license=('GPL')
 license=('GPL-2.0-or-later')
 depends=(
-    'accountsservice'
-    'cairo'
-    'fontconfig'
-    'gcc-libs'
-    'gdk-pixbuf2'
-    'gdm'
-    'geoclue'
-    'geocode-glib-2'
-    'glib2'
-    'glibc'
-    'gnome-desktop-4'
-    'gnome-control-center'
-    'gnome-keyring'
-    'gsettings-desktop-schemas'
-    'gtk4'
-    'harfbuzz'
-    'json-glib'
-    'krb5'
-    'libadwaita'
-    'libgdm'
-    'libgweather-4'
-    'libibus'
-    'libmalcontent'
-    'libnm'
-    'libnma-gtk4'
-    'libpwquality'
-    'librest'
-    'libsecret'
-    'malcontent'
-    'pango'
-    'polkit'
-    'tecla'
-    'webkitgtk-6.0'
+  accountsservice
+  fontconfig
+  gcc-libs
+  gdk-pixbuf2
+  gdm
+  geoclue
+  geocode-glib-2
+  glib2
+  glibc
+  gnome-control-center
+  gnome-desktop-4
+  gnome-keyring
+  gsettings-desktop-schemas
+  gtk4
+  harfbuzz
+  krb5
+  libadwaita
+  libgdm
+  libgweather-4
+  libibus
+  libmalcontent
+  libnm
+  libnma-gtk4
+  libpwquality
+  libsecret
+  malcontent
+  pango
+  polkit
+  tecla
 )
 makedepends=(
-    'meson'
-    'git'
+  git
+  glib2-devel
+  meson
 )
-optdepends=('gdm: GDM Initial Setup mode'
-            'gnome-getting-started-docs: GNOME Welcome Tour')
 source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname-$pkgver build \
+    -D webkitgtk=disabled
   meson compile -C build
 }
 
@@ -65,8 +61,7 @@ check() {
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
-  install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+  meson install -C build --destdir "$pkgdir"
 
   # Setup system user and group
   echo 'u gnome-initial-setup - "GNOME Initial Setup" /run/gnome-initial-setup' |

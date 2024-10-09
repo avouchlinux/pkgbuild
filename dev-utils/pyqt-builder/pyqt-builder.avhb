@@ -1,0 +1,34 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pyqt-builder
+_realname=PyQt-builder
+pkgver=1.16.0
+pkgrel=1
+pkgdesc="The PEP 517 compliant PyQt build system"
+arch=(any)
+groups=('dev-utils')
+url='https://pypi.org/project/PyQt-builder/'
+license=(BSD-2-Clause)
+depends=(python
+         python-packaging
+         sip)
+makedepends=(python-build
+             python-installer
+             python-setuptools-scm
+             python-wheel)
+source=(https://github.com/Python-PyQt/PyQt-builder/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('a5c964bf158158ccb4ea5ca26e104a064c4464283bb978d2c8d9f85eb0537ee7')
+
+build() {
+  cd PyQt-builder-$pkgver
+  SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver \
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd PyQt-builder-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

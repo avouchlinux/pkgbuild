@@ -20,15 +20,15 @@ source=("https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/rel
 sha256sums=('6a327b1576d914e57ad796a541a7a9bcceefb14c445355559993de0fdb8e7a60')
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make PYTHON=python2
+  cd "${pkgname}-${pkgver}"
+  make PYTHON=python2
+  make PYTHON=python3
 }
 
 package(){
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    # make PYTHON=python2 DESTDIR="${pkgdir}" install
-    make PYTHON=python3 DESTDIR="${pkgdir}" install
-  
-    # python2 -m compileall "${pkgdir}/$(python2 -c 'import site; print(site.getsitepackages()[0])')"
-    python3 -m compileall "${pkgdir}/$(python3 -c 'import site; print(site.getsitepackages()[0])')"
+  cd "${pkgname}-${pkgver}"
+  make PYTHON=python2 DESTDIR="${pkgdir}" install
+  make PYTHON=python3 DESTDIR="${pkgdir}" install
+  python2 -m compileall "${pkgdir}/$(python2 -c 'import site; print(site.getsitepackages()[0])')"
+  python3 -m compileall "${pkgdir}/$(python3 -c 'import site; print(site.getsitepackages()[0])')"
 }

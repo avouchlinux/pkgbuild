@@ -1,31 +1,63 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=phonon-qt5
+pkgbase=phonon
+pkgname=(phonon-qt5
+         phonon-qt6)
 _realname=phonon
 pkgdesc="The multimedia framework by KDE"
-pkgver=4.11.1
+pkgver=4.12.0
 pkgrel=1
 arch=('x86_64')
 groups=('media-libs')
-url='http://phonon.kde.org/'
+url='https://community.kde.org/Phonon'
 license=(LGPL)
-depends=(libpulse qt5-base)
-optdepends=('pulseaudio: PulseAudio support' 'qt5-tools: Designer plugin')
-makedepends=(extra-cmake-modules qt5-tools)
-source=("http://download.kde.org/stable/$pkgbase/$pkgver/$pkgbase-$pkgver.tar.xz"{,.sig})
-validpgpkeys=(CB9387521E1EE0127DA804843FDBB55084CC5D84) # Harald Sitter <sitter@kde.org>
+depends=(gcc-libs
+         glibc
+         libpulse)
+makedepends=(extra-cmake-modules
+             qt5-base
+             qt5-tools
+             qt6-5compat
+             qt6-base
+             qt6-tools)
+optdepends=('pulseaudio: PulseAudio support')
+source=(https://download.kde.org/stable/$pkgbase/$pkgver/$pkgbase-$pkgver.tar.xz{,.sig})
+sha256sums=('3287ffe0fbcc2d4aa1363f9e15747302d0b080090fe76e5f211d809ecb43f39a'
+            'SKIP')
+validpgpkeys=(CB9387521E1EE0127DA804843FDBB55084CC5D84  # Harald Sitter <sitter@kde.org>
+              E0A3EB202F8E57528E13E72FD7574483BB57B18D) # Jonathan Esk-Riddell <jr@jriddell.org>
 
 build() {
-  cmake -S $_realname-$pkgver -B build -G Ninja \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DPHONON_INSTALL_QT_EXTENSIONS_INTO_SYSTEM_QT=ON \
-    -DPHONON_BUILD_PHONON4QT5=ON \
-    -DCMAKE_INSTALL_LIBDIR=lib
-  ninja -C build
+#   cmake -B build5 -S $pkgbase-$pkgver \
+#     -DCMAKE_BUILD_TYPE=None \
+#     -DPHONON_BUILD_QT6=OFF \
+#     -DPHONON_BUILD_SETTINGS=OFF
+#   cmake --build build5
+
+  cmake -B build6 -S $pkgbase-$pkgver \
+    -DCMAKE_BUILD_TYPE=None \
+    -DPHONON_BUILD_QT6=ON \
+    -DPHONON_BUILD_QT5=OFF
+  cmake --build build6
 }
 
-package(){
-  DESTDIR="$pkgdir" ninja -C build install
+package_phonon-qt5(){
+  depends+=(phonon-qt5-backend
+            qt5-base)
+  optdepends+=('qt5-tools: Designer plugin')
+
+#   DESTDIR="$pkgdir" cmake --install build5
+#   rm -r "$pkgdir"/usr/share # Conflicts with phonon-qt6
+}
+
+package_phonon-qt6(){
+  depends+=(phonon-qt6-backend
+            qt6-5compat
+            qt6-base)
+  optdepends+=('qt6-tools: Designer plugin')
+
+  DESTDIR="$pkgdir" cmake --install build6
 }

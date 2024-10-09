@@ -1,20 +1,21 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-power-manager
-pkgver=4.16.0
+pkgver=4.18.4
 pkgrel=1
 pkgdesc="Power manager for Xfce desktop"
 arch=('x86_64')
 groups=('xfce4-base')
 url="http://www.xfce.org/"
 license=('GPL2')
-depends=('libxfce4ui' 'upower' 'libnotify' 'hicolor-icon-theme')
-optdepends=('xfce4-panel: for the Xfce panel plugin')
+depends=('libxfce4ui' 'upower' 'libnotify' 'xfce4-notifyd' 'hicolor-icon-theme')
 makedepends=('intltool' 'xfce4-panel')
 source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+sha256sums=('0d79dd0f68b90d07b384366be4d2291a6d7815410eb0c20d3d8e8590c62e84f0')
+
 
 build() {
     cd ${srcdir}/${pkgname}-${pkgver}
@@ -26,7 +27,7 @@ build() {
         --disable-network-manager \
         --enable-polkit \
         --disable-debug
-        make ${MAKEFLAGS}
+        make
 }
 
 package() {

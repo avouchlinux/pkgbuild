@@ -1,25 +1,28 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=android-studio
-_realname=android-studio-ide
-pkgver=4.1.3
+pkgver=2023.3.1.19
 pkgrel=1
-_build=201.7199119
 pkgdesc="The official Android IDE (Stable branch)"
 arch=('x86_64')
 groups=('dev-android')
-url="http://tools.android.com/"
+url="https://developer.android.com/"
 license=('APACHE')
 makedepends=('unzip')
-depends=('alsa-lib' 'freetype2' 'libxrender' 'libxtst')
+depends=('alsa-lib' 'freetype2' 'libxrender' 'libxtst' 'which')
 optdepends=('gtk2: GTK+ look and feel'
-            'libgl: emulator support')
+            'libgl: emulator support'
+            'ncurses5-compat-libs: native debugger support')
 options=('!strip')
-source=("https://dl.google.com/dl/android/studio/ide-zips/$pkgver/android-studio-ide-$_build-linux.zip"
-        "$pkgname.desktop")
+source=("https://dl.google.com/dl/android/studio/ide-zips/$pkgver/android-studio-$pkgver-linux.tar.gz"
+        "$pkgname.desktop"
+        "license.html")
+sha256sums=('172b1c24fbac98adf750f21ec55db41974386795fc99f35114fbbfd977a0e6db'
+            '73cd2dde1d0f99aaba5baad1e2b91c834edd5db3c817f6fb78868d102360d3c4'
+            '9a7563f7fb88c9a83df6cee9731660dc73a039ab594747e9e774916275b2e23e')
 
 if [ "$CARCH" = "i686" ]; then
     depends+=('java-environment')
@@ -30,7 +33,7 @@ package() {
 
   # Install the application
   install -d $pkgdir/{opt/$pkgname,usr/bin}
-  cp -a bin lib jre plugins license LICENSE.txt build.txt product-info.json $pkgdir/opt/$pkgname
+  cp -a bin lib jbr plugins license LICENSE.txt build.txt product-info.json $pkgdir/opt/$pkgname
   ln -s /opt/android-studio/bin/studio.sh $pkgdir/usr/bin/$pkgname
 
   # Copy licenses

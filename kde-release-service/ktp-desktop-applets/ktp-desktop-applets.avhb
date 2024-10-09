@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ktp-desktop-applets
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='The KDE-Telepathy Plasma desktop applets'
 arch=('x86_64')

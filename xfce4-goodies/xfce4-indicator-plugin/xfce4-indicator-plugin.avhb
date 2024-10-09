@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-indicator-plugin
-pkgver=2.4.0
+pkgver=2.4.2
 pkgrel=1
 pkgdesc="Plugin to display information from applications in the Xfce4 panel"
 arch=('x86_64')
@@ -21,12 +21,17 @@ makedepends=('intltool' 'xfce4-dev-tools')
 optdepends=('indicator-application-gtk2: take menus from applications and place them in the panel'
             'indicator-sound: unified sound menu')
 install=$pkgname.install
-source=(http://archive.xfce.org/src/panel-plugins/$pkgname/$_maj/$pkgname-$pkgver.tar.bz2)
+source=(https://archive.xfce.org/src/panel-plugins/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libexecdir=/usr/lib --disable-static
-  make ${MAKEFLAGS}
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/lib \
+    --disable-static
+  make
 }
 
 package() {

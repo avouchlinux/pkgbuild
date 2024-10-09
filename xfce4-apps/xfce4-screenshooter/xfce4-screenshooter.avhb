@@ -1,13 +1,13 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-screenshooter
-pkgver=1.9.8
+pkgver=1.11.1
 pkgrel=1
 pkgdesc="Plugin that makes screenshots for the Xfce panel"
-arch=('i686' 'x86_64')
+arch=('x86_64')
 groups=('xfce4-apps')
 url="http://goodies.xfce.org/projects/applications/xfce4-screenshooter"
 license=('GPL2')
@@ -25,7 +25,7 @@ build() {
       --localstatedir=/var \
       --disable-static \
       --disable-debug
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

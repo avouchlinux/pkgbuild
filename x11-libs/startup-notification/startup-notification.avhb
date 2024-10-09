@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,28 +9,20 @@ pkgrel=1
 pkgdesc="Monitor and display application startup"
 arch=('x86_64')
 groups=('x11-libs')
-license=('LGPL')
-depends=('libx11' 'xcb-util>=0.3.9')
-url="http://www.freedesktop.org"
-source=(http://www.freedesktop.org/software/startup-notification/releases/${pkgname}-${pkgver}.tar.gz)
-
-prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-
-	sed -i -e '/AC_PATH_XTRA/d' configure.in
-	autoreconf --force --install
-}
+url='https://www.freedesktop.org/wiki/Software/startup-notification/'
+license=('LGPL-2.0-or-later')
+depends=('glibc' 'libx11' 'libxcb' 'xcb-util')
+source=("https://www.freedesktop.org/software/startup-notification/releases/$pkgname-$pkgver.tar.gz")
+sha256sums=('3c391f7e930c583095045cd2d10eb73a64f085c7fde9d260f2652c7cb3cfbe4a')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }
-

@@ -40,7 +40,7 @@ prepare() {
 
 build() {
   avouch-meson build $pkgname-$pkgver \
-    -D logo=/usr/share/pixmaps/avouch-logo.png
+    -D logo=/usr/share/pixmaps/avouch.png
   meson compile -C build
 
   # Convert logo for the spinner theme
@@ -60,6 +60,6 @@ package() {
 #   install -Dm644 mkinitcpio-generate-shutdown-ramfs-plymouth.conf "$pkgdir/usr/lib/systemd/system/mkinitcpio-generate-shutdown-ramfs.service.d/plymouth.conf"
   
   # Install logo for the spinner theme
-  install -Dm644 avouch-logo.png "$pkgdir/usr/share/$pkgname/themes/spinner/watermark.png"
+  install -Dm644 avouch.png "$pkgdir/usr/share/$pkgname/themes/spinner/watermark.png"
 #   install -Dm644 archlinux-logo-text-dark.png "$pkgdir/usr/share/$pkgname/themes/spinner/watermark.png"
 }

@@ -1,0 +1,47 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=python-cairo
+pkgname=(python-cairo python-cairo-docs)
+_realname=pycairo
+pkgver=1.27.0
+pkgrel=1
+pkgdesc="python3 bindings for the cairo graphics library"
+arch=('x86_64')
+groups=('dev-python')
+url="https://pycairo.readthedocs.io/en/latest/"
+license=(LGPL2.1 MPL)
+depends=(cairo python)
+makedepends=(meson python-sphinx python-sphinx_rtd_theme)
+checkdepends=(python-pytest)
+source=(https://github.com/pygobject/pycairo/releases/download/v$pkgver/pycairo-$pkgver.tar.gz{,.sig})
+sha256sums=('7e2be4fbc3b4536f16db7a11982cbf713e75069a4d73d44fe5a49b68423f5c0c'
+            'SKIP')
+validpgpkeys=(0EBF782C5D53F7E5FB02A66746BD761F7A49B0EC) # Christoph Reiter <reiter.christoph@gmail.com>
+
+build() {
+  avouch-meson pycairo-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_python-cairo() {
+  meson install -C build --destdir="$pkgdir"
+
+  # compile Python bytecode
+  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
+  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
+}
+
+package_python-cairo-docs() {
+  pkgdesc="Developer documentation for Pycairo"
+  depends=()
+
+  python -m sphinx -b html pycairo-$pkgver/docs "$pkgdir/usr/share/doc/pycairo/html"
+  rm -r "$pkgdir/usr/share/doc/pycairo/html/.doctrees"
+}

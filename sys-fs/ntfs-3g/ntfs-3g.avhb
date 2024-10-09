@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ntfs-3g
 _pkgname=ntfs-3g_ntfsprogs
-pkgver=2017.3.23
+pkgver=2022.10.3
 pkgrel=1
 pkgdesc='NTFS filesystem driver and utilities'
 url='https://www.tuxera.com/community/open-source-ntfs-3g/'
@@ -13,30 +14,37 @@ groups=('sys-fs')
 license=('GPL2')
 depends=('util-linux' 'fuse2')
 source=("https://tuxera.com/opensource/${_pkgname}-${pkgver}.tgz")
-sha256sums=('3e5a021d7b761261836dcb305370af299793eedbded731df3d6943802e1262d5')
+sha256sums=('f20e36ee68074b845e3629e6bced4706ad053804cbaf062fbae60738f854170c')
+
+conflicts=('ntfsprogs')
+provides=('ntfsprogs')
+replaces=('ntfsprogs')
 
 prepare() {
-	cd "${srcdir}/${_pkgname}-${pkgver}"
-	sed 's|$(DESTDIR)/sbin|$(DESTDIR)/usr/bin|' -i {ntfsprogs,src}/Makefile.in
-	patch -p1 -i ../mftmirr.patch
+  cd ${_pkgname}-${pkgver}
+  sed 's|$(DESTDIR)/sbin|$(DESTDIR)/usr/bin|' -i {ntfsprogs,src}/Makefile.in
 }
 
 build() {
-	cd "${srcdir}/${_pkgname}-${pkgver}"
-	./configure --prefix=/usr \
-	--sbin=/usr/bin \
-	--mandir=/usr/share/man \
-	--disable-ldconfig \
-	--disable-static \
-	--with-fuse=external \
-	--enable-posix-acls \
-	--enable-extras
-	make ${MAKEFLAGS}
+  cd ${_pkgname}-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --sbin=/usr/bin \
+    --mandir=/usr/share/man \
+    --disable-ldconfig \
+    --disable-static \
+    --with-fuse=external \
+    --enable-xattr-mappings \
+    --enable-posix-acls \
+    --enable-extras \
+    --enable-crypto \
+
+  make
 }
 
 package() {
-	cd "${srcdir}/${_pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" rootbindir=/usr/bin rootsbindir=/usr/bin rootlibdir=/usr/lib install
-	ln -s /usr/bin/ntfs-3g "$pkgdir/usr/bin/mount.ntfs"
+  cd ${_pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" rootbindir=/usr/bin rootsbindir=/usr/bin rootlibdir=/usr/lib install
+  rm "${pkgdir}"/usr/share/man/man8/ntfsfallocate.8 # uninstalled binary
+  ln -s /usr/bin/ntfs-3g "${pkgdir}/usr/bin/mount.ntfs"
 }
-

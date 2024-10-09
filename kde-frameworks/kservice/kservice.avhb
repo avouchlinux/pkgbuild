@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kservice
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Advanced plugin and service introspection'
 arch=('x86_64')

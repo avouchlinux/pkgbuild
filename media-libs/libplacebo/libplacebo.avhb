@@ -1,37 +1,55 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libplacebo
-pkgver=3.120.3
+pkgver=7.349.0
 pkgrel=1
 pkgdesc='Reusable library for GPU-accelerated video/image rendering primitives'
 url='https://github.com/haasn/libplacebo'
 arch=('x86_64')
 groups=('media-libs')
-depends=('vulkan-icd-loader' 'libvulkan.so' 'glslang' 'lcms2' 'liblcms2.so' 'shaderc' 'libshaderc_shared.so'
-         'libepoxy' 'libglvnd' 'glibc' 'gcc-libs')
-makedepends=('meson' 'ninja' 'vulkan-headers' 'python' 'python-mako')
-provides=('libplacebo.so')
+depends=('vulkan-icd-loader' 'glslang' 'lcms2' 'shaderc'
+         'glibc' 'gcc-libs' 'libunwind' 'libdovi' 'xxhash')
+makedepends=(
+  'meson' 'ninja' 'vulkan-headers' 'glad' 'nuklear'
+  'python' 'python-setuptools' 'python-mako' 'python-markupsafe' 'python-jinja'
+  'libglvnd'
+)
 source=(https://code.videolan.org/videolan/libplacebo/-/archive/v${pkgver}/libplacebo-v${pkgver}.tar.gz)
 
 build() {
-  CXXFLAGS+=" -I/usr/include/glslang"
-  avouch-meson ${pkgname}-v${pkgver} build \
-    -D tests=false \
+  cd ${pkgname}-v${pkgver}
+  export CXXFLAGS+=" -I/usr/include/glslang"
+  avouch-meson build \
+    -D tests=true \
     -D vulkan=enabled \
     -D glslang=enabled \
     -D shaderc=enabled \
-    -D lcms=enabled
-  ninja -C build
+    -D lcms=enabled \
+    -D d3d11=disabled \
+    -D libdovi=enabled \
+    -D demos=false
+  meson compile -C build
+
 }
 
 # check() {
-#   ninja -C build test
+#   cd ${pkgname}-v${pkgver}
+#   meson test -C build --print-errorlogs
 # }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
-  install -Dm 644 ${pkgname}-v${pkgver}/README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  depends+=(
+    'libdovi.so'
+    'liblcms2.so'
+    'libshaderc_shared.so'
+    'libvulkan.so'
+  )
+
+  cd ${pkgname}-v${pkgver}
+  meson install -C build --destdir "${pkgdir}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
 }
+

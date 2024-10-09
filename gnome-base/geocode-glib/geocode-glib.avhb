@@ -3,7 +3,12 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=geocode-glib
+pkgbase=geocode-glib
+pkgname=(
+  geocode-glib-common
+  geocode-glib
+  geocode-glib-2
+)
 pkgver=3.26.4
 pkgrel=1
 pkgdesc="Helper library for geocoding services"
@@ -11,25 +16,95 @@ url="https://gitlab.gnome.org/GNOME/geocode-glib"
 arch=('x86_64')
 groups=('gnome-base')
 license=(LGPL)
-depends=(glib2 json-glib libsoup)
-makedepends=(gobject-introspection git gtk-doc meson)
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+makedepends=(
+  git
+  glib2
+  gobject-introspection
+  gtk-doc
+  json-glib
+  libsoup
+  libsoup3
+  meson
+)
+checkdepends=(glibc-locales)
+source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgbase/${pkgver%.*}/$pkgbase-$pkgver.tar.xz)
 
 prepare() {
-    cd ${srcdir}/${pkgname}-${pkgver}
+    cd ${srcdir}/${pkgbase}-${pkgver}
     sed -i 's/gnome/Adwaita/' icons/meson.build
 }
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build -D enable-installed-tests=false
-    ninja -C build
+  local meson_options=(
+    -D enable-installed-tests=false
+  )
+
+  avouch-meson $pkgbase-$pkgver build2 "${meson_options[@]}" -D soup2=true
+  avouch-meson $pkgbase-$pkgver build3 "${meson_options[@]}" -D soup2=false
+  meson compile -C build2
+  meson compile -C build3
 }
 
 check() {
-    # Needs sv_SE.utf8, will not pass in chroot
-    : meson test -C build
+  meson test -C build2 --print-errorlogs
+  meson test -C build3 --print-errorlogs
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
+
+package_geocode-glib-common() {
+  pkgdesc+=" (common files)"
+  depends=(
+    glib2
+    json-glib
+  )
+
+  meson install -C build2 --destdir "$pkgdir"
+  meson install -C build3 --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick soup2 usr/include/geocode-glib-1.0
+  _pick soup2 usr/lib/libgeocode-glib.so*
+  _pick soup2 usr/lib/pkgconfig/geocode-glib-1.0.pc
+  _pick soup2 usr/lib/girepository-1.0/GeocodeGlib-1.0.typelib
+  _pick soup2 usr/share/gir-1.0/GeocodeGlib-1.0.gir
+  _pick soup2 usr/share/gtk-doc/html/geocode-glib
+
+  _pick soup3 usr/include/geocode-glib-2.0
+  _pick soup3 usr/lib/libgeocode-glib-2.so*
+  _pick soup3 usr/lib/pkgconfig/geocode-glib-2.0.pc
+  _pick soup3 usr/lib/girepository-1.0/GeocodeGlib-2.0.typelib
+  _pick soup3 usr/share/gir-1.0/GeocodeGlib-2.0.gir
+  _pick soup3 usr/share/gtk-doc/html/geocode-glib-2
+}
+
+package_geocode-glib() {
+  pkgdesc+=" (legacy)"
+  depends=(
+    geocode-glib-common="$pkgver-$pkgrel"
+    libsoup-2.4.so
+  )
+  provides=(libgeocode-glib.so)
+
+  mv soup2/* "$pkgdir"
+}
+
+package_geocode-glib-2() {
+  depends=(
+    geocode-glib-common="$pkgver-$pkgrel"
+    libsoup-3.0.so
+  )
+  provides=(libgeocode-glib-2.so)
+
+  mv soup3/* "$pkgdir"
+}
+

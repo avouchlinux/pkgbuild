@@ -4,27 +4,32 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=acpica
-pkgver=20200528
+pkgver=20240321
 pkgrel=1
 pkgdesc="ACPI tools, including Intel ACPI Source Language compiler"
 arch=(x86_64)
 groups=('sys-power')
 url="https://acpica.org"
-license=(GPL2)
+license=(GPL-2.0)
 depends=(glibc)
 makedepends=(flex bison)
 provides=(iasl)
 conflicts=(iasl)
 replaces=(iasl)
 options=(!makeflags)
-source=(https://acpica.org/sites/acpica/files/acpica-unix-${pkgver}.tar.gz)
+# thanks Intel for making downloading sources so painful...
+# https://github.com/acpica/acpica/issues/888
+# https://github.com/acpica/acpica/issues/886
+# https://github.com/acpica/acpica/issues/883
+# https://github.com/acpica/acpica/issues/857
+source=(https://downloadmirror.intel.com/819451/$pkgname-unix-$pkgver.tar.gz)
+sha512sums=('9d21cdbf4351f643b7694be0844d2102c9b1ca2afffd5b4453ef8387cc09812ffe2630f0b4489f679e92eab6e5923f306771b60bb2629fba6a1b2e326d52a11e')
+b2sums=('ee8fea5bd99c6279843a02399760de6e42a7c13a68d4d9fbbf18cee806b2d69aad7b89647cd23db356927b589d2943348f0cf63c0b7d62ccc21c064bd542dd54')
 
 build() {
-  cd acpica-unix-${pkgver}
-  make
+  NOWERROR=TRUE make -C $pkgname-unix-$pkgver
 }
 
 package() {
-  cd acpica-unix-${pkgver}
-  make DESTDIR="${pkgdir}" install
+  make DESTDIR="$pkgdir" install -C $pkgname-unix-$pkgver
 }

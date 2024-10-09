@@ -1,24 +1,29 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xcb-util-cursor
-pkgver=0.1.3
+pkgver=0.1.5
 pkgrel=1
 pkgdesc='XCB cursor library'
 arch=('x86_64')
 groups=('x11-libs')
 url='https://cgit.freedesktop.org/xcb/util-cursor'
 license=('custom:MIT')
-depends=('libxcb' 'xcb-util-renderutil' 'xcb-util-image')
+depends=('libxcb' 'xcb-util-renderutil' 'xcb-util-image' 'glibc')
+makedepends=('xorgproto')
 #makedepends=('doxygen' 'xorg-util-macros' 'graphviz') # no docs yet to build
-source=("https://xcb.freedesktop.org/dist/xcb-util-cursor-$pkgver.tar.bz2")
-sha1sums=('26562eb6d4151307f7b6a53453d360ecfc0563ac')
+source=(https://xorg.freedesktop.org/archive/individual/lib/xcb-util-cursor-$pkgver.tar.xz{,.sig})
+sha512sums=('e2d14c3f0ab117524ba90d1a992b61717ccee04bc9e66c587a6a0f10571f15e89fc5db3413882ca7ce14ebc07b6b7b0a4ddecd59ba910e6ca654ea9b1c705ed5'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
@@ -26,3 +31,4 @@ package() {
   make DESTDIR="$pkgdir" install
   install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+

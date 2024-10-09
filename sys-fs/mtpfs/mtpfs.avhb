@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mtpfs
 pkgver=1.1
-pkgrel=4
+pkgrel=1
 pkgdesc="A FUSE filesystem that supports reading and writing from any MTP device"
 arch=('x86_64')
 groups=('sys-fs')

@@ -12,11 +12,11 @@ groups=('x11-themes')
 url='https://avouch.org/packages/avouch-theme-grub'
 license=(LGPL)
 depends=(grub)
-source=("http://avouch.org/packages/$pkgver/$pkgname-$pkgver.tar.xz")
+source=("git+https://github.com/avouchlinux/avouch-theme-grub.git")
 
 package() {
 	mkdir -p "${pkgdir}/usr/share/grub/themes"
-	cp -a $pkgname-$pkgver/avouch "${pkgdir}/usr/share/grub/themes/avouch"
+	cp -a $pkgname "${pkgdir}/usr/share/grub/themes/avouch"
 	mkdir -p "${pkgdir}/usr/share/licenses/${pkgname}"
 	ln -sv ../gnu/gpl-2.0.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

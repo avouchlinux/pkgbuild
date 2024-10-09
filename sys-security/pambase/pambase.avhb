@@ -4,12 +4,12 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pambase
-pkgver=20200912
+pkgver=20240420
 pkgrel=1
 pkgdesc="Base PAM configuration for services"
 arch=('any')
 groups=('sys-security')
-url="http://www.archlinux.org"
+url="http://www.avouch.org"
 license=('GPL')
 source=('system-auth'
         'system-local-login'
@@ -25,10 +25,8 @@ backup=('etc/pam.d/system-auth'
         'etc/pam.d/other')
 
 package() {
-
-cd ${srcdir}
-install -dm755 "$pkgdir/etc/pam.d"
-install -m644 -t "$pkgdir/etc/pam.d" "${source[@]}"
-
+        cd ${srcdir}
+        install -dm755 "$pkgdir/etc/pam.d"
+        install -m644 -t "$pkgdir/etc/pam.d" "${source[@]}"
 }
 

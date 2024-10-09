@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kpublictransport
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='Library to assist with accessing public transport timetables and other data'
 arch=(x86_64)

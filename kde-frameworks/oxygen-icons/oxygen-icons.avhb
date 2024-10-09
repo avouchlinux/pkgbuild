@@ -6,7 +6,7 @@
 pkgbase=oxygen-icons
 pkgname=('oxygen-icons' 'oxygen-icons-svg')
 _realname=oxygen-icons5
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc="The Oxygen Icon Theme"
 arch=('any')

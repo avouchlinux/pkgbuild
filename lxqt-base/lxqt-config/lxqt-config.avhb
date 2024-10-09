@@ -1,29 +1,47 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxqt-config
-pkgver=1.1.0
+pkgver=2.0.0
 pkgrel=1
 pkgdesc="LXQt system configuration."
 arch=("x86_64")
 groups=('lxqt-base')
-url="http://lxqt.org"
+url="https://github.com/lxqt/$pkgname"
+# Upstream licenses are messy and need clarifications... https://github.com/lxqt/lxqt-config/issues/966
 license=("LGPL2.1")
-depends=("liblxqt" "libkscreen" "libxcursor" "qt5-svg")
-makedepends=("cmake" "qt5-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+depends=("glibc" "gcc-libs"
+         "qt6-base" "qt6-svg" "libkscreen"
+         "libQt6Xdg.so" "liblxqt" "lxqt-themes" "lxqt-menu-data"
+         "libx11" "libxcb" "libxcursor" "libxfixes" "libxi" "xf86-input-libinput"
+         "libudev.so" "zlib")
+makedepends=("lxqt-build-tools")
+optdepends=(
+	'xsettingsd: help GTK applications apply themes on the fly'
+)
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha256sums=('091d4a1e177f732f6d6e9e66b2e117e0272272eaa73595290ad2ea05f0c4ac73'
+            'SKIP')
+validpgpkeys=(
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # https://github.com/tsujan.gpg
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=/usr/lib
-    ninja -C build
+	mkdir -p build
+	cd build
+	cmake "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+	make
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+	cd build
+	make DESTDIR="$pkgdir" install
 }
 

@@ -1,22 +1,33 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=flatpak-kcm
-pkgver=5.27.8
+pkgver=6.2.0
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Flatpak Permissions Management KCM'
 arch=('x86_64')
 groups=('kde-plasma')
 url='https://kde.org/plasma-desktop/'
-license=(LGPL)
-depends=(systemsettings flatpak)
+license=(LGPL-2.0-or-later)
+depends=(flatpak
+         gcc-libs
+         glib2
+         glibc
+         kcmutils
+         kconfig
+         kcoreaddons
+         ki18n
+         kirigami
+         kitemmodels
+         qt6-base
+         qt6-declarative)
 makedepends=(extra-cmake-modules)
 groups=(plasma)
 source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('dc8661005102c822531fa53266f9a800c95dac3693bfcde7d07fcf0fd6aaed55'
+sha256sums=('2a203e7292571ef1373785c2449c503be15408dbdf0a7a59d7e99d8e9def1a81'
             'SKIP')
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
@@ -24,10 +35,11 @@ validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-  		-DLIB_INSTALL_DIR=lib \
-      -DBUILD_TESTING=OFF
-      -DBUILD_TESTING=OFF
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 

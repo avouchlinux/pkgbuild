@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kjs
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Support for JS scripting in applications'
 arch=('x86_64')

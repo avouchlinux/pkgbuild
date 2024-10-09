@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=parole
-pkgver=4.16.0
+pkgver=4.18.1
 pkgrel=1
 pkgdesc="A modern media player based on the GStreamer framework"
 arch=('x86_64')
@@ -23,7 +23,7 @@ build() {
 	cd ${srcdir}/${pkgname}-${pkgver}	
 	./configure --prefix=/usr
 	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

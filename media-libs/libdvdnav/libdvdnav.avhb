@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libdvdnav
-pkgver=6.1.0
+pkgver=6.1.1
 pkgrel=1
 pkgdesc="The library for xine-dvdnav plugin."
 arch=('x86_64')
@@ -23,7 +23,7 @@ prepare() {
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

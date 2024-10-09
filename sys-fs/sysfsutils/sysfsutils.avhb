@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sysfsutils
-pkgver=2.1.0
+pkgver=2.1.1
 pkgrel=1
 pkgdesc="System Utilities Based on Sysfs"
 arch=('x86_64')
@@ -12,21 +12,28 @@ groups=('sys-fs')
 license=('GPL' 'LGPL')
 url="http://linux-diag.sourceforge.net/Sysfsutils.html"
 depends=('glibc')
-source=(https://downloads.sourceforge.net/sourceforge/linux-diag/${pkgname}-${pkgver}.tar.gz)
+makedepends=('git')
+source=("git+https://github.com/linux-ras/sysfsutils.git#tag=v${pkgver}")
+b2sums=('SKIP')
+
+prepare() {
+cd "$pkgname"
+  ./autogen
+}
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --mandir=/usr/share/man
-	make ${MAKEFLAGS}
+  cd "$pkgname"
+  ./configure --prefix=/usr --mandir=/usr/share/man
+  make
 }
 
 check() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make  ${MAKEFLAGS} check
+  cd "$pkgname"
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
-	rm "$pkgdir/usr/lib/libsysfs.a"
+  cd "$pkgname"
+  make DESTDIR="$pkgdir" install
+  rm "$pkgdir/usr/lib/libsysfs.a"
 }

@@ -1,18 +1,17 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kinit
-pkgver=5.110.0
+pkgver=5.116.0
 pkgrel=1
 pkgdesc='Process launcher to speed up launching KDE applications'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://community.kde.org/Frameworks'
 license=('LGPL')
-depends=('kio')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python')
+makedepends=(extra-cmake-modules kdoctools5)
 source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
 
 build() {

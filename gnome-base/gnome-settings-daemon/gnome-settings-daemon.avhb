@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-settings-daemon
-pkgver=46.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
@@ -53,14 +53,15 @@ depends=(
   systemd-libs
   upower
   wayland
+  xorg-xrdb
 )
 makedepends=(
   docbook-xsl
   git
+  glib2-devel
   libxslt
   meson
   python
-  python-packaging
   usbguard
 )
 checkdepends=(
@@ -68,9 +69,7 @@ checkdepends=(
   python-gobject
 )
 optdepends=('usbguard: USB protection support')
-groups=(gnome)
 backup=(etc/xdg/Xwayland-session.d/00-xrdb)
-_commit=8ff4196096efba8b2441ee31a63c8bd8cea4b1d8  # tags/46.0^0
 source=(
   "https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
   0001-subprojects-Update-gvc-to-latest-commit.patch

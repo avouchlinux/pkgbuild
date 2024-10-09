@@ -9,11 +9,12 @@ pkgname=(
   tracker3-docs
 )
 _realname=tracker
-pkgver=3.7.1
+pkgver=3.7.3
 pkgrel=1
 pkgdesc="Desktop-neutral user information store, search tool and indexer"
 url="https://tracker.gnome.org/"
 arch=(x86_64)
+groups=('gnome-base')
 license=(LGPL-2.1-or-later)
 depends=(
   avahi

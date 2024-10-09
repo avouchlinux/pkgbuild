@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxaw3d
 _realname=libXaw3d
-pkgver=1.6.3
+pkgver=1.6.6
 pkgrel=1
 pkgdesc="X11 Athena Widget library"
 arch=('x86_64')
@@ -13,13 +14,13 @@ license=('custom')
 url="http://xorg.freedesktop.org/"
 depends=('libxmu' 'libxpm')
 makedepends=('xorg-util-macros')
-source=(${url}/releases/individual/lib/libXaw-${pkgver}.tar.bz2)
+source=(${url}/releases/individual/lib/$_realname-${pkgver}.tar.xz)
 sha256sums=('96fc314874fce9979556321d1d6ee00b5baf32fb333b7278853b4983bc3cdbf6')
 
 build() {
 	cd ${srcdir}/${_realname}-${pkgver}
 	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

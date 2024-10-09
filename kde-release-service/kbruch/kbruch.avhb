@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kbruch
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Exercise Fractions"
 url="http://kde.org/applications/education/kbruch/"
@@ -15,21 +15,16 @@ makedepends=('extra-cmake-modules' 'kdoctools' 'python')
 source=("http://download.kde.org/stable/applications/${pkgver}/src/kbruch-${pkgver}.tar.xz")
 sha1sums=('07d7bdf373d34b2480487bd394ed1336836788c5')
 
-prepare() {
-  mkdir -p build
-}
-
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd "${srcdir}"/build
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }
+

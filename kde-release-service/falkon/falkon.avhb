@@ -18,22 +18,15 @@ replaces=(qupzilla)
 source=(https://download.kde.org/stable/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz{,.sig})
 validpgpkeys=(3CB7B8416EF6778B409FDC43EBC3FC294452C6D8) # David Rosca <nowrep@gmail.com>
 
-
-# prepare() {
-#   cd $pkgname-$pkgver
-#   patch -p1 -i ../falkon-pyside-5.12.2.patch # Fix build with PySide 5.12.2
-#   patch -p1 -i ../falkon-qt-5.14.patch # Fix build with Qt 5.14
-#   patch -p1 -i ../falkon-qt-5.15.patch # Fix build with Qt 5.15
-# }
-
 build() {
-  cmake -S $pkgname-$pkgver -B build -G Ninja\
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DBUILD_TESTING=OFF
-  ninja -C build
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

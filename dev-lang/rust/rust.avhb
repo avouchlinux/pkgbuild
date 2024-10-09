@@ -1,13 +1,19 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=rust
-pkgname=(rust lib32-rust-libs rust-musl rust-wasm rust-src)
+pkgname=(
+  rust
+  lib32-rust-libs
+  rust-musl
+  rust-wasm
+  rust-src
+)
 _realname=rustc
 epoch=1
-pkgver=1.60.0
+pkgver=1.81.0
 pkgrel=1
 _llvm_ver=14.0.0
 pkgdesc='Systems programming language focused on safety, speed and concurrency'
@@ -15,67 +21,75 @@ url='https://www.rust-lang.org/'
 arch=('x86_64')
 groups=('dev-lang')
 license=('MIT' 'Apache')
-depends=(gcc-libs llvm-libs curl libssh2 gcc)
-makedepends=(rust "llvm=$_llvm_ver" libffi lib32-gcc-libs perl python cmake musl
-             ninja wasi-libc lld)
-checkdepends=('procps-ng' 'gdb')
-source=("https://static.rust-lang.org/dist/rustc-$pkgver-src.tar.gz"{,.asc}
-        config.toml)
+options=(
+  !emptydirs
+  !lto
+)
+depends=(
+  bash
+  curl
+  gcc
+  gcc-libs
+  glibc
+  libssh2
+  llvm-libs
+  openssl
+  zlib
+)
+makedepends=(
+  clang
+  cmake
+  lib32-gcc-libs
+  lib32-glibc
+  libffi
+  lld
+  llvm
+  musl
+  ninja
+  perl
+  python
+  rust
+  wasi-libc
+  wasm-component-ld
+)
+source=(
+  "https://static.rust-lang.org/dist/rustc-$pkgver-src.tar.gz"{,.asc}
+  0001-bootstrap-Change-libexec-dir.patch
+  0002-bootstrap-Change-bash-completion-dir.patch
+  0003-compiler-Change-LLVM-targets.patch
+  0004-compiler-Use-wasm-ld-for-wasm-targets.patch
+)
+
 validpgpkeys=('108F66205EAEB0AAA8DD5E1C85AB96E6FA1BE5FE') # Rust Language (Tag and Release Signing Key) <rust-key@rust-lang.org>
 
 _rust_triplet="x86_64-unknown-linux-gnu,i686-unknown-linux-gnu,x86_64-unknown-linux-musl,wasm32-unknown-unknown,wasm32-wasi"
 
 prepare() {
-  bsdtar -xf $srcarchivedir/compiler-rt-$_llvm_ver.src.tar.xz
-  cd "rustc-$pkgver-src"
+  cd rustc-$pkgver-src
 
-  # Patch bootstrap and cargo so credential helpers
-  # are in /usr/lib instead of /usr/libexec
-  patch -d src/tools/cargo -Np1 < ../0001-cargo-Change-libexec-dir.patch
+  # Patch bootstrap so that rust-analyzer-proc-macro-srv
+  # is in /usr/lib instead of /usr/libexec
   patch -Np1 -i ../0001-bootstrap-Change-libexec-dir.patch
 
+  # Put bash completions where they belong
+  patch -Np1 -i ../0002-bootstrap-Change-bash-completion-dir.patch
+
   # Use our *-pc-linux-gnu targets, making LTO with clang simpler
-  patch -Np1 -i ../0002-compiler-Change-LLVM-targets.patch
+  patch -Np1 -i ../0003-compiler-Change-LLVM-targets.patch
 
   # Use our wasm-ld
-  patch -Np1 -i ../0003-compiler-Use-wasm-ld-for-wasm-targets.patch
-
-  mkdir build
-  # mv ../cache build/
-
-  # ./configure --prefix=/usr \
-  #   --libdir=/usr/lib \
-  #   --datadir=/usr/share \
-  #   --infodir=/usr/share/info \
-  #   --target="$_rust_triplet" \
-  #   --python="/usr/bin/python3" \
-  #   --llvm-root="/usr" \
-  #   --llvm-config="/usr/bin/llvm-config" \
-  #   --musl-root-x86_64="/usr/lib/musl" \
-  #   --wasi-root="/usr/share/wasi-sysroot" \
-  #   --release-channel=stable \
-  #   --debuginfo-level=2 \
-  #   --debuginfo-level-std=2 \
-  #   --codegen-units-std=1 \
-  #   --enable-llvm-link-shared \
-  #   --enable-docs=false \
-  #   --enable-optimize \
-  #   --enable-extended \
-  #   --enable-vendor \
-  #   --enable-profiler \
-  #   --enable-ninja \
-  #   --disable-option-checking \
-  #   --disable-codegen-tests \
-  #   --disable-jemalloc \
-  #   --disable-rpath
-
-  # cp ../config.toml .
+  patch -Np1 -i ../0004-compiler-Use-wasm-ld-for-wasm-targets.patch
 
   cat >config.toml <<END
-changelog-seen = 2
-profile = "user"
+# see src/bootstrap/defaults/
+profile = "dist"
+
+# see src/bootstrap/src/utils/change_tracker.rs
+change-id = 127866
+
 [llvm]
 link-shared = true
+
 [build]
 target = [
   "x86_64-unknown-linux-gnu",
@@ -83,43 +97,88 @@ target = [
   "x86_64-unknown-linux-musl",
   "wasm32-unknown-unknown",
   "wasm32-wasi",
+  "wasm32-wasip1",
+  "wasm32-wasip1-threads",
+  "wasm32-wasip2",
 ]
-# cargo = "/usr/bin/cargo"
-# rustc = "/usr/bin/rustc"
-# rustfmt = "/usr/bin/rustfmt"
+cargo = "/usr/bin/cargo"
+rustc = "/usr/bin/rustc"
+rustfmt = "/usr/bin/rustfmt"
 locked-deps = true
 vendor = true
-tools = ["cargo", "rls", "clippy", "rustfmt", "analysis", "src", "rust-demangler"]
+tools = [
+  "cargo",
+  "clippy",
+  "rustdoc",
+  "rustfmt",
+  "rust-analyzer-proc-macro-srv",
+  "analysis",
+  "src",
+]
 sanitizers = true
 profiler = true
+
 # Generating docs fails with the wasm32-* targets
 docs = false
+
 [install]
 prefix = "/usr"
+
 [rust]
+codegen-units-std = 1
+debuginfo-level = 1
 debuginfo-level-std = 2
 channel = "stable"
 description = "Avouch Linux $pkgbase $epoch:$pkgver-$pkgrel"
 rpath = false
+frame-pointers = true
+lld = false
+use-lld = "external"
+deny-warnings = false
 backtrace-on-ice = true
-remap-debuginfo = true
+remap-debuginfo = false
 jemalloc = true
-# LLVM crashes when passing an object through ThinLTO twice.  This is triggered
-# when using rust code in cross-language LTO if libstd was built using ThinLTO.
-# http://blog.llvm.org/2019/09/closing-gap-cross-language-lto-between.html
-# https://github.com/rust-lang/rust/issues/54872
-codegen-units-std = 1
+
 [dist]
 compression-formats = ["gz"]
+
 [target.x86_64-unknown-linux-gnu]
+cc = "/usr/bin/gcc"
+cxx = "/usr/bin/g++"
+ar = "/usr/bin/gcc-ar"
+ranlib = "/usr/bin/gcc-ranlib"
 llvm-config = "/usr/bin/llvm-config"
+
+[target.i686-unknown-linux-gnu]
+cc = "/usr/bin/gcc"
+cxx = "/usr/bin/g++"
+ar = "/usr/bin/gcc-ar"
+ranlib = "/usr/bin/gcc-ranlib"
+
 [target.x86_64-unknown-linux-musl]
 sanitizers = false
 musl-root = "/usr/lib/musl"
+
 [target.wasm32-unknown-unknown]
 sanitizers = false
 profiler = false
+
 [target.wasm32-wasi]
+sanitizers = false
+profiler = false
+wasi-root = "/usr/share/wasi-sysroot"
+
+[target.wasm32-wasip1]
+sanitizers = false
+profiler = false
+wasi-root = "/usr/share/wasi-sysroot"
+
+[target.wasm32-wasip1-threads]
+sanitizers = false
+profiler = false
+wasi-root = "/usr/share/wasi-sysroot"
+
+[target.wasm32-wasip2]
 sanitizers = false
 profiler = false
 wasi-root = "/usr/share/wasi-sysroot"
@@ -129,7 +188,7 @@ END
 _pick() {
   local p="$1" f d; shift
   for f; do
-    d="$srcdir/$p/$f"
+    d="$srcdir/$p/${f#$pkgdir/}"
     mkdir -p "$(dirname "$d")"
     mv "$f" "$d"
     rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
@@ -137,33 +196,36 @@ _pick() {
 }
 
 build() {
-  cd "rustc-$pkgver-src"
+  cd rustc-$pkgver-src
 
   export RUST_BACKTRACE=1
-  export RUST_COMPILER_RT_ROOT="$srcdir/compiler-rt-$_llvm_ver.src"
-  [[ -d $RUST_COMPILER_RT_ROOT ]]
-
-  python ./x.py dist -j "$(nproc)"
+  unset CFLAGS CXXFLAGS LDFLAGS
 
   DESTDIR="$srcdir/dest-rust" python ./x.py install -j "$(nproc)"
-  
+
   cd ../dest-rust
 
   # delete unnecessary files, e.g. files only used for the uninstall script
-  rm usr/lib/rustlib/{components,install.log,rust-installer-version,uninstall.sh}
-  rm usr/lib/rustlib/manifest-*
+  rm -v usr/lib/rustlib/{components,install.log,rust-installer-version,uninstall.sh}
+  rm -v usr/lib/rustlib/manifest-*
+
+  # licenses for main rust package
+  local ldir="usr/share/licenses/rust" f d
+  mkdir -p "$ldir"
+  for f in usr/share/doc/*/{COPYRIGHT,LICENSE}*; do
+    d="$(dirname "$f")"
+    case $f in
+      */LICENSE-APACHE) rm -v "$f" ;;
+      *) mv -v "$f" "$ldir/${f##*/}.${d##*/}" ;;
+    esac
+    rmdir -p --ignore-fail-on-non-empty "$d"
+  done
 
   # rustbuild always installs copies of the shared libraries to /usr/lib,
   # overwrite them with symlinks to the per-architecture versions
-  mkdir -p usr/lib32
-  ln -srft usr/lib   usr/lib/rustlib/x86_64-unknown-linux-gnu/lib/*.so
-  ln -srft usr/lib32 usr/lib/rustlib/i686-unknown-linux-gnu/lib/*.so
-
-  mkdir -p usr/share/bash-completion
-  mv etc/bash_completion.d usr/share/bash-completion/completions
-
-  mkdir -p usr/share/licenses/rust
-  mv -t usr/share/licenses/rust usr/share/doc/rust/{COPYRIGHT,LICENSE*}
+  mkdir -pv usr/lib32
+  ln -srvft usr/lib   usr/lib/rustlib/x86_64-unknown-linux-gnu/lib/*.so
+  ln -srvft usr/lib32 usr/lib/rustlib/i686-unknown-linux-gnu/lib/*.so
 
   _pick dest-i686 usr/lib/rustlib/i686-unknown-linux-gnu usr/lib32
   _pick dest-musl usr/lib/rustlib/x86_64-unknown-linux-musl
@@ -172,24 +234,44 @@ build() {
 }
 
 package_rust() {
-  optdepends=('lldb: rust-lldb script'
-              'gdb: rust-gdb script')
-  provides=(cargo rustfmt)
+  optdepends=(
+    'gdb: rust-gdb script'
+    'lldb: rust-lldb script'
+  )
+  provides=(
+    cargo
+    rustfmt
+  )
+  conflicts=(
+    cargo
+    'rust-docs<1:1.56.1-3'
+    rustfmt
+  )
+  replaces=(
+    cargo
+    cargo-tree
+    'rust-docs<1:1.56.1-3'
+    rustfmt
+  )
 
   cp -a dest-rust/* "$pkgdir"
 }
 
 package_lib32-rust-libs() {
   pkgdesc="32-bit target and libraries for Rust"
-  depends=(rust lib32-gcc-libs)
+  depends=(
+    lib32-gcc-libs
+    lib32-glibc
+    rust
+  )
   provides=(lib32-rust)
   conflicts=(lib32-rust)
   replaces=(lib32-rust)
 
   cp -a dest-i686/* "$pkgdir"
 
-  # mkdir -p "$pkgdir/usr/share/licenses"
-  # ln -s rust "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    rustc-$pkgver-src/{COPYRIGHT,LICENSE-MIT}
 }
 
 package_rust-musl() {
@@ -198,18 +280,22 @@ package_rust-musl() {
 
   cp -a dest-musl/* "$pkgdir"
 
-  # mkdir -p "$pkgdir/usr/share/licenses"
-  # ln -s rust "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    rustc-$pkgver-src/{COPYRIGHT,LICENSE-MIT}
 }
 
 package_rust-wasm() {
   pkgdesc="WebAssembly targets for Rust"
-  depends=(rust lld)
+  depends=(
+    lld
+    rust
+    wasm-component-ld
+  )
 
   cp -a dest-wasm/* "$pkgdir"
 
-  # mkdir -p "$pkgdir/usr/share/licenses"
-  # ln -s rust "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    rustc-$pkgver-src/{COPYRIGHT,LICENSE-MIT}
 }
 
 package_rust-src() {
@@ -218,6 +304,6 @@ package_rust-src() {
 
   cp -a dest-src/* "$pkgdir"
 
-  # mkdir -p "$pkgdir/usr/share/licenses"
-  # ln -s rust "$pkgdir/usr/share/licenses/$pkgname"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    rustc-$pkgver-src/{COPYRIGHT,LICENSE-MIT}
 }

@@ -1,31 +1,33 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dosfstools
-pkgver=4.1
+pkgver=4.2
 pkgrel=1
 pkgdesc="DOS filesystem utilities"
 arch=('x86_64')
 groups=('sys-fs')
 depends=('glibc')
-source=(https://github.com/$pkgname/$pkgname/releases/download/v$pkgver/$pkgname-$pkgver.tar.xz{,.sig}
+source=(https://github.com/$pkgname/$pkgname/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz{,.sig}
 )
 url="https://github.com/dosfstools/dosfstools"
-license=('GPL2')
+license=('GPL-3.0-or-later')
 validpgpkeys=('25714AECDBFDACEE1CE95FE77F6022516E869F64') # Andreas Bombe
+sha256sums=('64926eebf90092dca21b14259a5301b7b98e7b1943e8a201c7d726084809b527'
+            'SKIP')
+
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --libexecdir=/usr/lib \
-            --sbindir=/usr/bin --mandir=/usr/share/man \
-            --docdir=/usr/share/doc/dosfstools --enable-compat-symlinks
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --libexecdir=/usr/lib \
+              --sbindir=/usr/bin --mandir=/usr/share/man \
+              --docdir=/usr/share/doc/dosfstools --enable-compat-symlinks
    make
 }
 
 package () {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR=$pkgdir install
+   cd $pkgname-$pkgver
+   make DESTDIR="$pkgdir" install
 }
-

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=syntax-highlighting
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Syntax highlighting engine for structured text and code'
 arch=('x86_64')

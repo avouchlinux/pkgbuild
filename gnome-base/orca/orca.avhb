@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orca
-pkgver=46.1
+pkgver=47.0
 _srcname=${pkgname^^}_${pkgver/./_}
 pkgrel=1
 pkgdesc="Screen reader for individuals who are blind or visually impaired"

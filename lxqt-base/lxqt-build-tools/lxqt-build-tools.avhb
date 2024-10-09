@@ -1,27 +1,38 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxqt-build-tools
-pkgver=0.11.0
+pkgver=2.0.0
 pkgrel=1
 pkgdesc="lxqt build tools."
 arch=("any")
 groups=('lxqt-base')
-url="https://lxqt.org"
-license=("LGPL2.1")
-depends=("qt5-svg" "hicolor-icon-theme" "xdg-utils")
-makedepends=("cmake" "liblxqt" "qt5-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+url="https://github.com/lxqt/$pkgname"
+license=("BSD")
+depends=("cmake" "qt6-tools" "git" "perl")
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha256sums=('4599c47d1db35e0bb91e62b672e3fb7eb2ec1fb4dafcab94599b0156f54e7f07'
+            'SKIP')
+validpgpkeys=(
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # https://github.com/tsujan.gpg
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+	mkdir -p build
+	cd build
+	cmake "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+	make
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+	cd build
+	make DESTDIR="$pkgdir" install
+	install -Dm644 ../$pkgname-$pkgver/BSD-3-Clause -t "$pkgdir/usr/share/licenses/$pkgname"
 }

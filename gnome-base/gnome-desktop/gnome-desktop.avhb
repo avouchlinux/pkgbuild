@@ -8,8 +8,10 @@ pkgname=(
   gnome-desktop-common
   gnome-desktop
   gnome-desktop-4
+  gnome-desktop-docs
 )
-pkgver=44.0
+pkgver=44.1
+
 pkgrel=1
 epoch=1
 pkgdesc="Library with common API for various GNOME modules"
@@ -21,35 +23,35 @@ license=(
   GPL
   LGPL
 )
-makedepends=(
+depends=(
   bubblewrap
-  git
-  gobject-introspection
+  cairo
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
   gsettings-desktop-schemas
-  gtk-doc
-  gtk3
-  gtk4
   iso-codes
   libseccomp
   libxkbcommon
+  systemd-libs
+  xkeyboard-config
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  gtk3
+  gtk4
   meson
   systemd
-  xkeyboard-config
   yelp-tools
 )
+
 checkdepends=(xorg-server-xvfb)
-_commit=97c0344b3ba955bb6f6fe74ca03cc399a81acaa5  # tags/44.0^0
-source=("git+https://gitlab.gnome.org/GNOME/gnome-desktop.git#commit=$_commit")
-sha256sums=('SKIP')
-
-pkgver() {
-  cd $pkgbase
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd $pkgbase
-}
+source=("git+https://gitlab.gnome.org/GNOME/gnome-desktop.git#tag=${pkgver/[a-z]/.&}")
+b2sums=('22c8885f9c5bff5b14756d2f406b3830533a49e9412637ab0cbb20fcf8ac9ab8d6d50899e2a7846bdcf41da59e3985c1b8ee3e027101222a869ee4ba9f26d694')
 
 build() {
   local meson_options=(
@@ -78,15 +80,7 @@ _pick() {
 
 package_gnome-desktop-common() {
   pkgdesc+=" (common files)"
-  depends=(
-    bubblewrap
-    gsettings-desktop-schemas
-    iso-codes
-    libseccomp
-    libxkbcommon
-    systemd
-    xkeyboard-config
-  )
+  depends=()
 
   meson install -C build --destdir "$pkgdir"
 
@@ -103,12 +97,14 @@ package_gnome-desktop-common() {
   _pick gtk4 usr/lib/pkgconfig/gnome-*-4.pc
   _pick gtk4 usr/lib/girepository-1.0/Gnome*-4.0.typelib
   _pick gtk4 usr/share/gir-1.0/Gnome*-4.0.gir
+
+  _pick docs usr/share/gtk-doc
 }
 
 package_gnome-desktop() {
-  pkgdesc+=" (GTK3)"
-  depends=(
-    gnome-desktop-common="$epoch:$pkgver-$pkgrel"
+  pkgdesc+=" using GTK 3"
+  depends+=(
+    "gnome-desktop-common=$epoch:$pkgver-$pkgrel"
     gtk3
   )
   provides=(libgnome-desktop-3.so)
@@ -117,12 +113,19 @@ package_gnome-desktop() {
 }
 
 package_gnome-desktop-4() {
-  pkgdesc+=" (GTK4)"
-  depends=(
-    gnome-desktop-common="$epoch:$pkgver-$pkgrel"
+  pkgdesc+=" using GTK 4"
+  depends+=(
+    "gnome-desktop-common=$epoch:$pkgver-$pkgrel"
     gtk4
   )
   provides=(libgnome-{bg,desktop,rr}-4.so)
 
   mv gtk4/* "$pkgdir"
+}
+
+package_gnome-desktop-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv docs/* "$pkgdir"
 }

@@ -1,0 +1,104 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=dart
+pkgver=3.4.0
+_commit=3ce1c7c03b61eccf54312981cc4a5f1b4782809d # https://github.com/dart-lang/sdk/commits/stable/
+pkgrel=1
+pkgdesc='The dart programming language SDK'
+arch=('x86_64')
+groups=('dev-lang')
+url='https://dart.dev/'
+depends=('glibc')
+license=('BSD')
+makedepends=(
+  'dart'
+  'git'
+  'gn'
+  'ninja'
+  'python'
+  'python-httplib2'
+  'python-six'
+)
+source=(
+  "git+https://github.com/dart-lang/sdk.git#commit=$_commit"
+#   "https://github.com/dart-lang/sdk/archive/refs/tags/3.5.0-151.0.dev.tar.gz"
+#   "git+https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+  "DEPS.patch"
+)
+sha256sums=('727ae11757960ddbe1b3e43c0247c1f422eb1ddb464f50d6561d1f2e1508670b'
+            'SKIP'
+            'db6576a70c6719e26795b9824546058b79fefa64158c1002d36546d826084403')
+
+prepare() {
+cat >.gclient <<EOF
+solutions = [
+  {
+    "name": "sdk",
+    "url": "file://${srcdir}/sdk",
+    "deps_file": "DEPS",
+    "managed": False,
+    "custom_deps": {},
+    "custom_vars": {},
+  },
+]
+EOF
+
+  export PATH+=":$PWD/depot_tools" DEPOT_TOOLS_UPDATE=0
+
+  cd sdk
+
+  patch -Np 1 --input=$srcdir/DEPS.patch
+
+  python ../depot_tools/gclient.py sync -D \
+      --nohooks \
+      --no-history \
+      --shallow \
+      -r ${srcdir}/sdk@${_commit}
+
+  dart tools/generate_package_config.dart
+  python tools/generate_sdk_version_file.py
+
+  sed -i 's|prefix = rebased_clang_dir|prefix= ""|g' build/toolchain/linux/BUILD.gn # use system clang
+  sed -i 's|}/|}|g' build/toolchain/linux/BUILD.gn # use system clang
+  sed -i 's|rebase|#|g' build/toolchain/linux/BUILD.gn
+}
+
+build() {
+  cd sdk
+
+  # gn args --list out
+
+  /usr/bin/gn gen -qv out --args='
+                        target_cpu = "x64"
+                        is_debug = false
+                        is_release = true
+                        is_clang = false
+                        dart_platform_sdk = false
+                        verify_sdk_hash = false'
+  ninja create_sdk -v -C out
+}
+
+package() {
+  # cd to directory
+  cd sdk/out/
+
+  # Create directories
+  install -d "$pkgdir"{"/opt/$pkgname-sdk",/usr/{bin,"share/doc/$pkgname"}}
+
+  # Package the files
+  cp -a "$pkgname-sdk/"* "$pkgdir/opt/$pkgname-sdk/"
+
+  # Set up symbolic links for the executables
+  for f in dart dartaotruntime; do
+    ln -s "/opt/$pkgname-sdk/bin/$f" "$pkgdir/usr/bin/$f"
+  done
+
+  # Package documentation
+  install -Dm644 "$pkgdir/opt/$pkgname-sdk/README" -t "$pkgdir/usr/share/doc/$pkgname"
+
+  # BSD License
+  install -Dm644 ../LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

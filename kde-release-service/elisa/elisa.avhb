@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=elisa
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='A simple music player aiming to provide a nice experience for its users'
 url='https://community.kde.org/Elisa'
@@ -17,10 +17,11 @@ source=("https://download.kde.org/stable/$pkgname/$pkgver/$pkgname-$pkgver.tar.x
 validpgpkeys=(267BF70F7905C2723B0243267D0F74F05C22F553) # Matthieu Gallien <matthieu_gallien@yahoo.fr>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
-    -DBUILD_TESTING=OFF
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 

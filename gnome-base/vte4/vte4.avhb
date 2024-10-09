@@ -4,22 +4,57 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=vte4
+pkgname=(
+  vte-common
+  vte3
+  vte4
+  vte-docs
+)
 _realname=vte
-pkgname=(vte4 vte-common)
-pkgver=0.76.0
+pkgver=0.78.0
 pkgrel=1
 pkgdesc="Virtual Terminal Emulator widget for use with GTK3"
 url="https://wiki.gnome.org/Apps/Terminal/VTE"
 arch=('x86_64')
 groups=('gnome-base')
 license=(LGPL)
-options=(!emptydirs)
-depends=(gtk3 pcre2 gnutls fribidi)
-makedepends=(gobject-introspection vala git gtk-doc gperf meson)
+depends=(
+  cairo
+  fribidi
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnutls
+  icu
+  lz4
+  pango
+  pcre2
+  systemd
+  systemd-libs
+)
+makedepends=(
+  at-spi2-core
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  gperf
+  gtk3
+  gtk4
+  meson
+  vala
+)
+options=(!lto)
 source=(https://gitlab.gnome.org/GNOME/vte/-/archive/$pkgver/vte-$pkgver.tar.bz2)
 
 build() {
-  avouch-meson vte-$pkgver build -D docs=false -D b_lto=false
+  local meson_options=(
+    -D docs=true
+    -D b_lto=false
+  )
+
+  avouch-meson vte-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -27,17 +62,71 @@ check() {
   meson test -C build --print-errorlogs
 }
 
-package_vte4(){
-  depends+=(vte-common)
-
-  DESTDIR="$pkgdir" meson install -C build
-
-  mv "$pkgdir/etc/profile.d/vte.sh" "$srcdir"
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
 package_vte-common() {
-  pkgdesc="Common files used by vte and vte3"
-  depends=(sh)
+  pkgdesc+=" (common files)"
+  depends=(glibc)
 
-  install -Dt "$pkgdir/etc/profile.d" -m644 vte.sh
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick gtk3 usr/bin/vte-2.91
+  _pick gtk3 usr/include/vte-2.91
+  _pick gtk3 usr/lib/libvte-2.91.so*
+  _pick gtk3 usr/lib/pkgconfig/vte-2.91.pc
+  _pick gtk3 usr/lib/girepository-1.0/Vte-2.91.typelib
+  _pick gtk3 usr/share/gir-1.0/Vte-2.91.gir
+  _pick gtk3 usr/share/glade
+  _pick gtk3 usr/share/vala/vapi/vte-2.91.{deps,vapi}
+
+  _pick gtk4 usr/bin/vte-2.91-gtk4
+  _pick gtk4 usr/include/vte-2.91-gtk4
+  _pick gtk4 usr/lib/libvte-2.91-gtk4.so*
+  _pick gtk4 usr/lib/pkgconfig/vte-2.91-gtk4.pc
+  _pick gtk4 usr/lib/girepository-1.0/Vte-3.91.typelib
+  _pick gtk4 usr/share/gir-1.0/Vte-3.91.gir
+  _pick gtk4 usr/share/vala/vapi/vte-2.91-gtk4.{deps,vapi}
+
+  _pick docs usr/share/doc
+}
+
+
+package_vte3() {
+  pkgdesc+=" (GTK3)"
+  depends+=(
+    at-spi2-core
+    gtk3
+    vte-common
+  )
+  provides+=(libvte-2.91.so)
+
+  mv gtk3/* "$pkgdir"
+}
+
+package_vte4() {
+  pkgdesc+=" (GTK4)"
+  depends+=(
+    gtk4
+    vte-common
+  )
+  provides+=(libvte-2.91-gtk4.so)
+
+  mv gtk4/* "$pkgdir"
+}
+
+package_vte-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv docs/* "$pkgdir"
 }

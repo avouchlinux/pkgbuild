@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libavtp
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc="Open source implementation of Audio Video Transport Protocol"
 arch=('x86_64')
@@ -17,8 +17,7 @@ provides=('libavtp.so')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/Avnu/${pkgname}/archive/v${pkgver}.tar.gz")
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    --prefix=/usr
+  avouch-meson build $pkgname-$pkgver
   meson compile -C build
 }
 

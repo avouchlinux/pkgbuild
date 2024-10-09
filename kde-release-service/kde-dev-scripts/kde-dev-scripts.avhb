@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kde-dev-scripts
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='Scripts and setting files useful during development of KDE software'
 arch=('any')
@@ -23,7 +23,7 @@ build() {
   cmake ../$pkgname-$pkgver \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

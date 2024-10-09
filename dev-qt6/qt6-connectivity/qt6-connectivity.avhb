@@ -1,0 +1,38 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt6-connectivity
+pkgver=6.7.3
+pkgrel=1
+_realname="${pkgname/6-/}"
+_tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
+arch=(x86_64)
+groups=('dev-qt6')
+url='https://www.qt.io'
+license=(GPL3 LGPL3 FDL custom)
+pkgdesc='Provides access to Bluetooth hardware'
+depends=(bluez-libs
+         gcc-libs
+         glibc
+         pcsclite
+         qt6-base)
+makedepends=(cmake
+             git
+             ninja)
+source=("http://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver}/submodules/${_tarname}.tar.xz")
+sha256sums=('b1cd32942232faf136f2d2cce79d1b39798396ba30ebb03324d4b5425f2db7ac')
+
+build() {
+  cmake -B build -S $_tarname -G Ninja \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -d "$pkgdir"/usr/share/licenses
+  ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname
+}

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-panel-profiles
-pkgver=1.0.13
+pkgver=1.0.14
 pkgrel=1
 pkgdesc="Simple application to manage Xfce panel layouts"
 arch=('any')
@@ -18,7 +18,7 @@ source=("https://archive.xfce.org/src/apps/${pkgname}/${pkgver%.*}/${pkgname}-${
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
   ./configure --prefix=/usr --python=python
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

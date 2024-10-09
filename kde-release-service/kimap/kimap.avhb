@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kimap
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Job-based API for interacting with IMAP servers"
 arch=('x86_64')

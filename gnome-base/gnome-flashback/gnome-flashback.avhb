@@ -4,80 +4,115 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-flashback
-pkgver=3.52.0
+pkgver=3.52.1
 pkgrel=1
 pkgdesc="GNOME Flashback session"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://wiki.gnome.org/Projects/GnomeFlashback"
 license=('GPL-3.0-or-later')
-depends=('alsa-lib' 'at-spi2-core' 'bash' 'cairo' 'dconf' 'gcc-libs' 'gdk-pixbuf2' 'glib2' 'glibc'
-         'gnome-bluetooth-3.0' 'gnome-desktop' 'gnome-panel' 'gnome-session'
-         'gnome-settings-daemon' 'gsettings-desktop-schemas' 'gtk3' 'libcanberra' 'libgdm'
-         'libibus' 'libpulse' 'libx11' 'libxcb' 'libxext' 'libxfixes' 'libxi' 'libxkbfile'
-         'libxrandr' 'libxxf86vm' 'metacity' 'nautilus' 'pam' 'pango' 'polkit' 'systemd-libs')
-makedepends=('python')
+depends=(
+  alsa-lib
+  at-spi2-core
+  bash
+  cairo
+  dconf
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-bluetooth-3.0
+  gnome-desktop
+  gnome-panel
+  gnome-session
+  gnome-settings-daemon
+  gsettings-desktop-schemas
+  gtk3
+  libcanberra
+  libgdm
+  libibus
+  libpulse
+  libx11
+  libxcb
+  libxext
+  libxfixes
+  libxi
+  libxkbfile
+  libxrandr
+  libxxf86vm
+  metacity
+  nautilus
+  pam
+  pango
+  polkit
+  systemd-libs
+)
+makedepends=(
+  autoconf-archive
+  git
+  glib2-devel
+)
 optdepends=('gnome-backgrounds: Default background'
             'gnome-control-center: System settings'
             'network-manager-applet: Network management')
 source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
-        '0001-background-Support-dark-wallpapers.patch'
-        '0001-polkit-Don-t-reset-the-idle_id.patch'
-        '0001-application-honor-color-scheme-setting.patch'
-        '0001-theme-improve-screensaver-style.patch'
-        '0001-autostart-add-launcher-for-Geoclue-Demo-agent.patch'
-        '0001-menus-Add-new-Science-category.patch'
-        '0001-theme-Add-drop-shadow-for-desktop-icon-labels.patch'
-        '0001-notifications-Allow-configuration-of-notification-lo.patch'
-        'gnome-flashback.pam')
-sha256sums=('d04c434822022c9fa7e60874e5c8cd2060c8f3c0703c19f2b4032be254272afe'
-            'f02afd29538555ab408085c60d8a7139f34fa639add7cd4c3c08a236dc027dc8'
-            'c5e4f4cab9d7c2f34e7ee2adfa5ff9228c6313011efdc927cb49a12dc4f4d8c8'
-            '56d008682e0290ebfb2c16e0d42bcb3e1a022db3488ce33dd1a751c3f4dcbdc3'
-            '095a05c12ca0689149f9c9543ebea2229c62755a85be35b34087437dbbfe31a3'
-            '4cfe7f5b5bb103b3ee9bcc043a3543e8d9bdcc7b5578487ea7deb2f8a544c9ff'
-            '76a574b57fd59a9bccedecac0d8c4bdfa5aaa6232bf9562991810443b828100a'
-            '8d2b272739ac485abba624179b7f5caa3bee81150251be750096ecb397d4b33a'
-            '4469e7a17874eabb6192c806b8344e1f1c2a9d7abf472069be6b177a2e268d1f'
-            '7148b3b1773fa312d6cd14798338cc70cffb6df7504ff1787687edd0363138d2')
+       0001-background-Support-dark-wallpapers.patch
+  0001-application-honor-color-scheme-setting.patch
+  0001-theme-improve-screensaver-style.patch
+  0001-Set-default-icon-theme-to-GnomeFlashback.patch
+  gnome-flashback-65.patch
+  gnome-flashback.pam
+  gnome-flashback.theme
+)
+b2sums=(
+  3292fa67e6ffcad086e49310f222f623cc4af3d8dc9f591aa5b2e90466a6bb0e5544a4916962ccfe6e805216e87e41657023a073b9c9fe5b0b5e1d0e5dba79b0
+  SKIP
+  06cb62493ea6e5cf17b685fc87f6173462c52a4ac227c08c783f14b995899f7bdcb45648406976fe57e3135ba4eb08b8b3e4abe8a4adf8576cf89483f53db4ea
+  c63a2b183ff4404e46a84327f7900c8dc0962bd1b957b45ce030b83c8b3c52729cca650601e6e36143e4f2398af06c4e0f58af38ee7a46729eb2dc3157b7e62d
+  7b2f63fa917ba712119d96cbce5c0d37174344a61feabd9b9cbc3038b723440a366bbbc38c3e529d2ac69bb01aa4e6e605f39513252c059dc072b9319b0b0a54
+  b3e4e272633915c03f8bee4dd716cae5a13275de09a0b84ffe9c90719831101dd899f69487605a11d2d12743cce11eed84c0623befdf2b5ae7cc97f1669a63e2
+  6e59fd668926ec7d4273073d1079c2b5ddbdf813424d5b961130481329ff525f3baf2a51c71db17f2cf690d2dd45aca03b9629913b3ad0eaad26d9631f61e067
+  214a01d01d3bee526bf3d856758f56fc51e77dacc8feaefee27221924abacdb3828d4269e5fa6773abec728a563478588d705996da6afbd0693d456631f01eb5
+  24464e0485c0f316ebb933e761ba992242e4be92e4256fd96b5a59d9dc3bb0243cfec631f5b6b7ff71421aaaa3249fecec0356b9128bdbcc15a7f4101792b4bc
+)
+validpgpkeys=(7B44FD78E49334EC10B3B288A3D013EC303E1894) # Alberts Muktupāvels <alberts.muktupavels@gmail.com>
 
 prepare() {
   cd $pkgname-$pkgver
 
-  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/51
-  patch -Np1 -i ../0001-background-Support-dark-wallpapers.patch
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/63
+  git cherry-pick -n 86a73ccfc534e08e2513fbc95420bbed9f53ce73
 
   # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/52
-  patch -Np1 -i ../0001-polkit-Don-t-reset-the-idle_id.patch
+  git cherry-pick -n c5ea4f999ec563e2df674d77b5f92daecc28a110
+
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/51
+  git apply -3 ../0001-background-Support-dark-wallpapers.patch
 
   # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/53
-  patch -Np1 -i ../0001-application-honor-color-scheme-setting.patch
+  git apply -3 ../0001-application-honor-color-scheme-setting.patch
 
   # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/54
-  patch -Np1 -i ../0001-theme-improve-screensaver-style.patch
+  git apply -3 ../0001-theme-improve-screensaver-style.patch
 
-  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/55
-  patch -Np1 -i ../0001-autostart-add-launcher-for-Geoclue-Demo-agent.patch
+  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/65
+  git apply -3 ../gnome-flashback-65.patch
 
-  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/56
-  patch -Np1 -i ../0001-menus-Add-new-Science-category.patch
+  # Set default icon theme to GnomeFlashback
+  git apply -3 ../0001-Set-default-icon-theme-to-GnomeFlashback.patch
 
-  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/57
-  patch -Np1 -i ../0001-theme-Add-drop-shadow-for-desktop-icon-labels.patch
-
-  # https://gitlab.gnome.org/GNOME/gnome-flashback/-/merge_requests/59
-  patch -Np1 -i ../0001-notifications-Allow-configuration-of-notification-lo.patch
-
-  # Regenerate resources file
-  rm gnome-flashback/gf-resources.{c,h}
-
-  # Recreate autotools
   autoreconf -fi
 }
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --libexecdir=/usr/lib \
+    --disable-debug \
+    --enable-compile-warnings
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
 }
@@ -88,4 +123,7 @@ package() {
 
   # Install pam file for the screensaver
   install -Dm644 ../gnome-flashback.pam "$pkgdir/etc/pam.d/gnome-flashback"
+
+  # Install custom icon theme to workaround the broken theme inheritance in GTK
+  install -Dm644 ../gnome-flashback.theme "$pkgdir/usr/share/icons/GnomeFlashback/index.theme"
 }

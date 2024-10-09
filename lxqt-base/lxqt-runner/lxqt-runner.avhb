@@ -1,27 +1,39 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxqt-runner
-pkgver=1.1.0
+pkgver=2.0.0
 pkgrel=1
 pkgdesc="The LXQt application launcher"
 arch=("x86_64")
 groups=('lxqt-base')
-url="http://lxqt.org"
+url="https://github.com/lxqt/$pkgname"
 license=("LGPL2.1")
-depends=("lxqt-common" "lxqt-globalkeys" "menu-cache" "qt5-script")
-makedepends=("cmake" "qt5-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+depends=("lxqt-globalkeys" "muparser" "libQt6Xdg.so" "layer-shell-qt")
+makedepends=("lxqt-build-tools")
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha256sums=('9f8031d780304d1c3b2c9b56a27744341c5e81d7cf2155bac959eaa6929e949c'
+            'SKIP')
+validpgpkeys=(
+	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
+	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
+)
+
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+	cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_BUILD_TYPE=None \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+	cd build
+	make DESTDIR="$pkgdir" install
 }

@@ -1,27 +1,33 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qps
-pkgver=2.5.0
+pkgver=2.9.0
 pkgrel=1
 pkgdesc="A visual process manager, an X11 version of 'top' or 'ps'."
 arch=("x86_64")
 groups=('lxqt-base')
-url="https://github.com/QtDesktop/qps"
-depends=('qt5-base' 'qt5-x11extras')
-makedepends=('cmake')
 license=("GPL")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz
-	"qps.desktop")
+url="https://github.com/QtDesktop/qps"
+depends=('hicolor-icon-theme' 'liblxqt' 'qt6-base')
+makedepends=('lxqt-build-tools')
+source=("https://github.com/lxqt/qps/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"{,.asc})
+sha256sums=('c7d6233f1efd50545132a6999de70912c07c1f453f11316b6d642bc5f5b2d573'
+            'SKIP')
+validpgpkeys=(
+  "19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # https://github.com/tsujan.gpg
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+  cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  cd build
+  make DESTDIR="$pkgdir" install
 }

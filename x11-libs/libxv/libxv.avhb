@@ -1,27 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxv
 _realname=libXv
-pkgver=1.0.11
+pkgver=1.0.12
 pkgrel=1
 pkgdesc="X11 Video extension library"
 arch=('x86_64')
 groups=('x11-libs')
 license=('custom')
-url="http://xorg.freedesktop.org/"
-depends=('libxext' 'videoproto')
-makedepends=('pkgconfig')
-source=("${url}/releases/individual/lib/libXv-${pkgver}.tar.bz2")
+url="https://xorg.freedesktop.org/"
+depends=('libxext')
+makedepends=('xorgproto')
+source=(${url}/releases/individual/lib/libXv-${pkgver}.tar.xz{,.sig})
+sha512sums=('bdd00de1ce6a8911056181ab4de32f9e319a68567389162d4bc2e3c9946d5f3c60f87eb6c53f74c9b6a342255e591d5fef4a445a4ac8ca3c1b6fe87d42c51c1e'
+            'SKIP')
+#validpgpkeys=('C41C985FDCF1E5364576638B687393EE37D128F8') # Matthieu Herrb <matthieu.herrb@laas.fr>
+validpgpkeys+=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  cd libXv-${pkgver}
+  ./configure --prefix=/usr --disable-static 
+  make
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd libXv-${pkgver}
+  make DESTDIR="${pkgdir}" install
+
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

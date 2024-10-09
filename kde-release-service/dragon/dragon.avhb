@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dragon
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc='A multimedia player where the focus is on simplicity, instead of features'
 arch=('x86_64')
@@ -17,22 +17,16 @@ source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgve
 install=$pkgname.install
 md5sums=('d62f7d2cfa3a87a01e69787c3eeef448')
 
-prepare() {	
-	mkdir -p ${srcdir}/build
-}
-
 build() {
-	cd ${srcdir}/build
-	cmake ../$pkgname-$pkgver \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DKDE_INSTALL_USE_QT_SYS_PATHS=ON
-	make ${MAKEFLAGS}
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	cd ${srcdir}/build
-	make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }
 

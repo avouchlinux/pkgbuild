@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-tweaks
-pkgver=46.0
+pkgver=46.1
 pkgrel=1
 pkgdesc="Graphical interface for advanced GNOME 3 settings (Tweak Tool)"
 url="https://wiki.gnome.org/Apps/Tweaks"
@@ -25,7 +25,10 @@ depends=(
   python
   python-gobject
 )
-makedepends=(meson)
+makedepends=(
+  git
+  meson
+)
 source=("https://gitlab.gnome.org/GNOME/gnome-tweaks/-/archive/$pkgver/gnome-tweaks-$pkgver.tar.bz2")
 
 build() {

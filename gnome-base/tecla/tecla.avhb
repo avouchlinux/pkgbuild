@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tecla
-pkgver=46.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="Keyboard layout viewer"
 url="https://gitlab.gnome.org/GNOME/tecla"
@@ -12,7 +12,9 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL3)
 depends=(
+  gcc-libs
   glib2
+  glibc
   gtk4
   hicolor-icon-theme
   libadwaita

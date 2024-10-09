@@ -1,16 +1,16 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=glusterfs
 epoch=1
-pkgver=9.4
+pkgver=11.1
 pkgrel=1
+_major=${pkgver%%.*}
 pkgdesc='a cluster file-system capable of scaling to several peta-bytes.'
 arch=('x86_64')
 groups=('sys-cluster')
-url='https://www.gluster.org/'
 license=(GPL2 LGPL3)
 install=glusterfs.install
 backup=('etc/glusterfs/glusterd.vol'
@@ -20,13 +20,14 @@ backup=('etc/glusterfs/glusterd.vol'
         'etc/glusterfs/glusterd.vol'
         'etc/glusterfs/glusterfs-georep-logrotate'
         'etc/glusterfs/glusterfs-logrotate')
-depends=(fuse python libxml2 libaio liburcu attr rpcbind)
+depends=(fuse python libxml2 libaio liburcu attr rpcbind liburing gperftools)
 makedepends=(rpcsvc-proto)
 optdepends=('glib2: qemu-block'
 	    'python-prettytable: gluster-georep-sshkey')
-#source=($pkgname-$pkgver.tar.gz::https://github.com/gluster/glusterfs/archive/v$pkgver.tar.gz)
-source=(https://download.gluster.org/pub/gluster/glusterfs/LATEST/glusterfs-$pkgver.tar.gz
+source=(https://download.gluster.org/pub/gluster/glusterfs/${_major}/$pkgver/glusterfs-$pkgver.tar.gz
         glusterfs.sysusers)
+sha256sums=('6a31b8450d02cd12f47f4571c031e9d6b8705279a0e8970ae9a05e1c87dffb76'
+            'a470d07aedb2674adfb295b4775e490b48816b87974946da4dcf62aa0d72108a')
 
 prepare() {
   cd "$srcdir"/$pkgname-$pkgver
@@ -47,7 +48,7 @@ build() {
     --with-tmpfilesdir=/usr/lib/tmpfiles.d \
     --enable-gnfs \
     LEXLIB=
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -4,19 +4,21 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=go
-pkgver=1.18.1
+pkgver=1.22.3
 _realname=go$pkgver.src
 pkgrel=1
 arch=('x86_64')
 groups=(dev-compiler)
 groups=('dev-compiler')
-url='http://golang.org/'
-license=(BSD)
-makedepends=(git go perl)
-# Important do not strib
+license=(BSD-3-Clause)
+makedepends=(git go)
+replaces=(go-pie)
+provides=(go-pie)
 options=(!strip staticlibs)
-source=(https://storage.googleapis.com/golang/go$pkgver.src.tar.gz
-        default-buildmode-pie.patch)
+source=(https://go.dev/dl/go${pkgver}.src.tar.gz{,.asc})
+validpgpkeys=('EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796')
+sha256sums=('80648ef34f903193d72a59c0dff019f5f98ae0c9aa13ade0b0ecbff991a76f68'
+            'SKIP')
 
 build() {
   export GOARCH=amd64
@@ -32,7 +34,7 @@ check() {
   export GO_TEST_TIMEOUT_SCALE=3
 
   cd $pkgname/src
-  # ./run.bash --no-rebuild -v -v -v -k
+#   ./run.bash --no-rebuild -v -v -v -k
 }
 
 package() {
@@ -42,6 +44,11 @@ package() {
     "$pkgdir/usr/lib/go/pkg/linux_amd64_"{dynlink,race}
 
   cp -a bin pkg src lib misc api test "$pkgdir/usr/lib/go"
+  # We can't strip all binaries and libraries,
+  # as that also strips some testdata directories and breaks the tests.
+  # Just strip the packaged binaries as a compromise.
+  strip $STRIP_BINARIES "$pkgdir/usr/lib/go"{/bin/*,/pkg/tool/*/*}
+
   cp -r doc/* "$pkgdir/usr/share/doc/go"
 
   ln -sf /usr/lib/go/bin/go "$pkgdir/usr/bin/go"
@@ -53,7 +60,10 @@ package() {
   rm -rf "$pkgdir/usr/lib/go/pkg/bootstrap" "$pkgdir/usr/lib/go/pkg/tool/*/api"
 
   # TODO: Figure out if really needed
-  rm -rf "$pkgdir"/usr/lib/go/pkg/obj/go-build/*
+  rm -rf "$pkgdir"/usr/lib/go/pkg/obj/go-build
+
+  # https://github.com/golang/go/issues/57179
+  install -Dm644 go.env "$pkgdir/usr/lib/go/go.env"
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

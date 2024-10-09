@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kalzium
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Periodic Table of Elements"
 url="http://kde.org/applications/education/kalzium/"
@@ -16,17 +16,14 @@ source=("http://download.kde.org/stable/applications/${pkgver}/src/kalzium-${pkg
 sha1sums=('ca68516e652e5adeb74ea11f51c3ed71859dd42c')
 
 build() {
-  mkdir -p build
-  cd build
-  cmake ../kalzium-${pkgver} \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DKDE4_BUILD_TESTS=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }

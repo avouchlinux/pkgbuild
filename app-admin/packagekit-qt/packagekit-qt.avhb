@@ -1,0 +1,53 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=packagekit-qt
+pkgname=(packagekit-qt5
+         packagekit-qt6)
+_realname=PackageKit-Qt
+pkgver=1.1.2
+pkgrel=1
+pkgdesc='Qt5 bindings for PackageKit'
+arch=('x86_64')
+groups=('app-admin')
+url='http://www.packagekit.org/'
+license=(LGPL-2.1-only)
+depends=(gcc-libs
+         glibc
+         packagekit)
+makedepends=(cmake
+             git
+             qt5-base
+             qt6-base)
+source=(git+https://github.com/PackageKit/PackageKit-Qt#tag=v$pkgver?signed)
+sha256sums=('b3f004d03d3ccc9798e6f4fb19c8f3ebe1d47862df197aa3a497a1b3632a94fa')
+validpgpkeys=('163EB50119225DB3DF8F49EA17ACBA8DFA970E17'  # Richard Hughes <richard@hughsie.com>
+              'D33A3F0CA16B0ACC51A60738494C8A5FBF4DECEB'  # Matthias Klumpp <matthias@tenstral.net>
+              '70C26659D184ABC01FFAF45228DDEDC6E4480AD0') # Daniel Nicoletti <dantti12@gmail.com>
+
+build() {
+  cmake -B build-qt5 -S PackageKit-Qt \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build-qt5
+
+  cmake -B build-qt6 -S PackageKit-Qt \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_WITH_QT6=ON
+  cmake --build build-qt6
+}
+
+package_packagekit-qt5() {
+  pkgdesc='Qt5 bindings for PackageKit'
+  depends+=(qt5-base)
+
+  DESTDIR="$pkgdir" cmake --install build-qt5
+}
+
+package_packagekit-qt6() {
+  pkgdesc='Qt6 bindings for PackageKit'
+  depends+=(qt6-base)
+
+  DESTDIR="$pkgdir" cmake --install build-qt6
+}

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-session
-pkgver=46.0
+pkgver=47.0.1
 pkgrel=1
 pkgdesc="The GNOME Session Handler"
 url="https://gitlab.gnome.org/GNOME/gnome-session"
@@ -12,18 +12,31 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL-2.0-or-later)
 depends=(
+  bash
   dconf
+  gcc-libs
+  glib2
+  glibc
   gnome-desktop
+  gnome-keyring
   gsettings-desktop-schemas
+  gtk3
   json-glib
+  libepoxy
   libgl
+  libice
   libsm
+  libx11
+  libxcomposite
   libxtst
   systemd
+  systemd-libs
+  xdg-desktop-portal-gnome
 )
 makedepends=(
   docbook-xsl
   git
+  glib2-devel
   gtk-doc
   mesa
   meson

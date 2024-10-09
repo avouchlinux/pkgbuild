@@ -3,21 +3,51 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gcr
-pkgver=4.3.0
+pkgbase=gcr
+pkgname=(
+  gcr
+  gcr-docs
+)
+pkgver=3.41.2
 pkgrel=1
 pkgdesc="A library for bits of crypto UI and parsing"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://gitlab.gnome.org/GNOME/gcr"
-license=('GPL2')
-depends=(dconf gtk3 libgcrypt p11-kit)
-makedepends=(intltool gobject-introspection python vala libxslt git gtk-doc)
+license=(LGPL-2.1-or-later)
+depends=(
+  cairo
+  dconf
+  gdk-pixbuf2
+  glib2
+  glibc
+  gtk3
+  hicolor-icon-theme
+  libgcrypt
+  libp11-kit
+  libsecret
+  openssh
+  pango
+)
+makedepends=(
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  libxslt
+  meson
+  vala
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    meson compile -C build
+  local meson_options=(
+    # ssh-agent moved to gcr-4
+    -D ssh_agent=false
+  )
+
+  avouch-meson gcr-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
@@ -25,12 +55,22 @@ check() {
   dbus-run-session meson test -C build --print-errorlogs || :
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
-	
-	# gcr wants to lock some memory to prevent swapping out private keys
-	# https://bugzilla.gnome.org/show_bug.cgi?id=688161
-	install -Dm644 /dev/stdin "$pkgdir/etc/security/limits.d/10-gcr.conf" <<END
-@users - memlock 1024
-END
+package_gcr() {
+  provides=(
+    libgck-1.so
+    libgcr-{base,ui}-3.so
+  )
+  install=gcr.install
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_gcr-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

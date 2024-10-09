@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libkeduvocdocument
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Common libraries for KDE Edu applications"
 url="http://kde.org/applications/education"

@@ -1,0 +1,38 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ayatana-ido
+pkgver=0.10.4
+pkgrel=1
+pkgdesc='Ayatana Indicator Display Objects'
+arch=(x86_64)
+groups=('x11-libs')
+url='https://github.com/AyatanaIndicators/ayatana-ido'
+license=(LGPL-2.1-or-later
+         LGPL-3.0-or-later)
+depends=(cairo
+         gdk-pixbuf2
+         glib2
+         glibc
+         gtk3
+         pango)
+makedepends=(cmake
+             git
+             glib2-devel
+             gtest
+             gobject-introspection
+             vala)
+source=(git+https://github.com/AyatanaIndicators/$pkgname#tag=$pkgver)
+sha256sums=('7358770ad5aca5d8a2c389a48c83a9f694ddd28034390da7042277d5c92a6538')
+
+build() {
+  cmake -B build -S $pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr  
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

@@ -4,22 +4,47 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-autoar
-pkgver=0.4.4
+pkgver=0.4.5
 pkgrel=1
 pkgdesc="Automatic archives creating and extracting library"
 url="https://wiki.gnome.org/TingweiLan/GSoC2013Final"
 arch=(x86_64)
 groups=('gnome-base')
 license=(LGPL)
-depends=(glib2 libarchive gtk3)
-makedepends=(intltool meson gobject-introspection gtk-doc vala autoconf-archive)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  gtk3
+  libarchive
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+provides=(libgnome-autoar{,-gtk}-${pkgver%%.*}.so)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    ninja -C build
+    local meson_options=(
+    -D gtk_doc=true
+    -D tests=true
+    -D vapi=true
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

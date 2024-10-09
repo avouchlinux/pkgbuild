@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kfind
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Find Files/Folders"
 arch=('x86_64')

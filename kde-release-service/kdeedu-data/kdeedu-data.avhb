@@ -3,7 +3,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdeedu-data
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 pkgdesc="Common data for KDE Edu applications"
 url="http://kde.org/applications/education"
@@ -15,19 +15,15 @@ makedepends=('extra-cmake-modules' 'qt5-base')
 source=("http://download.kde.org/stable/applications/${pkgver}/src/$pkgname-${pkgver}.tar.xz")
 sha1sums=('3c3fb41e2bc310a5944cf8318a4f1c2b5cc12719')
 
-prepare() {
-  mkdir -p build
-}
-
 build() {
-  cd build
-  cmake ../$pkgname-${pkgver} \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd "${srcdir}"/build
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }

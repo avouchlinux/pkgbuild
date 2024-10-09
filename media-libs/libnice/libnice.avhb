@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libnice
-pkgver=0.1.18
+pkgver=0.1.22
 pkgrel=1
 pkgdesc="An implementation of the IETF's draft ICE (for p2p UDP data streams)"
 arch=('x86_64')
@@ -12,15 +12,46 @@ groups=('media-libs')
 url="https://nice.freedesktop.org"
 license=('LGPL')
 depends=('glib2')
-makedepends=('gstreamer' 'gtk-doc' 'meson')
-optdepends=('gstreamer')
-source=("https://libnice.freedesktop.org/releases/$pkgname-$pkgver.tar.gz")
+depends=(
+  glib2
+  gnutls
+  gupnp-igd
+)
+makedepends=(
+  git
+  gobject-introspection
+  graphviz
+  gstreamer
+  gtk-doc
+  meson
+)
+optdepends=('gstreamer: "nice" GStreamer plugin')
+provides=(libnice.so)
+_commit=ae3eb16fd7d1237353bf64e899c612b8a63bca8a  # tags/0.1.22^0
+source=("git+https://gitlab.freedesktop.org/libnice/libnice.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd libnice
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd libnice
+
+  # GUPnP-IGD 1.6
+  sed -i 's/gupnp-igd-1\.0/gupnp-igd-1.6/' meson.build
+}
 
 build() {
-	avouch-meson $pkgname-$pkgver build
-	meson compile -C build
+  avouch-meson libnice build -D gtk_doc=enabled
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

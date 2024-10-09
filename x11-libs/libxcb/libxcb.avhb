@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxcb
-pkgver=1.16.1
+pkgver=1.17.0
 pkgrel=1
 pkgdesc="X11 client-side library"
 arch=('x86_64')
@@ -22,7 +22,7 @@ validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <a
 
 build() {
   cd "$pkgname-$pkgver"
-  export LNAG="en_US"
+  export LANG=en_US.UTF-8
   ./configure --prefix=/usr \
     --enable-xinput \
     --enable-xkb \

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfconf
-pkgver=4.16.0
+pkgver=4.18.3
 pkgrel=1
 pkgdesc="A simple client-server configuration storage and query system"
 arch=('x86_64')
@@ -28,7 +28,7 @@ build() {
 		--enable-gtk-doc \
 		--with-perl-options=INSTALLDIRS="vendor" \
 		--disable-debug
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

@@ -9,12 +9,12 @@
 pkgbase=gcc
 pkgname=(gcc gcc-libs lib32-gcc-libs gcc-ada gcc-d gcc-fortran gcc-go gcc-objc lto-dump libgccjit)
 _pkgver=14
-pkgver=14.0.1
+pkgver=14.2.0
 #_majorver=${pkgver:0:2}
 _majorver=${pkgver%%.*}
 pkgrel=1
 _islver=0.26
-_snapshot=20240128
+# _snapshot=20240128
 pkgdesc='The GNU Compiler Collection'
 arch=('x86_64')
 groups=('dev-compiler')
@@ -43,7 +43,8 @@ checkdepends=(
 options=(!emptydirs !lto)
 
 
-source=(https://gcc.gnu.org/pub/gcc/snapshots/LATEST-$_majorver/gcc-$_majorver-$_snapshot.tar.xz
+source=(# https://gcc.gnu.org/pub/gcc/snapshots/LATEST-$_majorver/gcc-$_majorver-$_snapshot.tar.xz
+        https://gcc.gnu.org/pub/gcc/releases/$pkgbase-$pkgver/$pkgbase-$pkgver.tar.xz
         c89 c99)
 validpgpkeys=(F3691687D867B81B51CE07D9BBE43771487328A9  # bpiotrowski@archlinux.org
               86CFFCA918CF3AF47147588051E8B148A9999C34  # evangelos@foutrelis.com

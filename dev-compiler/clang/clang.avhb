@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=clang
-pkgver=17.0.6
+pkgver=19.1.1
 pkgrel=1
 pkgdesc="C language family frontend for LLVM"
 arch=('x86_64')

@@ -4,7 +4,7 @@
 
 pkgbase=kate
 pkgname=(kwrite kate)
-pkgver=23.08.1
+pkgver=24.08.1
 pkgrel=1
 arch=('x86_64')
 groups=('kde-apps')
@@ -27,7 +27,7 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DKDE_INSTALL_LIBDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  make
 }
 
 package_kwrite() {

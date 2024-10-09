@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdevelop
-pkgver=23.08.1
+pkgver=24.08.1
 _clangver=13.0.0
 pkgrel=1
 pkgdesc='C++ IDE using KDE technologies'

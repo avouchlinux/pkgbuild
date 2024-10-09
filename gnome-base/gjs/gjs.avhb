@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gjs
-pkgver=1.80.2
+pkgver=1.82.0
 pkgrel=1
 epoch=2
 pkgdesc="Javascript Bindings for GNOME"
@@ -12,9 +12,31 @@ url="https://wiki.gnome.org/Projects/Gjs"
 arch=('x86_64')
 groups=('gnome-base')
 license=(GPL)
-depends=(cairo gobject-introspection-runtime mozjs78 gtk3)
-makedepends=(gobject-introspection autoconf-archive meson)
-checkdepends=(valgrind xorg-server-xvfb)
+depends=(
+  cairo
+  dconf
+  gcc-libs
+  glib2
+  glibc
+  gobject-introspection-runtime
+  js128
+  libffi
+  libgirepository
+  libsysprof-capture
+  libx11
+  readline
+)
+makedepends=(
+  dbus
+  git
+  gobject-introspection
+  meson
+)
+checkdepends=(
+  gtk3
+  gtk4
+  xorg-server-xvfb
+)
 source=(http://ftp.gnome.org/pub/gnome/sources/gjs/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 
 build() {

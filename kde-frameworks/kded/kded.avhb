@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kded
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Extensible deamon for providing system level services'
 arch=('x86_64')

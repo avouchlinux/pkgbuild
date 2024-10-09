@@ -1,18 +1,28 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdesu
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Integration with su for elevated privileges'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://projects.kde.org/projects/frameworks/kdesu'
 license=('LGPL')
-depends=('kservice' 'kpty')
-makedepends=('extra-cmake-modules' 'python')
+depends=(gcc-libs
+         glibc
+         kconfig
+         kcoreaddons
+         ki18n
+         kpty
+         libx11
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             qt6-doc
+             qt6-tools)
 source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
 
 build() {
@@ -27,7 +37,4 @@ build() {
 
 package() {	
 	DESTDIR="${pkgdir}" ninja -C build install
-	
-	chown :nobody "${pkgdir}"/usr/lib/kf5/kdesud
-	chmod g+s "${pkgdir}"/usr/lib/kf5/kdesud
 }

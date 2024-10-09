@@ -30,12 +30,12 @@ build() {
 	./configure --prefix=/usr --sysconfdir=/etc \
 	--libexecdir=/usr/lib/notification-daemon-1.0 \
 	--localstatedir=/var --disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 check() {
 	cd ${srcdir}/${pkgname}-${pkgver}
-	make ${MAKEFLAGS} check
+	make check
 }
 
 package() {

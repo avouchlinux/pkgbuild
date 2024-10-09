@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gyp
-pkgver=20191203.e87d37d6
+pkgver=20240207.1615ec32
 pkgrel=1
 pkgdesc='"Generate Your Projects" Meta-Build system'
 arch=(any)
@@ -28,21 +28,15 @@ pkgver() {
 
 prepare() {
   cd $pkgname
-
-  # Python 3 fixes from Fedora
-  patch -Np1 -i ../gyp-fips.patch
-  patch -Np1 -i ../gyp-fix-cmake.patch
-  patch -Np1 -i ../gyp-python38.patch
-  patch -Np1 -i ../gyp-python39.patch
 }
 
 build() {
   cd $pkgname
-  python3 setup.py build
+  python setup.py build
 }
 
 package() {
   cd $pkgname
-  python3 setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  python setup.py install --root="$pkgdir" --optimize=1 --skip-build
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE
 }

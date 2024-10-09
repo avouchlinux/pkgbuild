@@ -1,35 +1,37 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxd
-pkgver=5.0.0
+pkgver=5.21.0
 pkgrel=1
 pkgdesc="Daemon based on liblxc offering a REST API to manage containers"
 arch=('x86_64')
 groups=('app-containers')
-url="https://linuxcontainers.org/lxd"
-license=('APACHE')
-depends=('lxc' 'lxcfs' 'squashfs-tools' 'dnsmasq' 'dqlite' 'libuv' 'ebtables')
+url="https://ubuntu.com/lxd"
+license=('AGPL-3.0')
+depends=('lxc' 'lxcfs' 'squashfs-tools' 'dnsmasq' 'dqlite' 'libuv' 'ebtables' 'raft' 'sqlite' 'libcap' 'acl')
 makedepends=('go' 'git' 'tcl' 'apparmor' 'libseccomp' 'systemd')
 optdepends=(
-    'lvm2: for lvm2 support'
-    'thin-provisioning-tools: for thin provisioning support'
-    'btrfs-progs: for btrfs storage driver support'
-    'ceph: for ceph storage driver support'
+    'lvm2: lvm2 support'
+    'thin-provisioning-tools: thin provisioning support'
+    'btrfs-progs: btrfs storage driver support'
+    'minio: storage buckets support'
     'cdrtools: VM support'
     'qemu: VM support'
-    'ovmf: VM support'
+    'edk2-ovmf: VM support'
     'systemd-libs: unix device hotplug support'
     'apparmor: apparmor support'
 )
-source=("https://linuxcontainers.org/downloads/${pkgname}/${pkgname}-${pkgver}.tar.gz"{,.asc}
+options=('!debug')
+source=("https://github.com/canonical/lxd/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc}
         "lxd.socket"
         "lxd.service"
         "lxd.sysusers")
-validpgpkeys=('602F567663E593BCBD14F338C638974D64792D67')
-sha256sums=('a99b7edfb52c8195b2de4988844d32d73be6426f6cff28408250517b238fdef9'
+validpgpkeys=('602F567663E593BCBD14F338C638974D64792D67'  # Stéphane Graber <stgraber@stgraber.org>
+              'ED1CA1E7A6F80E22E5CB2DA84ACE106615754614') # Thomas Parrott <tomp@tomp.uk>
+sha256sums=('be787ef099b83a583e55d00fa466e82d26c285d9f0b14f38220cb319ee25b60f'
             'SKIP'
             'b89a725223ef72b25eab25184084d069af312f8c23612c57fdb75427a510232e'
             '102d1d54186e0fc606a58f030231d76df6bd662b16dfd8f946e1f48e2b473b54'
@@ -44,13 +46,13 @@ prepare() {
 
 build() {
   cd "$pkgname-$pkgver"
-  disable_ld_gold
 
   export GOFLAGS="-buildmode=pie -trimpath"
   export CGO_LDFLAGS_ALLOW="-Wl,-z,now"
 
+  CGO_LDFLAGS="-static" go build -v -tags "agent" -o bin/ ./lxd-agent/...
+
   go build -v -tags "netgo" -o bin/ ./lxd-migrate/...
-  CGO_LDFLAGS="$CGO_LDFLAGS -static" go build -v -tags "agent" -o bin/ ./lxd-agent/...
   for tool in fuidshift lxc lxc-to-lxd lxd lxd-benchmark lxd-user; do
     go build -v -tags "libsqlite3" -o bin/ ./$tool/...
   done
@@ -74,9 +76,9 @@ package() {
   install -v -dm700 "${pkgdir}/var/log/lxd"
 
   # documentation
-  install -d "${pkgdir}/usr/share/doc/lxd/html"
+  install -d "${pkgdir}/usr/share/doc/lxd/"
   rm -rf doc/html
-  install -p -Dm644 "doc/"* "${pkgdir}/usr/share/doc/lxd/"
+  cp -vr doc/* "${pkgdir}/usr/share/doc/lxd/"
 
   # Bash completions
   install -v -p -Dm644 "scripts/bash/lxd-client" "${pkgdir}/usr/share/bash-completion/completions/lxd"

@@ -9,7 +9,7 @@ pkgname=(
   libedataserverui4
   evolution-data-server-docs
 )
-pkgver=3.52.0
+pkgver=3.54.0
 pkgrel=1
 pkgdesc="Centralized access to appointments and contacts"
 url="https://wiki.gnome.org/Apps/Evolution"
@@ -17,29 +17,46 @@ arch=(x86_64)
 groups=('gnome-base')
 license=("LGPL-2.0-only AND LGPL-2.1-or-later")
 depends=(
+  cairo
+  dconf
+  gcc-libs
+  glib2
+  glibc
   gtk3
+  hicolor-icon-theme
+  icu
+  json-glib
   krb5
   libcanberra
   libgoa
   libgweather-4
   libical
+  libldap
   libphonenumber
   libsecret
+  libsoup3
+  libxml2
+  nspr
   nss
+  pango
+  perl
   sqlite
+  util-linux-libs
   webkit2gtk-4.1
+  zlib
 )
 makedepends=(
   boost
   cmake
   git
+  glib2-devel
   gobject-introspection
   gperf
   gtk-doc
+  gtk4
   ninja
   postfix
   python
-  python-packaging
   vala
   webkitgtk-6.0
 )
@@ -111,8 +128,15 @@ package_libedataserverui4() {
   pkgdesc+=" - GTK 4 UI library"
   depends=(
     "evolution-data-server=$pkgver-$pkgrel"
+    glib2
+    glibc
     libgtk-4.so
+    libical
+    libsoup3
     libwebkitgtk-6.0.so
+    nspr
+    nss
+    pango
   )
   provides=(libedataserverui4-1.0.so)
 
@@ -125,4 +149,3 @@ package_evolution-data-server-docs() {
 
   mv docs/* "$pkgdir"
 }
-

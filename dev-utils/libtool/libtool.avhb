@@ -6,49 +6,44 @@
 # NOTE: requires rebuilt with each new gcc version
 
 pkgname=libtool
-pkgver=2.4.7
-_gccver=14.0.1
+pkgver=2.5.1
+_commit=1354176bbbc939a7d07a0dcf9b2d92e2ac6bcfef
+_gccver=14.2.0
 pkgrel=1
 pkgdesc="A generic library support script"
 arch=('x86_64')
 groups=('dev-utils')
-url="http://www.gnu.org/software/libtool"
-license=('GPL')
+url='https://www.gnu.org/software/libtool'
+license=('LGPL-2.0-or-later WITH Libtool-exception')
 depends=(sh tar glibc)
-makedepends=("gcc=$_gccver" git help2man)
+makedepends=("gcc>=$_gccver" git help2man)
 checkdepends=(gcc-fortran)
 provides=("libltdl=$pkgver" "libtool-multilib=$pkgver")
-install=libtool.install
-_commit=6d7ce133ce54898cf28abd89d167cccfbc3c9b2b
-source=(https://git.savannah.gnu.org/git/libtool.git
-        https://git.savannah.gnu.org/git/gnulib.git
-        gnulib-bootstrap::git+https://github.com/gnulib-modules/bootstrap.git)
-validpgpkeys=('CFE2BE707B538E8B26757D84151308092983D606')   # Gary Vaughan
-
-getsrc() {
-	git clone https://git.savannah.gnu.org/git/libtool.git
-	git clone https://git.savannah.gnu.org/git/gnulib.git
-	git clone https://github.com/gnulib-modules/bootstrap.git gnulib-bootstrap
-}
+conflicts=(libltdl libtool-multilib)
+replaces=(libltdl libtool-multilib)
+source=(
+  git+https://git.savannah.gnu.org/git/libtool.git#commit=$_commit
+  git+https://git.savannah.gnu.org/git/gnulib.git
+  gnulib-bootstrap::git+https://github.com/gnulib-modules/bootstrap.git
+  disable-lto-link-order2.patch
+)
+b2sums=('3c5daaa5e6f685284330a9fe91bb518dbe367edca66e7702a0b6791418f9d73c0d3f4c56529079d3fe8d52125dcf98c71ada43c1799ba84df35989b56d8a20d8'
+        'SKIP'
+        'SKIP'
+        '9d1e0460b9ef56ba33ac498814b409d1b1d7c3e8ed41a3aed2a86d86341ed7051ca88a5adfa92bd87da968460514230058c3d490b58537d95722e68d7d1687ff')
 
 pkgver() {
   cd libtool
-  git describe --tags | sed 's/-/+/g;s/^v//'
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
   cd libtool
 
-  patch -Np1 -i "${srcdir}"/no_hostname.patch
-
   # test 67 is broken with lto
   # this patch removes the -flto flag for this very test
-  # adapt when -ffat-lto-objects is enabled by Avouch
+  # adapt when -ffat-lto-objects is enabled by Arch
   patch -Np1 -i "${srcdir}"/disable-lto-link-order2.patch
-
-  # test 66 is broken with grep 3.8
-  # see https://bugzilla.opensuse.org/show_bug.cgi?id=1203097
-  patch -Np1 -i "${srcdir}"/grep_3.8_fix.patch
 
   git submodule init
   git config --local submodule.gnulib.url "${srcdir}"/gnulib
@@ -64,10 +59,10 @@ build() {
   make
 }
 
-# check() {
-#   cd libtool
-#   make check gl_public_submodule_commit=
-# }
+check() {
+  cd libtool
+  make check gl_public_submodule_commit=
+}
 
 package() {
   cd libtool
