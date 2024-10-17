@@ -237,8 +237,8 @@ package() {
     libzimg.so
     libzmq.so
   )
-
-  make DESTDIR="${pkgdir}" -C ffmpeg install install-man
-  install -Dm 755 ffmpeg/tools/qt-faststart "${pkgdir}"/usr/bin/
+    export CFLAGS="$CFLAGS -Wno-incompatible-pointer-types"
+  make DESTDIR="${pkgdir}" -C ffmpeg-$pkgver install install-man
+  install -Dm 755 ffmpeg-$pkgver/tools/qt-faststart "${pkgdir}"/usr/bin/
 }
 

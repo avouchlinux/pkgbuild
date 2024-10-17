@@ -1,27 +1,26 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=unicode-emoji
-pkgver=14.0
+pkgver=15.1
 pkgrel=1
 pkgdesc="Unicode Emoji Data Files"
 arch=(any)
 groups=('media-fonts')
 license=(BSD)
 url="https://www.unicode.org/emoji/"
+url="https://www.unicode.org/emoji/"
 depends=('unicode-character-database')
 source=("emoji-sequences-$pkgver.txt::http://www.unicode.org/Public/emoji/$pkgver/emoji-sequences.txt"
         "emoji-test-$pkgver.txt::http://www.unicode.org/Public/emoji/$pkgver/emoji-test.txt"
         "emoji-zwj-sequences-$pkgver.txt::http://www.unicode.org/Public/emoji/$pkgver/emoji-zwj-sequences.txt"
         LICENSE)
-
-getsrc(){
-  curl http://www.unicode.org/Public/emoji/$pkgver/emoji-sequences.txt -o emoji-sequences-$pkgver.txt
-  curl http://www.unicode.org/Public/emoji/$pkgver/emoji-test.txt -o emoji-test-$pkgver.txt
-  curl http://www.unicode.org/Public/emoji/$pkgver/emoji-zwj-sequences.txt -o emoji-zwj-sequences-$pkgver.txt
-}
+sha512sums=('19cf9b366a76d472d35e3e5d2adcb70e962397bce60a65e7685e9b203310dab2b63ee45fae8691c06dc6fedfac4e5c3730f9aadde119e3a7f4560c9ff325fd8a'
+            '1e267845f2cc72aed60455a60e7cb8774433e0a1d0a9be98de6169304047184c8a7d5919117dd085dccfc4a7b507cb8938a3a6e34fd6fd9216fda27f8c126e5e'
+            'b9be3543cb44b8b394be12f06b9d3a27aa7da134cc5060d51681e2759c2aa0ce2604edf9f8782f8d3606e9765f2703b35807a932d36914b24261e59a07fffed1'
+            '9ba78d68ed39745e55538180f132ff47423edb46adde7ac3e62a489870d153808bcf2db57b77e6a7cdae9b4fa03aba99cf228315b9a15be090bedef00b9e69ed')
 
 package() {
   for _f in sequences test zwj-sequences; do
@@ -30,3 +29,4 @@ package() {
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+

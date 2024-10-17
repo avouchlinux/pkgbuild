@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=networkmanager-ssh
 _realname=NetworkManager-ssh
-pkgver=1.2.11
+pkgver=1.2.13
 pkgrel=1
 pkgdesc="SSH VPN support for NetworkManager"
 arch=('x86_64')
@@ -33,7 +34,7 @@ build() {
     --disable-dependency-tracking \
     --enable-more-warnings=no
 
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libaacs
-pkgver=0.9.0
+pkgver=0.11.1
 pkgrel=1
 pkgdesc="Advanced Access Content System"
 arch=('x86_64')
@@ -12,17 +13,18 @@ license=('LGPL')
 url="https://www.videolan.org/developers/libaacs.html"
 depends=('libgcrypt')
 source=("ftp://ftp.videolan.org/pub/videolan/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.bz2")
+sha512sums=('42dcba5fd593c9a8ec7af11251006b083ad2c49ec198734d1d66f67c2ded4557d77617600edbf0c5250e9b0407ef9a2f906d59d154bda8ecfc8adfd234fb2c42')
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
+    cd "${pkgname}-${pkgver}"
     ./bootstrap
     ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
+    cd "${pkgname}-${pkgver}"
     make DESTDIR="${pkgdir}" install
     install -Dm644 KEYDB.cfg "${pkgdir}/usr/share/doc/${pkgname}"/KEYDB.cfg
-    install -Dm644 README.txt "${pkgdir}/usr/share/doc/${pkgname}"/README.txt
+    install -Dm644 README.md "${pkgdir}/usr/share/doc/${pkgname}"/README.md
 }

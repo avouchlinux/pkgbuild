@@ -1,25 +1,48 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gupnp-tools
-pkgver=0.10.2
+pkgver=0.12.1
 pkgrel=1
 pkgdesc="Utilities and demos to work with UPnP"
 arch=('x86_64')
 groups=('net-misc')
-url="https://wiki.gnome.org/Projects/GUPnP"
-license=('GPL')
-depends=('gtksourceview4' 'gupnp' 'gupnp-av')
-makedepends=('meson')
-source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+url='https://wiki.gnome.org/Projects/GUPnP'
+license=(GPL-2.0-or-later)
+depends=(
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gssdp
+  gtk3
+  gtksourceview4
+  gupnp
+  gupnp
+  gupnp-av
+  hicolor-icon-theme
+  libsoup3
+  libxml2
+)
+makedepends=(
+  git
+  meson
+)
+source=("git+https://gitlab.gnome.org/GNOME/gupnp-tools.git#tag=$pkgname-$pkgver")
+b2sums=(3f43782e88b9a1ca42c2366a4a3a9eac6c4843f89d6ff88165d980e51244cd94f3df958b0f9b519219e47e69376f8bf52f57fdbcc42432f17c07ab10319c18d8)
+
+prepare() {
+  cd $pkgname
+  sed -i '/-Werror/d' meson.build
+}
 
 build() {
-  avouch-meson $pkgname-$pkgver build
-  ninja -C build
+  avouch-meson $pkgname build
+  meson compile -C build
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

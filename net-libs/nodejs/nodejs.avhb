@@ -5,64 +5,71 @@
 
 pkgname=nodejs
 _realname=node
-pkgver=21.6.0
+pkgver=22.9.0
 pkgrel=1
 pkgdesc='Evented I/O for V8 javascript'
 arch=('x86_64')
 groups=('net-libs')
 url='https://nodejs.org/'
 license=('MIT')
-# c-ares: wait until a newer release than 1.16.1
-depends=('brotli' 'openssl' 'zlib' 'icu' 'libuv' 'libnghttp2' 'c-ares') # 'http-parser' 'v8')
-makedepends=('python' 'procps-ng')
+depends=(
+  'brotli'
+  'c-ares'
+  'icu'
+  'libnghttp2'
+  'libnghttp3'
+  'libngtcp2'
+  'libuv'
+  'openssl'
+  'zlib'
+) # 'http-parser' 'v8')
+makedepends=(
+  'git'
+  'procps-ng'
+  'python'
+)
 optdepends=('npm: nodejs package manager')
-source=("nodejs-$pkgver.tar.gz::https://github.com/nodejs/node/archive/v$pkgver.tar.gz")
-
-prepare() {
-  cd node-$pkgver
-
-}
+options=(!lto)
+source=("$_realname-$pkgver.tar.gz::https://github.com/$pkgname/$_realname/archive/refs/tags/v$pkgver.tar.gz")
+sha512sums=('59f6cb03385483bc9c0fb09f308d634e5b1235e712a2ac90da3b63617462e87990f9f09aeffd6068f467cf4595f71e4df77f1230f3710e158a7c92c9151bec01')
+validpgpkeys=(
+  '8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600' # Michaël Zasso (Targos) <targos@protonmail.com>
+  '890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4' # RafaelGSS <rafael.nunu@hotmail.com>
+  'C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C' # Richard Lau <rlau@redhat.com>
+)
 
 build() {
-  cd node-$pkgver
+  cd $_realname-$pkgver
 
   # /usr/lib/libnode.so uses malloc_usable_size, which is incompatible with fortification level 3
   export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
   export CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
 
-
   ./configure \
     --prefix=/usr \
-    --with-intl=system-icu \
     --without-npm \
+    --with-intl=system-icu \
+    --shared-libuv \
+    --shared-nghttp2 \
+    --shared-nghttp3 \
+    --shared-ngtcp2 \
     --shared-openssl \
     --shared-zlib \
-    --shared-libuv \
-    --experimental-http-parser \
-    --shared-nghttp2 \
-    --shared-cares \
-    --shared-brotli
+    --shared-brotli \
+    --shared-cares
     # --shared-v8
     # --shared-http-parser
 
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
-  cd node-$pkgver
-  # Expected failure: https://github.com/nodejs/node/issues/11627
-  # make test || warning "Tests failed"
+  cd $_realname-$pkgver
+#   make test || :
 }
 
 package() {
-  cd node-$pkgver
-
+  cd $_realname-$pkgver
   make DESTDIR="$pkgdir" install
-
-  install -D -m644 LICENSE \
-    "$pkgdir"/usr/share/licenses/nodejs/LICENSE
-  
-  cd "$pkgdir"/usr/lib
-  ln -s libnode.so.* libnode.so
-
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/nodejs/
 }

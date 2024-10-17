@@ -35,6 +35,8 @@ makedepends=(
 )
 optdepends=('evince: Print previews')
 provides=(xdg-desktop-portal-impl)
+conflicts=('xdg-desktop-portal-gtk<1.10.0-2')
+replaces=('xdg-desktop-portal-gtk<1.10.0-2')
 source=("https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/archive/$pkgver/xdg-desktop-portal-gnome-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 

@@ -10,23 +10,32 @@ pkgdesc="The library for xine-dvdnav plugin."
 arch=('x86_64')
 groups=('media-libs')
 license=('GPL')
-url="https://www.videolan.org/developers/libdvdnav.html"
-depends=('libdvdread')
-makedepends=('git')
-source=("https://code.videolan.org/videolan/libdvdnav/-/archive/$pkgver/libdvdnav-$pkgver.tar.bz2")
+url='https://www.videolan.org/developers/libdvdnav.html'
+license=(GPL-2.0-or-later)
+depends=(
+  glibc
+  libdvdread
+)
+makedepends=(git)
+source=("git+https://code.videolan.org/videolan/libdvdnav.git#tag=$pkgver")
+b2sums=(923e3171a7b5d488e77bbe8411827568c89cc85b2bb4d5434fc044b27274ef6c7e5987c4f2900f3a26371531603dcc66a7d40a7b4a9574fd8a4e677a482f7004)
+validpgpkeys=(65F7C6B4206BD057A7EB73787180713BE58D1ADC) # VideoLAN Release Signing Key
 
 prepare() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   autoreconf -fi
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
   make
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

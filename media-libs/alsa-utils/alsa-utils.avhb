@@ -9,7 +9,8 @@ pkgrel=1
 pkgdesc="An alternative implementation of Linux sound support"
 arch=('x86_64')
 groups=('media-libs')
-url="http://www.alsa-project.org"
+url="https://www.alsa-project.org"
+license=(GPL-2.0-or-later)
 depends=(
   gcc-libs
   glibc

@@ -1,32 +1,28 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libshout
-pkgver=2.4.3
+pkgver=2.4.6
 pkgrel=1
 pkgdesc="Library for accessing a shoutcast/icecast server"
 arch=('x86_64')
 groups=('media-libs')
-depends=('libvorbis' 'libtheora' 'speex')
-url="http://www.icecast.org/"
+depends=('libvorbis' 'libtheora' 'speex' 'openssl')
+url="https://www.icecast.org/"
 options=('!emptydirs')
 license=('LGPL')
-source=("http://downloads.xiph.org/releases/${pkgname}/${pkgname}-${pkgver}.tar.gz")
-
-prepare() {
-	cd ${pkgname}-${pkgver}
-	sed -e 's/SSLeay_add_all_algorithms/OpenSSL_add_all_algorithms/g' -i src/tls.c
-}
+source=("https://downloads.xiph.org/releases/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('e8478cdbf9a27674c16a7b620d1576f2e31a47262b8e29b314d0f46d4e5be24b9a29790b7b226f48939bc34cacf5734fae0aa5686c7ed5879cdbd827ff8e0339')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr \
-	--sysconfdir=/etc --localstatedir=/var
-	make
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

@@ -1,0 +1,30 @@
+From 835c6226aaccb4c39a8c50dec5d3afd87315fddd Mon Sep 17 00:00:00 2001
+From: Sam James <sam@gentoo.org>
+Date: Mon, 23 Jan 2023 02:28:18 +0000
+Subject: [PATCH] pppd-plugin: workaround broken pppd.h header for memcpy
+
+ppp's pppd.h defines a BCOPY macro which expands to memcpy but doesn't
+include <string.h> which provides it. Include it in pppd-plugin instead
+to workaround it, as it'll be a while before we can assume the system ppp
+is fixed.
+
+Bug: https://bugs.gentoo.org/870865
+---
+ src/pppd-plugin/sstp-mppe.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/pppd-plugin/sstp-mppe.c b/src/pppd-plugin/sstp-mppe.c
+index 34693b7..4dc0798 100644
+--- a/src/pppd-plugin/sstp-mppe.c
++++ b/src/pppd-plugin/sstp-mppe.c
+@@ -24,6 +24,7 @@
+ 
+ #include <config.h>
+ 
++#include <string.h>
+ #include <pppd/pppd.h>
+ #include <sstp-mppe.h>
+ 
+-- 
+2.40.0
+

@@ -1,31 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libwpg
-pkgver=0.3.3
+pkgver=0.3.4
 pkgrel=1
 pkgdesc="Library for importing and converting Corel WordPerfect(tm) Graphics images."
 arch=('x86_64')
 groups=('media-grafix')
 url="https://libwpg.sourceforge.net/"
-license=('LGPL')
-depends=('libwpd' 'perl' 'librevenge')
-makedepends=('doxygen')
+license=('LGPL-2.1-or-later OR MPL-2.0')
+depends=('libwpd' 'perl' 'librevenge' 'gcc-libs' 'glibc')
+makedepends=('doxygen' 'boost')
 source=("https://downloads.sourceforge.net/libwpg/${pkgname}-${pkgver}.tar.xz")
+sha1sums=('335788f3fcef4c6d01b24b325cc07765d58c1da9')
+sha256sums=('b55fda9440d1e070630eb2487d8b8697cf412c214a27caee9df69cec7c004de3')
 
 build() {
   cd ${pkgname}-${pkgver}
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
   cd ${pkgname}-${pkgver}
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {
   cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 }
+

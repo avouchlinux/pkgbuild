@@ -1,41 +1,40 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=taglib
-pkgver=1.11.1
+pkgver=2.0.2
 pkgrel=1
 pkgdesc="A Library for reading and editing the meta-data of several popular audio formats"
 arch=('x86_64')
 groups=('media-libs')
-url="http://developer.kde.org/~wheeler/taglib.html"
-license=('LGPL' 'MPL')
-depends=('sh' 'zlib' 'gcc-libs')
-makedepends=('cmake' 'pkg-config')
-source=("http://taglib.github.io/releases/${pkgname}-${pkgver}.tar.gz")
-
-prepare() {
-	cd ${pkgname}-${pkgver}
-	#patch -Np1 -i ../taglib-1.5rc1-multilib.patch
-	mkdir "${srcdir}"/build
-}
+url='https://taglib.github.io/'
+license=(LGPL-2.1-only
+         MPL-1.1)
+depends=(gcc-libs
+         glibc
+         sh
+         zlib)
+makedepends=(cmake
+             git
+             utf8cpp)
+checkdepends=(cppunit)
+source=(git+https://github.com/taglib/taglib#tag=v$pkgver)
+sha256sums=('05ae54e76c2a1b259e17c5ba6f1d0a408759b02fe42af4b74e8eecaacef6a85e')
 
 build() {
-	#export CFLAGS="$CFLAGS -fPIC"
-	#export CPPFLAGS="$CPPFLAGS -fPIC"
-	export CXXFLAGS="$CXXFLAGS -fPIC"
-	cd "${srcdir}"/build
-	cmake ../${pkgname}-${pkgver} \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DBUILD_SHARED_LIBS=ON \
-		-DWITH_MP4=ON \
-		-DWITH_ASF=ON
-	make ${MAKEFLAGS}
+  cmake -B build -S $pkgname \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON
+  cmake --build build
+}
+
+check() {
+  cmake --build build --target test
 }
 
 package() {
-	cd "${srcdir}"/build
-	make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }
 

@@ -1,26 +1,27 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libesmtp
-pkgver=1.0.6
+pkgver=1.1.0
 pkgrel=1
 pkgdesc='A library to manage posting mail to a preconfigured MTA.'
 arch=('x86_64')
 groups=('net-libs')
-url='http://www.stafford.uklinux.net/libesmtp/'
+url='https://libesmtp.github.io/'
 license=('LGPL')
 depends=('openssl')
-source=("http://pkgs.fedoraproject.org/repo/pkgs/$pkgname/$pkgname-$pkgver.tar.bz2/bf3915e627fd8f35524a8fdfeed979c8/$pkgname-$pkgver.tar.bz2")
+makedepends=('meson')
+source=("https://github.com/libesmtp/libESMTP/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('32bc3614ca12d21c7d933f32d43410e8744b6f91fdca7732da9877a385e4e6c3')
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-
-    ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+    export CFLAGS="$CFLAGS -Wno-implicit-function-declaration" # GCC 14
+  avouch-meson build libESMTP-${pkgver}
+  meson compile -C build
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  meson install -C build --destdir "${pkgdir}"
 }

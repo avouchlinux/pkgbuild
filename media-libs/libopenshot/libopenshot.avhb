@@ -1,56 +1,87 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libopenshot
-pkgver=0.2.7
+pkgver=0.3.3
 pkgrel=1
 pkgdesc="A video editing, animation, and playback library for C++, Python, and Ruby"
 arch=('x86_64')
 groups=('media-libs')
 url="https://github.com/openshot/libopenshot"
-license=('LGPL3')
+license=(LGPL-3.0-or-later)
 # TODO: package cppzmq and resvg
-depends=('gcc-libs' 'glibc' 'libmagick' 'opencv' 'protobuf' 'python3' 'qt5-base'
-'qt5-multimedia' 'zeromq')
-makedepends=('catch2' 'cmake' 'doxygen' 'ffmpeg' 'jsoncpp' 'libopenshot-audio'
-'swig' 'unittestpp' 'x264')
-provides=('libopenshot.so')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/OpenShot/libopenshot/archive/v$pkgver.tar.gz")
-sha512sums=('71cb0e4010d8f3ff453486c3da3c7019c6569066845dcc58f438049a08b1c8663f31c29a728ce5461e9d3a1ca550038b757d4528e62a26eeb45ecbe600353988')
-b2sums=('511ed214f0ecc43294a787e1c0119f036e274a1e8d051cb6e926bf7a9b5cea416325a2e051fca758d1f80ec2b9d746a4dd268e5ac5322fe8539fa2041a8c4d9d')
+depends=(
+  babl
+  gcc-libs
+  glibc
+  libmagick
+  opencv
+  python
+  qt5-base
+  qt5-multimedia
+  qt5-svg
+)
+makedepends=(
+  catch2
+  cmake
+  cppzmq
+  doxygen
+  ffmpeg4.4
+  jsoncpp
+  libopenshot-audio
+  protobuf
+  python-setuptools
+  swig
+  unittestpp
+  xorg-server-xvfb
+  zeromq
+)
+provides=(libopenshot.so)
+source=($url/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha512sums=('c8ac8e14296a69d7989e8bd6d259a802b7d436df144d9f9e3024f19f137f1b3081cc2e93cbd46ed5dd45cb0cef6cfde634fa532ff485517b72b1113a8cc8892d')
+b2sums=('b82f79666c386e69630f2be60ed1771cea6ece83592ac29c30e05a97b289b0281d23b51b0e320eb208d09535882c5e2acb122b29852bb1bf75d9d821891d9047')
+
+prepare() {
+# protobuf 23 requiers C++17
+  sed -e 's|CMAKE_CXX_STANDARD 14|CMAKE_CXX_STANDARD 17|' -i $pkgname-$pkgver/CMakeLists.txt
+}
 
 build() {
-  cd "${pkgname}-${pkgver}"
   local python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
-  export PYTHON_LIBRARIES="/usr/lib/libpython3.so"
-  export PYTHON_INCLUDE_DIRS="/usr/include/python${python_version}"
+  local cmake_options=(
+    -B build
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D ENABLE_RUBY=OFF
+    -D PYTHON_INCLUDE_DIRS=/usr/include/python$python_version
+    -D PYTHON_LIBRARIES=/usr/lib/libpython3.so
+    -D USE_SYSTEM_JSONCPP=ON
+    -S $pkgname-$pkgver
+    -W no-dev
+  )
 
-  cmake -DCMAKE_INSTALL_PREFIX='/usr' \
-        -DCMAKE_BUILD_TYPE='None' \
-        -DENABLE_RUBY=OFF \
-        -DMAGICKCORE_HDRI_ENABLE=1 \
-        -DMAGICKCORE_QUANTUM_DEPTH=16 \
-        -DPYTHON_LIBRARIES="/usr/lib/libpython3.so" \
-        -DPYTHON_INCLUDE_DIRS="/usr/include/python${python_version}" \
-        -DUSE_SYSTEM_JSONCPP=ON \
-        -Wno-dev \
-        -B build \
-        -S .
-  make VERBOSE=1 ${MAKEFLAGS} -C build
+  export PKG_CONFIG_PATH='/usr/lib/ffmpeg4.4/pkgconfig'
+  cmake "${cmake_options[@]}"
+  cmake --build build
 }
 
 check() {
-  cd "${pkgname}-${pkgver}"
-  make VERBOSE=1 -C build test || printf "Issues with SVG and protobuf\n"
+  # disable broken tests: https://github.com/OpenShot/libopenshot/issues/922 https://github.com/OpenShot/libopenshot/issues/948
+  xvfb-run ctest --test-dir build --output-on-failure -E '(Caption:caption effect|FFmpegWriter:Options_Overloads)'
 }
 
-package() {
-  depends+=('libavcodec.so' 'libavformat.so' 'libavutil.so' 'libjsoncpp.so'
-  'libopenshot-audio.so' 'libswscale.so' 'libswresample.so' 'libx264.so')
 
-  cd "${pkgname}-${pkgver}"
-  make VERBOSE=1 DESTDIR="${pkgdir}" install -C build
-  install -vDm 644 {AUTHORS,README.md} -t "${pkgdir}/usr/share/doc/${pkgname}"
+package() {
+  depends+=(
+    ffmpeg4.4 libavcodec.so libavformat.so libavutil.so libswscale.so libswresample.so
+    jsoncpp libjsoncpp.so
+    libopenshot-audio libopenshot-audio.so
+    protobuf libprotobuf.so
+    zeromq libzmq.so
+  )
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$pkgver/{AUTHORS,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
 }

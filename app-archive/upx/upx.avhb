@@ -1,37 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=upx
-pkgver=3.96
+pkgver=4.2.4
 pkgrel=1
 pkgdesc='Ultimate executable compressor.'
 arch=('x86_64')
 groups=('app-archive')
 url='https://github.com/upx/upx'
 license=(custom GPL2)
-depends=(ucl)
-makedepends=(git perl)
-source=("https://github.com/upx/upx/releases/download/v$pkgver/$pkgname-$pkgver-src.tar.xz")
+makedepends=(cmake git perl)
+source=("https://github.com/upx/upx/releases/download/v4.2.4/upx-4.2.4-src.tar.xz")
+b2sums=('3cc69f814f0b01184f3a61de67311de81757be1731a8ba76c840f65084513f985612e2c374adb41b56459c57d93c6bf44b646fe8ce5cf255ddc7b892a8e6630a')
 
 prepare() {
   cd $pkgname-$pkgver-src
-  patch -Np1 -i ../upx-3.96_CVE-2021-20285.patch
 }
 
 build() {
   make -C $pkgname-$pkgver-src \
     CHECK_WHITESPACE=/bin/true \
-    UPX_LZMA_VERSION=0x465 \
-    UPX_LZMADIR="$srcdir" \
     CXXFLAGS_WERROR="" \
-    all
+    UPX_CMAKE_CONFIG_FLAGS='-D UPX_CONFIG_DISABLE_GITREV=1 -D UPX_CONFIG_DISABLE_SANITIZE=1 -D UPX_CONFIG_DISABLE_WERROR=1' \
+    UPX_LZMA_VERSION=0x465
+}
+
+check() {
+  # Check that the version has the proper version number and not something like "git-877911+".
+  $pkgname-$pkgver-src/build/release/upx --help | grep -q "^UPX $pkgver" || exit 1
+  # Run tests
+  make -C $pkgname-$pkgver-src/build/release test
 }
 
 package() {
   cd $pkgname-$pkgver-src
-  install -Dm755 src/upx.out "$pkgdir/usr/bin/upx"
+  install -Dm755 build/release/upx "$pkgdir/usr/bin/upx"
   install -Dm644 doc/upx.1 "$pkgdir/usr/share/man/man1/upx.1"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

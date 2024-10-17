@@ -1,24 +1,31 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libnghttp2
 _realname=nghttp2
-pkgver=1.58.0
+pkgver=1.63.0
 pkgrel=1
 pkgdesc='Framing layer of HTTP/2 is implemented as a reusable C library'
 arch=('x86_64')
 groups=('net-libs')
 url='https://nghttp2.org/'
-license=(MIT)
-depends=(glibc)
-source=(https://github.com/nghttp2/nghttp2/releases/download/v$pkgver/nghttp2-$pkgver.tar.xz)
+license=('MIT')
+depends=('glibc')
+provides=('libnghttp2.so')
+makedepends=('git')
+conflicts=('nghttp2<1.20.0-2')
+validpgpkeys=('F4F3B91474D1EB29889BD0EF7E8403D5D673C366') # Tatsuhiro Tsujikawa <tatsuhiro.t@gmail.com>
+source=("https://github.com/$_realname/$_realname/releases/download/v$pkgver/$_realname-$pkgver.tar.xz")
+sha512sums=('b95341a958ea32c6131c9598cf75a3232b963a798d314a94df05b363a7b0a144014c48ac2a436fb867f742ce6761a8ca5a6a87cdbdee94d9fdcab5d3412415c5'
+            'SKIP'
+            'SKIP'
+            'SKIP')
 
 build() {
-  cd nghttp2-$pkgver
+  cd $_realname-$pkgver
 
-  autoreconf -i
   ./configure \
     --prefix=/usr \
     --disable-examples \
@@ -28,13 +35,14 @@ build() {
 }
 
 check() {
-  cd nghttp2-$pkgver
+  cd $_realname-$pkgver
   make check
 }
 
 package() {
-  cd nghttp2-$pkgver/lib
+  cd $_realname-$pkgver/lib
 
   make DESTDIR="$pkgdir" install
   install -Dm644 ../COPYING "$pkgdir/usr/share/licenses/libnghttp2/COPYING"
 }
+

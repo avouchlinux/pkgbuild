@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=nspr
-pkgver=4.33
+pkgver=4.35
 pkgrel=1
 pkgdesc="Netscape Portable Runtime"
 arch=('x86_64')
@@ -12,7 +12,21 @@ groups=('net-misc')
 license=(MPL GPL)
 depends=(glibc sh)
 makedepends=(zip)
-source=(https://ftp.mozilla.org/pub/nspr/releases/v$pkgver/src/nspr-$pkgver.tar.gz)
+source=(https://ftp.mozilla.org/pub/nspr/releases/v$pkgver/src/nspr-$pkgver.tar.gz
+    0001-linux-prefer-GCC-provided-atomics-to-asssembly-imple.patch
+    0002-configure.in-Remove-assembly-files-from-build.patch
+)
+
+prepare() {
+  cd $pkgname-$pkgver/$pkgname
+
+  # https://bugzilla.mozilla.org/show_bug.cgi?id=1496426
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/nspr/-/merge_requests/1
+  patch -Np1 -i ../../0001-linux-prefer-GCC-provided-atomics-to-asssembly-imple.patch
+  patch -Np1 -i ../../0002-configure.in-Remove-assembly-files-from-build.patch
+
+  autoreconf -fvi
+}
 
 build() {
 	cd $pkgname-$pkgver
@@ -23,17 +37,16 @@ build() {
 		--enable-optimize \
 		--disable-debug \
 		--enable-64bit
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {
 
 	cd $pkgname-$pkgver
-	make DESTDIR="$pkgdir" install
+    make DESTDIR="$pkgdir" install
+    ln -s nspr.pc "$pkgdir/usr/lib/pkgconfig/mozilla-nspr.pc"
 
-	ln -s nspr.pc "$pkgdir/usr/lib/pkgconfig/mozilla-nspr.pc"
-	rm -r "$pkgdir"/usr/bin/{compile-et.pl,prerr.properties} \
-	"$pkgdir/usr/include/nspr/md"
-
+    rm -r "$pkgdir"/usr/include/nspr/md
+    rm "$pkgdir"/usr/bin/{compile-et.pl,prerr.properties}
 }
 

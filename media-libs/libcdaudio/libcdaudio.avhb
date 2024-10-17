@@ -1,9 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libcdaudio
-pkgver=0.99.12p2
+_pkgver=0.99.12p2
+pkgver=0.99.12.p2
 pkgrel=1
 pkgdesc="Library for controlling Audio CDs and interacting with CDDB"
 arch=('x86_64')
@@ -11,26 +13,22 @@ groups=('media-libs')
 url="http://libcdaudio.sourceforge.net/"
 license=('GPL')
 depends=('glibc')
-source=("http://downloads.sourceforge.net/sourceforge/libcdaudio/${pkgname}-${pkgver}.tar.gz"
+source=("https://downloads.sourceforge.net/sourceforge/libcdaudio/${pkgname}-${_pkgver}.tar.gz"
         '01-cddb-bufferoverflow.patch'
         '02-cddb-bufferoverflow.patch')
-
-prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-
-	patch -Np1 -i "${srcdir}/01-cddb-bufferoverflow.patch"
-	patch -Np1 -i "${srcdir}/02-cddb-bufferoverflow.patch"
-}
+sha256sums=('5fdaf9af5ac4f75c0215d000b82b128fd054a582f81cc4f039a1e7fe69335ebb'
+            '2eb622aeabcaeb1e3cdae5a5f6015cf16c1cd4e1ea38344da00905923d34a60f'
+            '3a91822b22bdf8a87df5a17b5ef5e134140ea2147792cae37be97f09c812062a')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${_pkgver}
+  patch -Np1 -i "${srcdir}/01-cddb-bufferoverflow.patch"
+  patch -Np1 -i "${srcdir}/02-cddb-bufferoverflow.patch"
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd ${pkgname}-${_pkgver}
+  make DESTDIR="${pkgdir}" install
 }

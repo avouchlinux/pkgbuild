@@ -1,32 +1,62 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=freeglut
-pkgver=3.2.1
+pkgver=3.6.0
 pkgrel=1
 pkgdesc="Provides functionality for small OpenGL programs"
 arch=('x86_64')
 groups=('media-libs')
 url="http://freeglut.sourceforge.net/"
-license=('MIT')
-depends=('libxi' 'libxrandr' 'libgl')
-makedepends=('mesa' 'glu' 'libxxf86vm')
-source=(http://downloads.sourceforge.net/freeglut/${pkgname}-${pkgver}.tar.gz)
+license=(X11)
+depends=(
+  glibc
+  libgl
+  libx11
+  libxi
+  libxrandr
+  libxxf86vm
+)
+makedepends=(
+  cmake
+  git
+  glu
+  mesa
+  ninja
+)
+provides=(glut)
+conflicts=(glut)
+source=("git+https://github.com/FreeGLUTProject/freeglut#tag=v$pkgver")
+b2sums=('2ce2bc7ff759405be701f1c43e4fe2154fce6a4ffe3801ba1f51ff362698b248b9a3d42929c44825a6f3f67029852a284cad49acbdc14908ac6c651c6c56e571')
 
 prepare() {
-	cd $pkgname-$pkgver
-	patch -p1 -i ../freeglut-3.2.1-gcc10-fno-common.patch
+  cd freeglut
 }
 
 build() {
-	cmake -S $pkgname-$pkgver -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib \
-		-DCMAKE_BUILD_TYPE=Release
-	ninja -C build
+  local cmake_options=(
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_INSTALL_LIBDIR=lib
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D FREEGLUT_BUILD_STATIC_LIBS=OFF
+  )
+
+  cmake -S freeglut -B build -G Ninja "${cmake_options[@]}"
+  cmake --build build
+}
+
+check() {
+  cd build
+  ctest --output-on-failure --stop-on-failure -j$(nproc)
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
+
+  ln -s glut.pc "$pkgdir/usr/lib/pkgconfig/freeglut.pc"
+
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" freeglut/COPYING
 }
+

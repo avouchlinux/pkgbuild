@@ -1,31 +1,43 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=glew
-pkgver=2.2.0
+pkgver=2.0.8
 pkgrel=1
 pkgdesc="The OpenGL Extension Wrangler Library"
 arch=('x86_64')
 groups=('media-libs')
 url="http://glew.sourceforge.net"
-license=('BSD' 'MIT' 'GPL')
-depends=('libxmu' 'libxi' 'glu')
-source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tgz)
+license=('MIT')
+depends=('python' 'python-jinja' 'python-lxml' 'python-setuptools')
+makedepends=('python-build' 'python-installer' 'python-wheel')
+checkdepends=('python-pytest' 'xorgproto' 'libx11' 'glfw-x11' 'xorg-server-xvfb' 'rust' 'libxinerama' 'libxcursor' 'libxi')
+source=("${url}/archive/refs/tags/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('ec964d0080c9714803f0464492b237039d2bede805d21aa9e487f3bf910447fd6440eeca59f3795dc4d5dd3b3df35101714fa21ea19eb29f6a021864a2310acd')
+b2sums=('cceee457246dd6edf03da895dc7fd8e7a8e9ab616b88e9703377a5749f827476d743b80a6a3753276b69ffa7987be523e6590d14c756e8d2afc799fdf01d655b')
 
 build() {
-  cd ${pkgname}-${pkgver}
-  
-  sed -i 's|lib64|lib|' config/Makefile.linux
-  sed -i '/^.PHONY: .*\.pc$/d' Makefile
-  make ${MAKEFLAGS}
+	cd "${pkgname}-${pkgver}"
+	python -m build --wheel --no-isolation
+}
+
+check() {
+	cd "${pkgname}-${pkgver}"
+
+	# Remove Windows tests
+	rm -rf test/c/run/wgl
+
+	PRINT_MESSAGE=1 \
+	EXIT_ON_FAILURE=1 \
+	xvfb-run ./utility/test.sh
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
-  make GLEW_DEST="${pkgdir}/usr" install.all
-  install -D -m644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	cd "${pkgname}-${pkgver}"
+	python -m installer --destdir="${pkgdir}" dist/*.whl
 
-#  chmod 0755 "${pkgdir}"/usr/lib/libGLEW*.so.${pkgver}
+	install -Dm 644 README.md "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+	install -Dm 644 LICENSE  "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

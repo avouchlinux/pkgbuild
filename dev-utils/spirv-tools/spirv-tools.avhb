@@ -5,7 +5,7 @@
 
 pkgname=spirv-tools
 _realname=SPIRV-Tools
-pkgver=2023.6
+pkgver=2024.2
 # There was no release tag, just the release candidate
 _tag="${pkgver}.rc1"
 pkgrel=1

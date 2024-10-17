@@ -1,39 +1,81 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgit2
-pkgver=1.0.1
+pkgver=1.8.1
 pkgrel=1
 epoch=1
 pkgdesc='A linkable library for Git'
 arch=('x86_64')
 groups=('net-libs')
-url="https://libgit2.github.com/"
-depends=('curl' 'http-parser' 'libssh2' 'openssl' 'zlib')
-makedepends=('cmake' 'python')
-license=('GPL2')
-source=("https://github.com/libgit2/libgit2/archive/v${pkgver}.tar.gz")
-
-prepare() {
-  cd "$pkgname-$pkgver"
-  # removing tests that are only compatible with the (modified) vendored
-  # version of http-parser, but not with upstream http-parser
-  patch -Np1 -i "../${pkgname}-0.99.0-remove_http-parse_incompatible_tests.patch"
-}
+url="https://github.com/libgit2/libgit2"
+license=(LicenseRef-GPL-2.0-only-with-linking-exception)
+depends=(
+  gcc-libs
+  glibc
+  http-parser
+  zlib
+)
+makedepends=(
+  cmake
+  libssh2
+  openssl
+  pcre2
+  python
+)
+provides=(libgit2.so)
+source=($url/archive/v$pkgver/$pkgname-v$pkgver.tar.gz)
+sha512sums=('7429fbdc46ae44fd359e9260cbe33d9ce9276db810c096f12c43e5d302d01011463cdfd98d604e59780187e020e216e839823a77479dc12f952a37628516af78')
+b2sums=('14558400d092dd963becfd3d4966a8d0799811be15fea8c5bc1e91be24f14bb81d33d82b2fb8dd8895e167f634a5d532d62a4609167bcb1d93143275207bbf6d')
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_BUILD_TYPE='None' \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DUSE_HTTP_PARSER=system \
-		-DTHREADSAFE:BOOL=ON \
-		-Wno-dev
-	ninja -C build
+  local cmake_options=(
+    -B build
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DREGEX_BACKEND=pcre2
+    -DUSE_HTTP_PARSER=system
+    -DUSE_SSH=ON
+    -S $pkgname-$pkgver
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+check() {
+  local ignored_tests=(
+    'invasive|'
+    'online|'
+    'ssh|'
+    'network_url_parse__hostname_implied_root_empty_port|'
+    'network_url_parse__hostname_empty_port|'
+    'network_url_parse__ipv4_implied_root_empty_port|'
+    'network_url_parse__ipv4_empty_port|'
+    'network_url_parse__ipv6_implied_root_empty_port|'
+    'network_url_parse__ipv6_empty_port|'
+    'proxy_auto_not_detected'
+  )
+  local ifs="$IFS"
+  IFS=
+  # NOTE: disable tests requiring the internet, relying on non-existent
+  # resources, or those that are only compatible with the (modified) vendored
+  # version of http-parser, but not with upstream http-parser
+  ctest --test-dir build --output-on-failure -E "${ignored_tests[*]}"
+  IFS="$ifs"
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
-	install -vDm 644 ${pkgname}-${pkgver}/{AUTHORS,README.md} \
-    	-t "${pkgdir}/usr/share/doc/${pkgname}"
+  depends+=(
+    libssh2 libssh2.so
+    openssl libcrypto.so libssl.so
+    pcre2 libpcre2-8.so
+  )
+
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $pkgname-$pkgver/{AUTHORS,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
+  install -vDm 644 $pkgname-$pkgver/COPYING -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

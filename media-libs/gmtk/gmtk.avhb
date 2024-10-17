@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -12,15 +13,17 @@ url='https://sites.google.com/site/kdekorte2/gmtk'
 license=('GPL')
 depends=('gtk3' 'mplayer')
 makedepends=('intltool')
-source=("https://github.com/kdekorte/$pkgname/archive/v$pkgver.tar.gz")
+source=("https://github.com/kdekorte/$pkgname/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('fc23c853deb35ee35db06dd3da5069ce3dc64faf3a0053324616fadf81a415db')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"	
-	./configure --prefix=/usr 
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  sed -i 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }

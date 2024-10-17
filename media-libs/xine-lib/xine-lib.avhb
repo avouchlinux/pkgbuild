@@ -1,39 +1,44 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xine-lib
-pkgver=1.2.10
+pkgver=1.2.13
 pkgrel=1
 pkgdesc="A multimedia playback engine"
 arch=('x86_64')
 groups=('media-libs')
-repo=('extra')
-url="http://www.xine-project.org"
-license=('LGPL' 'GPL')
-depends=('libxvmc' 'ffmpeg' 'libxinerama' 'libnsl')
-makedepends=('wavpack' 'faad2' 'libmng' 'libmagick' 'mesa' 'libmodplug'
-             'vcdimager' 'jack' 'aalib' 'libdca' 'a52dec' 'libmad' 'libdvdnav'
-             'libmpcdec' 'libcaca' 'libbluray' 'libvdpau' 'glu' 'gdk-pixbuf2')
-optdepends=('libmagick: for using the imagemagick plugin' \
-            'jack: for using the jack plugin' \
-            'vcdimager: for using the vcd plugin' \
-            'glu: for using the opengl plugin' \
-            'wavpack: for using the wavpack plugin' \
-            'faad2: for using the faad plugin' \
-            'libmng: for using the mng plugin' \
-            'aalib: for using the aalib plugin' \
-            'libmodplug: for using the modplug plugin' \
-            'libdca: for using the dca plugin' \
-            'a52dec: for using the a52 plugin' \
-            'libmad: for using the mp3 plugin' \
-            'libdvdnav: for using the dvd plugin' \
-            'libmpcdec: for using the musepack plugin' \
-            'libcaca: for using the caca plugin' \
-            'libbluray: for using the bluray plugin' \
-            'libvdpau: for using the VDPAU plugin' \
-            'smbclient: for using the samba plugin' \
-            'gdk-pixbuf2: for using the gdk-pixbuf plugin')
+url='https://www.xine-project.org'
+license=('GPL-2.0-or-later' 'LGPL-2.0-or-later')
+depends=('ffmpeg' 'libjpeg-turbo' 'libpng' 'libx11' 'libxcb' 'libxext'
+         'libxinerama' 'libxv' 'libxvmc' 'zlib')
+optdepends=('libdvdnav: for dvd plugin'
+            'libdvdread: for spu and dxr3 plugins'
+            'vcdimager: for vcd plugin'
+            'glu: for opengl and vaapi plugins'
+            'sdl: for sdl plugin'
+            'wayland: for egl_wl plugin'
+            'aalib: for aalib plugin'
+            'a52dec: for a52 plugin'
+            'faad2: for faad plugin'
+            'flac: for flac plugin'
+            'libdca: for dts (dca) plugin'
+            'libmad: for mad (mp3) plugin'
+            'libmpcdec: for mpc (musepack) plugin'
+            'libmodplug: for modplug plugin'
+            'wavpack: for wavpack plugin'
+            'gdk-pixbuf2: for gdk_pixbuf plugin'
+            'imagemagick: for imagemagick plugin'
+            'libcaca: for caca plugin'
+            'libmng: for mng plugin'
+            'libnfs: for nfs plugin'
+            'libssh2: for ssh plugin'
+            'smbclient: for samba plugin')
+makedepends=('mercurial' 'mesa' 'libdvdnav' 'libdvdread' 'vcdimager' 'glu' 'sdl'
+             'wayland' 'aalib' 'a52dec' 'faad2' 'flac' 'libdca' 'libmad'
+             'libmodplug'  'libmpcdec' 'wavpack' 'gdk-pixbuf2' 'imagemagick'
+             'libcaca' 'libmng' 'libnfs' 'libnsl' 'smbclient')
 source=(https://downloads.sourceforge.net/project/xine/xine-lib/$pkgver/xine-lib-$pkgver.tar.xz
         xine-lib-imagemagick7.patch)
 
@@ -49,7 +54,7 @@ build() {
         --enable-vdpau \
         --with-external-dvdnav
     sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

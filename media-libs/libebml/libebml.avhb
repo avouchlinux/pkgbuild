@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libebml
-pkgver=1.3.10
+pkgver=1.4.5
 pkgrel=1
 pkgdesc='Extensible Binary Meta Language library'
 arch=('x86_64')
@@ -11,28 +12,29 @@ groups=('media-libs')
 url=https://github.com/Matroska-Org/libebml
 license=(LGPL2.1)
 depends=(gcc-libs)
-makedepends=(cmake git)
+makedepends=(
+  cmake
+  git
+  ninja
+)
 provides=(libebml.so)
-source=(https://github.com/Matroska-Org/libebml/archive/release-$pkgver.tar.gz)
+_tag=1878e784321673561039a6a37076b2736f4dc98f
+source=(git+https://github.com/Matroska-Org/libebml.git#tag=${_tag})
+b2sums=(SKIP)
 
-prepare() {
-  if [[ -d build ]]; then
-    rm -rf build
-  fi
-  mkdir build
+pkgver() {
+  cd libebml
+  git describe --tags | sed 's/^release-//'
 }
 
 build() {
-  cd build
-
-  cmake ../libebml-release-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
+  cmake -S libebml -B build -G Ninja \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib \
     -DBUILD_SHARED_LIBS=ON
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  make DESTDIR="${pkgdir}" -C build install
+  DESTDIR="${pkgdir}" cmake --install build
 }

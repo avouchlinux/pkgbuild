@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,7 +11,8 @@ pkgname=('systemd'
          'systemd-ukify')
 
 _realname=$pkgname-stable
-pkgver=255.2
+_tag='256.7'
+pkgver="${_tag/[-~]/}"
 pkgrel=1
 pkgdesc="system and service manager"
 arch=('x86_64')
@@ -19,11 +20,13 @@ groups=('sys-base')
 url='https://www.github.com/systemd/systemd'
 license=('GPL2' 'LGPL2.1')
 makedepends=('acl' 'cryptsetup' 'docbook-xsl' 'gperf' 'lz4' 'xz' 'pam' 'libelf'
-             'intltool' 'iptables' 'kmod' 'libcap' 'libidn2' 'libgcrypt'
-             'libmicrohttpd' 'libxslt' 'util-linux' 'linux-api-headers'
-             'python-lxml' 'quota-tools' 'shadow' 'gnu-efi-libs' 'git'
+             'intltool' 'iptables' 'kmod' 'libarchive' 'libcap' 'libidn2' 'libgcrypt'
+             'libmicrohttpd' 'libxcrypt' 'libxslt' 'util-linux' 'linux-api-headers'
+             'python-jinja' 'python-lxml' 'quota-tools' 'shadow' 'git'
              'meson' 'libseccomp' 'pcre2' 'audit' 'kexec-tools' 'libxkbcommon'
-             'bash-completion') 
+             'bash-completion' 'p11-kit' 'systemd' 'libfido2' 'tpm2-tss' 'rsync'
+             'bpf' 'libbpf' 'clang' 'llvm' 'curl' 'gnutls' 'python-pyelftools'
+             'libpwquality' 'qrencode' 'lib32-gcc-libs' 'python-pefile' 'linux-headers')
 depends=('acl' 'bash' 'cryptsetup' 'dbus' 'iptables' 'kbd' 'kmod' 'hwids' 'libcap'
            'libgcrypt' 'systemd-libs' 'libidn2' 'libidn2.so' 'lz4' 'pam' 'libelf'
            'libseccomp' 'util-linux' 'xz' 'pcre2' 'audit' 'libp11-kit')
@@ -32,7 +35,7 @@ optdepends=('libmicrohttpd: remote journald capabilities'
               'systemd-sysvcompat: symlink package to provide sysvinit binaries'
               'polkit: allow administration as unprivileged user'
               'curl: machinectl pull-tar and pull-raw')
-  backup=(etc/pam.d/systemd-user
+backup=(etc/pam.d/systemd-user
           etc/systemd/coredump.conf
           etc/systemd/journald.conf
           etc/systemd/journal-remote.conf
@@ -43,23 +46,68 @@ optdepends=('libmicrohttpd: remote journald capabilities'
           etc/systemd/resolved.conf
           etc/systemd/user.conf
           etc/udev/udev.conf)
-  install="systemd.install"
+install="systemd.install"
 options=('strip')
-source=("https://github.com/systemd/systemd-stable/archive/refs/tags/v$pkgver.tar.gz"
+validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
+              'A9EA9081724FFAE0484C35A1A81CEA22BC8C7E2E'  # Luca Boccassi <luca.boccassi@gmail.com>
+              '9A774DB5DB996C154EBBFBFDA0099A18E29326E1'  # Yu Watanabe <watanabe.yu+github@gmail.com>
+              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/systemd/systemd/archive/refs/tags/v256.7.tar.gz"
+        '0001-Use-Arch-Linux-device-access-groups.patch'
+        # bootloader files
         'avouch.conf'
         'loader.conf'
-        'splash-avouch.bmp')
-validpgpkeys=('63CDA1E5D3FC22B998D20DD6327F26951A015CC4'  # Lennart Poettering <lennart@poettering.net>
-              '5C251B5FC54EB2F80F407AAAC54CA336CFEB557E') # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+        'splash-avouch.bmp'
+        # pam configuration
+        'systemd-user.pam')
+sha512sums=('468f772b3dfa83483da75516499c50159206dc5f8e26d7a62fc08437c93a4e536c0b27ee7fa5ac11fb1bc27a9c0e41315261751e5cc7428629a30849aeb23386'
+            '3ccf783c28f7a1c857120abac4002ca91ae1f92205dcd5a84aff515d57e706a3f9240d75a0a67cff5085716885e06e62597baa86897f298662ec36a940cf410e'
+            '61032d29241b74a0f28446f8cf1be0e8ec46d0847a61dadb2a4f096e8686d5f57fe5c72bcf386003f6520bc4b5856c32d63bf3efe7eb0bc0deefc9f68159e648'
+            'c416e2121df83067376bcaacb58c05b01990f4614ad9de657d74b6da3efa441af251d13bf21e3f0f71ddcb4c9ea658b81da3d915667dc5c309c87ec32a1cb5a5'
+            '5a1d78b5170da5abe3d18fdf9f2c3a4d78f15ba7d1ee9ec2708c4c9c2e28973469bc19386f70b3cf32ffafbe4fcc4303e5ebbd6d5187a1df3314ae0965b25e75'
+            'b90c99d768dc2a4f020ba854edf45ccf1b86a09d2f66e475de21fe589ff7e32c33ef4aa0876d7f1864491488fd7edb2682fc0d68e83a6d4890a0778dc2d6fe19'
+            '2f12d7d00cf46334024db0382608a29e066f28eefe492438ab29fda505e80ad32d46f87a00ca41ae6567ff9b7835cf80c604baec0ee92b59ec6510b8508177a8'
+            '299dcc7094ce53474521356647bdd2fb069731c08d14a872a425412fcd72da840727a23664b12d95465bf313e8e8297da31259508d1c62cc2dcea596160e21c5'
+            '0d6bc3d928cfafe4e4e0bc04dbb95c5d2b078573e4f9e0576e7f53a8fab08a7077202f575d74a3960248c4904b5f7f0661bf17dbe163c524ab51dd30e3cb80f7'
+            '2b50b25e8680878f7974fa9d519df7e141ca11c4bfe84a92a5d01bb193f034b1726ea05b3c0030bad1fbda8dbb78bf1dc7b73859053581b55ba813c39b27d9dc'
+            'a436d3f5126c6c0d6b58c6865e7bd38dbfbfb7babe017eeecb5e9d162c21902cbf4e0a68cf3ac2f99815106f9fa003b075bd2b4eb5d16333fa913df6e2f3e32a'
+            '190112e38d5a5c0ca91b89cd58f95595262a551530a16546e1d84700fc9644aa2ca677953ffff655261e8a7bff6e6af4e431424df5f13c00bc90b77c421bc32d'
+            'a1661ab946c6cd7d3c6251a2a9fd68afe231db58ce33c92c42594aedb5629be8f299ba08a34713327b373a3badd1554a150343d8d3e5dfb102999c281bd49154'
+            '9426829605bbb9e65002437e02ed54e35c20fdf94706770a3dc1049da634147906d6b98bf7f5e7516c84068396a12c6feaf72f92b51bdf19715e0f64620319de'
+            'da7a97d5d3701c70dd5388b0440da39006ee4991ce174777931fea2aa8c90846a622b2b911f02ae4d5fffb92680d9a7e211c308f0f99c04896278e2ee0d9a4dc'
+            'a50d202a9c2e91a4450b45c227b295e1840cc99a5e545715d69c8af789ea3dd95a03a30f050d52855cabdc9183d4688c1b534eaa755ebe93616f9d192a855ee3'
+            '825b9dd0167c072ba62cabe0677e7cd20f2b4b850328022540f122689d8b25315005fa98ce867cf6e7460b2b26df16b88bb3b5c9ebf721746dce4e2271af7b97')
 
-# _gitbranch=255
-#_comit=7a6d834c0104304f506852eddc25b22e1ce65e3b
+_meson_version="${pkgver}-${pkgrel}"
+_meson_vcs_tag='false'
+_meson_mode='release'
+_meson_compile=()
+_meson_install=()
+
+if ((_systemd_UPSTREAM)); then
+  _meson_version="${pkgver}"
+  _meson_vcs_tag='true'
+  _meson_mode='developer'
+  pkgname+=('systemd-tests')
+  if ((_systemd_QUIET)); then
+    _meson_install=('--quiet')
+  else
+    _meson_compile=('--verbose')
+  fi
+fi
+
+_backports=(
+)
+
+_reverts=(
+)
+
 
 if [ -n "${_gitbranch}" ]; then	
 	_basedir=${_realname}-${pkgver}
 else
 	#_basedir=${pkgname}-${pkgver}
-  _basedir=systemd-stable-$pkgver
+  _basedir=$pkgbase-$pkgver
 fi
 
 pkgver() {
@@ -97,29 +145,32 @@ build() {
     '2001:4860:4860::8888#dns.google'
   )
   
-    #export LDFLAGS="$LDFLAGS -lrt"
-    local meson_options=(
-    -Dversion-tag="${pkgver}-${pkgrel}-avouch"
-    -Dmode=release
+local _meson_options=(
+    -Dversion-tag="${_meson_version}-arch"
+    -Dvcs-tag="${_meson_vcs_tag}"
+    -Dshared-lib-tag="${_meson_version}"
+    -Dmode="${_meson_mode}"
 
-    -Dapparmor=false
-    -Dbootloader=true
-    -Dxenctrl=false
-    -Dbpf-framework=true
+    -Dapparmor=disabled
+    -Dbootloader=enabled
+    -Dxenctrl=disabled
+    -Dbpf-framework=enabled
     -Dima=false
-    -Dlibidn2=true
-    -Dlz4=true
-    -Dman=true
+    -Dinstall-tests=true
+    -Dlibidn2=enabled
+    -Dlz4=enabled
+    -Dman=disabled
     -Dnscd=false
-
-
+    # -Dselinux=disabled
+    -Dsshdprivsepdir=/usr/share/empty.sshd
+    -Dvmlinux-h=provided
+    -Dvmlinux-h-path=/usr/src/linux/vmlinux.h
 
     # We disable DNSSEC by default, it still causes trouble:
     # https://github.com/systemd/systemd/issues/10579
 
     -Ddbuspolicydir=/usr/share/dbus-1/system.d
-    # -Ddefault-dnssec=no
-    -Ddefault-hierarchy=unified
+    -Ddefault-dnssec=no
     -Ddefault-kill-user-processes=false
     -Ddefault-locale='C.UTF-8'
     -Dlocalegen-path=/usr/bin/locale-gen
@@ -132,13 +183,13 @@ build() {
     -Dsysvinit-path=
     -Dsysvrcnd-path=
 
-    -Dsbat-distro='arch'
+    -Dsbat-distro='avouch'
     -Dsbat-distro-summary='Avouch Linux'
     -Dsbat-distro-pkgname="${pkgname}"
     -Dsbat-distro-version="${pkgver}"
-
-    -Dsbat-distro-url="https://avouch.org/packages/${pkgname}/"
+    -Dsbat-distro-url="https://avouch.org/packages/x86_64/${pkgname}/"
   )
+
 
   # this uses malloc_usable_size, which is incompatible with fortification level 3
   export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
@@ -146,9 +197,9 @@ build() {
 
   export LDFLAGS=""
 
-    avouch-meson ${_basedir} build "${meson_options[@]}"
+    avouch-meson ${_basedir} build "${_meson_options[@]}" $MESON_EXTRA_CONFIGURE_OPTIONS
 
-    meson compile -C build
+    meson compile -C build "${_meson_compile[@]}"
 }
 
 # check() {
@@ -157,10 +208,15 @@ build() {
 
 package_systemd() {
   pkgdesc='system and service manager'
-  license=('GPL2' 'LGPL2.1')
-  depends=('acl' 'libacl.so' 'bash' 'cryptsetup' 'libcryptsetup.so' 'dbus'
-           'kbd' 'kmod' 'libkmod.so' 'hwdata' 'libcap' 'libcap.so'
-           'libgcrypt' 'libxcrypt' 'libcrypt.so' 'systemd-libs' 'libidn2' 'lz4' 'pam'
+  license+=(
+    'CC0-1.0' # siphash
+    'GPL-2.0-or-later' # udev
+    'MIT-0' # documentation and config files
+  )
+  depends=("systemd-libs=${pkgver}"
+           'acl' 'libacl.so' 'bash' 'cryptsetup' 'libcryptsetup.so' 'dbus'
+           'dbus-units' 'kbd' 'kmod' 'hwdata' 'libcap' 'libcap.so'
+           'libgcrypt' 'libxcrypt' 'libcrypt.so' 'libidn2' 'lz4' 'pam'
            'libelf' 'libseccomp' 'libseccomp.so' 'util-linux' 'libblkid.so'
            'libmount.so' 'xz' 'pcre2' 'audit' 'libaudit.so'
            'openssl' 'libcrypto.so' 'libssl.so')
@@ -176,6 +232,7 @@ package_systemd() {
               'gnutls: systemd-journal-gatewayd and systemd-journal-remote'
               'qrencode: show QR codes'
               'iptables: firewall features'
+              'libarchive: convert DDIs to tarballs'
               'libbpf: support BPF programs'
               'libpwquality: check password quality'
               'libfido2: unlocking LUKS2 volumes with FIDO2 token'
@@ -199,6 +256,7 @@ package_systemd() {
           etc/udev/iocost.conf
           etc/udev/udev.conf)
   install=systemd.install
+
 
   meson install -C build --destdir "$pkgdir"
 
@@ -288,7 +346,7 @@ package_systemd-libs() {
   install -d -m0755 "$pkgdir"/usr/share/man
   mv systemd-libs/lib "$pkgdir"/usr/lib
   mv systemd-libs/include "$pkgdir"/usr/include
-  mv systemd-libs/man3 "$pkgdir"/usr/share/man/man3
+#   mv systemd-libs/man3 "$pkgdir"/usr/share/man/man3
 }
 
 package_systemd-resolvconf() {
@@ -301,8 +359,8 @@ package_systemd-resolvconf() {
   install -d -m0755 "$pkgdir"/usr/bin
   ln -s resolvectl "$pkgdir"/usr/bin/resolvconf
 
-  install -d -m0755 "$pkgdir"/usr/share/man/man1
-  ln -s resolvectl.1.gz "$pkgdir"/usr/share/man/man1/resolvconf.1.gz
+#   install -d -m0755 "$pkgdir"/usr/share/man/man1
+#   ln -s resolvectl.1.gz "$pkgdir"/usr/share/man/man1/resolvconf.1.gz
 }
 
 package_systemd-sysvcompat() {
@@ -311,8 +369,8 @@ package_systemd-sysvcompat() {
   conflicts=('sysvinit')
   depends=('systemd')
 
-  install -D -m0644 -t "$pkgdir"/usr/share/man/man8 \
-    build/man/{halt,poweroff,reboot,shutdown}.8
+#   install -D -m0644 -t "$pkgdir"/usr/share/man/man8 \
+#     build/man/{halt,poweroff,reboot,shutdown}.8
 
   install -d -m0755 "$pkgdir"/usr/bin
   ln -s ../lib/systemd/systemd "$pkgdir"/usr/bin/init
@@ -320,6 +378,15 @@ package_systemd-sysvcompat() {
     ln -s systemctl "$pkgdir"/usr/bin/$tool
   done
 }
+
+package_systemd-tests() {
+  pkgdesc='systemd tests'
+  depends=("systemd=${pkgver}")
+
+  install -d -m0755 "$pkgdir"/usr/lib/systemd
+  mv systemd-tests/tests "$pkgdir"/usr/lib/systemd/tests
+}
+
 
 package_systemd-ukify() {
   pkgdesc='Combine kernel and initrd into a signed Unified Kernel Image'
@@ -332,6 +399,6 @@ package_systemd-ukify() {
   install -d -m0755 "$pkgdir"/usr/{lib/kernel,share/man}
   mv systemd-ukify/bin "$pkgdir"/usr/bin
   mv systemd-ukify/systemd "$pkgdir"/usr/lib/systemd
-  mv systemd-ukify/man1 "$pkgdir"/usr/share/man/man1
+#   mv systemd-ukify/man1 "$pkgdir"/usr/share/man/man1
   mv systemd-ukify/install.d "$pkgdir"/usr/lib/kernel/install.d
 }

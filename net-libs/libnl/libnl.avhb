@@ -1,34 +1,41 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libnl
-pkgver=3.5.0
+pkgver=3.10.0
 pkgrel=1
 pkgdesc='Library for applications dealing with netlink sockets'
 arch=('x86_64')
 groups=('net-libs')
 url='https://github.com/thom311/libnl/'
-license=(GPL)
-depends=(glibc)
-backup=(etc/libnl/classid etc/libnl/pktloc)
-source=(https://github.com/thom311/libnl/releases/download/libnl${pkgver//./_}/${pkgname}-${pkgver}.tar.gz{,.sig})
+license=('GPL')
+depends=('glibc' 'gcc-libs')
+provides=('libnl-3.so' 'libnl-cli-3.so' 'libnl-genl-3.so' 'libnl-idiag-3.so'
+          'libnl-nf-3.so' 'libnl-route-3.so' 'libnl-xfrm-3.so')
+backup=('etc/libnl/classid'
+        'etc/libnl/pktloc')
 validpgpkeys=('49EA7C670E0850E7419514F629C2366E4DFC5728') # Thomas Haller
+source=("https://github.com/thom311/libnl/releases/download/libnl${pkgver//./_}/${pkgname}-${pkgver}.tar.gz"{,.sig})
+sha256sums=('49b3e2235fdb58f5910bbb3ed0de8143b71ffc220571540502eb6c2471f204f5'
+            'SKIP')
 
 build() {
-  cd $pkgname-$pkgver
+  cd "${pkgname}-${pkgver}"
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
     --sbindir=/usr/bin \
     --disable-static
-  make ${MAKEFLGS}
+  make
 }
 
 check() {
-  make -C $pkgname-$pkgver check
+  make -C "${pkgname}-${pkgver}" check
 }
 
 package() {
-  make -C $pkgname-$pkgver DESTDIR="$pkgdir" install
+  make -C "${pkgname}-${pkgver}" DESTDIR="${pkgdir}" install
 }
+

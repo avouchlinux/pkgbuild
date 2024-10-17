@@ -1,30 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-x11perf
 _realname=x11perf
-pkgver=1.6.1
+pkgver=1.7.0
 pkgrel=1
 pkgdesc="Simple X server performance benchmarker"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
-license=('custom')
-depends=('libx11' 'libxmu' 'libxrender' 'libxft' 'libxext')
+url="https://gitlab.freedesktop.org/xorg/test/x11perf"
+license=('SMLNJ' 'HPND')
+depends=('libx11' 'libxmu' 'libxrender' 'libxft' 'libxext' 'fontconfig' 'sh' 'glibc')
 makedepends=('xorg-util-macros')
-source=(http://xorg.freedesktop.org/archive/individual/app/x11perf-${pkgver}.tar.bz2)
-sha256sums=('24ee8857a2bf414b360addabf1c27ef797f7f504ee9bc409c151760bfbe53184')
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/test/x11perf-${pkgver}.tar.xz{,.sig})
+sha512sums=('de8185bfbac15fb5eb15c18ba8450d8e383e1356675e0368c9a443d4c2d14245fab87ac0aa4ddcc5ebf731af0ad1173f53c6937104c1be824bfda5b58112fd5e'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd x11perf-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd x11perf-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hiredis
-pkgver=0.14.1
+pkgver=1.2.0
 pkgrel=1
 pkgdesc='Minimalistic C client library for Redis'
 arch=('x86_64')
@@ -14,19 +14,20 @@ license=('BSD')
 depends=('glibc')
 checkdepends=('redis')
 source=(https://github.com/redis/$pkgname/archive/v$pkgver/hiredis-$pkgver.tar.gz)
+sha256sums=('82ad632d31ee05da13b537c124f819eb88e18851d9cb0c30ae0552084811588c')
 
 build() {
-  cd "$srcdir"/$pkgname-$pkgver
+  cd $pkgname-$pkgver
   make PREFIX=/usr
 }
 
 check() {
-  cd "$srcdir"/$pkgname-$pkgver
-  # make check
+  cd $pkgname-$pkgver
+  make check
 }
 
 package() {
-  cd "$srcdir"/$pkgname-$pkgver
+  cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" PREFIX=/usr install
 
   install -Dm 644 COPYING "$pkgdir"/usr/share/licenses/$pkgname/COPYING

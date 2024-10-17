@@ -8,7 +8,7 @@ pkgname=(
   libsoup
   libsoup-docs
 )
-pkgver=3.4.4
+pkgver=3.6.0
 pkgrel=1
 pkgdesc="HTTP client/server library for GNOME"
 arch=('x86_64')
@@ -46,7 +46,7 @@ prepare() {
 
 build() {
     avouch-meson $pkgname-$pkgver build -D autobahn=disabled
-     meson compile -C build
+    meson compile -C build
 }
 
 check() {

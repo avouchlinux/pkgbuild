@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,24 +12,25 @@ arch=('x86_64')
 groups=('media-libs')
 url="https://icculus.org/smpeg/"
 license=(LGPL)
-depends=(sdl)
-makedepends=(mesa glu subversion)
+depends=(sdl2)
+makedepends=(mesa glu)
 optdepends=('glu: to use glmovie')
 source=("https://github.com/icculus/smpeg/archive/refs/tags/release_${pkgver//./_}.tar.gz")
+sha256sums=('fdd431bd607efcf0f35789fb3105d7535d4f0e8b46e673e9c0051726e8d1e701')
 
 prepare() {
-  cd $_realname
+  cd smpeg-release_${pkgver//./_}
   ./autogen.sh
 }
 
 build() {
-  cd $_realname
-  export CFLAGS+=" -Wno-error=narrowing"
+  cd smpeg-release_${pkgver//./_}
+  CFLAGS+=" -Wno-error=narrowing"
   ./configure --prefix=/usr --mandir=/usr/share/man --disable-static
   make
 }
 
 package() {
-  cd $_realname
+  cd smpeg-release_${pkgver//./_}
   make DESTDIR="$pkgdir" install
 }

@@ -5,13 +5,13 @@
 
 pkgname=libsbsms
 pkgver=2.3.0
-pkgrel=3
+pkgrel=1
 pkgdesc="A library for high quality time and pitch scale modification"
 arch=(x86_64)
 groups=('media-sound')
 url="https://github.com/claytonotey/libsbsms"
-license=(GPL2)
-depends=(gcc-libs)
+license=("GPL-2.0-or-later")
+depends=(gcc-libs glibc)
 makedepends=(cmake)
 provides=(libsbsms.so)
 source=($pkgname-$pkgver.tar.gz::https://github.com/claytonotey/libsbsms/archive/refs/tags/$pkgver.tar.gz)

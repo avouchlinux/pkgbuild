@@ -1,32 +1,42 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lensfun
-pkgver=0.3.95
+pkgver=0.3.4
 pkgrel=1
 pkgdesc="Database of photographic lenses and a library that allows advanced access to the database"
 arch=('x86_64')
 groups=('media-libs')
-url="https://lensfun.sourceforge.net"
-license=('LGPL3')
-depends=('glib2')
-makedepends=('python' 'libpng' 'doxygen' 'cmake')
+url='https://lensfun.github.io/'
+license=(LGPL3)
+depends=(glib2)
+makedepends=(python-setuptools python-build python-installer python-wheel libpng doxygen cmake)
 optdepends=('python: for lensfun-update-data and lensfun-add-adapter')
-source=("https://sourceforge.net/projects/lensfun/files/${pkgver}/${pkgname}-${pkgver}.tar.gz"
-        lensfun-fix-python-install-dir.patch)
+source=(https://github.com/lensfun/lensfun/archive/v$pkgver/$pkgname-$pkgver.tar.gz
+        fix-python-module-install.patch)
+sha256sums=('dafb39c08ef24a0e2abd00d05d7341b1bf1f0c38bfcd5a4c69cf5f0ecb6db112'
+            'e29af58568f6d68f728bc68dba08587e7a7678f6547ab4259f59f20f0efac13a')
+
+prepare() {
+# Fix Python module installation
+  patch -d $pkgname-$pkgver -p1 < fix-python-module-install.patch
+}
 
 build() {
-    cd ${pkgname}-${pkgver}
-    cmake . \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_LIBDIR=lib \
-      -DCMAKE_CXX_FLAGS="${CXXFLAGS} -fno-delete-null-pointer-checks"
-    make ${MAKEFLAGS} all
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -fno-delete-null-pointer-checks" \
+    -DINSTALL_PYTHON_MODULE=OFF
+  cmake --build build
+  cd build/apps
+  python -m build --wheel --no-isolation
 }
 
 package() {
-    cd ${pkgname}-${pkgver}
-    make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
+  cd build/apps
+  python -m installer --destdir="$pkgdir" dist/*.whl
 }

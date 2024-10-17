@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,16 +9,29 @@ pkgrel=1
 pkgdesc="Encoding data for the poppler PDF rendering library"
 arch=('any')
 groups=('media-grafix')
-license=('custom' 'GPL2')
-conflicts=('poppler')
+license=('GPL-2.0-only OR GPL-3.0-only' 'BSD-3-Clause')
+conflicts=('poppler<0.10.5')
 url="https://poppler.freedesktop.org/"
-source=(https://poppler.freedesktop.org/${pkgname}-${pkgver}.tar.gz)
+source=(https://poppler.freedesktop.org/${pkgname}-${pkgver}.tar.gz
+        https://dev.gentoo.org/~sam/distfiles/app-text/${pkgname}/${pkgname}-$_POPPLER_DATA_EXTRA_VERSION-extra.tar.xz)
+sha256sums=('c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74'
+            '2f62dc1d20e1646e9c92e6fc35ba26f7d12b7cacee3577e5fd4a85511bfc6603')
 
 package() {
   cd ${pkgname}-${pkgver}
+
   make prefix=/usr DESTDIR="${pkgdir}" install
+
+  # additional cMaps for ghostscript - FS#76416
+  cp ../${pkgname}-${_POPPLER_DATA_EXTRA_VERSION}-extra/Identity-* "${pkgdir}"/usr/share/poppler/cMap
+
+  # add symlinks to cMaps - FS#76565
+  pushd "${pkgdir}"/usr/share/poppler/cMap
+    find ../cMap -type f -exec ln -s {} . \;
+  popd
 
   install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -m644 COPYING COPYING.adobe \
     "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

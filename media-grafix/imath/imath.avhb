@@ -1,25 +1,30 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=imath
 _realname=Imath
-pkgver=3.1.5
+pkgver=3.1.12
 pkgrel=1
 pkgdesc='A C++ and python library of 2D and 3D vector, matrix, and math operations for computer graphics'
 url='https://www.openexr.com/'
 arch=(x86_64)
 groups=('media-grafix')
 license=(BSD)
-depends=(gcc-libs)
-optdepends=('python: python bindings' 'boost-libs: python bindings')
-makedepends=(cmake python boost)
-source=(https://github.com/AcademySoftwareFoundation/Imath/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
-sha256sums=('1e9c7c94797cf7b7e61908aed1f80a331088cc7d8873318f70376e4aed5f25fb')
+depends=(gcc-libs
+         glibc)
+optdepends=('boost-libs: python bindings'
+            'python: python bindings')
+makedepends=(boost
+             cmake
+             git
+             python)
+source=(git+https://github.com/AcademySoftwareFoundation/Imath#tag=v$pkgver)
+sha256sums=('42b95856f39fd27cb30e26ef0e77ec5ad6b37c83ec9c2571914a7c9f0397daa0')
 
 build() {
-  cmake -B build -S Imath-$pkgver \
+  cmake -B build -S Imath \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DPYTHON=ON
   cmake --build build
@@ -27,5 +32,6 @@ build() {
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 Imath-$pkgver/LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname
+  install -Dm644 Imath/LICENSE.md -t "$pkgdir"/usr/share/licenses/$pkgname
 }
+

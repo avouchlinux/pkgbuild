@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,28 +9,35 @@ pkgrel=1
 pkgdesc="Open h.265 video codec implementation"
 arch=('x86_64')
 groups=('media-libs')
-url="https://github.com/strukturag/libde265"
-license=(LGPL3)
-depends=(gcc-libs)
-makedepends=(ffmpeg sdl qt5-base)
-optdepends=('ffmpeg: for sherlock265' 'qt5-base: for sherlock265'
+url='https://github.com/strukturag/libde265'
+license=(LGPL-3.0-or-later)
+depends=(gcc-libs
+         glibc)
+makedepends=(ffmpeg
+             git
+             qt5-base
+             sdl)
+optdepends=('ffmpeg: for sherlock265'
+            'qt5-base: for sherlock265'
             'sdl: dec265 YUV overlay output')
-source=(https://github.com/strukturag/libde265/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz
-        libde265-ffmpeg4.patch::"https://github.com/strukturag/libde265/commit/e5b8e2e7.patch")
+source=(git+https://github.com/strukturag/libde265#tag=v$pkgver)
+sha256sums=('fc1d3e6e13eae5599070bf469ef4b7edb74efad6831df6fba461779e3293bbd7')
 
 prepare() {
-  cd $pkgname-$pkgver
-  #patch -p1 -i ../libde265-ffmpeg4.patch # Fix build with ffmpeg 4.0
+  cd $pkgname
   ./autogen.sh
 }
 
 build() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   ./configure --prefix=/usr --enable-static=no
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
+
+# Remove useless tests binary
+  rm "$pkgdir"/usr/bin/tests
 }

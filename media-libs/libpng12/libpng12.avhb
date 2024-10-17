@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -15,6 +16,9 @@ depends=('glibc' 'zlib')
 source=("https://sourceforge.net/projects/libpng/files/libpng-${pkgver}.tar.xz"{,.asc}
         "https://sourceforge.net/projects/libpng-apng/files/libpng12/${pkgver}/libpng-${pkgver}-apng.patch.gz")
 validpgpkeys=('8048643BA2C840F4F92A195FF54984BFA16C640F') # Glenn Randers-Pehrson
+sha256sums=('b4635f15b8adccc8ad0934eea485ef59cc4cae24d0f0300a9a941e51974ffcc7'
+            'SKIP'
+            '281fd5f0165762967a18302dca217de3212be4a3437f95805be44f1ac9db1a5d')
 
 prepare() {
   cd libpng-${pkgver}
@@ -30,8 +34,9 @@ prepare() {
 build() {
   cd libpng-${pkgver}
 
-  ./configure --prefix='/usr'
-  make ${MAKEFLAGS}
+  ./configure \
+    --prefix='/usr'
+  make
 }
 
 package() {
@@ -42,3 +47,4 @@ package() {
 
   install -Dm 644 LICENSE -t "${pkgdir}"/usr/share/licenses/libpng12/
 }
+

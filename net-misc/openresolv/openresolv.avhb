@@ -1,39 +1,53 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=openresolv
-pkgver=3.10.0
+pkgver=3.13.2
 pkgrel=1
 pkgdesc="resolv.conf management framework (resolvconf)"
 arch=(any)
 groups=('net-misc')
 url="http://roy.marples.name/projects/openresolv"
-license=('custom:BSD')
-backup=(etc/resolvconf.conf)
+license=(custom:BSD)
 provides=(resolvconf)
+conflicts=(resolvconf)
 depends=(bash)
-makedepends=(systemd)
-source=("http://roy.marples.name/downloads/openresolv/${pkgname}-${pkgver}.tar.bz2"
-        fs33801.patch)
+makedepends=(
+  git
+  systemd
+)
+backup=(etc/resolvconf.conf)
+_commit=867a412d63a28d2c4978e02fc44fb8013f46d356  # tags/v3.13.2^0
+source=("git+https://github.com/NetworkConfiguration/openresolv#commit=$_commit")
+b2sums=('6170f68d93055d7e70e8093163098ea6feed9725615ee9040c106c5e3f84359cbd80b9549124084ad02fae6d5ba3424bcf66f4157aa086d9b364e3bb107017a7')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	patch -Np1 -i ../fs33801.patch
-	sed -n '2,25{s:^# \?::;p}' resolvconf.in >LICENSE 
+  cd $pkgname
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc \
-	--libexecdir=/usr/lib/resolvconf \
-	--sbindir=/usr/bin
-	make
+  local configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --libexecdir=/usr/lib/resolvconf
+    --sbindir=/usr/bin
+  )
+
+  cd $pkgname
+  ./configure "${configure_options[@]}"
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
-	install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE
 }
+

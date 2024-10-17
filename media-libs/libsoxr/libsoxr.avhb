@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,40 +10,35 @@ pkgrel=1
 pkgdesc='The SoX Resampler library that aims to give fast and high quality results for any constant resampling ratio'
 arch=('x86_64')
 groups=('media-libs')
-url='http://sourceforge.net/p/soxr/wiki/Home/'
+url=https://sourceforge.net/p/soxr/wiki/Home/
 license=(GPL)
 depends=(gcc-libs)
-makedepends=(cmake)
-options=(!emptydirs)
-source=(http://downloads.sourceforge.net/project/soxr/soxr-$pkgver-Source.tar.xz)
+makedepends=(
+  cmake
+  ninja
+)
+source=(https://downloads.sourceforge.net/project/soxr/soxr-$pkgver-Source.tar.xz)
+b2sums=('5b7078f71404b9ef83917dcabc0c99cf17fd625d3e033d1b934382a7b60e55e359931a6ab53f8adaf955c0d811d6cbf231cd6a226549560b3506a3867e845607')
 
 build() {
-  cd soxr-$pkgver-Source
-  cmake \
+  cmake -S soxr-${pkgver}-Source -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DBUILD_EXAMPLES=OFF \
     -DBUILD_SHARED_LIBS=ON \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DVISIBILITY_HIDDENL=ON \
     -DWITH_AVFFT=ON \
-    -DWITH_DOUBLE_PRECISION=ON \
     -DWITH_LSR_BINDINGS=ON \
     -DWITH_OPENMP=ON \
-    -DWITH_PFFFT=ON \
-    -DWITH_SIMD=ON \
-    .
-  make
+    -DWITH_PFFFT=ON
+    cmake --build build
 }
 
 check() {
-  cd soxr-$pkgver-Source
-  make test
+  ctest --test-dir build
 }
 
 package() {
-  cd soxr-$pkgver-Source
-  
-  make DESTDIR="$pkgdir" install
-  install -Dm644 LICENCE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
-  rm -r "$pkgdir"/usr/share/doc/$pkgname/
+  DESTDIR="${pkgdir}" cmake --install build
+  rm -rf "${pkgdir}"/usr/share/doc
+  install -Dm 644 soxr-${pkgver}-Source/LICENCE -t "${pkgdir}"/usr/share/licenses/libsoxr/
 }

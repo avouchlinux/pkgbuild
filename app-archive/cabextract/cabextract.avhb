@@ -1,31 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=cabextract
-pkgver=1.9.1
+pkgver=1.11
 pkgrel=1
 pkgdesc="A program to extract Microsoft cabinet (.CAB) files"
 arch=('x86_64')
 groups=('app-archive')
 license=('GPL')
-url="http://www.cabextract.org.uk/"
-depends=('glibc')
-DLAGENTS=('http::/usr/bin/curl -fLC - --retry 3 --retry-delay 3 -A "Mozilla/4.0" -o %o %u')
-source=("http://www.cabextract.org.uk/${pkgname}-${pkgver}.tar.gz")
+url=https://www.cabextract.org.uk/
+depends=(glibc)
+makedepends=(git)
+_tag=305907723a4e7ab2018e58040059ffb5e77db837
+source=(git+https://github.com/kyz/libmspack.git#tag=${_tag})
+b2sums=(SKIP)
+
+prepare() {
+  cd libmspack/cabextract
+  ./autogen.sh
+}
+
+pkgver() {
+  cd libmspack
+  git describe --tags | sed 's/^v//'
+}
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-
-  ./configure --prefix=/usr \
-              --sysconfdir=/etc \
-              --mandir=/usr/share/man
+  cd libmspack/cabextract
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --mandir=/usr/share/man
   make
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-
-  make DESTDIR="${pkgdir}" install
+  make DESTDIR="${pkgdir}" -C libmspack/cabextract install
 }
+

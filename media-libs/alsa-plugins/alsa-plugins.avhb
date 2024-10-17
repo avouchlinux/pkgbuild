@@ -11,7 +11,10 @@ pkgdesc="Extra alsa plugins"
 arch=('x86_64')
 groups=('media-libs')
 url="https://www.alsa-project.org"
-license=(LGPL2.1)
+license=(
+  GPL-2.0-or-later
+  LGPL-2.1-or-later
+)
 makedepends=(
   alsa-lib
   dbus
@@ -24,11 +27,6 @@ makedepends=(
 )
 source=("https://www.alsa-project.org/files/pub/plugins/$pkgbase-$pkgver.tar.bz2"
         pulse-sysdefault.diff)
-
-source=(
-  https://www.alsa-project.org/files/pub/plugins/$pkgbase-$pkgver.tar.bz2{,.sig}
-  pulse-sysdefault.diff
-)
 sha512sums=('b2064eb32662662f422f6e7c71f503d82c68d7a7059c8197bdd61ee08735b3ee104c6a5f9e3451e81124634514b91fc89d05d33041d9c2bb0f55b3c2ac3271b1'
             'SKIP'
             'b8c8e55f4da0ae87cc44d75a906d00b4f1e2304e6bc10419c6e0913c8f7d29599a3f3d41733decbe412a4669ea0d5af2a57f85b1655fba3625fbbd33c956f3f9')

@@ -4,13 +4,14 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libjpeg-turbo
-pkgver=3.0.2
+pkgver=3.0.4
 pkgrel=1
 pkgdesc='JPEG image codec with accelerated baseline compression and decompression'
-url="https://libjpeg-turbo.org/"
-_url="https://github.com/libjpeg-turbo/libjpeg-turbo/"
 arch=('x86_64')
 groups=('media-libs')
+url="https://libjpeg-turbo.org/"
+_url="https://github.com/libjpeg-turbo/libjpeg-turbo/"
+arch=(x86_64)
 license=(
   BSD-3-Clause
   IJG
@@ -21,6 +22,7 @@ makedepends=(
   ninja
   nasm
   'java-environment>11'
+  strip-nondeterminism
 )
 optdepends=('java-runtime>11: for TurboJPEG Java wrapper')
 provides=(
@@ -31,9 +33,9 @@ provides=(
 source=(
   $_url/releases/download/$pkgver/$pkgname-$pkgver.tar.gz{,.sig}
 )
-sha512sums=('f5eadda0712feb810a8c3bb2621fda24a4c30574998ce30f423b3ffa25225c7a87cb14b696232bc0270485f422a2853a5c32eafb65bc5eeab1b41d8aeb32ad29'
+sha512sums=('04d37d65131f7ab8586507fe6520452e791e9b8d72a08cf52f81279450b4c6b8a5b49ff3e14e358d3c32cb5666b6d4576d1e16895af8213a1761464de5dc9d31'
             'SKIP')
-b2sums=('b6eff81657707852ee9ea81099179c6e20914f513fd32b12b1bfbf5233f850f54a1062a98150044aa34476f0c54e42a67c88633a59834a764d3f8bb394f374f0'
+b2sums=('cf951582ce7cdf0dce39075bb1cc58f6a61fa0bdaca4874a4f06a03d2cd11775bc626c8d391d4fc76574d302a781ba47e5c90e2aa2d6a21a8b8d06712437e241'
         'SKIP')
 validpgpkeys=('0338C8D8D9FDA62CF9C421BD7EC2DBB6F4DBF434') # The libjpeg-turbo Project (Signing key for official binaries) <information@libjpeg-turbo.org>
 
@@ -53,6 +55,9 @@ build() {
 
   cmake "${cmake_options[@]}"
   cmake --build build -v
+
+  # cmake creates non-reproducible jars: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/745
+  strip-nondeterminism --timestamp "$SOURCE_DATE_EPOCH" build/java/turbojpeg.jar
 }
 
 check() {

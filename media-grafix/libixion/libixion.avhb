@@ -1,39 +1,38 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libixion
 _realname=ixion
-pkgver=0.16.1
+pkgver=0.19.0
 pkgrel=1
 pkgdesc="A general purpose formula parser and interpreter"
 arch=('x86_64')
 groups=('media-grafix')
 url="https://gitlab.com/ixion/ixion/blob/master/README.md"
 license=('custom')
-depends=('boost-libs' 'python')
-makedepends=('boost' 'mdds')
-source=("https://gitlab.com/ixion/ixion/-/archive/$pkgver/ixion-$pkgver.tar.bz2")
-
-prepare() {
-  cd ${_realname}-${pkgver}
-  ./autogen.sh
-}
+depends=('boost-libs' 'python' 'gcc-libs' 'glibc')
+makedepends=('boost' 'mdds' 'spdlog')
+source=("https://kohei.us/files/ixion/src/libixion-${pkgver}.tar.xz")
+# https://gitlab.com/ixion/ixion/-/releases
+sha256sums=('b4864d7a55351a09adbe9be44e5c65b1d417e80e946c947951d0e8428b9dcd15')
 
 build() {
-  cd ${_realname}-${pkgver}
-  ./configure --prefix=/usr --disable-static
-  make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+    --disable-static
+#  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool # doesn't fix it
+  make
 }
 
 check() {
-  cd ${_realname}-${pkgver}
-  make ${MAKEFLAGS} -k check
+  cd ${pkgname}-${pkgver}
+  make -k check
 }
 
 package() {
-  cd ${_realname}-${pkgver}
+  cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
   # LICENSE file is missing in tarball
   install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"

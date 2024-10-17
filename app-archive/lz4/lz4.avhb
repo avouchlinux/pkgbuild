@@ -1,40 +1,37 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lz4
-pkgver=1.9.2
+pkgver=1.10.0
 pkgrel=1
 pkgdesc='Extremely fast compression algorithm'
 arch=('x86_64')
 groups=('app-archive')
-url='http://www.lz4.org/'
-license=('GPL2')
-makedepends=('git')
+url='https://lz4.github.io/lz4/'
+license=('GPL-2.0-or-later')
+makedepends=('git' 'meson' 'ninja')
 checkdepends=('diffutils')
 depends=('glibc')
+provides=('liblz4.so')
 source=("git+https://github.com/lz4/lz4.git#tag=v$pkgver")
-md5sums=('SKIP')
+sha256sums=('487f9bc24fdaf589e2f4bb23dd98b1f21a71b643db09251145616587c9468555')
 
 build() {
-	# do not use the main makefile, it calls sub make with -e
-	# exported CLFAGS by makepkg break the version.
-	cd "$pkgname-$pkgver"
-	make -C lib PREFIX=/usr
-	make -C programs PREFIX=/usr lz4 lz4c
+  meson setup --prefix=/usr --buildtype=plain lz4/build/meson build
+  meson configure build -Dcontrib=true -Dexamples=true -Dprograms=true
+  meson compile -C build
 }
 
 check() {
-	cd "$pkgname-$pkgver"
-	rm -f passwd.lz4
-	programs/lz4 /etc/passwd passwd.lz4
-	programs/lz4 -d passwd.lz4 passwd
-	diff -q /etc/passwd passwd
-	rm passwd
+  rm -f passwd.lz4
+  build/meson/programs/lz4 /etc/passwd passwd.lz4
+  build/meson/programs/lz4 -d passwd.lz4 passwd
+  diff -q /etc/passwd passwd
+  rm passwd
 }
 
 package() {
-	cd "$pkgname-$pkgver"
-	make install PREFIX=/usr DESTDIR="$pkgdir"
+  meson install -C build --destdir "$pkgdir"
 }

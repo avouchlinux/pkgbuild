@@ -1,21 +1,35 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=networkmanager-pptp
 _realname=NetworkManager-pptp
-pkgver=1.2.10
+pkgver=1.2.12
 pkgrel=1
 pkgdesc="NetworkManager VPN plugin for PPTP"
 arch=('x86_64')
 groups=('net-misc')
 url="https://wiki.gnome.org/Projects/NetworkManager"
 license=(GPL)
-_pppver=2.4.7
-depends=(libnm libsecret "ppp=$_pppver" pptpclient)
-makedepends=(libnma intltool python git)
-optdepends=('libnma: GUI support')
+_pppver=2.5.1
+depends=(
+  libnm
+  libsecret
+  "ppp=$_pppver"
+  pptpclient
+)
+makedepends=(
+  git
+  glib2-devel
+  libnma
+  libnma-gtk4
+  python
+)
+optdepends=(
+  'libnma-gtk4: GUI support (GTK 4)'
+  'libnma: GUI support (GTK 3)'
+)
 source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
 
 prepare() {
@@ -30,7 +44,7 @@ build() {
     --libexecdir=/usr/lib --disable-static \
     --with-pppd-plugin-dir=/usr/lib/pppd/$_pppver
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

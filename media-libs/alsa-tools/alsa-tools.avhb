@@ -10,7 +10,7 @@ pkgdesc="Advanced tools for certain sound cards"
 arch=('x86_64')
 groups=('media-libs')
 url="https://alsa-project.org/"
-license=('GPL2')
+license=(GPL-2.0-or-later)
 depends=(
   gcc-libs
   glibc

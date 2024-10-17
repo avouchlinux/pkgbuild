@@ -1,36 +1,55 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-video-amdgpu
-pkgver=21.0.0
+pkgver=23.0.0
 pkgrel=1
 pkgdesc="X.org ati video driver"
 arch=('x86_64')
 groups=('x11-drivers')
-url="http://xorg.freedesktop.org/"
-license=('custom')
-depends=('libdrm>=2.4.41' 'systemd' 'ati-dri' 'glamor-egl')
-makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0')
-source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
-
-prepare() {
-  cd "$srcdir"/$pkgname-$pkgver
-  # GCC 10 fix (Gentoo)
-#   patch -p1 -i ../xf86-video-amdgpu-19.1.0-Fix-link-failure-with-gcc-10.patch
-}
+url="https://xorg.freedesktop.org/"
+license=('MIT')
+depends=('systemd-libs' 'mesa' 'libdrm' 'glibc')
+makedepends=('xorg-server-devel' 'systemd' 'X-ABI-VIDEODRV_VERSION=25.2')
+conflicts=('xorg-server<1.20.0' 'X-ABI-VIDEODRV_VERSION<25' 'X-ABI-VIDEODRV_VERSION>=26')
+groups=('xorg-drivers')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('bf26f147629a34e84a0ae8435119e170b9c95edafcab1995b63bb8f55abef32f2efbf4536eb070e64b2ae1460424b1b27a4206cb9836d33ddc6dfbee404f718b'
+            'SKIP')
+#validpgpkeys=('B09FAF35BE914521980951145A81AF8E6ADBB200') # Michel Daenzer <michel@daenzer.net>
+#validpgpkeys=('017E91A875CBA321258380F19B4EE4F98474DE40') # "Alex Deucher <alexdeucher@gmail.com>"
+validpgpkeys=('F1111E4AAF984C9763795FFE4B25B5180522B8D9') # Shashank Sharma <contactshashanksharma@gmail.com>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLGS}
+  cd ${pkgname}-${pkgver}
+
+  # We are using hardened flags
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  export CFLAGS=${CFLAGS/-fno-plt}
+  export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  export LDFLAGS=${LDFLAGS/-z now}
+  
+
+  #CFLAGS+=' -fcommon' # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+
+  ./configure --prefix=/usr \
+    --enable-glamor
+  make
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  make check
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd ${pkgname}-${pkgver}
+
+  make "DESTDIR=${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
 

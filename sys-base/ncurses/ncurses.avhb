@@ -1,21 +1,39 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ncurses
-pkgver=6.4_20231118
+pkgver=6.5
 pkgrel=1
 pkgdesc='System V Release 4.0 curses emulation library'
 arch=('x86_64')
 groups=('sys-base')
 url='https://invisible-island.net/ncurses/ncurses.html'
-license=(MIT)
-depends=(glibc gcc-libs)
-makedepends=(autoconf-archive)
+license=(MIT-open-group)
+depends=(
+  glibc
+  gcc-libs
+)
+makedepends=(
+  autoconf-archive
+  git
+)
 optdepends=('bash: for ncursesw6-config')
-provides=(libncurses++w.so libformw.so libmenuw.so libpanelw.so libncursesw.so)
+provides=(
+  libncurses++w.so
+  libformw.so
+  libmenuw.so
+  libpanelw.so
+  libncursesw.so
+)
+replaces=(
+  alacritty-terminfo
+  rio-terminfo
+  wezterm-terminfo
+)
 #source=(http://invisible-mirror.net/archives/ncurses/current/ncurses-${_pkgver}.tgz{,.asc})
+#source=($pkgname::git+https://github.com/ThomasDickey/ncurses-snapshots.git?signed#tag=v${pkgver/./_})
 source=(https://ftp.gnu.org/pub/gnu/ncurses/ncurses-$pkgver.tar.gz{,.sig})
 md5sums=('98c889aaf8d23910d2b92d65be2e737a'
          'SKIP')

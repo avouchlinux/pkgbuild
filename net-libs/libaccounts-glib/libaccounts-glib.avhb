@@ -1,37 +1,39 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libaccounts-glib
-pkgver=1.24
+pkgver=1.27
 pkgrel=1
 pkgdesc="Glib-based client library for accessing the online accounts database"
 arch=('x86_64')
 groups=('net-libs')
-url="https://gitlab.com/accounts-sso/libaccounts-glib"
-license=(LGPL)
-depends=(dbus-glib libxml2 sqlite)
-makedepends=(python-gobject gobject-introspection vala meson check)
-source=("https://gitlab.com/accounts-sso/libaccounts-glib/repository/archive.tar.gz?ref=VERSION_$pkgver")
-
-prepare() {
-  mkdir -p build
-  mv $pkgname-*/ $pkgname
-}
+url='https://gitlab.com/accounts-sso/libaccounts-glib'
+license=(LGPL-2.1-or-later)
+depends=(glib2
+         glibc
+         libxml2
+         sqlite)
+makedepends=(check
+             gobject-introspection
+             meson
+             python-gobject
+             python-packaging
+             vala)
+source=(https://gitlab.com/accounts-sso/libaccounts-glib/-/archive/VERSION_$pkgver/libaccounts-glib-VERSION_$pkgver.tar.gz)
+sha256sums=('a8407a5897a2e425ea1aa955ecf88485dd2fd417919de275b27c781a5d0637a5')
 
 build() {
-  cd build
-  avouch-meson ../$pkgname
-  ninja
+  meson $pkgname-VERSION_$pkgver build \
+    -Dprefix=/usr
+  meson compile -C build
 }
 
 check() {
-  cd build
-  ninja test || true
+  meson test -C build || true
 }
 
 package() {
-  cd build
-  DESTDIR="$pkgdir" ninja install
+  meson install -C build --destdir "$pkgdir"
 }

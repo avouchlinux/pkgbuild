@@ -3,7 +3,11 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libqmi
+pkgbase=libqmi
+pkgname=(
+  libqmi
+  libqmi-docs
+)
 pkgver=1.34.0
 pkgrel=1
 pkgdesc="QMI modem protocol helper library"
@@ -11,8 +15,12 @@ arch=('x86_64')
 groups=('net-libs')
 url="https://www.freedesktop.org/wiki/Software/libqmi/"
 arch=(x86_64)
-license=(GPL2)
+license=(GPL-2.0-or-later)
 depends=(
+  bash
+  gcc-libs
+  glib2
+  glibc
   libgudev
   libmbim
   libqrtr-glib
@@ -25,16 +33,22 @@ makedepends=(
   help2man
   meson
 )
-provides=(libqmi-glib.so)
-source=("https://gitlab.freedesktop.org/mobile-broadband/libqmi/-/archive/$pkgver/libqmi-$pkgver.tar.bz2")
-b2sums=('SKIP')
+source=("git+https://gitlab.freedesktop.org/mobile-broadband/libqmi.git?signed#tag=${pkgver/[a-z]/-&}")
+b2sums=('4f86ffd67bd969440db12a2f15eb562fe5b54e2e403f1e8c717a45fe4cf1814d4d78350d9bb2cb0eeaf6c356638e34cf0e4aa844bddb7bf2b8b424feac91e87b')
+validpgpkeys=(
+  A814D09B9C5BC01945A64308AECE0239C6606AD5 # Aleksander Morgado <aleksandermj@chromium.org>
+)
+
+prepare() {
+  cd libqmi
+}
 
 build() {
   local meson_options=(
     -D gtk_doc=true
   )
 
-  avouch-meson libqmi-$pkgver build "${meson_options[@]}"
+  avouch-meson libqmi build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -42,6 +56,18 @@ check() {
   meson test -C build --print-errorlogs --no-rebuild
 }
 
-package() {
+package_libqmi() {
+  provides=(libqmi-glib.so)
+
   meson install -C build --destdir "$pkgdir" --no-rebuild
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/gtk-doc
+}
+
+package_libqmi-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

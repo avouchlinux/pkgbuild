@@ -1,29 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xmessage
 _realname=xmessage
-pkgver=1.0.5
+pkgver=1.0.7
 pkgrel=1
 pkgdesc="Display a message or query in a window"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
-license=('custom')
-depends=('libxaw')
+url="https://gitlab.freedesktop.org/xorg/app/xmessage"
+# The entire source is X11, except the following files that are not installed
+# or belong to the build system and therefore do not contribute to the license
+# of the binary RPMs:
+#   - FSFAP: INSTALL
+#   - HPND-sell-variant: Makfile.am, Makefile.in, configure.ac
+#   - FSFULLR: aclocal.m4
+#   - GPL-2.0-or-later: compile, depcomp, missing
+#   - GPL-3.0-or-later: config.guess, config,sub
+#   - FSFUL, or perhaps (FSFUL AND X11 AND HPND-sell-variant): configure
+license=('X11')
+depends=('libxaw' 'libx11' 'libxt' 'glibc')
 makedepends=('xorg-util-macros')
-source=(http://xorg.freedesktop.org/archive/individual/app/xmessage-${pkgver}.tar.bz2)
+source=(https://xorg.freedesktop.org/archive/individual/app/xmessage-${pkgver}.tar.xz{,.sig})
+sha512sums=('0c44f7973f7ed8d7993aaeb457a8921301cb0de905e45d92bd99d49463223b54c704a28bef376fe6038b4aec7156be873a34294741c8537bb7a5a57e1f152cce'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-  cd "${srcdir}/xmessage-${pkgver}"
+  cd xmessage-${pkgver}
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
-  cd "${srcdir}/xmessage-${pkgver}"
+  cd xmessage-${pkgver}
   make DESTDIR="${pkgdir}" install
   install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

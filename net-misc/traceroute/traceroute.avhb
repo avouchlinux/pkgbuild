@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=traceroute
-pkgver=2.1.0
+pkgver=2.1.5
 pkgrel=1
 pkgdesc="Tracks the route taken by packets over an IP network"
 arch=('x86_64')
@@ -11,14 +12,24 @@ groups=('net-misc')
 url="http://traceroute.sourceforge.net/"
 license=('GPL2')
 depends=('glibc')
-source=(http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+source=(https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz
+        reproducible-build.patch)
+sha256sums=('9c6c260d96eaab51e3ce461b0a84fe87123ebc6dd6c9a59fab803f95b35a859e'
+            '7da5bb24044f6f4b7289ba7cab6bebed01f1ddbf664101405761ca160b62c9db')
+b2sums=('b2e99398b23d064f96319c9ca677589175f4bde64bce1f1d3236fc94f0ae3aa00499a2ef4a5c66c3a5815e09e16c534d049c36745119850c90c8af879ef66c6b'
+        '6aec98056399e8cf5a6e33a6355314c527bd34a2f704046ac6b7524f60136ede05dc035e2b08c5ac06ed53f0eda5198afff62d05ea8aeababcd679ecb1484a8d')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -p1 < ../reproducible-build.patch
+}
 
 build() {
-    cd ${pkgname}-${pkgver}
-    make CFLAGS="$CFLAGS"
+  cd ${pkgname}-${pkgver}
+  make CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
 }
 
 package() {
-    cd ${pkgname}-${pkgver}
-    make prefix=/usr DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make prefix=/usr DESTDIR="${pkgdir}" install
 }

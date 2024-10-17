@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,19 +10,20 @@ pkgrel=1
 pkgdesc="Library for applications dealing with netlink sockets (Legacy version)"
 arch=('x86_64')
 groups=('net-libs')
-url="http://www.infradead.org/~tgr/libnl/"
+url="https://www.infradead.org/~tgr/libnl/"
 license=('GPL')
 depends=('glibc')
 options=('!staticlibs')
-source=("http://www.infradead.org/~tgr/libnl/files/libnl-${pkgver}.tar.gz")
+source=("https://www.infradead.org/~tgr/libnl/files/libnl-${pkgver}.tar.gz")
+sha512sums=('25e26ddcc16540346ea34815ab6ac094177e5cee2eb3d843c4f8b30cd9d83390a3e87cb46046dc3bd9ae4d21f77e57bb3827c2cfc588eb18afe049921f2030b4')
 
 build() {
-	cd "$srcdir/$_realname-$pkgver"
-	./configure --prefix=/usr
-	make ${MAKEFLGS}
+  cd libnl-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "$srcdir/$_realname-$pkgver"
-	make DESTDIR="${pkgdir}" install
+  cd libnl-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

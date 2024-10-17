@@ -1,29 +1,34 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gsfonts
-_realname=urw-base35-fonts-master
+_realname=urw-base35-fonts
 pkgver=20200910
 pkgrel=1
 pkgdesc='(URW)++ Core Font Set [Level 2]'
-url='https://github.com/ArtifexSoftware/urw-base35-fonts'
 arch=('any')
 groups=('media-fonts')
-license=('AGPL3')
-makedepends=('git')
-source=("https://github.com/ArtifexSoftware/urw-base35-fonts/archive/refs/tags/$pkgver.tar.gz")
+url="https://github.com/ArtifexSoftware/urw-base35-fonts"
+arch=(any)
+license=(AGPL3)
+source=($url/archive/$pkgver/$_realname-$pkgver.tar.gz)
+sha512sums=('71fb27baadf5abc4ff624cdede02038681acd5fffdc728a5b2e7808713b80cb2f2174f90a1862e69d390c4434c49d5167ab095100032fa3ba80b586eb8ae51d1')
+b2sums=('77305946e6ab6e576cca7b62da731709bf4acaeb7181f89aef032f922acfaad59735a651d73ff8793c2cf32a23f45efaf5322568892023d4eae9b2278f681890')
 
 package() {
-	cd urw-base35-fonts-master
-	install -Dt "${pkgdir}/usr/share/fonts/${pkgname}" -m644 fonts/*.otf
-	install -Dt "${pkgdir}/usr/share/metainfo" -m644 appstream/*.xml
+  local _config _config_path
+  cd $_realname-$pkgver
 
-	install -d "${pkgdir}"/etc/fonts/conf.{avail,d}
-	for _f in fontconfig/*.conf; do
-		_fn="${pkgdir}/etc/fonts/conf.avail/69-${_f##*/}"
-		install -m644 ${_f} "${_fn}"
-		ln -srt "${pkgdir}/etc/fonts/conf.d" "${_fn}"
-	done
+  install -vDm 644 fonts/*.otf -t "$pkgdir/usr/share/fonts/$pkgname/"
+  install -vDm 644 appstream/*.xml -t "$pkgdir/usr/share/metainfo"
+
+  install -vdm 755 "$pkgdir/usr/share/fontconfig/conf.default/"
+  for _config in fontconfig/*.conf; do
+    _config_path="$pkgdir/usr/share/fontconfig/conf.avail/69-${_config##*/}"
+    install -vDm 644 "$_config" "$_config_path"
+    ln -srt "$pkgdir/usr/share/fontconfig/conf.default/" "$_config_path"
+  done
 }
+

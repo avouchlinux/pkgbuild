@@ -1,43 +1,49 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=networkmanager-l2tp
 _realname=NetworkManager-l2tp
-pkgver=1.8.2
+pkgver=1.20.16
+_pppver=2.5.1
 pkgrel=1
 pkgdesc='L2TP support for NetworkManager'
 arch=('x86_64')
 groups=('net-misc')
-url="https://github.com/nm-l2tp/NetworkManager-l2tp"
-license=('GPL2')
-depends=('libnm>=1.2' 'ppp' 'xl2tpd' 'libsecret')
-makedepends=('intltool' 'python' 'libnma')
+url='https://github.com/nm-l2tp/NetworkManager-l2tp'
+license=(GPL2)
+conflicts=(networkmanager-l2tp-gtk3 networkmanager-l2tp-gtk4)
+replaces=(networkmanager-l2tp-gtk3 networkmanager-l2tp-gtk4)
+depends=(ppp=$_pppver xl2tpd)
+makedepends=(intltool libnma libnma-gtk4 python-packaging glib2-devel)
 optdepends=(
-  'libreswan: IPSec support (recommended)'
-  'strongswan: IPSec support'
-)
-source=("https://github.com/nm-l2tp/${_pkgname}/archive/${pkgver}.tar.gz")
+  'libnma: GUI support (GTK 3)'
+  'libnma-gtk4: GUI support (GTK 4)'
+  'strongswan: IPSec support')
+source=("$pkgname-$pkgver.tar.gz"::"$url/archive/$pkgver.tar.gz")
+b2sums=('d7968b8413531af189b9c5bc7406df6cb0205e6a5b37129286dc4ed86fac9a478747fb164738a124091f12d7c85adf3f8a6ec0511468ee79c55dcc705b8f9fb6')
 
 prepare() {
-  cd $_realname-$pkgver
-
-  # NOCONFIGURE=1 ./autogen.sh
+  ln -sf NetworkManager-l2tp-$pkgver $pkgname-$pkgver
 }
 
 build() {
-  cd $_realname-$pkgver
-
-  ./configure --prefix=/usr --sysconfdir=/etc \
-    --localstatedir=/var --libexecdir=/usr/lib/NetworkManager \
-    --with-pppd-plugin-dir=/usr/lib/pppd/2.4.7
+  export NOCONFIGURE=1
+  cd $pkgname-$pkgver
+  ./autogen.sh
+  ./configure \
+    --libexecdir=/usr/lib/NetworkManager \
+    --localstatedir=/var \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-pppd-plugin-dir=/usr/lib/pppd/$_pppver \
+    --with-gtk4
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
-  cd $_realname-$pkgver
-
-  make DESTDIR="$pkgdir" install
+  make -C $pkgname-$pkgver DESTDIR="$pkgdir" install
+  install -Dm644 $pkgname-$pkgver/NEWS "$pkgdir/usr/share/doc/$pkgname/NEWS"
 }

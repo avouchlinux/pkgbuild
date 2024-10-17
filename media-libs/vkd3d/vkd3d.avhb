@@ -1,24 +1,29 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vkd3d
-pkgver=1.2
+pkgver=1.11
 pkgrel=1
 pkgdesc='Direct3D 12 to Vulkan translation library By WineHQ'
 arch=('x86_64')
 groups=('media-libs')
-url='https://github.com/d3d12/vkd3d'
+url='https://wiki.winehq.org/Vkd3d'
 license=('LGPL')
-depends=('vulkan-icd-loader')
-makedepends=('spirv-headers' 'vulkan-headers' 'xcb-util-keysyms')
+depends=('spirv-tools' 'vulkan-icd-loader')
+makedepends=('spirv-headers' 'vulkan-headers' 'xcb-util-keysyms' 'xorgproto')
 source=("https://dl.winehq.org/vkd3d/source/vkd3d-$pkgver.tar.xz")
+sha512sums=('2b14f7f8d4d58c2bfc6c30aa0d24b6789c0887b2869cfb6be98d03b7b001a74a1fbe24439229fa4d3a618a69fe8eeb77d7a520a16276ae494fe6ee2357dd31d0')
+
+prepare() {
+  cd vkd3d-$pkgver
+  ./configure --prefix=/usr --with-spirv-tools
+}
 
 build() {
   cd vkd3d-$pkgver
-  ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

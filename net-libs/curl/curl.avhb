@@ -5,17 +5,25 @@
 
 pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=8.5.0
+pkgver=8.10.1
 pkgrel=1
 pkgdesc="An URL retrieval utility and library"
 arch=('x86_64')
 groups=('net-libs')
-url="https://curl.haxx.se"
+url='https://curl.se/'
 license=('MIT')
-depends=('ca-certificates' 'brotli' 'libbrotlidec.so' 'krb5' 'libgssapi_krb5.so'
-         'libidn2' 'libidn2.so' 'libnghttp2' 'libpsl' 'libpsl.so' 'libssh2' 'libssh2.so'
-         'openssl' 'zlib' 'zstd' 'libzstd.so')
+depends=('ca-certificates'
+         'brotli' 'libbrotlidec.so'
+         'krb5' 'libgssapi_krb5.so'
+         'libidn2' 'libidn2.so'
+         'libnghttp2' 'libnghttp2.so'
+         'libnghttp3' 'libnghttp3.so'
+         'libpsl' 'libpsl.so'
+         'libssh2' 'libssh2.so'
+         'zlib' 'libz.so'
+         'zstd' 'libzstd.so')
 makedepends=('git' 'patchelf')
+checkdepends=('valgrind')
 source=("https://curl.haxx.se/download/$pkgname-$pkgver.tar.xz")
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 
@@ -67,6 +75,18 @@ build() {
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -C lib
   patchelf --set-soname 'libcurl-gnutls.so.4' ./lib/.libs/libcurl.so
+}
+
+check() {
+  cd build-curl
+  # -v: verbose
+  # -a: keep going on failure (so we see everything which breaks, not just the first failing test)
+  # -k: keep test files after completion
+  # -am: automake style TAP output
+  # -p: print logs if test fails
+  # -j: parallelization
+  # disable test 433, since it requires the glibc debug info
+#   make TFLAGS="-v -a -k -p -j$(nproc) !433" test-nonflaky
 }
 
 package_curl() {

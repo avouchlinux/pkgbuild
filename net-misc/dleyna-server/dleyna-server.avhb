@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dleyna-server
-pkgver=0.6.0
+pkgver=0.7.2
 pkgrel=1
 pkgdesc="Library to discover, browse and manipulate Digital Media Servers"
 arch=('x86_64')
@@ -12,31 +12,30 @@ groups=('net-misc')
 url="http://01.org/dleyna"
 license=(LGPL2.1)
 depends=(dleyna-connector-dbus gupnp-av gupnp-dlna libsoup)
-makedepends=(git)
-source=("https://github.com/intel/dleyna-server/archive/$pkgver.tar.gz"
-        gupnp-1.2.diff)
+makedepends=(git meson)
+_commit=48c54e14f14a89b65c85fc210cfb6debc60d5606  # tags/v0.7.2^0
+source=("git+https://github.com/phako/dleyna-server#commit=$_commit")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^v//;s/-/+/g'
+}
 
 prepare() {
-  cd $pkgname-$pkgver
-  patch -Np1 -i ../gupnp-1.2.diff
-  NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname
 }
 
 build() {
-  cd $pkgname-$pkgver
-  CFLAGS+=" -Wno-deprecated-declarations"
-  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-    --disable-static --libexecdir=/usr/lib
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  avouch-meson $pkgname build
+  meson compile -C build
 }
 
 check() {
-  cd $pkgname-$pkgver
-  make ${MAKEFLAGS} check
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }
+

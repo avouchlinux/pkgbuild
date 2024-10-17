@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,7 +13,7 @@ license=('LGPL')
 depends=('glibc')
 makedepends=('git' 'systemd')
 tag=${pkgver}-alt1
-source=(https://github.com/altlinux/libutempter/archive/refs/tags/${tag}tar.gz)
+source=($pkgname-$tag.tar.gz::https://github.com/altlinux/libutempter/archive/refs/tags/${tag}tar.gz)
 sha512sums=('SKIP')
 validpgpkeys=(296D6F29A020808E8717A8842DB5BD89A340AEB7) # Dmitry V. Levin <ldv@altlinux.org>
 

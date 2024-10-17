@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=geoclue
-pkgver=2.7.1
+pkgver=2.7.2
 pkgrel=1
 pkgdesc="Modular geoinformation service built on the D-Bus messaging system"
 arch=('x86_64')
@@ -16,12 +16,16 @@ license=(
 )
 depends=(
   avahi
+  gcc-libs
+  glib2
+  glibc
   json-glib
   libmm-glib
   libsoup3
 )
 makedepends=(
   git
+  glib2-devel
   gobject-introspection
   gtk-doc
   libnotify
@@ -40,10 +44,16 @@ source=("https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/$pkgver/geoclu
 # more information.
 _mozilla_api_key=7dca4b7b-6085-4ebb-9633-d566ed2de0fd
 
+# Google API keys (see http://www.chromium.org/developers/how-tos/api-keys)
+# Note: These are for Avouch Linux use ONLY. For your own distribution, please
+# get your own set of keys. Feel free to contact foutrelis@archlinux.org for
+# more information.
+_google_api_key=AIzaSyCm8I84pz4zSvrzQGpYiJTaMVgzGSxz8Z4
+
 build() {
   local meson_options=(
     -D dbus-srv-user=geoclue
-    -D mozilla-api-key="$_mozilla_api_key"
+    -D default-wifi-url="https://www.googleapis.com/geolocation/v1/geolocate?key=$_google_api_key"
   )
 
   avouch-meson geoclue-$pkgver build "${meson_options[@]}"

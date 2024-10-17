@@ -4,10 +4,11 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=freerdp
-pkgver=3.1.0
+_tarname=FreeRDP
+pkgver=3.8.0
 _libver=${pkgver/.*/}
 epoch=1
-pkgver=3.1.0
+pkgver=3.8.0
 pkgrel=1
 pkgdesc="Free implementation of the Remote Desktop Protocol (RDP)"
 arch=('x86_64')
@@ -15,7 +16,6 @@ groups=('net-misc')
 url="https://www.freerdp.com/"
 license=(Apache-2.0)
 depends=(
-  cjson
   fuse3
   gcc-libs
   glibc
@@ -45,15 +45,18 @@ makedepends=(
   glib2
   gtk3
   icu
+  json-c
   krb5
   libjpeg-turbo
   libp11
+  libpng
   libpulse
   libusb
+  libwebp
   openssl
   pam
   pkcs11-helper
-  webkit2gtk
+  webkit2gtk-4.1
   xmlto
   xorgproto
   zlib
@@ -65,18 +68,24 @@ provides=(
   libfreerdp-shadow-subsystem$_libver.so
   libfreerdp-shadow$_libver.so
   libfreerdp$_libver.so
-  libuwac0.so
-  librdtk0.so
   libwinpr-tools$_libver.so
   libwinpr$_libver.so
 )
 source=(
   https://github.com/$pkgname/$pkgname/archive/$pkgver/$pkgname-$pkgver.tar.gz
 )
-sha512sums=('0a463c241d09ea354fdd943c010a2ecca1ad20f6ba5ea037422884f3b668ac6c4c30f73d12077368cd54f74418ef65b267628934a050fcbb3ff1e96d84ae954e')
-b2sums=('39031026b2ff878b0e4a86907985704d0d64058bf9a2de6f3b8c4617cac3b8a5ee0d34d4e6e962e0e4388996c39d16b96a245525a51c33a533dad38e6b865a53')
+sha512sums=('72d978326a3641e69706c158cd5c4b1a4138dedbe1bf8c0f1c02fbb03291c1a49ff36afdaf8cf432fee84952bbaecf8801efa3f1afb50f600490e36ec3d577ef')
+b2sums=('d0d6a621efac786ec5c6084fdc014f52653afdb52f9751c2a489734a88f0a748d4f0d220036fd55fd062bc12e037e1c7d6dd3657967b4c32a91a7cffe7bb7b66')
+
+prepare() {
+  cd $_tarname-$pkgver
+}
 
 build() {
+  # gcc14 buildfix
+  export CFLAGS+=" -Wno-incompatible-pointer-types"
+  export CXXFLAGS+=" -Wno-incompatible-pointer-types"
+
   local cmake_options=(
     -B build
     -D CHANNEL_URBDRC_CLIENT=ON
@@ -84,8 +93,11 @@ build() {
     -D CMAKE_INSTALL_LIBDIR=lib
     -D CMAKE_BUILD_TYPE=None
     -D CMAKE_SKIP_INSTALL_RPATH=ON
-    -D PROXY_PLUGINDIR=/usr/lib/freerdp2/server/proxy/plugins
+    -D PROXY_PLUGINDIR=/usr/lib/$pkgname/server/proxy/plugins
+    -D RDTK_FORCE_STATIC_BUILD=ON  # prevent file conflicts with freerdp2
+    -D UWAC_FORCE_STATIC_BUILD=ON  # prevent file conflicts with freerdp2
     -D WITH_ALSA=ON
+    -D WITH_BINARY_VERSIONING=ON  # prevent file conflicts with freerdp2
     -D WITH_CHANNELS=ON
     -D WITH_CLIENT_CHANNELS=ON
     -D WITH_CUPS=ON
@@ -103,8 +115,10 @@ build() {
     -D WITH_WAYLAND=ON
     -D WITH_WINPR_TOOLS=ON
     -D WITH_X11=ON
-	-D WITH_MANPAGES=OFF
-    -S $pkgname-$pkgver
+    -D WINPR_UTILS_IMAGE_PNG=ON
+    -D WINPR_UTILS_IMAGE_JPEG=ON
+    -D WINPR_UTILS_IMAGE_WEBP=ON
+    -S $_tarname-$pkgver
     -W no-dev
   )
 
@@ -124,16 +138,19 @@ package() {
     glib2 libglib-2.0.so libgobject-2.0.so
     gtk3 libgtk-3.so
     icu libicuuc.so
+    json-c libjson-c.so
     krb5 libk5crypto.so libkrb5.so
     libjpeg-turbo libjpeg.so
+    libpng libpng16.so
     libpulse libpulse.so
     libusb libusb-1.0.so
+    libwebp libwebp.so
     openssl libcrypto.so libssl.so
     pam libpam.so
-    webkit2gtk libjavascriptcoregtk-4.0.so libwebkit2gtk-4.0.so
+    webkit2gtk-4.1 libjavascriptcoregtk-4.1.so libwebkit2gtk-4.1.so
     zlib libz.so
   )
 
   DESTDIR="$pkgdir" cmake --install build
-  install -vDm 644 $pkgname-$pkgver/{ChangeLog,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
+  install -vDm 644 $_tarname-$pkgver/{ChangeLog,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
 }

@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -14,13 +14,18 @@ license=('GPL')
 depends=('graphicsmagick')
 makedepends=('bc')
 backup=('etc/psiconv/psiconv.conf')
-source=("http://www.frodo.looijaard.name/system/files/software/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+source=("http://www.frodo.looijaard.name/system/files/software/${pkgname}/${pkgname}-${pkgver}.tar.gz" psiconv.patch)
+md5sums=('286e427b10f4d10aaeef1944210a2ea6'
+         'SKIP')
+sha512sums=('ec21d1e4734ad79dc19146223d7016bd53b3a3bb602f3a55489663ccbf3a4c6f5c6417728e798b4448acc2e49ff5145f58c812edfdd6c11ee9060128b6157d3a'
+            'SKIP')
 
 prepare() {
   cd $pkgname-$pkgver
-  patch -p1 -i ../psiconv-0.8.3-gcc10-fno-common.patch
   sed -e 's|Magick-config|GraphicsMagick-config|g' -i configure.in
   autoreconf -vi
+
+  patch -p1 <"$srcdir"/psiconv.patch
 }
 
 build() {
@@ -28,10 +33,11 @@ build() {
   ./configure --prefix=/usr \
               --sysconfdir=/etc \
               --mandir=/usr/share/man
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
   cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 }
+

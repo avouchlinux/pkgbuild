@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=font-alias
-pkgver=1.0.3
+pkgver=1.0.5
 pkgrel=1
 pkgdesc="X.org Luxi Truetype fonts"
 arch=('any')
@@ -12,7 +13,7 @@ url="http://xorg.freedesktop.org/"
 license=('custom')
 depends=('xorg-fonts-encodings' 'xorg-fonts-alias' 'xorg-font-utils' 'fontconfig')
 install=xfonts.install
-source=(${url}/releases/individual/font/${pkgname}-${pkgver}.tar.bz2)
+source=(${url}/releases/individual/font/${pkgname}-${pkgver}.tar.xz)
 
 build() {
     cd "${srcdir}/${pkgname}-${pkgver}"

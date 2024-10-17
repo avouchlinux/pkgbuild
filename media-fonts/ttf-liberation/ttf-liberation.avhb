@@ -1,31 +1,32 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ttf-liberation
 _realname=liberation-fonts
-pkgver=2.1.0
+pkgver=2.1.5
 pkgrel=1
 pkgdesc='Red Hats Liberation fonts'
 arch=('any')
 groups=('media-fonts')
 license=('custom:OFL')
 url=https://github.com/liberationfonts/liberation-fonts
+license=('custom:OFL')
 makedepends=('fontforge' 'python-fonttools')
 provides=('ttf-font')
 source=("$url/archive/$pkgver/liberation-fonts-$pkgver.tar.gz")
+b2sums=('8e8ed55456823c61dc8c622a9674c540770abc944ce87bd96ae64a8f13b450e5386335e9f24723344a9e7f882b8e323f4a43231b4659c117c5b7670027f42199')
 
 build() {
   cd liberation-fonts-$pkgver
-  make
+  make build
 }
 
 package() {
   cd liberation-fonts-$pkgver
-
   install -Dm644 -t "$pkgdir/usr/share/fonts/${pkgname#ttf-}" \
     liberation-fonts-ttf-$pkgver/*.ttf
-
-  # install license
   install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
 }
+

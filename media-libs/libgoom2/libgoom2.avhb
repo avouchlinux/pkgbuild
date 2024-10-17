@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,20 +10,25 @@ pkgrel=1
 pkgdesc="Shared library part of the Goom visualization plugin"
 arch=('x86_64')
 groups=('media-libs')
-url="http://www.fovea.cc/?page=details_produits&id=goom"
+url="https://www.fovea.cc/?page=details_produits&id=goom"
 license=('LGPL')
 depends=('glibc')
 options=('!emptydirs')
-source=("http://downloads.sourceforge.net/project/goom/goom2k4/0/goom-2k4-0-src.tar.gz")
+source=("https://downloads.sourceforge.net/project/goom/goom2k4/0/goom-2k4-0-src.tar.gz")
+sha512sums=('790e3ab8dee122320ad8b3ae15f6a1cd2780222d5ae97979f614f16ba73b4b853960e7945ef9053ad9eddf9e29e69d0c52f0875d07c5c6c7cee41d764bf4ea5f')
 
 build() {
-	cd "${srcdir}/goom2k4-0"
-	./configure --prefix=/usr --without-xmms --without-sdl
-	make ${MAKEFLAGS}
+  cd "${srcdir}/goom2k4-0"
+
+  ./configure --prefix=/usr \
+              --without-xmms \
+              --without-sdl
+  make
 }
 
 package() {
-	cd "${srcdir}/goom2k4-0"
-	make DESTDIR="${pkgdir}" install
-	rm -rf "${pkgdir}"/usr/bin
+  cd "${srcdir}/goom2k4-0"
+
+  make DESTDIR="${pkgdir}" install
 }
+

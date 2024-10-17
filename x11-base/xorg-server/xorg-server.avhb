@@ -6,13 +6,26 @@
 pkgbase=xorg-server
 pkgname=('xorg-server' 'xorg-server-xephyr' 'xorg-server-xvfb' 'xorg-server-xnest'
          'xorg-server-common' 'xorg-server-devel')
-pkgver=21.1.11
+pkgver=21.1.13
 pkgrel=1
 arch=('x86_64')
 groups=('x11-base')
-license=('LicenseRef-Adobe-Display-PostScript AND BSD-3-Clause AND LicenseRef-DEC-3-Clause AND HPND AND
-LicenseRef-HPND-sell-MIT-disclaimer-xserver AND HPND-sell-variant AND ICU AND ISC AND MIT AND MIT-open-group AND NTP AND
-SGI-B-2.0 AND SMLNJ AND X11 AND X11-distribute-modifications-variant')
+license=('LicenseRef-Adobe-Display-PostScript'
+         'BSD-3-Clause' 
+         'LicenseRef-DEC-3-Clause' 
+         'HPND'
+         'LicenseRef-HPND-sell-MIT-disclaimer-xserver'
+         'HPND-sell-variant' 
+         'ICU'
+         'ISC'
+         'MIT'
+         'MIT-open-group'
+         'NTP'
+         'SGI-B-2.0'
+         'SMLNJ'
+         'X11'
+         'X11-distribute-modifications-variant'
+)
 url="https://xorg.freedesktop.org"
 makedepends=('xorgproto' 'pixman' 'libx11' 'mesa' 'mesa-libgl' 'xtrans'
              'libxkbfile' 'libxfont2' 'libpciaccess' 'libxv' 'libxcvt'
@@ -45,8 +58,8 @@ build() {
   # export CXXFLAGS=${CXXFLAGS/-fno-plt}
   # export LDFLAGS=${LDFLAGS/,-z,now}
 
-  export CFLAGS=""
-  export CXXFLAGS=""
+  export CFLAGS=" -O"
+  export CXXFLAGS=" -O"
   export LDFLAGS=""
 
   avouch-meson ${pkgbase}-$pkgver build \

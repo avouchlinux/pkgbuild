@@ -1,0 +1,386 @@
+From fedd7e3d8109ac999ddd0dc26fd37e1b315a1700 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eivind=20N=C3=A6ss?= <eivnaes@yahoo.com>
+Date: Thu, 23 Feb 2023 04:48:34 +0000
+Subject: [PATCH] Adding support for compiling against pppd version 2.5.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Eivind Næss <eivnaes@yahoo.com>
+---
+ configure.ac                  | 150 ++++++++++++++++++----------------
+ src/pppd-plugin/Makefile.am   |   6 +-
+ src/pppd-plugin/sstp-mppe.c   |   8 +-
+ src/pppd-plugin/sstp-plugin.c |  35 ++++++--
+ 4 files changed, 117 insertions(+), 82 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index e89f01a..21a5f79 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,7 +1,7 @@
+ AC_PREREQ([2.69])
+ AC_INIT([sstp-client],
+-	 [1.0.18],
+-	 [https://gitlab.com/eivnaes/sstp-client])
++        [1.0.18],
++        [https://gitlab.com/sstp-project/sstp-client])
+ 
+ m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+ AC_CONFIG_MACRO_DIR([m4])
+@@ -15,6 +15,7 @@ AC_CONFIG_HEADERS([config.h])
+ AC_PROG_CC
+ AM_PROG_CC_C_O
+ AC_PROG_INSTALL
++AC_PROG_SED
+ LIBEVENT2_MINIMUM=2.0.10
+ 
+ LT_INIT
+@@ -39,6 +40,23 @@ AS_CASE([$with_libevent],
+ CFLAGS="$LIBEVENT_CFLAGS $CFLAGS"
+ LDFLAGS="$LIBEVENT_LIBS $LDFLAGS"
+ 
++AC_HEADER_STDBOOL
++AC_CHECK_HEADERS([  \
++    arpa/inet.h     \
++    fcntl.h         \
++    netdb.h         \
++    paths.h         \
++    stdarg.h        \
++    stdint.h        \
++    stdlib.h        \
++    string.h        \
++    syslog.h        \
++    stdbool.h       \
++    pty.h           \
++    sys/types.h     \
++    sys/socket.h    \
++    unistd.h])
++
+ # Check for OpenSSL
+ AX_CHECK_OPENSSL([], 
+     [AC_MSG_ERROR([OpenSSL not found Hint: apt-get install libssl-dev])])
+@@ -73,69 +91,78 @@ AC_DEFINE_UNQUOTED(SSTP_GROUP, "${enable_group}", The sstpc privilege drop group
+ 
+ # Specify runtime directory
+ AC_ARG_WITH([runtime-dir], 
+-	AS_HELP_STRING([--with-runtime-dir=DIR],[Specify the runtime directory for sstpc]))
++    AS_HELP_STRING([--with-runtime-dir=DIR],[Specify the runtime directory for sstpc]))
+ AS_IF([ test -n "$with_runtime_dir"],
+-	[SSTP_RUNTIME_DIR="$with_runtime_dir"],
+-	[SSTP_RUNTIME_DIR="${localstatedir}/run/sstpc"])
++    [SSTP_RUNTIME_DIR="$with_runtime_dir"],
++    [SSTP_RUNTIME_DIR="${localstatedir}/run/sstpc"])
+ AC_SUBST(SSTP_RUNTIME_DIR)
+ 
++# The minimum version we support of pppd
++PPPD_VERSION=2.4.7
++PPPD_MINIMUM=2.4.9
+ 
+ # Check to see if we enabled PPP plug-in support (default:yes)
+ AC_ARG_ENABLE(ppp-plugin, 
+     AS_HELP_STRING([--disable-ppp-plugin=DIR],[disable PPP Plugin support]),
+     [enable_ppp_plugin=${enableval}], [enable_ppp_plugin=yes])
+-AS_IF([test "x$enable_ppp_plugin" != "xno"],
++AM_CONDITIONAL(WITH_PPP_PLUGIN, test "x${enable_ppp_plugin}" = "xyes")
++
++# Check for pppd/pppd.h
++AM_COND_IF(WITH_PPP_PLUGIN, [
+     AC_CHECK_HEADER(pppd/pppd.h,,
+             AC_MSG_ERROR([pppd.h missing Hint: apt-get install ppp-dev]))
+-    AC_DEFINE(HAVE_PPP_PLUGIN, 1, [Define if you have PPP support]))
+-
+-# Check if the version of mppe.h define mppe_keys_xxx() functions, 2.4.9 does not; but 2.4.10 will.
+-AM_CONDITIONAL(WITH_PPP_PLUGIN, test "${enable_ppp_plugin}" = "yes")
+-AS_IF([test "x$enable_ppp_plugin" != "xno"],
+-    [CFLAGS_OLD="$CFLAGS"
+-     CFLAGS="$CFLAGS -Werror"
+-     AC_CACHE_CHECK([if pppd/mppe.h defines mppe_keys_xyz() functions], ac_cv_working_mppe_h,
+-     [AC_COMPILE_IFELSE(
+-         [AC_LANG_PROGRAM([[
+-            @%:@define MPPE 1
+-            @%:@include <pppd/pppd.h>
+-            @%:@include <pppd/chap_ms.h>
+-            @%:@include <pppd/mppe.h>]],
+-            [[if (mppe_keys_isset())
+-                return 0;]])],
++    AC_DEFINE(HAVE_PPP_PLUGIN, 1, [Define if you have PPP support])
++])
++
++# Check if the version of mppe.h define mppe_keys_xxx() functions, this has been backported
++#  to 2.4.9 on some Linux distributions
++AM_COND_IF(WITH_PPP_PLUGIN, [
++    CFLAGS_OLD="$CFLAGS"
++    CFLAGS="$CFLAGS -Werror"
++    AC_CACHE_CHECK([for mppe_keys_isset() function], ac_cv_working_mppe_h, [
++        AC_COMPILE_IFELSE([
++            AC_LANG_PROGRAM([[
++                @%:@define MPPE 1
++                @%:@include <pppd/pppd.h>
++                @%:@include <pppd/chap_ms.h>
++                @%:@include <pppd/mppe.h>
++            ]], [[
++                if (mppe_keys_isset())
++                    return 0;
++            ]]
++        )],
+         [ac_cv_working_mppe_h=yes],
+-        [ac_cv_working_mppe_h=no])])
+-     if test $ac_cv_working_mppe_h = yes; then
+-         AC_DEFINE(HAVE_MPPE_KEYS_FUNCTIONS, 1,
+-             [Define to 1 if you have <pppd/mppe.h> and it declares the mppe_keys_xyz() functions])
+-     fi
+-     CFLAGS="$CFLAGS_OLD"
++        [ac_cv_working_mppe_h=no])
+     ])
+-
+-# pkg-config support was added in 2.4.10, assuming 2.4.7 if not given
+-PPPD_VERSION=2.4.7
+-PPPD_MINIMUM=2.4.9
+-AM_CONDITIONAL(WITH_PPP_PLUGIN, test "${enable_ppp_plugin}" = "yes")
+-PKG_CHECK_EXISTS([pppd],
+-    [PKG_CHECK_MODULES([pppd], [pppd >= $PPPD_MINIMUM],
+-        [AS_VAR_SET([with_pppd_auth_notify_support],[yes])],
+-        [AC_MSG_RESULT(version < $PPPD_MINIMUM)])
+-     PPPD_PLUGIN_CFLAGS=$pppd_CFLAGS
+-     AC_SUBST(PPPD_PLUGIN_CFLAGS)
+-     PPPD_VERSION=`$PKG_CONFIG --modversion pppd`
++    if test $ac_cv_working_mppe_h = yes; then
++        AC_DEFINE(HAVE_MPPE_KEYS_FUNCTIONS, 1,
++            [Define to 1 if you have <pppd/mppe.h> and it declares the mppe_keys_xyz() functions])
++    fi
++    CFLAGS="$CFLAGS_OLD"
++])
++AM_CONDITIONAL(WITH_PPP_MPPE_KEYS, test "x${ac_cv_working_mppe_h}" != "xno")
++
++# pkg-config support was added in 2.5.0, assuming pppd is of version 2.4.7 if not given
++AM_COND_IF(WITH_PPP_PLUGIN, [
++    PKG_CHECK_EXISTS([pppd], [
++        PPPD_PLUGIN_CFLAGS=$pppd_CFLAGS
++        AC_SUBST(PPPD_PLUGIN_CFLAGS)
++        PPPD_VERSION=`$PKG_CONFIG --modversion pppd`
+     ])
+-
+-# Auth notifier was fixed in pppd version 2.4.9
+-AM_CONDITIONAL(WITH_PPP_PLUGIN, test "${enable_ppp_plugin}" = "yes")
+-AC_ARG_WITH([pppd-auth-notify-support],
+-    AS_HELP_STRING([--with-pppd-auth-notify-support], [is the auth-notifier supported in this pppd version]))
+-AS_IF([test "x$with_pppd_auth_notify_support" = "xyes" ],
+-    [AC_DEFINE(USE_PPPD_AUTH_HOOK,1,[Define if pppd has support for client side authentication complete notification])
+-     PPPD_AUTH_NOTIFIER="yes"], 
+-    [PPPD_AUTH_NOTIFIER="no"])
+-
+-# Check to see if the plugin directory was set
+-AM_CONDITIONAL(WITH_PPP_PLUGIN, test "${enable_ppp_plugin}" = "yes")
++])
++
++# The version of pppd dictates what code can be included, i.e. enable use of
++#   #if WITH_PPP_VERSION >= PPP_VERSION(2,5,0) in the code
++AM_COND_IF(WITH_PPP_PLUGIN, [
++    AC_DEFINE_UNQUOTED([PPP_VERSION(x,y,z)],
++        [((x & 0xFF) << 16 | (y & 0xFF) << 8 | (z & 0xFF) << 0)],
++        [Macro to help determine the particular version of pppd])
++    PPP_VERSION=$(echo $PPPD_VERSION | sed -e "s/\./\,/g")
++    AC_DEFINE_UNQUOTED(WITH_PPP_VERSION, PPP_VERSION($PPP_VERSION),
++        [The real version of pppd represented as an int])
++])
++
++# Check to see if the plugin directory was specified, otherwise it's ${libdir}/pppd/$PPPD_VERSION
+ AC_ARG_WITH([pppd-plugin-dir], 
+     AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [path to the pppd plugins directory]))
+ if test -n "$with_pppd_plugin_dir" ; then
+@@ -163,23 +190,6 @@ AC_CHECK_HEADER([linux/rtnetlink.h],
+     [#include <sys/socket.h>
+      #include <linux/netlink.h>])
+ 
+-# Checks for header files.
+-AC_HEADER_STDBOOL
+-AC_CHECK_HEADERS([  \
+-    arpa/inet.h     \
+-    fcntl.h         \
+-    netdb.h         \
+-    paths.h         \
+-    stdint.h        \
+-    stdlib.h        \
+-    string.h        \
+-    syslog.h        \
+-    stdbool.h       \
+-    pty.h           \
+-    sys/types.h     \
+-    sys/socket.h    \
+-    unistd.h])
+-
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_TYPE_MODE_T
+ AC_TYPE_SIZE_T
+@@ -234,8 +244,8 @@ $PACKAGE_NAME version $PACKAGE_VERSION
+ if [ test "x${enable_ppp_plugin}" = "xyes" ] ; then
+     echo -n "
+ with pppd plugin support
++    Plugin Version..: $PPPD_VERSION
+     Plugin Directory: $PPPD_PLUGIN_DIR
+-    Auth-Notifier...: $PPPD_AUTH_NOTIFIER
+     Plugin Cflags...: $PPPD_PLUGIN_CFLAGS
+ "
+ fi
+diff --git a/src/pppd-plugin/Makefile.am b/src/pppd-plugin/Makefile.am
+index 8938383..487ef98 100644
+--- a/src/pppd-plugin/Makefile.am
++++ b/src/pppd-plugin/Makefile.am
+@@ -5,6 +5,10 @@ pppd_plugin_LTLIBRARIES      = sstp-pppd-plugin.la
+ sstp_pppd_plugin_la_CFLAGS   = -I$(top_srcdir)/include $(PPPD_PLUGIN_CFLAGS)
+ sstp_pppd_plugin_la_LDFLAGS  = -module -avoid-version
+ sstp_pppd_plugin_la_LIBADD   = ../libsstp-api/libsstp_api.la
+-sstp_pppd_plugin_la_SOURCES  = sstp-plugin.c sstp-mppe.c sstp-mppe.h
++sstp_pppd_plugin_la_SOURCES  = sstp-plugin.c sstp-mppe.h
++
++if !WITH_PPP_MPPE_KEYS
++sstp_pppd_plugin_la_SOURCES  += sstp-mppe.c
++endif
+ 
+ endif
+diff --git a/src/pppd-plugin/sstp-mppe.c b/src/pppd-plugin/sstp-mppe.c
+index 4dc0798..7c7c7c2 100644
+--- a/src/pppd-plugin/sstp-mppe.c
++++ b/src/pppd-plugin/sstp-mppe.c
+@@ -25,10 +25,12 @@
+ #include <config.h>
+ 
+ #include <string.h>
++#include <stdarg.h>
+ #include <pppd/pppd.h>
+ #include <sstp-mppe.h>
+ 
+ #ifndef HAVE_MPPE_KEYS_FUNCTIONS
++
+ #define MPPE_MAX_KEY_SIZE 16
+ extern u_char mppe_send_key[MPPE_MAX_KEY_SIZE];
+ extern u_char mppe_recv_key[MPPE_MAX_KEY_SIZE];
+@@ -42,7 +44,7 @@ int mppe_get_send_key(u_char *send_key, int length)
+     if (mppe_keys_isset()) {
+         if (length > MPPE_MAX_KEY_SIZE)
+             length = MPPE_MAX_KEY_SIZE;
+-        BCOPY(mppe_send_key, send_key, length);
++        memcpy(mppe_send_key, send_key, length);
+         return length;
+     }
+     return 0;
+@@ -56,7 +58,7 @@ int mppe_get_recv_key(u_char *recv_key, int length)
+     if (mppe_keys_isset()) {
+         if (length > mppe_keys_set)
+             length = MPPE_MAX_KEY_SIZE;
+-        BCOPY(mppe_recv_key, recv_key, length);
++        memcpy(mppe_recv_key, recv_key, length);
+         return length;
+     }
+     return 0;
+@@ -70,4 +72,4 @@ bool mppe_keys_isset(void)
+     return !!mppe_keys_set;
+ }
+ 
+-#endif  // #ifdef HAVE_MPPE_KEYS_FUNCTIONS
++#endif  // HAVE_MPPE_KEYS_FUNCTIONS
+diff --git a/src/pppd-plugin/sstp-plugin.c b/src/pppd-plugin/sstp-plugin.c
+index 226481b..0232ced 100644
+--- a/src/pppd-plugin/sstp-plugin.c
++++ b/src/pppd-plugin/sstp-plugin.c
+@@ -24,6 +24,8 @@
+ 
+ #include <config.h>
+ #include <errno.h>
++#include <stdarg.h>
++#include <stdbool.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdint.h>
+@@ -36,7 +38,12 @@
+ #include <pppd/fsm.h>
+ #include <pppd/lcp.h>
+ #include <pppd/eap.h>
++#if WITH_PPP_VERSION >= PPP_VERSION(2,5,0)
++#include <pppd/chap.h>
++#include <pppd/options.h>
++#else
+ #include <pppd/chap-new.h>
++#endif
+ 
+ #include <sstp-api.h>
+ #include <sstp-mppe.h>
+@@ -50,10 +57,20 @@
+ 
+ #define SSTP_MPPE_MAX_KEYSIZE 32
+ 
++#if WITH_PPP_VERSION >= PPP_VERSION(2,5,0)
++typedef struct option option_t;
++#else
++#define VERSION PPPD_VERSION
++#define ppp_add_options add_options
++static inline debug_on() {
++    return debug;
++}
++#endif
++
+ /*!
+  * @brief PPP daemon requires this symbol to be exported
+  */
+-const char pppd_version [] = VERSION;
++const char pppd_version [] = PPPD_VERSION;
+ 
+ /*! The socket we send sstp-client our MPPE keys */
+ static char sstp_sock[SSTP_MAX_BUFLEN+1];
+@@ -108,7 +125,7 @@ static void sstp_send_notify()
+         key_len = mppe_get_send_key(key, sizeof(key));
+         if (key_len > 0) {
+             sstp_api_attr_add(msg, SSTP_API_ATTR_MPPE_SEND, key_len, key);
+-            if (debug) {
++            if (debug_on()) {
+                 dbglog("The mppe send key (%d): %0.*B", key_len, key_len, key);
+             }
+         }
+@@ -116,7 +133,7 @@ static void sstp_send_notify()
+         key_len = mppe_get_recv_key(key, sizeof(key));
+         if (key_len > 0) {
+             sstp_api_attr_add(msg, SSTP_API_ATTR_MPPE_RECV, key_len, key);
+-            if (debug) {
++            if (debug_on()) {
+                 dbglog("The mppe recv key (%d): %0.*B", key_len, key_len, key);
+             }
+         }
+@@ -142,7 +159,7 @@ static void sstp_send_notify()
+     close(sock);
+ }
+ 
+-#ifdef USE_PPPD_AUTH_HOOK
++#if WITH_PPP_VERSION >= PPP_VERSION(2,4,9)
+ /**
+  * The introduction of pppd-2.4.9 now supports the callback via auth_up_notifier
+  *    which previously was only done when peer had authenticated itself (server side).
+@@ -244,7 +261,7 @@ static void sstp_snoop_recv(unsigned char *buf, int len)
+     /* Disable the send-hook */
+     snoop_recv_hook = NULL;
+ }
+-#endif // USE_PPPD_AUTH_HOOK
++#endif // PPP_VERSION >= 2.4.9
+ 
+ /*!
+  * @brief PPP daemon requires this symbol to be exported for initialization
+@@ -255,11 +272,13 @@ void plugin_init(void)
+     memset(&sstp_sock, 0, sizeof(sstp_sock));
+ 
+     /* Allow us to intercept options */
+-    add_options(sstp_option);
++    ppp_add_options(sstp_option);
+ 
+-#ifdef USE_PPPD_AUTH_HOOK
++#if WITH_PPP_VERSION == PPP_VERSION(2,4,9)
+     add_notifier(&auth_up_notifier, sstp_auth_done, NULL);
+-#else
++#elif WITH_PPP_VERSION >= PPP_VERSION(2,5,0)
++    ppp_add_notify(NF_AUTH_UP, sstp_auth_done, NULL);
++#else // WITH_PPP_VERSION < PPP_VERSION(2,4,9)
+     /* Let's snoop for CHAP authentication */
+     snoop_recv_hook = sstp_snoop_recv;
+ 
+-- 
+2.40.0
+

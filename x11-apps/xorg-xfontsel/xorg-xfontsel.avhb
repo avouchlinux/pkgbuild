@@ -1,29 +1,42 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xfontsel
 _pkgname=xfontsel
-pkgver=1.0.6
+pkgver=1.1.1
 pkgrel=1
 pkgdesc='Point and click selection of X11 font names'
 url='https://xorg.freedesktop.org/'
 arch=('x86_64')
 groups=('x11-apps')
-license=('custom')
+# The entire source is X11, except the following files that are not installed
+# or belong to the build system and therefore do not contribute to the license
+# of the binary packages:
+#   - FSFAP: INSTALL
+#   - HPND-sell-variant: Makfile.am, Makefile.in, configure.ac
+#   - FSFULLR: aclocal.m4
+#   - GPL-2.0-or-later: compile, depcomp, missing
+#   - GPL-3.0-or-later: config.guess, config,sub
+#   - FSFUL, or perhaps (FSFUL AND X11 AND HPND-sell-variant): configure
+license=('X11')
 makedepends=('xorg-util-macros')
-depends=('libxaw' 'libxmu' 'libxt' 'libx11')
-source=(https://xorg.freedesktop.org/archive/individual/app/xfontsel-${pkgver}.tar.bz2{,.sig})
+depends=('libxaw' 'libxmu' 'libxt' 'libx11' 'glibc')
+source=(https://xorg.freedesktop.org/archive/individual/app/xfontsel-${pkgver}.tar.xz{,.sig})
+sha512sums=('fdb1f20dc86e2e74da77ef5e62d9465ea24d1af965f1ff3a6334ffefb239130fcf28f7cde9b4e7d7e6c9cf12fcb637784e7af209cffcee3dbe304025d33abcdd'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd "${srcdir}/xfontsel-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xfontsel-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "${srcdir}/xfontsel-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+  cd xfontsel-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

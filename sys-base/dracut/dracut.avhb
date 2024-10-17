@@ -1,64 +1,103 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dracut
-pkgver=059
+pkgver=104
 pkgrel=1
 pkgdesc="Generic, modular, cross-distribution initramfs generation tool"
 arch=('x86_64')
 groups=('sys-base')
-url="https://github.com/dracutdevs/dracut"
-license=('GPL')
-depends=('bash' 'coreutils' 'cpio' 'filesystem' 'findutils' 'grep' 'gzip'
-         'kmod' 'pkgconf' 'procps-ng' 'sed' 'systemd' 'util-linux' 'xz')
-makedepends=('asciidoc' 'bash-completion' 'git')
-optdepends=('binutils: --uefi option support'
-            'elfutils: strip binaries to reduce initramfs size'
-            'multipath-tools: dmraid dracut module support'
-            'pigz: faster gzip compression'
-            'sbsigntools: uefi_secureboot_cert/key configuration option support')
+url="https://github.com/dracut-ng/dracut-ng"
+license=('GPL-2.0-or-later')
+depends=(
+  'bash'
+  'coreutils'
+  'cpio'
+  'filesystem'
+  'findutils'
+  'gawk'
+  'grep'
+  'kmod'
+  'pkgconf'
+  'procps-ng'
+  'sed'
+  'systemd'
+  'util-linux'
+)
+makedepends=(
+  'asciidoc'
+  'bash-completion'
+  'git'
+  'rust'
+)
+optdepends=(
+  'binutils: --uefi option support'
+  'bluez: bluetooth (keyboard)'
+  'btrfs-progs: scan for Btrfs on block devices'
+  'busybox: allows use of busybox (on your own risk)'
+  'bzip2: bzip2 compression'
+  'cifs-utils: support CIFS'
+  'connman: support for connman networking'
+  'cryptsetup: support for encrypted with LUKS filesystems'
+  'dash: allows use of dash (on your own risk)'
+  'dhclient: legacy networking support'
+  'dmraid: dmraid dracut module support'
+  'e2fsprogs: ext2/3/4 filesystem support'
+  'elfutils: strip binaries to reduce initramfs size'
+  'f2fs-tools: fsfs filesystem support'
+  'fuse3: live on NTFS (dmsquash-live-ntfs module)'
+  'gzip: gzip compression'
+  'iproute2: legacy networking support'
+  'iputils: networking support'
+  'lvm2: support Logical Volume Manager'
+  'lzop: lzop compression'
+  'mdadm: support MD devices, also known as software RAID devices'
+  'multipath-tools: dmraid dracut module support'
+  'nbd: support network block devices'
+  'ndctl: NVDIMM support'
+  'networkmanager: networkmanager support'
+  'nfs-utils: support NFS'
+  'ntfs-3g: live on NTFS (dmsquash-live-ntfs module)'
+  'nvme-cli: NVMe-oF support (nvmf module)'
+  'open-iscsi: support iSCSI (iscsi module)'
+  'openssh: install ssh and scp along with config files and specified keys (ssh-client module)'
+  'pigz: faster gzip compression'
+  'plymouth: plymouth boot splash'
+  'rng-tools: enable rngd service to help generating entropy early during boot'
+  'sbsigntools: uefi_secureboot_cert/key configuration option support'
+  'squashfs-tools: support for building a squashed initramfs'
+  'tar: live tar image'
+  'tpm2-tools: tpm2 support for e.g. LUKS'
+  'xz: xz compression'
+)
 provides=('initramfs')
 backup=('etc/dracut.conf')
-source=("${pkgname}-${pkgver}::git+${url}#tag=${pkgver}?signed"
-        dracut-systemd-253.patch
-        dracut-systemd-254-uki.patch::https://github.com/dracutdevs/dracut/commit/f32e95bcadbc5158843530407adc1e7b700561b1.patch
-        dracut-systemd-255-systemd-executor.patch::https://github.com/dracutdevs/dracut/pull/2535/commits/62fd8ebe4776dbb60ca04a865c2d160e45d65e91.patch)
-sha512sums=('SKIP'
-            'dfbef5ee06fd0f7b51bfd3571eb284272d7694754eaf232cf1a14f3b2f95a67c87098fabf6d88068ef7e235e717bec26024a3b342c5dba940b8600799cef0791'
-            '8d232afccf84e24348c0e13d8eb34bcf670ca98a8e6a1e17cd4e861b8c036db1431ad8d8cb3942fb7645489d450dc2dbb91d54c18275796be26aae3ec53db557'
-            '9940448b4a83c9a837a916557b413b4523097554175420e554e039baa0395a387634bdf4486c212b930942a32e4f336b65e3d6624517b3e134b010a614fbcb41')
-b2sums=('SKIP'
-        '6386d1caf4765974e6f9fffde43cacc20f55a1ed487f6dba9f6f15318dc6dc593ef01309679c8a7f1deffc5dd66138cde7c11d53a825396971d6be29a9388744'
-        '8adf7975e1edc37a9c4972243324a0ecc6f1eebc012a59dcc9a394e2f2f669650200fff4d87088dffd133b1531c7eaac390322ba9b18f826a804d61b6341908b'
-        '4ef34f747a0f0e446ae9429559ddfe5d3d2088b1071433bba131aed0fb553d44a6256016f8fccd891c3dd69f554af3fe98ac1dcebd62a0489864e75b4b413f48')
-validpgpkeys=('F66745589DE755B02AD947D71F1139EBBED1ACA9') # Jóhann B. Guðmundsson <johannbg@gmail.com>
-
-prepare() {
-  cd "$srcdir/${pkgname}-${pkgver}"
-
-  patch -Np1 < ../dracut-systemd-253.patch
-  patch -Np1 < ../dracut-systemd-254-uki.patch
-  patch -Np1 < ../dracut-systemd-255-systemd-executor.patch
-}
-
+source=(
+  "git+${url}#tag=${pkgver}"
+)
+sha512sums=('efd567897b5cbc939ca38568fe146440a241923d01ab2133fb353fb5d67ffcfe5c9aac4e6811df6ceec6a7e41d15b8fda53c41b374fd50bc2f1ace22d5d0d693')
+b2sums=('debfa7def7257150615e60eddb3814efbfbbd825e034f31aae73eb4b71a955d620be7ccb2a87712a07087c8327899cb04159c4c49de70fd3317196bbeafe90dc')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	# cd ${srcdir}/${pkgname}
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--sbindir=/usr/bin \
-		--libdir=/usr/lib \
-		--systemdsystemunitdir=/usr/lib/systemd/system \
-		--bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
-	make
+  local prefix=/usr sysconfdir=/etc
+
+  cd ${pkgname}-ng
+
+  ./configure \
+    --sysconfdir=${sysconfdir} \
+    --prefix=${prefix} \
+    --libdir=${prefix}/lib \
+    --systemdsystemunitdir=${prefix}/lib/systemd/system \
+    --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) \
+    --enable-dracut-cpio
+  make
 }
 
+
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+	cd ${pkgname}-ng
 	# cd ${srcdir}/${pkgname}
 	make DESTDIR="${pkgdir}" install
 

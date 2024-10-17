@@ -25,16 +25,13 @@ validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-
 build() {
   cd ${pkgname}-${pkgver}
 
-  # Since pacman 5.0.2-2, hardened flags are now enabled in makepkg.conf
+  # We are using hardened flags
   # With them, module fail to load with undefined symbol.
   # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
-  #export CFLAGS=${CFLAGS/-fno-plt}
-  #export CXXFLAGS=${CXXFLAGS/-fno-plt}
-  #export LDFLAGS=${LDFLAGS/,-z,now}
+  export CFLAGS=${CFLAGS/-fno-plt}
+  export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  export LDFLAGS=${LDFLAGS/-z now}
   
-  export CFLAGS=""
-  export CXXFLAGS=""
-  export LDFLAGS=""
 
   ./configure --prefix=/usr --enable-vmwarectrl-client
   make

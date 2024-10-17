@@ -1,78 +1,70 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-ppkgbase=speech-dispatcher
+pkgbase=speech-dispatcher
 pkgname=(speech-dispatcher libspeechd)
-pkgver=0.8.8
+pkgver=0.11.5
 pkgrel=1
 arch=('x86_64')
 groups=('media-libs')
 pkgdesc="High-level device independent layer for speech synthesis interface"
-url="http://www.freebsoft.org/speechd"
+url='http://www.freebsoft.org/speechd'
 license=('GPL2' 'FDL')
-makedepends=('intltool' 'espeak' 'libltdl' 'python-xdg' 'dotconf' 'libpulse' 'libao')
-source=("https://www.freebsoft.org/pub/projects/speechd/$pkgname-$pkgver.tar.gz"
-        'speech-dispatcherd.service')
-
-prepare() {
-  cd ${pkgname}-${pkgver}
-
-  # Disabled due to bug: https://bugs.archlinux.org/task/35700
-  sed -i "s/cicero //g" configure.ac
-  sed -i "s/sd_cicero//g" src/modules/Makefile.am
-
-  autoreconf -vif
-}
+makedepends=('glib2' 'intltool' 'espeak-ng' 'libtool' 'python-pyxdg' 'dotconf' 'libpulse' 'libao')
+source=("https://github.com/brailcom/speechd/releases/download/${pkgver}/speech-dispatcher-${pkgver}.tar.gz")
+sha512sums=('d6d880bce0ae5bc2a5d519ef7740c689ae8b4b0bb658379762810e4beae3e465a429fbe19f7c490e89db0ea6a36aedd4b2287ac9251b90059b5c2cb3c0dd8a28')
 
 build() {
   cd ${pkgname}-${pkgver}
 
-  export CFLAGS+=' -fcommon' # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
-
-  ./configure --prefix=/usr \
-    --enable-shared \
-    --sysconfdir=/etc \
-    --without-flite
-  make ${MAKEFLAGS}
+  ./configure --prefix=/usr --sysconfdir=/etc \
+    --disable-static \
+    --libexecdir=/usr/lib/speech-dispatcher/ \
+    --with-ibmtts=no --with-kali=no --with-baratinoo=no \
+    --with-voxin=no --without-flite
+  make
 }
 
 package_speech-dispatcher() {
-  depends=("libspeechd=$pkgver-$pkgrel" 'libltdl' 'python-xdg' 'dotconf' 'libpulse' 'libao')
+  depends=("libspeechd=$pkgver-$pkgrel" 'python-pyxdg' 'dotconf' 'libpulse' 'libao')
   optdepends=('festival: Speech output using Festival'
-              'espeak: Speech output using ESpeak'
+              'espeak-ng: Speech output using ESpeak-ng'
               'pulseaudio: PulseAudio support')
-  backup=(etc/speech-dispatcher/clients/emacs.conf
-  	      etc/speech-dispatcher/modules/ibmtts.conf
-  	      etc/speech-dispatcher/modules/espeak-generic.conf
-  	      etc/speech-dispatcher/modules/espeak.conf
-  	      etc/speech-dispatcher/modules/swift-generic.conf
-  	      etc/speech-dispatcher/modules/festival.conf
-  	      etc/speech-dispatcher/modules/cicero.conf
-  	      etc/speech-dispatcher/modules/espeak-mbrola-generic.conf
-  	      etc/speech-dispatcher/modules/dtk-generic.conf
-  	      etc/speech-dispatcher/modules/llia_phon-generic.conf
-  	      etc/speech-dispatcher/modules/ivona.conf
-  	      etc/speech-dispatcher/modules/epos-generic.conf
-          etc/speech-dispatcher/modules/flite.conf
-          etc/speech-dispatcher/modules/pico-generic.conf
-          etc/speech-dispatcher/speechd.conf)
+  backup=('etc/speech-dispatcher/clients/emacs.conf'
+          'etc/speech-dispatcher/modules/dtk-generic.conf'
+          'etc/speech-dispatcher/modules/epos-generic.conf'
+          'etc/speech-dispatcher/modules/espeak-ng.conf'
+          'etc/speech-dispatcher/modules/espeak-ng-mbrola.conf'
+          'etc/speech-dispatcher/modules/espeak-ng-mbrola-generic.conf'
+          'etc/speech-dispatcher/modules/festival.conf'
+          'etc/speech-dispatcher/modules/llia_phon-generic.conf'
+          'etc/speech-dispatcher/modules/mary-generic.conf'
+          'etc/speech-dispatcher/modules/swift-generic.conf'
+          'etc/speech-dispatcher/speechd.conf')
 
   cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 
-  install -Dm644 "${srcdir}"/speech-dispatcherd.service "${pkgdir}/usr/lib/systemd/system/speech-dispatcherd.service"
-  install -d "${pkgdir}/var/log/speech-dispatcher"
+  rm "${pkgdir}/etc/speech-dispatcher/modules/cicero.conf"
+  rm "${pkgdir}/etc/speech-dispatcher/modules/espeak.conf"
+  rm "${pkgdir}/etc/speech-dispatcher/modules/espeak-mbrola-generic.conf"
+  rm "${pkgdir}/etc/speech-dispatcher/modules/flite.conf"
+  rm "${pkgdir}/usr/lib/speech-dispatcher/speech-dispatcher-modules/sd_cicero"
 
   sed -i 's|includedir=.*|includedir=${prefix}/include/speech-dispatcher|g' "${pkgdir}/usr/lib/pkgconfig/speech-dispatcher.pc"
 
-  mkdir -p ${srcdir}/libspeechd/usr/lib
-  mv "${pkgdir}"/usr/lib/libspeechd*so* ${srcdir}/libspeechd/usr/lib
+  mkdir -p "${srcdir}"/libspeechd/usr/lib
+  mv "${pkgdir}"/usr/include "${srcdir}"/libspeechd/usr
+  mv "${pkgdir}"/usr/lib/libspeechd*so* "${srcdir}"/libspeechd/usr/lib
+  mv "${pkgdir}/usr/lib/pkgconfig" "${srcdir}/libspeechd/usr/lib"
 }
 
 package_libspeechd() {
+  depends=('glib2' 'libtool')
   mkdir -p "${pkgdir}"/usr/lib
 
-  mv ${srcdir}/libspeechd/usr/lib/* "${pkgdir}"/usr/lib
+  mv "${srcdir}"/libspeechd/usr/include "${pkgdir}"/usr
+  mv "${srcdir}"/libspeechd/usr/lib/* "${pkgdir}"/usr/lib
 }

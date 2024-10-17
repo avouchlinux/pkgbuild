@@ -1,54 +1,74 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=xarchiver
 pkgname=(xarchiver xarchiver-gtk2)
-pkgver=0.5.4.14
+pkgver=0.5.4.23
 pkgrel=1
 pkgdesc="GTK+ frontend to various command line archivers"
 arch=('x86_64')
 groups=('app-archive')
 url="https://github.com/ib/xarchiver"
-license=('GPL')
-depends=('gtk2' 'gtk3')
-makedepends=('docbook-xsl' 'intltool' 'xmlto')
-optdepends=('zip: ZIP support'
-            'unzip: ZIP support'
-            'p7zip: 7z support'
-            'lzop: LZOP support'
+license=(GPL)
+depends=(gtk2 gtk3)
+makedepends=(docbook-xsl intltool xmlto)
+optdepends=('arj: ARJ support'
+            'binutils: deb support'
+            'bzip2: bzip2 support'
             'cpio: RPM support'
-            'unrar: RAR support')
-source=(https://github.com/ib/xarchiver/archive/$pkgver.tar.gz)
+            'gzip: gzip support'
+            'lha: LHA support'
+            'lrzip: lrzip support'
+            'lz4: LZ4 support'
+            'lzip: lzip support'
+            'lzop: LZOP support'
+            'p7zip: 7z support'
+            'tar: tar support'
+            'unarj: ARJ support'
+            'unrar: RAR support'
+            'unzip: ZIP support'
+            'xdg-utils: recognize more file types to open'
+            'xz: xz support'
+            'zip: ZIP support'
+            'zstd: zstd support')
+source=(https://github.com/ib/xarchiver/archive/$pkgver/$pkgbase-$pkgver.tar.gz
+        xarchiver.appdata.xml)
+sha256sums=('319935cd323e865d8aa12023b5286c314c128491ac58e853e63f6d6ea3da2a27'
+            '55f41aa0e5569b446933a34ac0585443fa5bd92f03f47e1fd53daf19905cc97e')
 
 build() {
   # GTK+ 3 version
   [ -d gtk3 ] || cp -r $pkgbase-$pkgver gtk3
   cd gtk3
   ./configure --prefix=/usr --libexecdir=/usr/lib/xfce4
-  make -j1
+  make
 
   cd "$srcdir"
   # GTK+ 2 version
   [ -d gtk2 ] || cp -r $pkgbase-$pkgver gtk2
   cd gtk2
   ./configure --prefix=/usr --libexecdir=/usr/lib/xfce4 --enable-gtk2
-  make -j1
+  make
 }
 
 package_xarchiver() {
-  depends=('gtk3')
+  depends=(gtk3)
 
   cd gtk3
   make DESTDIR="$pkgdir" install
+  install -Dm644 ../$pkgname.appdata.xml "$pkgdir/usr/share/metainfo/$pkgname.appdata.xml"
 }
 
 package_xarchiver-gtk2() {
   pkgdesc+=' (GTK+ 2 version)'
-  depends=('gtk2')
-  conflicts=('xarchiver')
+  depends=(gtk2)
+  conflicts=(xarchiver)
 
   cd gtk2
   make DESTDIR="$pkgdir" install
+
+  # Ignore package by AppStream to avoid duplicated IDs
+  echo 'X-AppStream-Ignore=true' >> "$pkgdir/usr/share/applications/xarchiver.desktop"
 }

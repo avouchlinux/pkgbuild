@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-input-mouse
-pkgver=1.9.3
+pkgver=1.9.5
 pkgrel=1
 pkgdesc="X.org mouse input driver"
 arch=('x86_64')
@@ -12,14 +12,15 @@ groups=('x11-drivers')
 license=('custom')
 url="http://xorg.freedesktop.org/"
 depends=('glibc')
-makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.0' 'resourceproto' 'scrnsaverproto')
-source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
+makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.4' 'xorgproto')
+conflicts=('xorg-server<21.1.1' 'X-ABI-XINPUT_VERSION<24' 'X-ABI-XINPUT_VERSION>=25')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz)
 sha256sums=('5d601e4bae53d5e9ead4ecd700f1beb5aeaf78b79e634c4aa381a9ce00276488')
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
 	./configure --prefix=/usr
-	make ${MAKEFLGS}
+	make
 }
 
 package() {

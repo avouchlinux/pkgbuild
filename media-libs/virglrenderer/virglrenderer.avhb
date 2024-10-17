@@ -1,25 +1,39 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=virglrenderer
-pkgver=0.8.2
+pkgver=1.0.1
 pkgrel=1
 pkgdesc='A virtual 3D GPU library, that allows the guest operating system to use the host GPU to accelerate 3D rendering'
 arch=('x86_64')
 groups=('media-libs')
 url='https://virgil3d.github.io/'
 license=(MIT)
-depends=(libepoxy mesa)
-source=(https://www.freedesktop.org/software/virgl/virglrenderer-$pkgver.tar.bz2{,.sig})
-validpgpkeys=(10A6D91DA1B05BD29F6DEBAC0C74F35979C486BE) # David Airlie <airlied@redhat.com>
+depends=(libepoxy mesa libva vulkan-icd-loader)
+makedepends=(python meson ninja vulkan-headers)
+checkdepends=(check)
+_tag=virglrenderer-$pkgver
+source=(virglrenderer-$pkgver.tar.bz2::https://gitlab.freedesktop.org/virgl/virglrenderer/-/archive/$_tag/virglrenderer-$_tag.tar.bz2)
+sha256sums=('940b3b9a9cc91ba241182c8211f829e594b36745352fec4fc3c9bf22675ca392')
 
 build() {
-    avouch-meson ${pkgname} build
-    ninja -C build
+  cd virglrenderer-$_tag
+  meson --prefix=/usr --libexecdir=lib/$pkgname build \
+    -Dvideo=true \
+    -Dvenus=true \
+    # -Dtests=true
+  ninja -C build
+}
+
+check() {
+  cd virglrenderer-$_tag
+  # ninja -C build test #TODO: figure out why tests fail in chroot environment
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  cd virglrenderer-$_tag
+  DESTDIR="$pkgdir" ninja -C build install
+  install -D -m644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 }

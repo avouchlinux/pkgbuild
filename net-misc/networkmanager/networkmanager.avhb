@@ -1,50 +1,107 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=networkmanager
-pkgname=(networkmanager libnm nm-cloud-setup)
+pkgname=(
+  networkmanager
+  libnm
+  nm-cloud-setup
+  networkmanager-docs
+)
 _realname=NetworkManager
-pkgver=1.45.4
+pkgver=1.50.0
 pkgrel=1
-_pppver=2.4.8
+_pppver=2.5.0
 pkgdesc="Network connection manager and user applications"
 arch=('x86_64')
 groups=('net-misc')
-url="https://wiki.gnome.org/Projects/NetworkManager"
-arch=(x86_64)
-license=(GPL2 LGPL2.1)
-makedepends=(intltool dhclient iptables gobject-introspection gtk-doc ppp modemmanager
-             dbus-glib iproute2 nss polkit wpa_supplicant curl systemd libmm-glib
-             libnewt libndp libteam vala perl-yaml python-gobject git vala jansson bluez-libs
-             glib2-docs dhcpcd iwd dnsmasq systemd-resolvconf libpsl audit meson)
-checkdepends=(libx11 python-dbus)
-source=("https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/archive/$pkgver/NetworkManager-$pkgver.tar.bz2")
+url="https://networkmanager.dev/"
+license=(LGPL-2.1-or-later)
+makedepends=(
+  audit
+  bash
+  curl
+  dhcpcd
+  dnsmasq
+  gcc-libs
+  git
+  glib2
+  glib2-devel
+  glibc
+  gobject-introspection
+  gtk-doc
+  iproute2
+  iptables
+  iwd
+  jansson
+  libmm-glib
+  libndp
+  libnewt
+  libpsl
+  libteam
+  meson
+  modemmanager
+  nftables
+  nspr
+  nss
+  openresolv
+  pacrunner
+  perl-yaml
+  polkit
+  ppp
+  python-gobject
+  readline
+  systemd
+  systemd-libs
+  vala
+  vala
+  wpa_supplicant
+)
+checkdepends=(
+  libx11
+  python-dbus
+)
+source=(
+  "https://gitlab.freedesktop.org/NetworkManager/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2"
+)
+b2sums=('0e2288926395b2d92938b60a5815bce6ea322603795dc7956c7e23d91533860a95002767ac92c8feab818e9a3743abb9883316398d18f3100a9ce84f9185cd63')
+validpgpkeys=(
+  3D10AD045AB4AAFF8E8F36AF9B980AC2FB874FEB # Ana Cabral <acabral@redhat.com>
+  F07F7C1EABD382F81CBFBA3B998D4828CD7E1656 # Beniamino Galvani <bgalvani@redhat.com>
+  2B5F3B2028801E15F57AAA309906C97AA15D984F # Fernando Fernandez Mancera <ffmancera@riseup.net>
+  48FD6FAE515A77B48436821C8789567B8715CEBC # Gris Ge <fge@redhat.com>
+  # Could not locate key ACFA41513D2854D0A72F55BE9A2C77A85F2D72FE # Ján Václav <jvaclav@redhat.com>
+  4B8EF9745A973724E965939189A2DA5AF73D5E3D # Lubomir Rintel <lkundrak@v3.sk>
+  E472337703D0C46002928B5790617850A125DE59 # Stanislas FAYE <sfaye@redhat.com>
+  49EA7C670E0850E7419514F629C2366E4DFC5728 # Thomas Haller <thaller@redhat.com>
+  07F9AEC86144386D9576210B66A44781B4EBC2D0 # Íñigo Huguet <ihuguet@redhat.com>
+)
+
+prepare() {
+  cd $_realname-$pkgver
+}
 
 build() {
-local meson_args=(
-    # system paths
-    -D dbus_conf_dir=/usr/share/dbus-1/system.d
+  local meson_options=(
+    # build checks this option; injecting just via *FLAGS is broken
+    -D b_lto=true
 
     # platform
     -D dist_version="$pkgver-$pkgrel"
     -D session_tracking_consolekit=false
     -D suspend_resume=systemd
     -D modify_system=true
-    -D polkit=true
-    -D selinux=true
+    -D selinux=false
 
     # features
     -D iwd=true
-    -D pppd_plugin_dir=/usr/lib/pppd/$_pppver
     -D teamdctl=true
-    -D nm_cloud_setup=true
-    -D bluez5_dun=true
-    -D ebpf=true
 
     # configuration plugins
     -D config_plugins_default=keyfile
+    -D ifupdown=false
 
     # handlers for resolv.conf
     -D netconfig=no
@@ -58,13 +115,13 @@ local meson_args=(
     -D qt=false
   )
 
-  avouch-meson NetworkManager-$pkgver build "${meson_args[@]}"
-  ninja -C build
+  avouch-meson $_realname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
-# check() {
-#   meson test -C build --print-errorlogs
-# }
+check() {
+  NMTST_FORCE_REAL_ROOT=1 meson test -C build --print-errorlogs
+}
 
 _pick() {
   local p="$1" f d; shift
@@ -77,23 +134,45 @@ _pick() {
 }
 
 package_networkmanager() {
-  depends=(libnm iproute2 wpa_supplicant libmm-glib libnewt libndp libteam curl
-           bluez-libs libpsl audit mobile-broadband-provider-info)
+  depends=(
+    audit
+    curl
+    gcc-libs
+    glib2
+    glibc
+    iproute2
+    jansson
+    libmm-glib
+    libndp
+    libnewt
+    libnm
+    libpsl
+    libteam
+    mobile-broadband-provider-info
+    nspr
+    nss
+    readline
+    systemd-libs
+    wpa_supplicant
+  )
   optdepends=(
-    'polkit: let non-root users control networking'
-    'dnsmasq: connection sharing'
-    'nftables: connection sharing'
-    'iptables: connection sharing'
     'bluez: Bluetooth support'
-    'ppp: dialup connection support'
-    'modemmanager: cellular network support'
-    'iwd: wpa_supplicant alternative'
-    'dhclient: alternative DHCP client'
     'dhcpcd: alternative DHCP client'
-    'openresolv: alternative resolv.conf manager'
+    'dnsmasq: connection sharing'
     'firewalld: firewall support'
+    'iptables: connection sharing'
+    'iwd: wpa_supplicant alternative'
+    'modemmanager: cellular network support'
+    'nftables: connection sharing'
+    'openresolv: alternative resolv.conf manager'
+    'pacrunner: PAC proxy support'
+    'polkit: let non-root users control networking'
+    'ppp: dialup connection support'
   )
   backup=(etc/NetworkManager/NetworkManager.conf)
+
+  # NM wants to move to LGPL only, but there's still GPL code left
+  license+=(GPL-2.0-or-later)
 
   meson install -C build --destdir "$pkgdir"
 
@@ -102,7 +181,6 @@ package_networkmanager() {
   # /etc/NetworkManager
   install -d etc/NetworkManager/{conf,dnsmasq}.d
   install -dm700 etc/NetworkManager/system-connections
-
   install -m644 /dev/stdin etc/NetworkManager/NetworkManager.conf <<END
 # Configuration file for NetworkManager.
 # See "man 5 NetworkManager.conf" for details.
@@ -111,20 +189,18 @@ END
   # packaged configuration
   install -Dm644 /dev/stdin usr/lib/NetworkManager/conf.d/20-connectivity.conf <<END
 [connectivity]
-enabled=false
-uri=http://avouch.org/nm-check.txt
-response=OK
-interval=300
+uri=http://ping.archlinux.org/nm-check.txt
 END
 
   shopt -s globstar
+
+  _pick docs usr/share/gtk-doc
 
   _pick libnm usr/include/libnm
   _pick libnm usr/lib/girepository-1.0/NM-*
   _pick libnm usr/lib/libnm.*
   _pick libnm usr/lib/pkgconfig/libnm.pc
   _pick libnm usr/share/gir-1.0/NM-*
-  _pick libnm usr/share/gtk-doc/html/libnm
   _pick libnm usr/share/vala/vapi/libnm.*
 
   _pick cloud usr/lib/**/*nm-cloud-setup*
@@ -139,8 +215,15 @@ END
 
 package_libnm() {
   pkgdesc="NetworkManager client library"
-  license=(LGPL)
-  depends=(glib2 nss util-linux-libs jansson systemd-libs)
+  depends=(
+    gcc-libs
+    glib2
+    glibc
+    nspr
+    nss
+    systemd-libs
+    util-linux-libs
+  )
   provides=(libnm.so)
 
   mv libnm/* "$pkgdir"
@@ -148,7 +231,22 @@ package_libnm() {
 
 package_nm-cloud-setup() {
   pkgdesc="Automatically configure NetworkManager in cloud"
-  depends=(networkmanager)
+  depends=(
+    bash
+    curl
+    gcc-libs
+    glib2
+    glibc
+    libnm
+    networkmanager
+  )
 
   mv cloud/* "$pkgdir"
+}
+
+package_networkmanager-docs() {
+  pkgdesc+=" (API documentation)"
+  depends=()
+
+  mv docs/* "$pkgdir"
 }

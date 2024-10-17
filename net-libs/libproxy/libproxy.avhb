@@ -1,67 +1,70 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libproxy
-pkgname=(libproxy libproxy-webkit)
-pkgver=0.4.17
+pkgname=(
+  libproxy
+  libproxy-docs
+)
+pkgver=0.5.9
 pkgrel=1
 pkgdesc="A library that provides automatic proxy configuration management"
 arch=('x86_64')
 groups=('net-libs')
-url="http://libproxy.github.io/libproxy/"
-license=('LGPL')
-depends=(gcc-libs glib2 dbus)
-makedepends=(cmake python python2 perl webkit2gtk git)
-source=(https://github.com/libproxy/libproxy/archive/${pkgver}.tar.gz)
+url="https://libproxy.github.io/libproxy/"
+license=(LGPL-2.1-or-later)
+depends=(
+  curl
+  duktape
+  gcc-libs
+  glib2
+  glibc
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  gsettings-desktop-schemas
+  meson
+  vala
+)
+source=(
+  "git+https://github.com/libproxy/libproxy#tag=$pkgver"
+)
+b2sums=('d7e9785dd07beb9fae97f51423fd7ba6cefee2942293c2960c07794617527d57f5fc0bd23c44c66d89d7b7303b12b2ef7e05d4f3d1bdd319e36370cc6b966935')
+
+prepare() {
+  cd libproxy
+}
 
 build() {
-  cmake -S $pkgbase-$pkgver -B build \
-    -DBIPR=0 \
-    -DCMAKE_BUILD_TYPE=None \
-    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-    -DCMAKE_C_FLAGS="$CFLAGS" \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_SKIP_RPATH=ON \
-    -DLIBEXEC_INSTALL_DIR=/usr/lib \
-    -DPERL_VENDORINSTALL=yes \
-    -DPYTHON2_EXECUTABLE:FILEPATH=/usr/bin/python2 \
-    -DWITH_WEBKIT3=ON
-  cmake --build build
+  local meson_options=(
+    -D release=true
+  )
+
+  avouch-meson libproxy build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-  cmake --build build --target test
-}
-
-_pick() {
-  local p="$1" f d; shift
-  for f; do
-    d="$srcdir/$p/${f#$pkgdir/}"
-    mkdir -p "$(dirname "$d")"
-    mv "$f" "$d"
-    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
-  done
+  meson test -C build --print-errorlogs
 }
 
 package_libproxy() {
-  optdepends=('networkmanager: NetworkManager configuration module'
-              'perl: Perl bindings'
-              'python2: Python 2.x bindings'
-              'python: Python 3.x bindings'
-              'libproxy-webkit: PAC proxy support (via WebKit)')
-  provides+=(libproxy.so)
+  provides=(libproxy.so)
+  conflicts=('libproxy-webkit<0.5.0-1')
 
-  DESTDIR="$pkgdir" cmake --install build
+  meson install -C build --destdir "$pkgdir"
 
-### Split
-  _pick webkit "$pkgdir"/usr/lib/libproxy/*/modules/pacrunner_webkit.so
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
 }
 
-package_libproxy-webkit() {
-  pkgdesc="JavaScriptCore-based PAC proxy support for libproxy"
-  depends=(libproxy.so webkit2gtk)
-  replaces=('libproxy-mozjs<0.4.16-1')
-  mv webkit/* "$pkgdir"
+package_libproxy-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

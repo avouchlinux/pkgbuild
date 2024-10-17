@@ -1,22 +1,22 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=bash-completion
-pkgver=2.11
+pkgver=2.14.0
 pkgrel=1
 pkgdesc="Programmable completion for the bash shell"
 arch=('any')
 groups=('sys-base')
 url='https://github.com/scop/bash-completion'
-license=(GPL2)
+license=(GPL-2.0-only)
 depends=(bash)
-options=(!makeflags)
+options=(!emptydirs !makeflags)
+backup=('etc/bash_completion.d/000_bash_completion_compat.bash')
 source=($url/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
 validpgpkeys=(A558062B6D5DA1347CD468D52B0AE2C1B09B07CB)
-sha256sums=('d48fe378e731062f479c5f8802ffa9d3c40a275a19e6e0f6f6cc4b90fa12b2f5')
-
+b2sums=('c28ec0cd348a3954461f7a865823a358e47c4b479c7812baa6d54aef856c958510967806550e62784955f9daf233a0b01edade19884e534df857472a3196e63e')
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
@@ -31,7 +31,4 @@ package() {
 	# bash-completion is sourced in /etc/bash.bashrc so that non-bash shell don't source it
 	rm "${pkgdir}/etc/profile.d/bash_completion.sh"
 	rm -r "${pkgdir}/etc"
-
-	# remove Slackware's makepkg completion
-	rm "${pkgdir}/usr/share/bash-completion/completions/makepkg"
 }

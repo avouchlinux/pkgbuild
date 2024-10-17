@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,28 +9,31 @@ pkgrel=1
 pkgdesc="A string template engine based on the Django template system and written in Qt5"
 arch=('x86_64')
 groups=('media-grafix')
-url="https://github.com/steveire/grantlee"
-license=(LGPL2.1)
-depends=(qt5-declarative)
-makedepends=(cmake doxygen graphviz)
-source=("http://downloads.grantlee.org/grantlee-$pkgver.tar.gz"{,.asc})
+url='https://github.com/steveire/grantlee'
+license=(LGPL-2.1-or-later)
+depends=(gcc-libs
+         glibc
+         qt5-base
+         qt5-declarative)
+makedepends=(cmake
+             doxygen
+             git
+             graphviz)
+source=(https://github.com/steveire/grantlee/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz{,.asc})
+sha256sums=('ba288ae9ed37ec0c3622ceb40ae1f7e1e6b2ea89216ad8587f0863d64be24f06'
+            'SKIP')
 validpgpkeys=(FCA530E51EE4331C2DF16637D264C7B1D02D6509) # Stephen Kelly <steveire@gmail.com>
 
-prepare() {
-  mkdir -p build
-}
-
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
+  cmake -B build -S $pkgname-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_TESTS=OFF
-  make ${MAKEFLAGS}
-  make docs
+  cmake --build build
+  cmake --build build --target docs
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 build/apidox/* -t "$pkgdir"/usr/share/doc/$pkgname
 }
+

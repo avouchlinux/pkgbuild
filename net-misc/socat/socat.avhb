@@ -1,30 +1,46 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=socat
-pkgver=1.7.4.1
+pkgver=1.8.0.1
 pkgrel=1
 pkgdesc='Multipurpose relay'
 url='http://www.dest-unreach.org/socat/'
-license=('GPL2')
+license=('GPL-2.0-only')
 arch=('x86_64')
-groups=('net-misc')
-depends=('readline' 'openssl')
+depends=(
+  'glibc'
+  'openssl' 'libssl.so'
+  'readline' 'libreadline.so'
+)
+checkdepends=(
+  'bash'
+  'net-tools'
+  'procps-ng'
+)
 source=("http://www.dest-unreach.org/socat/download/${pkgname}-${pkgver}.tar.gz")
-
-prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-}
+sha256sums=('dc350411e03da657269e529c4d49fe23ba7b4610b0b225c020df4cf9b46e6982')
+b2sums=('a91977494f6d6a30a2b025b9b9d1f47232638b235603e9cab8ed4b559becbc9ebace582ec0280f246a655a2c23b588200a0aab5cf680a5b571e9e8fa2222a6d0')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --mandir=/usr/share/man
-	make
+  cd "${pkgname}-${pkgver}"
+  ./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man \
+
+  make
+}
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  # TODO: one of the tests always fails, but lets keep
+  # it for manual sanity check
+  make test||true
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
 }

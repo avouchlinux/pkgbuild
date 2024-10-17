@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmicrodns
 _realname=microdns
-pkgver=0.1.2
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='Minimal mDNS resolver library'
 arch=('x86_64')
@@ -12,13 +13,19 @@ groups=('net-libs')
 url='https://github.com/videolabs/libmicrodns'
 license=('LGPL2.1')
 depends=('glibc')
-source=(https://github.com/videolabs/libmicrodns/archive/${pkgver}.tar.gz)
+makedepends=('meson')
+provides=('libmicrodns.so')
+source=(https://github.com/videolabs/libmicrodns/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('6389ad9edaf1af7c831e8c05e4800964b13cf0eed2063fa3675e7b87c49428ae7b68ac4ed1e742ed5d46ea3ded190e3de076e73ebf167422505257d7b1a03e25')
+b2sums=('d58cd4e91334187b4ffe54063586d24f02d705f183e41c5edd3220c7cae137294fa3728daaf66e3d43c9e4ee031e6b87e7b4c5e1852a36486cb5495d6680f70a')
 
 build() {
-    avouch-meson ${_realname}-${pkgver} build
-    ninja -C build
+  cd ${pkgname}-${pkgver}
+  avouch-meson build
+  ninja -C build
 }
 
 package() {
-    DESTDIR="${pkgdir}" ninja -C build install
+  cd ${pkgname}-${pkgver}
+  DESTDIR="${pkgdir}" meson install -C build
 }

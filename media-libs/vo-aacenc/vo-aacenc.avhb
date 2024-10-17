@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -17,7 +18,7 @@ source=(http://downloads.sourceforge.net/opencore-amr/$pkgname-$pkgver.tar.gz)
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
 	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

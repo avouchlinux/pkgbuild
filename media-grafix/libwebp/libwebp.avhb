@@ -1,41 +1,81 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libwebp
-pkgver=1.2.0
+pkgver=1.4.0
 pkgrel=1
 pkgdesc="WebP library and conversion tools"
 arch=('x86_64')
 groups=('media-grafix')
 url="https://developers.google.com/speed/webp/"
-license=(BSD)
-depends=(libpng libjpeg libtiff giflib)
-makedepends=(freeglut mesa glu git)
-optdepends=('freeglut: vwebp viewer')
-_comit=fedac6cc69cda3e9e04b780d324cf03921fb3ff4
-source=("https://chromium.googlesource.com/webm/libwebp/+archive/$_comit.tar.gz")
-validpgpkeys=('6B0E6B70976DE303EDF2F601F9C3D6BDB8232B5D')
+license=(BSD-3-Clause)
+depends=(
+  giflib
+  glibc
+  libjpeg-turbo
+  libpng
+  libtiff
+)
+makedepends=(
+  cmake
+  ninja
+)
+provides=(
+  libsharpyuv.so
+  libwebp{,decoder,demux,mux}.so
+)
+source=(
+  https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-${pkgver/[a-z]/-&}.tar.gz{,.asc}
+  0001-cmake-Install-anim-utils.patch
+)
+sha256sums=('61f873ec69e3be1b99535634340d5bde750b2e4447caa1db9f61be3fd49ab1e5'
+            'SKIP'
+            '17207a1c72b4291aed14ce51daf529f61a0cbfa25ca28a22ec2feed2832a281f')
+b2sums=('022cef190284b69af781718a82b28ee9806d7e6b1e642ee0833e608f64f691ef918a83e99db02335fb9f60d24d6f0cfc58e7e05e99a3f13d2118719d40a71722'
+        'SKIP'
+        '4382bd0e00adfa7fb0daf70b77a1db3cd60530790680383b4f3d7b7a14c494c7306f9de908c3b7fe11e3f52fd866f55671b7da0ae44f96008e89b54839cab451')
+validpgpkeys=(
+  6B0E6B70976DE303EDF2F601F9C3D6BDB8232B5D # WebP release signing key
+)
 
 prepare() {
-  NOCONFIGURE=1 ./autogen.sh
+  cd libwebp-$pkgver
+
+  # Install animation utilities
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/libwebp/-/merge_requests/1
+  patch -Np1 -i ../0001-cmake-Install-anim-utils.patch
 }
 
 build() {
-  ./configure --prefix=/usr \
-     --enable-swap-16bit-csp \
-     --enable-experimental \
-     --enable-libwebp{mux,demux,decoder,extras} \
-     --disable-static
-  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  local cmake_options=(
+    -DBUILD_SHARED_LIBS=ON
+    -DCMAKE_BUILD_TYPE=None
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -DCMAKE_SKIP_INSTALL_RPATH=ON
+    -DWEBP_BUILD_EXTRAS=OFF
+    -DWEBP_BUILD_VWEBP=OFF
+    -DWEBP_BUILD_{C,D,GIF2,IMG2}WEBP=ON
+  )
+
+  # Mimic autotools build without --enable-asserts
+  CFLAGS+=" -DNDEBUG"
+  CXXFLAGS+=" -DNDEBUG"
+
+  cmake -S libwebp-$pkgver -B build -G Ninja "${cmake_options[@]}"
+  cmake --build build
 }
 
 check() {
-  make ${MAKEFLAGS} check
+  cd build
+  ctest --output-on-failure --stop-on-failure -j$(nproc)
 }
 
 package() {
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 \
+    libwebp-$pkgver/COPYING
 }

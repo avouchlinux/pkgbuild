@@ -1,30 +1,34 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xman
 _realname=xman
-pkgver=1.1.5
+pkgver=1.2.0
 pkgrel=1
 pkgdesc="Unix manual page viewer"
 arch=('x86_64')
 groups=('x11-apps')
 url="https://xorg.freedesktop.org/"
-license=('custom')
-depends=('libxaw' 'libxt')
-makedepends=('xorg-util-macros' 'xproto' 'libxmu')
-source=(https://xorg.freedesktop.org/archive/individual/app/xman-${pkgver}.tar.bz2{,.sig})
+license=('X11')
+depends=('libxaw' 'libxt' 'libx11' 'glibc')
+makedepends=('xorg-util-macros' 'xorgproto' 'libxmu')
+source=(https://xorg.freedesktop.org/archive/individual/app/xman-${pkgver}.tar.xz{,.sig})
+sha512sums=('072dba172fd30606c1e185c6e50b3b9a9ec5e430eb2ac7f0c476e1c2de998e8c0b5fbf53de20a7339d39a8990255e77fe72d3928b43d055e8463f8069389d192'
+            'SKIP')
 validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xman-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xman-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

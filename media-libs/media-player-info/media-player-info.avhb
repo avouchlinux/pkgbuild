@@ -1,28 +1,48 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=media-player-info
-pkgver=22
+pkgver=26
 pkgrel=1
 pkgdesc="Data files describing media player capabilities, for post-HAL systems"
 arch=('any')
 groups=('media-libs')
 license=('BSD')
-url="http://cgit.freedesktop.org/media-player-info/"
-depends=('udev')
-source=(http://www.freedesktop.org/software/media-player-info/$pkgname-$pkgver.tar.gz)
+url='https://www.freedesktop.org/wiki/Software/media-player-info/'
+license=(BSD-3-Clause)
+depends=(systemd)
+makedepends=(
+  appstream
+  git
+  python
+)
+source=("git+https://gitlab.freedesktop.org/media-player-info/media-player-info.git?signed#tag=$pkgver")
+b2sums=(2fb2ca310f315903d2c236304dece26f2d92e8da55c9bf36bd779bcb3932ea63be1129eaf71ba1705bfa6dc64e53414253b79581f41dd51d2e5711596da0c939)
+validpgpkeys=(3DB46B55EFA59D40E6232148D14EF15DAFE11347) # Martin Pitt <martin.pitt@ubuntu.com>
+
+prepare() {
+  cd $pkgname
+  autoreconf -fi
+}
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --with-udevdir=/usr/lib/udev
-	make
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make
+}
+
+check() {
+  cd $pkgname
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
-	install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" COPYING
 }

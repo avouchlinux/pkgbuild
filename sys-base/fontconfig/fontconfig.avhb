@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,9 +9,9 @@ pkgrel=1
 pkgdesc="A library for configuring and customizing font access"
 arch=('x86_64')
 groups=('sys-base')
-url="https://www.freedesktop.org/wiki/Software/fontconfig/"
-license=('custom')
-depends=('expat' 'freetype2')
+url=https://www.freedesktop.org/wiki/Software/fontconfig/
+arch=(x86_64)
+license=(custom)
 depends=(
   expat
   freetype2
@@ -24,8 +24,7 @@ makedepends=(
   meson
   perl-sgmls
 )
-install=fontconfig.install
-source=(https://www.freedesktop.org/software/$pkgname/release/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.freedesktop.org/$pkgname/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 sha256sums=('b449a3e10c47e1d1c7a6ec6e2016cca73d3bd68fbbd4f0ae5cc6b573f7d6c7f3')
 
 # a nice page to test font matching:

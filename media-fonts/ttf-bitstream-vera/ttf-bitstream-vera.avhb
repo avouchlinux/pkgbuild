@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -10,10 +11,9 @@ arch=('any')
 groups=('media-fonts')
 license=('custom')
 url='https://www-old.gnome.org/fonts/'
-depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-font-utils')
 provides=('ttf-font')
 source=("https://ftp.gnome.org/pub/GNOME/sources/${pkgname}/1.10/${pkgname}-${pkgver}.tar.gz")
-md5sums=('52559ed969e74f5fca83e527163156df')
+sha256sums=('3a84126ce11ef404d1453438e35450b9e0838220d262059e56cd8496ac6f5d15')
 
 package() {
   cd "${pkgname}-${pkgver}"
@@ -22,3 +22,4 @@ package() {
   install -m644 *.ttf "${pkgdir}"/usr/share/fonts/TTF/
   install -Dm644 COPYRIGHT.TXT "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

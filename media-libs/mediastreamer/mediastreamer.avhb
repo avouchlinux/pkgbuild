@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mediastreamer
-pkgver=5.1.32
+pkgver=5.3.5
 pkgrel=1
 pkgdesc='A library written in C that allows you to create and run audio and video streams'
 arch=(x86_64)
@@ -18,10 +18,6 @@ source=(https://gitlab.linphone.org/BC/public/${pkgname}2/-/archive/$pkgver/${pk
 sha256sums=('4c4dbe96e38c79df11ef886f7606556d2366012417d7654cfdc2556484b2e1b9'
             'e97e029cbbafe5245eaa6f92664224e4381eea5f45e403d5bfa6b0e5c2be0341')
 validpgpkeys=('9774BC1725758EB16D639F8B3ECD52DEE2F56985')
-
-# prepare() {
-#   patch -d ${pkgname}2-$pkgver -p1 < ffmpeg5.patch
-# }
 
 build() {
   cmake -B build -S ${pkgname}2-$pkgver \

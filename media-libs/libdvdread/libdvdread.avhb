@@ -9,25 +9,30 @@ pkgrel=1
 pkgdesc="Provides a simple foundation for reading DVD video disks"
 arch=('x86_64')
 groups=('media-libs')
-url="https://www.videolan.org/developers/libdvdnav.html"
-license=('GPL')
-depends=('glibc')
-makedepends=('libdvdcss' 'git')
-optdepends=('libdvdcss: for decoding encrypted DVDs')
-source=("https://code.videolan.org/videolan/libdvdread/-/archive/$pkgver/libdvdread-$pkgver.tar.bz2")
+url='https://www.videolan.org/developers/libdvdnav.html'
+license=(GPL-2.0-or-later)
+depends=(glibc)
+makedepends=(git)
+optdepends=('libdvdcss: Decoding encrypted DVDs')
+source=("git+https://code.videolan.org/videolan/libdvdread.git#tag=$pkgver")
+b2sums=(bdc0a6fcbc75dfe000f618cab1e2c736762a1d54c68851207c471a7177080c48964d2b7e4dc96dbdbacdadb42f022a2d3c6e097e83b612b9bbe2641240c5f38d)
+validpgpkeys=(65F7C6B4206BD057A7EB73787180713BE58D1ADC) # VideoLAN Release Signing Key (2015)
 
 prepare() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   autoreconf -fi
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

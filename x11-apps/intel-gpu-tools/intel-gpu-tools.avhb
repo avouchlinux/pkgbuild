@@ -1,36 +1,50 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=intel-gpu-tools
 _realname=igt-gpu-tools
-pkgver=1.26
+pkgver=1.29
 pkgrel=1
 pkgdesc="Tools for development and testing of the Intel DRM driver"
 arch=('x86_64')
 groups=('x11-apps')
 license=(MIT)
 url='https://gitlab.freedesktop.org/drm/igt-gpu-tools'
-depends=(libdrm libpciaccess cairo python xorg-xrandr procps-ng kmod libxv libunwind peg systemd)
-makedepends=(swig gtk-doc xorg-util-macros dri2proto meson)
-source=(https://xorg.freedesktop.org/releases/individual/app/${_pkgname}-$pkgver.tar.xz{,.sig})
-validpgpkeys=('669AC671793B22350E46960F045DBC54CFE49C2E')
+depends=(libdrm libpciaccess cairo python xorg-xrandr libprocps kmod libxv libunwind peg systemd)
+makedepends=(swig xorg-util-macros xorgproto meson)
+source=(https://xorg.freedesktop.org/releases/individual/app/${_realname}-$pkgver.tar.xz{,.sig})
+sha512sums=('1bce6cc916b79bee3562cdee945444bfe925efac37c0df61f8adc17b1aade752cb2e31a05c0dc5de5f2c54256f3319cab7ee45014d5d910e16cca50accd2d1ed'
+            'SKIP')
+validpgpkeys=('775965B85650195ACE77E18D7370055DB74C2475'
+              'E1996E8A119F43C4BA2BE889D8C620766EA3F69D'
+	      '4CF7FC248DC2CE8F34BBE48FC304C4A3104005E9')
 
 prepare() {
-  cd ${_realname}-${pkgver}
-  patch -Np1 -i ../igt-gpu-tools-1.26-lib-meson-build-Fix-underscorify-call.patch
+  mkdir -p build
+  cd igt-gpu-tools-${pkgver}
 }
 
 build() {
-    avouch-meson ${_realname}-${pkgver} build -D oping=disabled
-    ninja -C build
+  cd build
+  meson ../$_realname-$pkgver \
+    --prefix=/usr \
+    --libexecdir=/usr/lib
+
+  ninja
 }
 
 check() {
-  meson test -C build --print-errorlogs
+  cd build
+  ninja test
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  cd build
+  DESTDIR="$pkgdir" ninja install
+
+  cd ../$_realname-$pkgver
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/${pkgname}/COPYING"
 }
+

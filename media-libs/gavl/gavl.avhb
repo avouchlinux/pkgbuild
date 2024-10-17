@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,9 +10,11 @@ pkgdesc='A low level library, upon which multimedia APIs can be built.'
 arch=('x86_64')
 groups=('media-libs')
 url='http://gmerlin.sourceforge.net/'
-license=('GPL')
-depends=('glibc')
-source=("http://downloads.sourceforge.net/sourceforge/gmerlin/$pkgname-$pkgver.tar.gz")
+license=(GPL-2.0-or-later)
+depends=(glibc)
+makedepends=(doxygen)
+source=("https://downloads.sourceforge.net/gmerlin/$pkgname-$pkgver.tar.gz")
+b2sums=(2ed47cf63d8ce3424d0714e202a11ecef89c5a9c160a6045e238bae4179c02398600fc9c6d914784bb24a86c501f93971631461bdecaa8a70743a674748a2ec3)
 
 prepare(){
   cd "$srcdir/$pkgname-$pkgver"
@@ -27,12 +30,17 @@ prepare(){
 }
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
-  ./configure --prefix=/usr --disable-static --disable-cpu-clip --enable-libgdither
-  make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --with-cpuflags=none
+  make
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
+  cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

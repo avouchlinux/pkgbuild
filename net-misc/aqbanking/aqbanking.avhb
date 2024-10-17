@@ -1,32 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=aqbanking
-pkgver=6.1.4
+pkgver=6.5.4
 _verid=279
 pkgrel=1
 pkgdesc="A library for online banking and financial applications"
 arch=('x86_64')
 groups=('net-misc')
-url="https://www.aquamaniac.de/sites/aqbanking/index.php"
+url="https://www.aquamaniac.de/rdm/projects/aqbanking"
 license=('GPL')
-depends=('gwenhywfar' 'ktoblzcheck' 'libofx')
+depends=('gwenhywfar')
 options=('!makeflags')
-source=("https://www.aquamaniac.de/sites/download/download.php?package=03&release=${_dnrel}&file=02&dummy=$pkgname-$pkgver.tar.gz"
-        "https://www.aquamaniac.de/sites/download/download.php?package=03&release=${_dnrel}&file=01&dummy=$pkgname-$pkgver.tar.gz.asc")
-validpgpkeys=('88491B1E68624A5AE5068262895C619C3CA35783') #Martin Preuss <martin@libchipcard.de>
+source=(https://www.aquamaniac.de/rdm/attachments/download/499/$pkgname-$pkgver.tar.gz
+        https://www.aquamaniac.de/rdm/attachments/download/498/$pkgname-$pkgver.tar.gz.asc)
+validpgpkeys=('42400AF5EB2A17F0A69BB551E9899D784A977416') #AqBanking Package Key <packages@aqbanking.de>
+sha256sums=('0d16ceae76f0718e466638f4547a8b14927f1d8d98322079cd6481adde30ac99'
+            'SKIP')
 
 build() {
-    cd "${srcdir}"/$pkgname-$pkgver
+  cd "${srcdir}"/$pkgname-$pkgver
 
-    export PKG_CONFIG=/usr/bin/pkg-config
-    ./configure --prefix=/usr --enable-gwenhywfar --with-backends="aqhbci aqofxconnect aqpaypal"
-    make ${MAKEFLAGS}
+  export PKG_CONFIG=/usr/bin/pkg-config
+  ./configure --prefix=/usr --enable-gwenhywfar \
+              --with-backends="aqhbci aqofxconnect aqpaypal aqnone" # aqnone https://www.aquamaniac.de/rdm/issues/258
+  make
 }
 
 package() {
-    cd "${srcdir}"/$pkgname-$pkgver
+  cd "${srcdir}"/$pkgname-$pkgver
 
-    make DESTDIR="${pkgdir}" install
+  make DESTDIR="${pkgdir}" install
 }

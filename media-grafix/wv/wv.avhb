@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,20 +9,48 @@ pkgrel=1
 pkgdesc="MSWord library can load and parse Word 2000, 97, 95 and 6 file formats"
 arch=('x86_64')
 groups=('media-grafix')
-url="https://sourceforge.net/projects/wvware"
-license=('GPL')
-depends=(libgsf libpng sh)
-source=(https://www.abisource.com/downloads/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz)
+url='https://github.com/AbiWord/wv'
+license=(GPL-2.0-or-later)
+depends=(
+  bash
+  glib2
+  glibc
+  libgsf
+  libxml2
+  zlib
+)
+makedepends=(git)
+source=(
+  "git+https://github.com/AbiWord/wv.git#tag=$pkgname-${pkgver//./-}"
+  wv-1.2.9-format_security.patch
+)
+b2sums=(
+  147b7c673b339dea70a90c5ba019fb1387f4d613f3788d4cc8affbd15b1179c48b4972399c49ffaf361cef3b22536563d3f2e89bbb41215083b570684c9298e8
+  18641a15c75a32250012771bd8ca8b0739f503ef8d1d2eebe23f2d378996aa3f6e2f0cfa72f8077add3db33f8ece86c57e80cc5b868719472b45ba1bed10a7d0
+)
+
+prepare() {
+  cd $pkgname
+
+  # Fix build
+  patch -Np1 -i ../wv-1.2.9-format_security.patch
+
+  touch AUTHORS ChangeLog
+  autoreconf -fi
+}
 
 build() {
-  cd $pkgname-$pkgver
-
-  ./configure --prefix=/usr --mandir=/usr/share/man --disable-static
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }
+

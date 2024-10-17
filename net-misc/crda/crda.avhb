@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=crda
-pkgver=4.14
+pkgver=4.15
 pkgrel=1
 pkgdesc="Central Regulatory Domain Agent for wireless networks"
 arch=('x86_64')
@@ -22,9 +22,9 @@ validpgpkeys=('E4053F8D0E7C4B9A0A20AB27DC553250F8FE7407') #Luis R. Rodriguez
 
 prepare() {
   cd "${srcdir}"/${pkgname}-${pkgver}
-  patch -p1 -i "${srcdir}"/0001-Makefile-Link-libreg.so-against-the-crypto-library.patch
-  patch -p1 -i "${srcdir}"/0001-Makefile-Don-t-run-ldconfig.patch
-  patch -p1 -i "${srcdir}"/crda-4.14-python-3.patch
+#   patch -p1 -i "${srcdir}"/0001-Makefile-Link-libreg.so-against-the-crypto-library.patch
+#   patch -p1 -i "${srcdir}"/0001-Makefile-Don-t-run-ldconfig.patch
+#   patch -p1 -i "${srcdir}"/crda-4.14-python-3.patch
 }
 
 build() {

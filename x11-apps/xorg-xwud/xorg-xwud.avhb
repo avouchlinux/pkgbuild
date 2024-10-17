@@ -1,29 +1,34 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xwud
 _realname=xwud
-pkgver=1.0.5
+pkgver=1.0.7
 pkgrel=1
 pkgdesc="X Window System image undumping utility"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
-license=('custom')
-depends=('libx11')
+url="https://xorg.freedesktop.org/"
+license=('MIT')
+depends=('libx11' 'glibc')
 makedepends=('xorg-util-macros')
-source=(http://xorg.freedesktop.org/archive/individual/app/xwud-${pkgver}.tar.bz2)
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/app/xwud-${pkgver}.tar.xz{,.sig})
+sha512sums=('3c910fc170f6f6373d426aa5532bd3ede6d83efab06a77c3a43a92aa9cfae9a5324d5a6ca1dfcc8941be6895b6769b3a7beee8081815000b57f93aa1b4e7c420'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xwud-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xwud-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

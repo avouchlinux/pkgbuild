@@ -1,32 +1,32 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=chafa
-pkgver=1.8.0
+pkgver=1.14.2
 pkgrel=1
 pkgdesc="Image-to-text converter supporting a wide range of symbols and palettes, transparency, animations, etc."
 arch=("x86_64")
 groups=('media-grafix')
 url="https://hpjansson.org/chafa/"
-depends=('imagemagick' 'libxslt')
-makedepends=('gtk-doc')
-license=("LGPL")
-source=(https://github.com/hpjansson/chafa/releases/download/$pkgver/chafa-$pkgver.tar.xz{,.asc})
-sha512sums=('15ff08a0df82ae8517ac7744b81a39e1ae1eff8c9848128341cc25da94864e89b7101aabcff2d532bf11ea293bfc4c9e48b01f85388dafadbce2d2b2c8b7439d'
-            'SKIP')
+depends=('libavif' 'libjxl' 'librsvg' 'libwebp' 'libxslt')
+makedepends=('git' 'gtk-doc')
+provides=('libchafa.so')
+license=("LGPL-3.0-or-later")
+source=(git+https://github.com/hpjansson/chafa.git#tag=$pkgver?signed)
+sha512sums=('73e90cc7334ecb1caed433ddba88c5fad41081583143bab3224ebf7c27d1146cb040bf454b8d071c6278324bce169c946d53e055133181c28d0e20e74db6b261')
 validpgpkeys=('C01EDE5BB0D91E26D003662EC76BB9FEEAD12EA7')  # Hans Petter Jansson
 
 build() {
-  cd $pkgname-$pkgver
-
-  ./configure --prefix=/usr --enable-man
-  make ${MAKEFLAGS}
+  cd $pkgname
+  ./autogen.sh --prefix=/usr --enable-man --enable-gtk-doc
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
-
+  cd $pkgname
   make DESTDIR="$pkgdir" install
+  make -C tools/completions PREFIX="$pkgdir"/usr/share install-zsh-completion
 }
+

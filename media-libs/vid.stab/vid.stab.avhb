@@ -1,41 +1,42 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vid.stab
-pkgver=1.1.0
+pkgver=1.1.1
 pkgrel=1
 pkgdesc='Video stabilization library'
 arch=('x86_64')
 groups=('media-libs')
-url='http://public.hronopik.de/vid.stab'
-license=('GPL')
-depends=('gcc-libs' 'glibc')
-makedepends=('cmake' 'git')
-provides=('libvidstab.so')
-_hash='aeabc8daa7904f9edf7441a11f293965a5ef53b8'
-source=("https://github.com/georgmartius/vid.stab/archive/v1.1.0.tar.gz")
+url=http://public.hronopik.de/vid.stab
+license=(GPL)
+depends=(
+  gcc-libs
+  glibc
+)
+makedepends=(
+  cmake
+  git
+  ninja
+)
+provides=(libvidstab.so)
+_tag=90c76aca2cb06c3ff6f7476a7cd6851b39436656
+source=(git+https://github.com/georgmartius/vid.stab.git#tag=${_tag})
+b2sums=('8d9a2d5ee0b61e7963a6e1a2ebd3a2ab6fc23f5fe18041e36b0c6b789a9117fa15220c7ba7b7086f8addb7a8f6f0ccc7d3de95b2d826776cf88f87da6282b61b')
 
-prepare() {
+pkgver() {
   cd vid.stab
-
-  if [[ -d build ]]; then
-    rm -rf build
-  fi
-  mkdir build
+  git describe --tags | sed 's/^v//'
 }
 
 build() {
-  cd vid.stab/build
-
-  cmake .. \
-    -DCMAKE_INSTALL_PREFIX='/usr' \
-    -DCMAKE_INSTALL_LIBDIR='lib'
-  make
+  cmake -S vid.stab -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
 }
 
 package() {
-  cd vid.stab/build
-
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="${pkgdir}" cmake --install build
 }

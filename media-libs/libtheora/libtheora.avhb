@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,28 +9,51 @@ pkgrel=1
 pkgdesc="An open video codec developed by the Xiph.org"
 arch=('x86_64')
 groups=('media-libs')
-url="http://www.xiph.org"
-license=('BSD')
-depends=('libogg')
-makedepends=('libvorbis')
-source=(http://downloads.xiph.org/releases/theora/libtheora-${pkgver}.tar.bz2
-        libtheora-1.1.1-libpng16.patch)
+url='https://www.theora.org/'
+license=(BSD-3-Clause)
+depends=(
+  glibc
+  libogg
+)
+makedepends=(
+  doxygen
+  git
+  libpng
+  libvorbis
+  sdl
+)
+source=("git+https://github.com/xiph/theora.git?signed#tag=v$pkgver")
+b2sums=(b7eb9a0ebc83c84eac0049b7dbfea63a2da6c8913251e24229c6d32b048bcca64e2ec5a1c0caa9763f93d7e134ad7c95b54a0c86f8c6631437a5fe7bfd198251)
+validpgpkeys=(17E78AB6BD65A91EE811D60947000F7BB1441DEF) # Ralph Giles <giles@mozilla.com>
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
+  cd theora
 
-	patch -Np0 -i ../libtheora-1.1.1-libpng16.patch
-	patch -Np1 -i ../libtheora-1.1.1-libm.patch
-	patch -Np1 -i ../libtheora-1.1.1-fix-pp_sharp_mod-calc.patch
+  # Fix for autoreconf
+  git cherry-pick -n 28cc6dbd9b2a141df94f60993256a5fca368fa54
+
+  # Fix build with libpng 1.6
+  git cherry-pick -n 7288b539c52e99168488dc3a343845c9365617c8
+
+  autoreconf -fi
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	LIBS='-lm' ./configure --prefix=/usr --enable-shared
-	make
+  cd theora
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make
+}
+
+check() {
+  cd theora
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd theora
+  make DESTDIR="$pkgdir" install
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE COPYING
 }

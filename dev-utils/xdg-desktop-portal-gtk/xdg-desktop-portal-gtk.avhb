@@ -10,11 +10,26 @@ pkgdesc="A GTK+ backend for xdg-desktop-portal"
 url="https://github.com/flatpak/xdg-desktop-portal-gtk"
 arch=('x86_64')
 groups=('dev-utils')
-license=(LGPL2.1)
-depends=(gtk3 gnome-desktop gnome-keyring)
-makedepends=(xdg-desktop-portal python git evince)
+license=(LGPL-2.0-or-later)
+depends=(
+  fontconfig
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gsettings-desktop-schemas
+  gtk3
+  xdg-desktop-portal
+)
+makedepends=(
+  git
+  meson
+  python
+  python-packaging
+)
 optdepends=("evince: Print preview")
 provides=(xdg-desktop-portal-impl)
+
 source=("https://github.com/flatpak/xdg-desktop-portal-gtk/releases/download/$pkgver/xdg-desktop-portal-gtk-$pkgver.tar.xz")
 sha256sums=('SKIP')
 
@@ -31,4 +46,10 @@ build() {
 
 package() {
   meson install -C build --destdir "$pkgdir"
+
+# fix detection with x-d-p 1.18
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/xdg-desktop-portal/gtk-portals.conf" <<END
+[preferred]
+default=gtk
+END
 }

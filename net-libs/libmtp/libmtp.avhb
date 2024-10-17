@@ -1,31 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmtp
-pkgver=1.1.18
+pkgver=1.1.21
 pkgrel=1
 pkgdesc="Library implementation of the Media Transfer Protocol"
 arch=('x86_64')
 groups=('net-libs')
-url="http://libmtp.sourceforge.net"
-license=('LGPL')
-depends=('libusb' 'libgcrypt')
-source=("http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+url='http://libmtp.sourceforge.net'
+license=(LGPL-2.1-or-later)
+depends=(glibc
+         libgcrypt
+         libusb)
+makedepends=(doxygen)
+source=(https://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+sha256sums=('c4ffa5ab8c8f48c91b0047f2e253c101c418d5696a5ed65c839922a4280872a7'
+            'SKIP')
+validpgpkeys=(7C4AFD61D8AAE7570796A5172209D6902F969C95) # Marcus Meißner <meissner@suse.de>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --with-udev=/usr/lib/udev
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --with-udev=/usr/lib/udev
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} -k check
+  cd $pkgname-$pkgver
+  make -k check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install  
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+
+# Install man page
+  install -Dm644 doc/man/man3/*.3 -t "$pkgdir"/usr/share/man/man3/
 }

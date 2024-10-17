@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,13 +9,17 @@ pkgrel=1
 pkgdesc='Signal based wrapper around libmpdclient'
 arch=('x86_64')
 groups=('media-libs')
-url='https://gmpc.wikia.com/wiki/Gnome_Music_Player_Client'
+url='https://gmpclient.org/'
 license=('GPL')
 depends=('glib2')
-source=("http://download.sarine.nl/Programs/gmpc/${pkgver%.*}/${pkgname}-${pkgver}.tar.gz"
+source=("https://download.sarine.nl/Programs/gmpc/${pkgver%.*}/${pkgname}-${pkgver}.tar.gz"
         '0001-fix-return-value.patch'
         '0002-include-config.h.patch'
         '0003-fix-comparison.patch')
+sha256sums=('fe20326b0d10641f71c4673fae637bf9222a96e1712f71f170fca2fc34bf7a83'
+            'd8f93df567479bca89df17ebbe5db103ce36da01d5574d24184679659b731b97'
+            '8f87b7cf45bd57d2d7c7c59f66b60b6c49bebff910dcf0716b82d18905c0846b'
+            'f36b2a5bd9e0794a2945b840ac15ad72253874ede4d655282b978598b7a94662')
 
 prepare() {
   cd $pkgname-$pkgver
@@ -33,3 +38,4 @@ package() {
   cd $pkgname-$pkgver
   make DESTDIR="${pkgdir}" install
 }
+

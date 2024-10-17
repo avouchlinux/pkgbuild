@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-font-util
 _realname=font-util
-pkgver=1.3.2
+pkgver=1.4.1
 pkgrel=1
 pkgdesc='X.Org font utilities'
 url='http://xorg.freedesktop.org/'
@@ -12,7 +13,7 @@ arch=('x86_64')
 groups=('media-fonts')
 license=('custom')
 makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/font/font-util-${pkgver}.tar.bz2")
+source=("${url}/releases/individual/font/font-util-${pkgver}.tar.xz")
 
 build() {
 	cd "${srcdir}/font-util-${pkgver}"

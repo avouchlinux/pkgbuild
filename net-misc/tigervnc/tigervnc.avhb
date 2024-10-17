@@ -1,23 +1,23 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tigervnc
-pkgver=1.12.0
+pkgver=1.14.0
 pkgrel=1
-_xorgver=21.1.1
+_xorgver=21.1.13
 pkgdesc="Suite of VNC servers and clients. Based on the VNC 4 branch of TightVNC."
 arch=('x86_64')
 groups=('net-misc')
-url="http://www.tigervnc.org"
-license=('GPL')
+url="https://www.tigervnc.org"
+license=('GPL-2.0-only')
 depends=('fltk' 'pam' 'gnutls' 'libjpeg-turbo' 'libxtst' 'pixman'
 	 'xorg-xauth' 'xorg-xsetroot' 'xkeyboard-config' 'xorg-xkbcomp'
 	 'libgl' 'libgcrypt' 'perl' 'libxdamage' 'libxfont2' 'libdrm'
-	 'xorg-xinit')
+	 'xorg-xinit' 'libxcvt' 'ffmpeg')
 makedepends=('cmake' 'nasm' 'xorg-font-util' 'xorg-util-macros'
-	     'xtrans' 'xorgproto'
+	     'git' 'xtrans' 'xorgproto'
 	     'mesa' 'imagemagick' 'java-environment=8')
 optdepends=('mesa: for OpenGL functionality in Xvnc')
 conflicts=('tightvnc')
@@ -25,40 +25,29 @@ backup=(etc/pam.d/tigervnc
 	etc/tigervnc/vncserver-config-defaults
 	etc/tigervnc/vncserver-config-mandatory
 	etc/tigervnc/vncserver.users)
-source=($pkgname-$pkgver.tar.gz::https://github.com/TigerVNC/tigervnc/archive/v${pkgver}.tar.gz
-	https://xorg.freedesktop.org/releases/individual/xserver/xorg-server-${_xorgver}.tar.bz2
+source=(git+https://github.com/TigerVNC/tigervnc.git#tag=v${pkgver}
+        git+https://gitlab.freedesktop.org/xorg/xserver.git?#tag=xorg-server-${_xorgver}
 	Xsession
-	https://github.com/TigerVNC/tigervnc/commit/2daf4126882f82b6e392dfbae87205dbdc559c3d.patch
 	more-xsessions.patch
 	remove-selinux.patch)
-sha256sums=('9ff3f3948f2a4e8cc06ee598ee4b1096beb62094c13e0b1462bff78587bed789'
-            'e219f2e0dfe455467939149d7cd2ee53b79b512cc1d2094ae4f5c9ed9ccd3571'
+sha256sums=('70f47b0fcd5d698e7e504cc02eeeb54a5ffec9468ab4f7716052628456373623'
+            '63620c5faf0f76d6f52ee5aed57f3bc739a7868dac9379a1a7e36df6375540a0'
             'c9276f6ea277cf9654fb2cc3bc9dadbb2e596b5cf8ca867ee906c0080cf7f810'
-            '24683d93569d2cbbb1b64a8b0622c9e3d459194f19c29934780b12d92552f417'
-            'cb57dece026b29d7019a3e1e42fd2fb201d37fc60a70c885d2a50acffb808c06'
-            'fb8bb5bd3ec990720580a664326a70fd178ce94b97c2130462df9b1e3a3925c3')
+            'df7d5ac0b16781ba50963833f1bdd4603f1cdfcc24b1727f563ae800508c9dc0'
+            'b5da49ee5f10dd40945df9c8563066c5523a24ac0ad934c7efcb41d0847b94ed')
 
 prepare() {
-  bsdtar -xf $srcarchivedir/xorg-server-$_xorgver.tar.xz
-  cd "$srcdir"/${pkgname}-${pkgver}
+  cd ${pkgname}
   patch -p1 -i "$srcdir"/more-xsessions.patch
   patch -p1 -i "$srcdir"/remove-selinux.patch
-  patch -p1 -i "$srcdir"/2daf4126882f82b6e392dfbae87205dbdc559c3d.patch
-  # from Gentoo
-  patch -p1 -i "$srcdir"/tigervnc-1.12.0-xorg-1.21.patch
-  patch -p1 -i "$srcdir"/tigervnc-xserver-21.patch
-  
 
   cd unix/xserver
-  cp -r "$srcdir"/xorg-server-${_xorgver}/* .
-  patch -p1 -i ../xserver$_xorgver.patch
-  # patch -Np1 -i ../xserver120.patch
-  sed -i 's:\(present.h\):../present/\1:' os/utils.c
-	sed -i '/strcmp.*-fakescreenfps/,/^        \}/d' os/utils.c
+  cp -r "$srcdir"/xserver/* .
+  patch -Np1 -i ../xserver21.patch
 }
 
 build() {
-  cd "$srcdir"/${pkgname}-${pkgver}
+  cd ${pkgname}
 
   cmake -G "Unix Makefiles" \
     -DCMAKE_INSTALL_PREFIX=/usr \
@@ -80,7 +69,7 @@ build() {
 }
 
 package() {
-  cd "$srcdir"/${pkgname}-${pkgver}
+  cd ${pkgname}
   make DESTDIR="$pkgdir" install
   install -Dm0644 java/VncViewer.jar "${pkgdir}"/usr/share/vnc/classes/VncViewer.jar
   cd unix/xserver/hw/vnc

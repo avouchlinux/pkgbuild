@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnutls
-pkgver=3.8.5
+pkgver=3.8.7
 pkgrel=1
 pkgdesc="A library which provides a secure layer over a reliable transport layer"
 arch=('x86_64')
@@ -21,7 +21,7 @@ checkdepends=('net-tools' 'tpm2-tools')
 optdepends=('tpm2-tss: support for TPM2 wrapped keys')
 backup=(etc/gnutls/config
         etc/modules-load.d/gnutls.conf)
-source=(https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/${pkgname}-${pkgver}.tar.xz{,.sig}
+source=(https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/${pkgname}-${pkgver}.1.tar.xz{,.sig}
         config
         gnutls-ktls_disable_keyupdate_test.patch)
 sha256sums=('66269a2cfe0e1c2dabec87bdbbd8ab656f396edd9a40dd006978e003cfa52bfc'

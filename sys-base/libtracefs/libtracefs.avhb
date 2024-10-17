@@ -5,7 +5,7 @@
 
 pkgbase=libtracefs
 pkgname=(libtracefs libtracefs-docs)
-pkgver=1.8.0
+pkgver=1.8.1
 pkgrel=1
 pkgdesc="Linux kernel trace file system library"
 arch=(x86_64)
@@ -65,14 +65,14 @@ package_libtracefs() {
   make libdir_relative=lib prefix=/usr DESTDIR="$pkgdir/" install -C $pkgname-$pkgver/Documentation
   install -vDm 755 $pkgname-$pkgver/bin/sqlhist -t "$pkgdir/usr/bin/"
 
-  (
-    cd "$pkgdir"
-    _pick libtracefs-docs usr/share/doc
-  )
+#   (
+#     cd "$pkgdir"
+#     _pick libtracefs-docs usr/share/doc
+#   )
 }
 
 package_libtracefs-docs() {
   pkgdesc+=" - documentation"
 
-  mv -v $pkgname/* "$pkgdir"
+#   mv -v $pkgname/* "$pkgdir"
 }

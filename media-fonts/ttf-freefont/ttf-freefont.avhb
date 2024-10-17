@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -13,16 +14,19 @@ arch=('any')
 groups=('media-fonts')
 depends=('fontconfig' 'xorg-font-utils')
 provides=('ttf-font')
-source=("http://ftp.gnu.org/gnu/freefont/freefont-ttf-${pkgver}.zip"
+validpgpkeys=('A0156C139D2DAA3B352E42CD506361DBA36FDD52')
+source=("https://ftp.gnu.org/gnu/freefont/freefont-ttf-${pkgver}.zip"{,.sig}
         'conf.avail')
+sha512sums=('dcd6f525e8f97631c6f84ab4cc2a31af4614dcdb9a4d434bd890baf18e0c2934032f2915384fc27fbecf60d259d792e48f52d357b07e3ed2616d3c8c3544268e'
+            'SKIP'
+            'f531d93df5e6b9afbd152f53669ee9cfccbb999f2311afd94d94bf1273d9c27381f605fe4791d8c5c9186be27cb3e52a3f36ea58cba2e86479f4a0aea05c9621')
+
 install=install
 
 package() {
-	cd ${srcdir}/freefont-${pkgver}
+	cd "${srcdir}/freefont-${pkgver}"
 	install -d "${pkgdir}"/usr/share/fonts/TTF
 	install -m644 *.ttf "${pkgdir}"/usr/share/fonts/TTF
 	install -Dm644 ../conf.avail "${pkgdir}"/etc/fonts/conf.avail/69-freefont.conf
-
-	install -Dm644 COPYING "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 }
 

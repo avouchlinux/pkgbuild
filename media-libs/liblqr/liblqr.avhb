@@ -1,28 +1,31 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=liblqr
-pkgver=0.4.2
+pkgver=0.4.3
 pkgrel=1
 pkgdesc="A seam-carving C/C++ library called Liquid Rescale"
 arch=('x86_64')
 groups=('media-libs')
-url="http://liblqr.wikidot.com/"
-license=('GPL')
-depends=('glib2')
-makedepends=('pkgconfig')
-options=('!emptydirs')
-source=("https://github.com/carlobaldassi/liblqr/archive/v$pkgver.tar.gz")
+url='https://liblqr.wikidot.com/'
+license=(GPL-3.0-or-later)
+depends=(glib2
+         glibc)
+makedepends=(git)
+source=(git+https://github.com/carlobaldassi/liblqr#tag=v$pkgver)
+sha256sums=('1b1d26ab3138b0ec34062c3f1b8cd808d5c7a85e37fdbb9c6fd6722f52b2122d')
+options=(!emptydirs)
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr 
-	make
+  cd $pkgname
+  ./configure \
+    --prefix=/usr 
+  make
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
-	make DESTDIR="$pkgdir/" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

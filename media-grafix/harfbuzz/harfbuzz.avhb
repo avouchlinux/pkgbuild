@@ -44,8 +44,10 @@ source=("https://github.com/harfbuzz/harfbuzz/releases/download/$pkgver/harfbuzz
 
 build() {
     local meson_options=(
-        -D cpp_std=c++17
+        # -D cpp_std=c++17
         -D graphite2=enabled
+        -D chafa=disabled
+        
     )
 
     # Harfbuzz wants no exceptions
@@ -99,7 +101,7 @@ package_harfbuzz() {
     _pick hb-docs usr/share/gtk-doc
   )
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }
 
 package_harfbuzz-cairo() {
@@ -118,7 +120,7 @@ package_harfbuzz-cairo() {
 
   mv hb-cairo/* "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }
 
 package_harfbuzz-icu() {
@@ -134,7 +136,7 @@ package_harfbuzz-icu() {
 
   mv hb-icu/* "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }
 
 package_harfbuzz-utils() {
@@ -160,7 +162,7 @@ package_harfbuzz-utils() {
 
   mv hb-utils/* "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }
 
 package_harfbuzz-docs() {
@@ -169,5 +171,5 @@ package_harfbuzz-docs() {
 
   mv hb-docs/* "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }

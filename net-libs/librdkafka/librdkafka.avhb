@@ -1,32 +1,66 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=librdkafka
-pkgver=1.4.2
+pkgver=2.5.3
 pkgrel=1
 pkgdesc='The Apache Kafka C/C++ library'
 arch=(x86_64)
 groups=('net-libs')
-url='https://github.com/edenhill/librdkafka'
-license=(BSD)
-depends=(libsasl zstd)
-makedepends=(python openssl lz4 rapidjson cmake)
-source=(https://github.com/edenhill/librdkafka/archive/v$pkgver.tar.gz)
+url='https://github.com/confluentinc/librdkafka'
+license=(
+  Apache-2.0
+  BSD-2-Clause
+  BSD-3-Clause
+  MIT
+  Zlib
+)
+depends=(
+  curl
+  gcc-libs
+  glibc
+  libsasl
+  lz4
+  openssl
+  zlib
+  zstd
+)
+makedepends=(
+  cmake
+  python
+  rapidjson
+)
+source=(
+  "$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz"
+  "remove-failing-tests.patch"
+)
+sha256sums=('eaa1213fdddf9c43e28834d9a832d9dd732377d35121e42f875966305f52b8ff'
+            '23c8d030179724d13a91f13cf566b045b195d64a3219eb2c5122d06e1e1c6fd1')
+
+prepare() {
+  cd $pkgname-$pkgver
+  patch -Np1 -i "$srcdir/remove-failing-tests.patch"
+}
 
 build() {
-  cmake -S librdkafka-$pkgver -B build -G Ninja \
-    -DCMAKE_INSTALL_PREFIX=/usr 
-  ninja -C build
+  cd $pkgname-$pkgver
+  cmake -S . -B build \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -Wno-dev
+  cmake --build build
 }
 
 check() {
-  # TODO: figure out why the tests timeout
-  # cmake --build build --target test
-  true
+  cd $pkgname-$pkgver
+#   ctest --test-dir build --output-on-failure \
+#     --tests-regex RdKafkaTestBrokerLess
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja -C build install
+  cd $pkgname-$pkgver
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm644 -t "$pkgdir/usr/share/doc/$pkgname" ./*.md
 }

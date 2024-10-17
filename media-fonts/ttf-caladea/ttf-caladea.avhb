@@ -1,27 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ttf-caladea
 _realname=crosextrafonts
-pkgver=20130214
+pkgver=20200113
+pkgrel=4
+_commit=bea9e4996451fb18e0bdb5cbd177c8a263c0343d
 pkgrel=1
 pkgdesc="Google's Caladea font"
 arch=(any)
 groups=('media-fonts')
 license=(Apache)
-url='https://code.google.com/p/chromium/issues/detail?id=280557'
-depends=(fontconfig xorg-fonts-encodings xorg-font-utils)
-provides=(ttf-font)
-source=("https://commondatastorage.googleapis.com/chromeos-localmirror/distfiles/crosextrafonts-$pkgver.tar.gz")
+url='https://fonts.google.com/specimen/Caladea'
+makedepends=(git)
+source=(git+https://github.com/huertatipografica/Caladea#commit=$_commit
+        62-caladea.conf)
+sha256sums=('97122681b0ace7bb5d4299ae4e172ffdf0b649322c37e0254a0739214a39f1d3'
+            'cd61569289d7a188636df05addd3a744808de38b3d492b3e87c7a060bce4a2e6')
 
 package() {
-  cd crosextrafonts-$pkgver
+  cd Caladea
 
-  install -Dt "$pkgdir/usr/share/fonts/${pkgname#ttf-}" -m644 *.ttf
+  install -Dm644 fonts/ttf/*.ttf -t "$pkgdir"/usr/share/fonts/caladea
 
-  install -Dt "$pkgdir/etc/fonts/conf.avail" -m644 ../*.conf
-
-  mkdir "$pkgdir/etc/fonts/conf.d"
-  ln -srt "$pkgdir/etc/fonts/conf.d" "$pkgdir"/etc/fonts/conf.avail/*
+  install -Dm644 "$srcdir"/62-caladea.conf -t "$pkgdir"/usr/share/fontconfig/conf.avail
+  install -d "$pkgdir"/usr/share/fontconfig/conf.default
+  ln -sr "$pkgdir"/usr/share/fontconfig/conf.avail/* "$pkgdir"/usr/share/fontconfig/conf.default/
+  install -Dm644 OFL.txt -t "$pkgdir"/usr/share/licenses/$pkgname
 }
+

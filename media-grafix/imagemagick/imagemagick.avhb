@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=imagemagick
-pkgver=7.1.1.28
+pkgver=7.1.1.39
 _relname=ImageMagick-${pkgver%%.*}
 _tarname=ImageMagick-${pkgver%.*}-${pkgver##*.}
 pkgrel=1
@@ -41,6 +41,7 @@ optdepends=('ghostscript: PS/PDF support'
             'libraw: DNG support'
             'librsvg: SVG support'
             'libtiff: TIFF support'
+            'libultrahdr: UHDR support'
             'libwebp: WEBP support'
             'libwmf: WMF support'
             'libzip: OpenRaster support'
@@ -49,8 +50,6 @@ optdepends=('ghostscript: PS/PDF support'
             'openjpeg2: JPEG2000 support'
             'djvulibre: DJVU support'
             'pango: Text rendering')
-# do not remove .la files as it will produce error
-# convert: no decode delegate for this image format
 options+=(!emptydirs libtool)
 backup=(etc/$_relname/{colors,delegates,log,mime,policy,quantization-table,thresholds,type,type-{dejavu,ghostscript}}.xml)
 provides=(libmagick)
@@ -66,6 +65,7 @@ makedepends=(chrpath
              libjxl
              libraw
              librsvg
+             libultrahdr
              libwebp
              libwmf
              libzip
@@ -76,23 +76,10 @@ makedepends=(chrpath
 checkdepends=(gsfonts
               ttf-dejavu)
 replaces=(imagemagick-doc)
-source=(https://imagemagick.org/archive/$_tarname.tar.xz{,.asc}
-        arch-fonts.diff)
-sha256sums=('ee4b6cdaaf2fa6020b6a3c6e055d993e970361a2fadf2bf2f984308b35c61915'
-            'SKIP'
-            'a85b744c61b1b563743ecb7c7adad999d7ed9a8af816650e3ab9321b2b102e73')
+source=(https://imagemagick.org/archive/$_tarname.tar.xz{,.asc})
+sha256sums=('b5a18ed9eb0db1e5e1fde26fc95f38bd7d71d9de05dde8b23c238debe332fada'
+            'SKIP')
 validpgpkeys=(D8272EF51DA223E4D05B466989AB63D48277377A)  # Lexie Parsimoniae
-
-shopt -s extglob
-
-prepare() {
-  mkdir -p docpkg/usr/share
-
-  cd $_tarname
-
-  # Fix up typemaps to match our packages, where possible
-  patch -p1 -i ../arch-fonts.diff
-}
 
 build() {
   cd $_tarname
@@ -117,8 +104,9 @@ build() {
     --with-openexr \
     --with-openjp2 \
     --with-perl \
-    --with-perl-options=INSTALLDIRS=vendor \
+    --with-perl-options='INSTALLDIRS=vendor INSTALL_BASE=' \
     --with-rsvg \
+    --with-uhdr \
     --with-webp \
     --with-wmf \
     --with-xml \
@@ -131,11 +119,11 @@ build() {
   make
 }
 
-# check() (
-#   cd $_tarname
-#   ulimit -n 4096
-#   make check
-# )
+check() (
+  cd $_tarname
+  ulimit -n 4096
+  make check
+)
 
 package() {
   cd $_tarname
@@ -145,5 +133,6 @@ package() {
   rm "$pkgdir"/etc/$_relname/type-{apple,urw-base35,windows}.xml
   rm "$pkgdir"/usr/lib/*.la
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE NOTICE
+  install -Dm644 LICENSE NOTICE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
+

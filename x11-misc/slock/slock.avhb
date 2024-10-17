@@ -1,34 +1,35 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=slock
-pkgver=1.4
+pkgver=1.5
 pkgrel=1
 pkgdesc="A simple screen locker for X"
 arch=('x86_64')
 groups=('x11-misc')
 url="https://tools.suckless.org/slock"
 license=('MIT')
+makedepends=('git')
 depends=('libxext' 'libxrandr')
-source=("https://dl.suckless.org/tools/$pkgname-$pkgver.tar.gz")
-#source=("slock-$pkgver.tar.bz2::https://hg.suckless.org/slock/archive/$_pkgver.tar.gz")
-md5sums=('f91dd5ba50ce7bd1842caeca067086a3')
+source=("git+https://git.suckless.org/slock#tag=${pkgver}")
+sha256sums=('b5517afa598992f0d90e6847a2aec2837679f3b41468298e56235528c8baf934')
 
 prepare() {
-  cd "$srcdir/slock-$pkgver"
+  cd $pkgname
   sed -i 's|static const char \*group = "nogroup";|static const char *group = "nobody";|' config.def.h
   sed -ri 's/((CPP|C|LD)FLAGS) =/\1 +=/g' config.mk
 }
 
 build() {
-  cd "$srcdir/slock-$pkgver"
+  cd $pkgname
   make X11INC=/usr/include/X11 X11LIB=/usr/lib/X11
 }
 
 package() {
-  cd "$srcdir/slock-$pkgver"
+  cd $pkgname
   make PREFIX=/usr DESTDIR="$pkgdir" install
   install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+

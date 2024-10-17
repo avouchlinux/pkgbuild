@@ -1,30 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-util-macros
 _realname=util-macros
-pkgver=1.19.2
+pkgver=1.20.1
 pkgrel=1
 pkgdesc="X.Org Autotools macros"
 arch=(any)
 groups=('x11-misc')
-license=('custom')
-url="http://xorg.freedesktop.org/"
-source=(${url}/releases/individual/util/util-macros-${pkgver}.tar.bz2)
+license=('HPND-sell-variant AND MIT')
+url="https://xorg.freedesktop.org/"
+source=(${url}/releases/individual/util/util-macros-${pkgver}.tar.xz{,.sig})
+sha512sums=('5f44d73c18ff87459cd94a68a961465b3970a36f0b55be65c0ec228320a675561eb24a1b1359745124302446a1a3fadc2f50d3378f439df5bd3e866cb8015286'
+            'SKIP')
+validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # # "Matt Turner <mattst88@gmail.com>"
+#validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-    cd ${srcdir}/${_realname}-${pkgver}
-    ./configure --prefix=/usr
-    make
+  cd util-macros-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-    cd ${srcdir}/${_realname}-${pkgver}
-    make DESTDIR="${pkgdir}" install
+  cd util-macros-${pkgver}
+  make DESTDIR="${pkgdir}" install
 
-    install -m755 -d "${pkgdir}/usr/lib"
-    mv "${pkgdir}/usr/share/pkgconfig" "${pkgdir}/usr/lib/"
-    # license
-    install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

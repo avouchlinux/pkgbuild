@@ -5,28 +5,22 @@
 
 pkgname=spirv-llvm-translator
 _realname=SPIRV-LLVM-Translator
-pkgver=17.0.0.r6+g70883514
+pkgver=19.1.0
 pkgrel=1
 pkgdesc="Tool and a library for bi-directional translation between SPIR-V and LLVM IR"
 arch=(x86_64)
 groups=('dev-utils')
 url="https://github.com/KhronosGroup/SPIRV-LLVM-Translator"
-license=(custom)
+license=(LicenseRef-custom)
 depends=(llvm-libs spirv-tools)
 makedepends=(git cmake llvm spirv-headers)
-checkdepends=(python python-setuptools clang)
-# Current point in the used LLVM branch
-_commit=7088351420a8f0c3e5f9be678fd1d16ae826e37f
-source=(git+${url}.git#commit=$_commit)
-sha256sums=('SKIP')
-
-pkgver() {
-  cd ${_realname}
-  git describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./;s/-/+/'
-}
+checkdepends=(python clang)
+source=($_realname-$pkgver.tar.gz::https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v19.1.0.tar.gz)
+sha256sums=('e381923b76869db77497880c77d73e4a8486b495702cd5603981dd578dcc7a63')
 
 build() {
-  cmake -B build -S ${_realname} \
+  cmake -B build -S ${_realname}-$pkgver -G Ninja \
+    -G 'Unix Makefiles' \
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
@@ -36,15 +30,14 @@ build() {
     -DLLVM_EXTERNAL_LIT=/usr/bin/lit \
     -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/include/spirv/ \
     -Wno-dev
-  make -C build
+  cmake --build build
 }
 
 check() {
-  LD_LIBRARY_PATH="${srcdir}/build/lib/SPIRV" make -C build test
+  make -C build test
 }
 
 package() {
-  make -C build DESTDIR="${pkgdir}" install
-  install -Dm755 build/tools/llvm-spirv/llvm-spirv -t "${pkgdir}"/usr/bin
-  install -Dm644 ${_realname}/LICENSE.TXT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
+  DESTDIR="${pkgdir}" cmake --install build
+  install -Dm644 ${_realname}-$pkgver/LICENSE.TXT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }
