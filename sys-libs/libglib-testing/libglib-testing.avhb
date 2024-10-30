@@ -1,0 +1,52 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libglib-testing
+pkgver=0.1.1
+pkgrel=1
+pkgdesc="Test harnesses and mock classes for GLib"
+url="https://gitlab.gnome.org/pwithnall/libglib-testing"
+license=(LGPL2.1)
+arch=(x86_64)
+groups=('sys-libs')
+depends=(
+  dbus
+  glib2
+)
+makedepends=(
+  git
+  gtk-doc
+  meson
+)
+_commit=e326f73a7139c5e54fcf926896ae6e4cc899a1a7  # tags/0.1.1^0
+source=("git+https://gitlab.gnome.org/pwithnall/libglib-testing.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  depends+=(libg{lib,object,io}-2.0.so)
+  provides+=(libglib-testing-${pkgver%%.*}.so)
+
+  meson install -C build --destdir "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

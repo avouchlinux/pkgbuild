@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=reuse-tool
-pkgver=0.14.0
+pkgver=4.0.3
 pkgrel=1
 pkgdesc='Helper tool for providing and confirming copyright and licensing information'
 arch=('any')
@@ -36,22 +36,13 @@ b2sums=('b8dbe73846974ca8725a5c261d3cec90c151d7e076654fd43e258529fd55c4f57779308
 build() {
   cd "$pkgname-$pkgver"
 
-  python setup.py build
-}
-
-check() {
-  cd "$pkgname-$pkgver"
-
-  # pytest
+  make
 }
 
 package() {
   cd "$pkgname-$pkgver"
 
-  python setup.py install \
-    --root="$pkgdir" \
-    --optimize=1 \
-    --skip-build
+  make DESTDIR="${pkgdir}" install
 
   # licenses
   install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSES/*

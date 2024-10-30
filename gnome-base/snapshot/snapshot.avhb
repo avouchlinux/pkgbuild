@@ -1,0 +1,68 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=snapshot
+pkgver=47.1
+pkgrel=1
+pkgdesc="Take pictures and videos"
+arch=(x86_64)
+groups=('gnome-base')
+url="https://apps.gnome.org/Snapshot"
+license=(GPL-3.0-or-later)
+groups=(gnome)
+depends=(
+  dconf
+  gcc-libs
+  glib2
+  glibc
+  glycin
+  graphene
+  gst-plugin-gtk4
+  gst-plugin-pipewire
+  gst-plugins-bad-libs
+  gst-plugins-base
+  gst-plugins-base-libs
+  gst-plugins-good
+  gstreamer
+  gtk4
+  hicolor-icon-theme
+  lcms2
+  libadwaita
+  libseccomp
+)
+makedepends=(
+  git
+  meson
+  rust
+)
+source=(
+  "git+https://gitlab.gnome.org/GNOME/snapshot.git#tag=${pkgver/[a-z]/.&}"
+)
+b2sums=('59d14993723a3926ac316601c60cbb48a4909d8aa96aef55ce9093c04f2f8a6d6c8c8640570219a9fdcf728bf6f4acdc9e8caac73bb142863289f9ac2eb0c083')
+validpgpkeys=(
+  3475CBA8D3483594C889B470D64A8D747F6FE706 # Maximiliano Sandoval <msandova@gnome.org>
+  D25626D42D675B9C5EAF57DF7F3B4AADE28427AE # Jamie Murphy <hello@itsjamie.dev>
+)
+
+prepare() {
+  cd snapshot
+
+  # Match CARGO_HOME in src/meson.build
+  CARGO_HOME="$srcdir/build/cargo-home" \
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  avouch-meson snapshot build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs --no-rebuild
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir" --no-rebuild
+}

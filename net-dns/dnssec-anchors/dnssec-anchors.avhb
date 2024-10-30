@@ -1,38 +1,26 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dnssec-anchors
-pkgver=20200418
+pkgver=20190629
+_trusted_key=trusted-key-${pkgver}.key
 pkgrel=1
 pkgdesc='DNSSEC trust anchors for the root zone'
 arch=('any')
 groups=('net-dns')
 url='https://data.iana.org/root-anchors/'
 license=('custom:none')
+arch=('any')
 makedepends=('unbound')
-source=('LICENSE')
-
-prepare() {
-	cd "${srcdir}"
-
-	#unbound-anchor -v -a root.key ||
-	#unbound-anchor -v -a root.key
-
-	#unbound-host -v -f root.key -t DS . |
-	#sed 's/ (secure)//;t;d' |
-	#sed 's/ has / IN /' |
-	#sed 's/ record / /' \
-	#> trusted-key.key
-
-	/usr/bin/unbound-anchor \
-	-a trusted-key.key \
-	-c /etc/unbound/icannbundle.pem \
-	-f /etc/resolv.conf -R
-}
+source=('LICENSE' "https://sources.archlinux.org/other/packages/${pkgname}/${_trusted_key}")
+sha256sums=('dd37e92942d5a4024f1c77df49d61ca77fc6284691814903a741785df61f78cb'
+            'b01933ede7d505cac6bbee8c58027057d3a073581fa6cf595c352553dd07ee3c')
 
 package() {
 	cd "${srcdir}"
-	install -Dm644 trusted-key.key "${pkgdir}"/etc/trusted-key.key
+	install -Dm644 ${_trusted_key} "${pkgdir}"/etc/trusted-key.key
 	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

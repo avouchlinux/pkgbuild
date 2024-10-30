@@ -8,7 +8,7 @@ pkgname=(
   mutter
   mutter-docs
 )
-pkgver=47.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="Window manager and compositor for GNOME"
 arch=('x86_64')
@@ -84,18 +84,18 @@ makedepends=(
 )
 source=(
   # Mutter tags use SSH signatures which makepkg doesn't understand
-  "git+$url.git#tag=${pkgver/[a-z]/.&}"
+  "https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/47.1/$pkgbase-$pkgver.tar.gz"
   "git+https://gitlab.gnome.org/GNOME/gvdb.git#commit=b54bc5da25127ef416858a3ad92e57159ff565b3"
 )
 b2sums=('0dc3e7541707fe7c9fd24397f08fd29272bd3f104a51503f7657b9b4589a22ee3a6ce407c440785e06bd19b3347fd555c3187aae4f5c87052ce94783d599426d'
         'f989bc2ceb52aad3c6a23c439df3bbc672bc11d561a247d19971d30cc85ed5d42295de40f8e55b13404ed32aa44f12307c9f5b470f2e288d1c9c8329255c43bf')
 
 prepare() {
-  cd mutter
+  cd $pkgbase-$pkgver
 
   # Revert "window/wayland: Use scale for configured rect in configuration"
   # https://gitlab.gnome.org/GNOME/mutter/-/commit/70c0eca6b08b7a5aed7a1951149f72f98331a6b4
-  git cherry-pick -n 70c0eca6b08b7a5aed7a1951149f72f98331a6b4
+  # git cherry-pick -n 70c0eca6b08b7a5aed7a1951149f72f98331a6b4
 
 }
 
@@ -116,7 +116,7 @@ build() {
   export MESON_PACKAGE_CACHE_DIR="$srcdir"
 
 
-  avouch-meson mutter build "${meson_options[@]}"
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 

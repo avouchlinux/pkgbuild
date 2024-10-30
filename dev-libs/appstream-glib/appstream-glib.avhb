@@ -4,6 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=appstream-glib
+_realname=${pkgname/-/_}
 pkgver=0.8.3
 pkgrel=1
 pkgdesc="Provides GObjects and helper methods to make it easy to read and write AppStream metadata."
@@ -41,14 +42,14 @@ provides=(
 )
 conflicts=(appdata-tools)
 replaces=(appdata-tools)
-source=("git+https://github.com/hughsie/appstream-glib?signed#tag=appstream_glib_${pkgver//./_}")
+source=("$pkgname-${pkgname/-/_}_${pkgver//./_}.tar.gz::https://github.com/hughsie/appstream-glib/archive/refs/tags/${pkgname/-/_}_${pkgver//./_}.tar.gz")
 b2sums=('a356111d3daa1b62e8f0c67b4328c937f913b96fcc066d45a27a9bf0269db7aa3c71bfe5a4d11e0272aa7857c028766413adf293f8e8fdbc263162da6df4c6d1')
 validpgpkeys=(
   163EB50119225DB3DF8F49EA17ACBA8DFA970E17 # Richard Hughes <richard@hughsie.com>
 )
 
 prepare() {
-  cd $pkgname
+  cd $pkgname-${pkgname/-/_}_${pkgver//./_}
 }
 
 build() {
@@ -58,7 +59,7 @@ build() {
     -D rpm=false
   )
 
-  avouch-meson $pkgname build "${meson_options[@]}"
+  avouch-meson $pkgname-${pkgname/-/_}_${pkgver//./_} build "${meson_options[@]}"
   meson compile -C build
 }
 

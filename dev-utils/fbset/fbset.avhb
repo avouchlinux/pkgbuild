@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -13,8 +14,8 @@ license=('GPL')
 depends=('glibc')
 backup=('etc/fb.modes')
 options=('!makeflags')
-source=(http://users.telenet.be/geertu/Linux/fbdev/fbset-${pkgver}.tar.gz)
-md5sums=('e547cfcbb8c1a4f2a6b8ba4acb8b7164')
+source=(http://web.archive.org/web/20220901004551/http://users.telenet.be/geertu/Linux/fbdev/fbset-$pkgver.tar.gz)
+sha512sums=('7e0380760f77b0db7dcc128f6375a3ed8da4b8521d1926faba27812c5cb20e6f1a62f3a539591a81a6b7e7986940db4cd83e03d6de487e0ab7f0760ed1d21b28')
 
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
@@ -28,3 +29,4 @@ package() {
   install -D -m644 fbset.8 "${pkgdir}/usr/share/man/man8/fbset.8"
   install -D -m644 etc/fb.modes.ATI "${pkgdir}/etc/fb.modes"
 }
+

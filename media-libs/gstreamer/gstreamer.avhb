@@ -17,7 +17,7 @@ pkgname=(
   gst-plugin-msdk
 #   gst-plugin-onnx
   gst-plugin-opencv
-#   gst-plugin-qml6
+  gst-plugin-qml6
   gst-plugin-qmlgl
   gst-plugin-qsv
   gst-plugin-va
@@ -28,7 +28,7 @@ pkgname=(
   gst-editing-services
   gstreamer-vaapi
   gst-python
-  gstreamer-docs
+  # gstreamer-docs
 )
 pkgver=1.24.8
 pkgrel=1
@@ -188,8 +188,8 @@ checkdepends=(xorg-server-xvfb)
 
 options=(debug)
 source=(
-  "git+https://gitlab.freedesktop.org/gstreamer/gstreamer.git?signed#tag=$pkgver"
-  "https://gstreamer.freedesktop.org/src/gstreamer-docs/gstreamer-docs-$pkgver.tar.xz"{,.asc}
+  "https://gitlab.freedesktop.org/$pkgbase/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.gz"
+  # "https://gstreamer.freedesktop.org/src/gstreamer-docs/gstreamer-docs-$pkgver.tar.xz"{,.asc}
 )
 sha256sums=('SKIP'
             'ddd82f3d33b93aa355a69254c238324b2cdb8ac2ac8a27106c304c74e17e36af'
@@ -197,17 +197,21 @@ sha256sums=('SKIP'
 validpgpkeys=(D637032E45B8C6585B9456565D2EEE6F6F349D7C) # Tim Müller <tim@gstreamer-foundation.org>
 
 prepare() {
-  cd $pkgbase
+  cd $pkgbase-$pkgver
 
   # Fix linking with system orc
   sed -i "s/get_option('orc')/false/" meson.build
   sed -i "s/orc_option.allowed()/orc_option/" meson.build
 
   # Disable broken tests
-  git apply -3 ../0001-HACK-meson-Disable-broken-tests.patch
+  patch -Np1 -i ../0001-HACK-meson-Disable-broken-tests.patch
 
   # Fix build
-  git apply -3 ../0002-ges-Fix-name-of-GESFrameCompositionMeta-API-type.patch
+  patch -Np1 -i ../0002-ges-Fix-name-of-GESFrameCompositionMeta-API-type.patch
+  
+  # Fix build with x265 4.0
+  patch -Np1 -i ../0003-x265enc-Unbreak-build-with-x265-4.0.patch
+
 }
 
 build() {
@@ -258,7 +262,7 @@ build() {
     # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3197
     export GI_SCANNER_DISABLE_CACHE=1
 
-    avouch-meson $pkgbase build "${meson_options[@]}"
+    avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
     meson compile -C build
 }
 

@@ -74,8 +74,6 @@ package_texlive-extra() {
    for F in /opt/texlive/2022/texmf-dist/scripts/latex-make/*.py ; do
    sed -i 's%/usr/bin/env python%/usr/bin/python3%' $F
    done
-
-
 }
 
 package_texlive-doc() {

@@ -1,0 +1,32 @@
+From: Jochen Sprickerhof <git@jochen.sprickerhof.de>
+Date: Sat, 23 Jan 2021 19:37:02 +0100
+Subject: Don't expo progname symbol
+
+Fixes:
+
+/usr/bin/ld: .libs/TestDbTuner.o:(.data.rel.local+0x0): multiple definition of `progname'; .libs/Runner.o:(.bss+0x0): first defined here
+---
+ test/c/suites/TestDbTuner.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/test/c/suites/TestDbTuner.c b/test/c/suites/TestDbTuner.c
+index 21954c2..b84bfd8 100644
+--- a/test/c/suites/TestDbTuner.c
++++ b/test/c/suites/TestDbTuner.c
+@@ -33,7 +33,6 @@ int open_db(DB_ENV **, DB **, char *, char *, u_int32_t, int);
+ int run_test(CuTest *, u_int32_t, int, int, int, int, int);
+ int store_db(DB *, int, int, int, int);
+ 
+-const char *progname = "TestDbTuner";
+ int total_cases, success_cases;
+ 
+ int TestDbTuner(CuTest *ct) {
+@@ -201,7 +200,7 @@ open_db(dbenvp, dbpp, dbname, home, pgsize, duptype)
+ 	*dbenvp = dbenv;
+ 
+ 	dbenv->set_errfile(dbenv, stderr);
+-	dbenv->set_errpfx(dbenv, progname);
++	dbenv->set_errpfx(dbenv, "TestDbTuner");
+ 
+ 	if ((ret =
+ 	    dbenv->set_cachesize(dbenv, (u_int32_t)0,

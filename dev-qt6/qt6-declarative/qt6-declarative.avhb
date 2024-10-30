@@ -4,9 +4,10 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-declarative
-pkgver=6.7.3
+pkgver=6.8.0
 pkgrel=1
 _realname="${pkgname/6-/}-everywhere-src-${pkgver}"
+_tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
 arch=('x86_64')
 groups=('dev-qt6')
 url='https://www.qt.io'
@@ -26,12 +27,11 @@ source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submod
 sha256sums=('13d6b12d1c1eabdc6e6775e344e3479bf42ffabeadb20bee94882dc3eb003820')
 
 build() {
-  export CXXFLAGS+=" -ffat-lto-objects"
-  cmake -B build -S $_realname -G Ninja \
+  cmake -B build -S $_tarname -G Ninja \
     -DINSTALL_PUBLICBINDIR=usr/bin \
-    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects"
   cmake --build build
-
 }
 
 package() {

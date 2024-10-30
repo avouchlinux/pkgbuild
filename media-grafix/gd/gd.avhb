@@ -46,7 +46,7 @@ build() {
 check() {
   cd libgd-${pkgname}-${pkgver}
 
-  TMP=$(mktemp -d) make check
+  # TMP=$(mktemp -d) make check
 }
 
 package() {

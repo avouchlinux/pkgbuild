@@ -1,36 +1,78 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kio-extras
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Additional components to increase the functionality of KIO"
 arch=('x86_64')
 groups=('kde-apps')
-url='https://www.kde.org/applications/internet/'
-license=(LGPL)
-depends=(kio kdnssd libssh smbclient exiv2 openexr libmtp kpty kactivities-stats phonon-qt5 syntax-highlighting kdsoap-ws-discovery-client libxcursor)
-makedepends=(extra-cmake-modules kdoctools gperf taglib libappimage)
-optdepends=('qt5-imageformats: thumbnails for additional image formats' 'perl: info kioslave'
-            'kimageformats: thumbnails for additional image formats' 'taglib: audio file thumbnails'
-            'phonon-qt5: audio file previews' 'libappimage: AppImage thumbnails' 'icoutils: Windows executable thumbnails')
-groups=(kde-applications kdenetwork)
-source=("https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
+url='https://www.kde.org/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         karchive
+         kcmutils
+         kconfig
+         kcoreaddons
+         kdbusaddons
+         kdnssd
+         kdsoap-qt6
+         kdsoap-ws-discovery-client
+         ki18n
+         kio
+         kservice
+         ktextwidgets
+         kwidgetsaddons
+         libimobiledevice
+         libkexiv2
+         libmtp
+         libplist
+         libssh
+         libxcursor
+         phonon-qt6
+         plasma-activities
+         qt6-5compat
+         qt6-base
+         qt6-svg
+         smbclient
+         solid
+         syntax-highlighting)
+makedepends=(extra-cmake-modules
+             gperf
+             kdoctools
+             libappimage
+             openexr
+             plasma-activities-stats
+             qcoro
+             taglib)
+optdepends=('icoutils: Windows executable thumbnails'
+            'kimageformats: thumbnails for additional image formats'
+            'libappimage: AppImage thumbnails'
+            'openexr: EXR format thumbnails'
+            'perl: info kioslave'
+            'plasma-activities-stats: recently used kioslave'
+            'qt6-imageformats: thumbnails for additional image formats'
+            'taglib: audio file thumbnails')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('99a6f548c7aac18017ebe2b73ac99327f2585b418257bc1c7e065ced82bd2cc7'
+            'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
-              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87) # Christoph Feck <cfeck@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
-		-DLIBAPPIMAGE_LIBRARIES=libappimage.so \
-		-DBUILD_TESTING=OFF
-	ninja -C build
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DLIBAPPIMAGE_LIBRARIES=libappimage.so \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }
-

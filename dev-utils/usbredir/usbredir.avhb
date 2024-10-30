@@ -1,27 +1,53 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=usbredir
-pkgver=0.8.0
+pkgver=0.14.0
 pkgrel=1
 pkgdesc="USB traffic redirection protocol"
 arch=('x86_64')
 groups=('dev-utils')
-url="http://spice-space.org/page/UsbRedir"
-license=('GPL2' 'LGPL2.1')
-depends=('libusb')
-source=(http://spice-space.org/download/usbredir/$pkgname-$pkgver.tar.bz2)
+url="https://www.spice-space.org/usbredir.html"
+license=(
+  GPL-2.0-or-later
+  LGPL-2.1-or-later
+)
+depends=(
+  glib2
+  glibc
+  libusb
+)
+makedepends=(
+  git
+  meson
+)
+provides=(
+  libusbredirhost.so
+  libusbredirparser.so
+)
+source=("git+https://gitlab.freedesktop.org/spice/usbredir.git#tag=$pkgname-$pkgver")
+sha256sums=('f881a5430d8d350adcd0bd71035f143d101516204c324d9e6857e3023b629796')
+
+prepare() {
+  cd $pkgname
+  sed -i '/-D_FORTIFY_SOURCE=2/d' meson.build
+}
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
-  export CFLAGS="$CFLAGS -Wno-error"
-  ./configure --prefix=/usr --sbindir=/usr/bin
-  make ${MAKEFLAGS}
+  cd $pkgname
+  avouch-meson . build
+  meson compile -C build
+}
+
+check() {
+  cd $pkgname
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
-  make DESTDIR="$pkgdir/" install
+  cd $pkgname
+  meson install -C build --destdir="$pkgdir"
 }
+

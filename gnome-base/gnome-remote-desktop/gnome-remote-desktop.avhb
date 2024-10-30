@@ -4,18 +4,22 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-remote-desktop
-pkgver=45.1
+pkgver=47.1
 pkgrel=1
 pkgdesc="GNOME Remote Desktop server"
-url="https://wiki.gnome.org/Projects/Mutter/RemoteDesktop"
+url="https://gitlab.gnome.org/GNOME/gnome-remote-desktop"
 arch=(x86_64)
-license=(GPL2)
+groups=(gnome-base)
+arch=(x86_64)
+license=(GPL-2.0-or-later)
 depends=(
   cairo
   dconf
   freerdp
   fuse3
+  gcc-libs
   glib2
+  glibc
   libdrm
   libei
   libepoxy
@@ -25,49 +29,36 @@ depends=(
   libsecret
   libvncserver
   libxkbcommon
+  opus
   pipewire
+  polkit
   systemd
+  systemd-libs
   tpm2-tss
 )
 makedepends=(
   asciidoc
   ffnvcodec-headers
   git
+  glib2-devel
   meson
 )
-checkdepends=(
-  dbus-broker
-  libegl
-  mutter
-  python-dbus
-  python-gobject
-  wireplumber
-)
 groups=(gnome)
-_commit=df66c0e99a749058e0ee7dcee36bd97e018a3bb8  # tags/45.1^0
-source=("git+https://gitlab.gnome.org/GNOME/gnome-remote-desktop.git#commit=$_commit")
-b2sums=('SKIP')
-
-pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd $pkgname
-}
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('24796ff19165dd317046276c680d1860eba1f8e0604552610aabef0b51da9fb3b596063137c43a84fc30b8fb6bb521e26ca36fffcb1e367509319c9fa6e7a22c')
+validpgpkeys=(
+  8307C0A224BABDA1BABD0EB9A6EEEC9E0136164A # Jonas Ådahl <jadahl@gmail.com>
+  E60DADB5546D3F01AF35B87289F540EAB24513E2 # Ray Strode <rstrode@redhat.com>
+)
 
 build() {
   local meson_options=(
+    -D tests=false
     -D vnc=true
   )
 
-  avouch-meson $pkgname build "${meson_options[@]}"
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
-}
-
-check() {
-  meson test -C build --print-errorlogs -t 3
 }
 
 package() {

@@ -1,24 +1,43 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kamera
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="KDE integration for gphoto2 cameras"
-url="http://kde.org/applications/graphics/kamera/"
 arch=('x86_64')
 groups=('kde-apps')
-license=(GPL LGPL FDL)
-depends=(kio libgphoto2)
-makedepends=(extra-cmake-modules kdoctools python)
-source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
-sha1sums=('037edaf162304a873d96c1457cba7450e5b1f222')
+url='https://apps.kde.org/kamera/'
+arch=(x86_64)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcmutils
+         kconfig
+         kcoreaddons
+         ki18n
+         kio
+         kwidgetsaddons
+         kxmlgui
+         libgphoto2
+         qt6-base)
+makedepends=(extra-cmake-modules
+             kdoctools)
+groups=(kde-applications
+        kde-graphics)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('e4e1cf06d0b28b2bd957514a457ae7ea489de99c13576d2405adf6a2e20712b5'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
   	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
+		    -DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
         -DBUILD_TESTING=OFF
   cmake --build build
@@ -27,4 +46,3 @@ build() {
 package() {
   DESTDIR="$pkgdir" cmake --install build
 }
-

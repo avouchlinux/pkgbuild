@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=cmocka
-pkgver=1.1.5
+pkgver=1.1.7
 pkgrel=1
 pkgdesc='Elegant unit testing framework for C with support for mock objects'
 arch=('x86_64')

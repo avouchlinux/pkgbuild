@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=strip-nondeterminism
-pkgver=1.12.1
+pkgver=1.14.0
 pkgrel=1
 pkgdesc='Tool for stripping bits of non-deterministic information from files'
 url='https://salsa.debian.org/reproducible-builds/strip-nondeterminism'
@@ -47,4 +47,3 @@ package() {
   rm -r "${pkgdir}/usr/share/man/man3"
 }
 
-# vim: ts=2 sw=2 et:

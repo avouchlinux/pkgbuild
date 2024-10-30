@@ -47,7 +47,7 @@ build() {
     -D osce=enabled
   )
 
-  arch-meson opus build "${meson_options[@]}"
+  avouch-meson opus build "${meson_options[@]}"
   meson compile -C build
 }
 

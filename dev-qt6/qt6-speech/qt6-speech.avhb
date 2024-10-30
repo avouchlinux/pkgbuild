@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-speech
-pkgver=6.7.3
+pkgver=6.8.0
 pkgrel=1
 _tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
 arch=(x86_64)

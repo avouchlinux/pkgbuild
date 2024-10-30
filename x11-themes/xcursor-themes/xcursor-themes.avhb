@@ -1,28 +1,32 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xcursor-themes
-pkgver=1.0.6
+pkgver=1.0.7
 pkgrel=1
 pkgdesc="X.org Cursor themes"
 arch=(any)
 groups=('x11-themes')
-url="http://xorg.freedesktop.org/"
-license=('MIT')
+url="https://xorg.freedesktop.org/"
+license=('HPND-sell-variant')
 makedepends=('pkgconfig' 'xorg-xcursorgen' 'xorg-util-macros')
-source=(${url}/releases/individual/data/${pkgname}-${pkgver}.tar.bz2)
+source=(${url}/releases/individual/data/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('910925dd17c576028ae0d9dfe5683888648b941806b53cd9ff74ed18ff2de537664b07ab4c647a55290aeba37f6051f322b29e8ecd54f348e32abe2ccea1c902'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

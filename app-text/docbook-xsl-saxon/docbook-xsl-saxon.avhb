@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,7 +12,7 @@ groups=('app-text')
 url="http://docbook.sourceforge.net/"
 license=('custom:MIT')
 depends=('java-runtime' 'docbook-xsl' 'saxon-he')
-source=("http://sourceforge.net/projects/docbook/files/docbook-xsl-saxon/${pkgver}/${pkgname}-${pkgver}.tar.bz2")
+source=("http://sourceforge.net/projects/docbook/files/docbook-xsl-saxon/${pkgver}/${pkgname}-${pkgver}.tar.xz")
 
 package() {
 	cd "${srcdir}/${pkgname}-${pkgver}"

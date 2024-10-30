@@ -1,65 +1,125 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=marble
-pkgname=(marble marble-data)
-pkgver=24.08.1
+pkgname=(marble
+         marble-common
+         marble-maps
+         marble-qt)
+pkgver=24.08.2
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Desktop Globe"
 arch=('x86_64')
 groups=('kde-apps')
-url="https://www.kde.org/applications/system/marble"
-license=(GPL)
-makedepends=(extra-cmake-modules gpsd quazip libwlocate phonon-qt5 qt5-webkit krunner
-             kparts knewstuff qt5-tools kdoctools qt5-serialport plasma-workspace)
-source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-
-  # only build the KDE app
-  sed -e '/mobile/d' \
-      -e '/qt/d'  \
-      -e '/Quick/d' \
-      -e '/touch/d' \
-      -i $pkgname-$pkgver/src/apps/CMakeLists.txt
-}
+url='https://apps.kde.org/marble/'
+license=(GPL-2.0-or-later)
+makedepends=(extra-cmake-modules
+             gpsd
+             kdoctools5
+             knewstuff5
+             kparts5
+             libwlocate
+             phonon-qt5
+             protobuf
+             qt5-serialport
+             qt5-tools
+             qt5-webengine
+             shapelib)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgbase-$pkgver.tar.xz{,.sig})
+sha256sums=('7541b0e640c4b941eb8683039079018d0180cc72258f9fe1d56bac9b2f68273b'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgbase-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DKDE_INSTALL_SYSCONFDIR=/etc \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+    -DCMAKE_CXX_STANDARD=17 \
     -DQT_PLUGINS_DIR=lib/qt/plugins \
     -DBUILD_TESTING=OFF \
+    -DBUILD_TOUCH=ON \
     -DBUILD_MARBLE_EXAMPLES=OFF \
     -DBUILD_MARBLE_TESTS=OFF \
     -DMOBILE=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
+}
+
+package_marble-common() {
+  pkgdesc='Common libraries and plugins for Marble'
+  depends=(gcc-libs
+           glibc
+           phonon-qt5
+           protobuf
+           qt5-base
+           qt5-declarative
+           qt5-location
+           qt5-svg
+           qt5-webchannel
+           qt5-webengine
+           zlib)
+  optdepends=('gpsd: GPS based geolocation'
+              'libwlocate: WLAN based geolocation'
+              'qt5-serialport: APRS plugin'
+              'shapelib: SHP plugin')
+
+  DESTDIR="$pkgdir" cmake --install build
+  rm -r "$pkgdir"/usr/share/{config.kcfg,kxmlgui5,metainfo} \
+        "$pkgdir"/usr/bin \
+        "$pkgdir"/usr/lib/qt/plugins/*.so \
+        "$pkgdir"/usr/share/applications/{marble_geo.desktop,marble_worldwind.desktop,org.kde.marble*.desktop} \
+        "$pkgdir"/usr/share/kservices5/marble_part.desktop \
+        "$pkgdir"/usr/share/locale/*/LC_MESSAGES/*.mo
+}
+
+package_marble-qt() {
+  pkgdesc+=' (Qt version)'
+  depends=(gcc-libs
+           glibc
+           marble-common
+           qt5-base)
+
+  DESTDIR="$pkgdir" cmake --install build/src/apps/marble-qt
 }
 
 package_marble() {
-  depends=(marble-data qt5-webkit kparts knewstuff quazip)
-  optdepends=('gpsd: GPS based geolocation'
-            'qt5-serialport: APRS plugin'
-            'libwlocate: WLAN based geolocation'
-            'krunner: Krunner plugin')
+  depends=(gcc-libs
+           glibc
+           kconfig5
+           kconfigwidgets5
+           kcoreaddons5
+           kcrash5
+           ki18n5
+           kio5
+           kparts5
+           kwidgetsaddons5
+           kxmlgui5
+           marble-common
+           qt5-base)
+  groups=(kde-applications
+          kde-education)
 
-  cd build
-  make DESTDIR="$pkgdir" install
-
-# provided by marble-data
-  rm -r "$pkgdir"/usr/share/{icons,marble/data,mime}
+  DESTDIR="$pkgdir" cmake --install build/src/apps/marble-kde
+  DESTDIR="$pkgdir" cmake --install build/src/plasma
+  DESTDIR="$pkgdir" cmake --install build/src/plasmarunner
+  DESTDIR="$pkgdir" cmake --install build/src/thumbnailer
+  rm -r "$pkgdir"/usr/share/{icons,doc}
 }
 
-package_marble-data() {
-  pkgdesc='Data for Marble'
-  depends=(hicolor-icon-theme)
+package_marble-maps() {
+  pkgdesc='OpenStreetMap Navigation'
+  depends=(gcc-libs
+           glibc
+           kirigami2
+           marble-common
+           qt5-base
+           qt5-declarative)
 
-  cd build/data
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build/src/apps/marble-maps
 }

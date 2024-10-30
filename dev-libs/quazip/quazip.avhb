@@ -1,26 +1,43 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=quazip
-pkgver=0.8.1
+pkgbase=quazip
+pkgname=(quazip-qt5 quazip-qt6)
+pkgver=1.4
 pkgrel=1
 pkgdesc="C++ wrapper for the Gilles Vollant's ZIP/UNZIP C package"
 arch=('x86_64')
 groups=('dev-libs')
 url="https://stachenov.github.io/quazip/"
 license=(LGPL)
-depends=(qt5-base)
-makedepends=(cmake)
-source=(https://github.com/stachenov/$pkgname/archive/v$pkgver.tar.gz)
+makedepends=(cmake qt5-base qt6-5compat)
+source=(https://github.com/stachenov/$pkgbase/archive/v$pkgver/$pkgbase-$pkgver.tar.gz)
+sha256sums=('79633fd3a18e2d11a7d5c40c4c79c1786ba0c74b59ad752e8429746fe1781dd6')
 
 build() {
-  cmake -S $pkgname-$pkgver -B build \
+  cmake -B build5 -S $pkgbase-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr
-  make ${MAKEFLAGS} -C build
+  cmake --build build5
+
+  cmake -B build6 -S $pkgbase-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DQUAZIP_QT_MAJOR_VERSION=6
+  cmake --build build6
 }
 
-package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+package_quazip-qt5() {
+  depends=(qt5-base)
+  provides=(quazip)
+  replaces=(quazip)
+
+  DESTDIR="$pkgdir" cmake --install build5
 }
+
+package_quazip-qt6() {
+  depends=(qt6-5compat)
+
+  DESTDIR="$pkgdir" cmake --install build6
+}
+

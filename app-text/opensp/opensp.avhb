@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,47 +12,43 @@ arch=('x86_64')
 groups=('app-text')
 url="http://openjade.sourceforge.net/"
 license=('BSD')
-depends=('gcc-libs')
+depends=('sgml-common' 'perl')
 makedepends=('xmlto' 'docbook-xsl')
-source=("http://download.sourceforge.net/openjade/OpenSP-$pkgver.tar.gz")
-
-
-prepare() {
-    cd ${srcdir}/${_realname}-${pkgver}
-
-    sed -i 's/32,/253,/' lib/Syntax.cxx &&
-    sed -i 's/LITLEN          240 /LITLEN          8092/' \
-    unicode/{gensyntax.pl,unicode.syn}
-}
+source=("https://downloads.sourceforge.net/project/openjade/opensp/$pkgver/OpenSP-$pkgver.tar.gz")
+sha256sums=('57f4898498a368918b0d49c826aa434bb5b703d2c3b169beb348016ab25617ce')
 
 build() {
-    cd ${srcdir}/${_realname}-${pkgver}
-    ./configure --prefix=/usr \
-        --mandir=/usr/share/man \
-        --enable-http \
-        --enable-default-catalog=/etc/sgml/catalog:/etc/xml/catalog \
-        --enable-default-search-path=/usr/share/sgml:/usr/share/xml \
-        --enable-xml-messages \
-        --disable-nls \
-        --disable-doc-build \
-        --disable-static
-    make ${MAKEFLAGS}
+  cd OpenSP-$pkgver
+  ./configure --prefix=/usr \
+    --mandir=/usr/share/man \
+    --disable-nls \
+    --enable-http \
+    --enable-default-catalog=/etc/sgml/catalog \
+    --enable-default-search-path=/usr/share/sgml:/usr/share/xml \
+    --enable-xml-messages
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
+
+check() {
+  cd OpenSP-$pkgver
+  make check || /bin/true
 }
 
 package() {
-    cd ${srcdir}/${_realname}-${pkgver}
-    make DESTDIR="${pkgdir}" install
-    # license
-    install -D -m644 COPYING "${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
+  cd OpenSP-$pkgver
+  make DESTDIR="${pkgdir}" install
 
-    # usefull symlink
-    ln -v -sf onsgmls "${pkgdir}"/usr/bin/nsgmls
-    ln -v -sf osgmlnorm "${pkgdir}"/usr/bin/sgmlnorm
-    ln -v -sf ospam "${pkgdir}"/usr/bin/spam
-    ln -v -sf ospcat "${pkgdir}"/usr/bin/spcat
-    ln -v -sf ospent "${pkgdir}"/usr/bin/spent
-    ln -v -sf osx "${pkgdir}"/usr/bin/sx
-    ln -v -sf osx "${pkgdir}"/usr/bin/sgml2xml
-    ln -v -sf libosp.so "${pkgdir}"/usr/lib/libsp.so
+  # add symlinks for compatibility with jade, see FS#49775
+  for file in nsgmls sgmlnorm spam spcat spent sx ; do
+    ln -s o$file "$pkgdir"/usr/bin/$file
+    echo ".so man1/o${file}.1" > "$pkgdir"/usr/share/man/man1/${file}.1
+  done
+  ln -v -sf libosp.so "$pkgdir"/usr/lib/libsp.so
+
+  # Rename sx to sgml2xml; FS#49792
+  mv "$pkgdir"/usr/bin/sx "$pkgdir"/usr/bin/sgml2xml
+  mv "$pkgdir"/usr/share/man/man1/{sx,sgml2xml}.1
+  
+  install -D -m644 COPYING "${pkgdir}"/usr/share/licenses/$pkgname/LICENSE
 }
-

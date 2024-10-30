@@ -1,20 +1,31 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdeconnect-kde
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='Adds communication between KDE and your smartphone'
 url='https://kdeconnect.kde.org/'
 arch=(x86_64)
 license=(GPL)
 groups=('kde-release-service')
-depends=(kcmutils kwayland libfakekey qca-qt5 kpeoplevcard pulseaudio-qt qqc2-desktop-style hicolor-icon-theme)
+depends=(
+  kcmutils 
+  kwayland 
+  libfakekey 
+  qca-qt6 
+  kpeoplevcard 
+  pulseaudio-qt 
+  qqc2-desktop-style 
+  hicolor-icon-theme)
 makedepends=(extra-cmake-modules kdoctools)
-optdepends=('sshfs: remote filesystem browser' 'python-nautilus: Nautilus integration' 'qt5-tools: for some runcommand plugin actions')
-source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-kde-$pkgver.tar.xz{,.sig}
+optdepends=(
+  'sshfs: remote filesystem browser' 
+  'python-nautilus: Nautilus integration' 
+  'qt6-tools: for some runcommand plugin actions')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
         kdeconnect-openssh-8.8.patch)
 sha256sums=('4c70baecf581b1d4aa0569ebe2161b95f1973d6421b321b8ae87ace461b481d7'
             'SKIP'
@@ -29,10 +40,10 @@ prepare() {
 
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
-  	    -DCMAKE_INSTALL_PREFIX=/usr \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-        -DCMAKE_INSTALL_LIBEXECDIR=lib \
-        -DBUILD_TESTING=OFF
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
   cmake --build build
 }
 

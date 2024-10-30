@@ -1,0 +1,30 @@
+From a8eba1813b306f17d6353d8c58e3b562353a019a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Wed, 3 Jul 2024 18:51:06 +0000
+Subject: [PATCH] sushi-media-bin: Fix position update for audio mode
+
+The audio mode doesn't have overlay widget.
+
+Fixes: 6258dc70814638e99d3a604eda1cd7f60ed53ffa
+
+Closes: https://gitlab.gnome.org/GNOME/sushi/-/issues/128
+---
+ src/libsushi/sushi-media-bin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libsushi/sushi-media-bin.c b/src/libsushi/sushi-media-bin.c
+index 585db5d..30afbed 100644
+--- a/src/libsushi/sushi-media-bin.c
++++ b/src/libsushi/sushi-media-bin.c
+@@ -1577,7 +1577,7 @@ sushi_media_bin_set_tick_enabled (SushiMediaBin *self, gboolean enabled)
+     }
+ 
+   if (enabled)
+-    priv->tick_id = gtk_widget_add_tick_callback (priv->overlay,
++    priv->tick_id = gtk_widget_add_tick_callback (priv->audio_mode ? priv->audio_box : priv->overlay,
+                                                   sushi_media_bin_tick_callback,
+                                                   self, NULL);
+ }
+-- 
+GitLab
+

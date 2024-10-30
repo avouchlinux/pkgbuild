@@ -1,142 +1,203 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=texlive
-pkgname=('texlive' 'libsynctex')
-pkgver=20200327
-_realname=texlive-source-trunk
+pkgname=('texlive-bin' 'libsynctex')
+pkgver=20240312
+_realname=texlive-$pkgver-source
 pkgrel=1
+url='http://tug.org/texlive/'
 license=('GPL')
 arch=('x86_64')
 groups=('dev-texlive')
-makedepends=('git' 'cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler'
-         'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
-         'icu' 'harfbuzz' 'harfbuzz-icu' 'gmp' 'mpfr' 'potrace' 'libpaper'
-         'perl' 'clisp' 'ffcall')
-url='http://tug.org/texlive/'
-source=("https://github.com/TeX-Live/texlive-source/archive/build-$_pkgver.tar.gz")
+makedepends=(bash
+             cairo
+             clisp
+             ffcall
+             fontconfig
+             freetype2
+             gcc-libs
+             gd
+             git
+             glibc
+             gmp
+             graphite
+             harfbuzz
+             icu
+             libjpeg-turbo
+             libpaper
+             libpng
+             libsigsegv
+             libunistring
+             libx11
+             libxaw
+             libxcrypt
+             libxmu
+             libxpm
+             libxt
+             mpfr
+             ncurses
+             perl
+             pixman
+             potrace
+             readline
+             subversion
+             t1lib
+             zlib
+             zziplib)
+source=(#"https://github.com/TeX-Live/texlive-source/archive/build-$_pkgver.tar.gz"
+         https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${pkgver:0:4}/texlive-$pkgver-source.tar.xz)
 
 prepare() {
-   cd "$srcdir/$_realname"
-
+   cd $pkgbase-$pkgver-source
+#   bibtex-x needs kpathsea flags
+  sed -i '/AC_SEARCH_LIBS/a KPSE_KPATHSEA_FLAGS' texk/bibtex-x/configure.ac
+  (cd texk/bibtex-x && autoreconf)
    # t4ht expects to be un /usr/share/texmf/bin/t4ht (FS#27251)
-   sed -i s/SELFAUTOPARENT/TEXMFROOT/ texk/tex4htk/t4ht.c
-
-   # pdftex poppler compatibility
-   cp -pv texk/web2c/pdftexdir/pdftoepdf{-poppler0.86.0,}.cc
-   cp -pv texk/web2c/pdftexdir/pdftosrc{-poppler0.83.0,}.cc
+  sed -i s/SELFAUTOPARENT/TEXMFROOT/ texk/tex4htk/t4ht.c
+   # remove spurious ptex "guessed encoding" print
+  patch -p1 -i ../ptex-debug-print.patch
 }
 
 build() {
-   cd "$srcdir/$_realname"
+   cd $pkgbase-$pkgver-source
 
-   mkdir -p Work
-   cd Work
-   echo "--> Initial configuration..."
-   # export TEXARCH=$(uname -m | sed -e 's/i.86/i386/' -e 's/$/-linux/')
-   # export TEXMFROOT=/usr/share
+   mkdir -p build
+   cd build
 
+
+   # export LDFLAGS="$LDFLAGS -lkpathsea"
+
+   export LC_ALL=C
+
+   CFLAGS+=" -Wno-incompatible-pointer-types" \
+   ax_cv_c_float_words_bigendian=no \
    ../configure --prefix=/usr -C \
-     --sysconfdir=/etc \
-     --datarootdir=/usr/share \
-     --datadir=/usr/share \
-     --mandir=/usr/share/man \
-     --with-banner-add=" - Avouch OS" \
-     --with-system-zlib \
-     --with-system-zziplib \
-     --with-system-pnglib \
-     --with-system-ncurses \
-     --with-system-t1lib \
-     --with-system-gd \
-     --with-system-poppler \
-     --with-system-xpdf \
-     --with-system-freetype2 \
-     --with-system-pixman \
-     --with-system-cairo \
-     --with-system-harfbuzz \
-     --with-system-graphite \
-     --with-system-icu \
-     --with-system-gmp \
-     --with-system-mpfr \
-     --with-system-potrace \
-     --with-system-libpaper \
-     --with-freetype2-libdir=/usr/lib \
-     --with-freetype2-include=/usr/include/freetype2 \
-     --with-xdvi-x-toolkit=xaw \
-     --with-clisp-runtime=default \
-     --enable-shared \
-     --enable-luatex \
-     --enable-xindy \
-     --disable-static \
-     --disable-native-texlive-build \
-     --disable-multiplatform \
-     --disable-dialog \
-     --disable-psutils \
-     --disable-t1utils \
-     --disable-bibtexu \
-     --disable-xz \
-     --disable-aleph \
-     --disable-xindy-rules \
-     --disable-xindy-docs \
-     --disable-dump-share
-     #--disable-dvisvgm # unable to build
+      --sysconfdir=/etc \
+      --datarootdir=/usr/share \
+      --datadir=/usr/share \
+      --mandir=/usr/share/man \
+      --with-banner-add=" - Avouch" \
+      --with-system-cairo \
+      --with-system-fontconfig \
+      --with-system-freetype2 \
+      --with-system-gmp   \
+      --with-system-graphite2 \
+      --with-system-harfbuzz \
+      --with-system-icu   \
+      --with-system-libgs \
+      --with-system-libpaper \
+      --with-system-libpng\
+      --with-system-mpfr  \
+      --with-system-pixman\
+      --with-system-zlib  \
+      --with-system-pixman \
+      --with-system-cairo \
+      --with-freetype2-libdir=/usr/lib \
+      --with-freetype2-include=/usr/include/freetype2 \
+      --enable-shared \
+      --disable-static \
+      --disable-native-texlive-build \
+      --disable-multiplatform \
+      --disable-dialog \
+      --disable-psutils \
+      --disable-t1utils \
+      --disable-bibtexu \
+      --disable-xz \
+      --disable-aleph \
+      --disable-xindy-rules \
+      --disable-xindy-docs \
+      --disable-dump-share \
+      --enable-xindy \
+      --disable-xindy-rules \
+      --disable-xindy-docs
 
-   make ${MAKEFLAGS}
+
+   # prevent excessive overlinking due to libtool
+   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+   make
 }
 
 package_libsynctex() {
-    pkgdesc='Library for synchronization between TeX files and resulting file'
-    depends=('glibc' 'zlib')
+  pkgdesc='Library for synchronization between TeX files and resulting file'
+  depends=(glibc zlib)
+  provides=(libsynctex.so)
 
-    cd "$srcdir/$_realname/Work"
-    make -C texk/web2c DESTDIR="${pkgdir}" \
-        install-data-am install-libLTLIBRARIES
+  cd $pkgbase-$pkgver-source/build
+  make -C texk/web2c DESTDIR="$pkgdir" \
+    install-data-am install-libLTLIBRARIES
+
+# remove docs included in texlive-doc
+  rm -r "$pkgdir"/usr/share/man
 }
 
 package_texlive-bin() {
-   pkgdesc="TeX Live binaries"
-   depends=('cairo' 'pixman' 'graphite' 't1lib' 'gd' 'poppler'
-            'libsigsegv' 'zziplib' 'libpng' 'libjpeg' 'freetype2'
-            'icu' 'harfbuzz' 'harfbuzz-icu' 'gmp' 'mpfr' 'potrace' 'libpaper'
-            'libsynctex')
-   provides=('lcdf-typetools' 'kpathsea' 'xindy')
-   optdepends=('ed: for texconfig'
-               'biber: for bibliography processing')
-   options=('!strip')
+  pkgdesc='TeX Live binaries'
+  depends=(bash
+           cairo libcairo.so
+           ffcall # libffcall.so
+           fontconfig libfontconfig.so
+           freetype2 libfreetype.so
+           gcc-libs # libgcc_s.so libstdc++.so
+           gd # libgd.so
+           glibc # ld-linux-x86-64.so libc.so libm.so
+           gmp
+           graphite libgraphite2.so
+           harfbuzz libharfbuzz.so
+           icu libicui18n.so libicuuc.so
+           libpaper # libpaper.so
+           libpng libpng16.so
+           libsigsegv # libsigsegv.so
+           libsynctex libsynctex.so
+           libunistring libunistring.so
+           libx11 # libX11.so
+           libxaw # libXaw.so
+           libxcrypt libcrypt.so
+           libxmu # libXmu.so
+           libxpm # libXpm.so
+           libxt # libXt.so
+           mpfr libmpfr.so
+           ncurses libncursesw.so
+           perl
+           pixman libpixman-1.so
+           potrace # libpotrace.so
+           readline libreadline.so
+           zlib libz.so
+           zziplib) # libzzip-0.so
+  provides=(lcdf-typetools
+            libptexenc.so
+            libtexlua53.so
+            libtexluajit.so
+            kpathsea
+            xindy)
+  optdepends=('psutils: to manipulate the output of dvips')
 
-   cd "$srcdir/$_realname"
-
-   #############################################################
-   ### install
+   cd $pkgbase-$pkgver-source
    # fixes for xindy
    find utils/xindy -name Makefile -exec sed -i -e "s|^prefix =.\+$|prefix = $pkgdir/usr|" -e "s|^mandir =.\+$|mandir = \${prefix}/share/man|" -e "s|^datadir =.\+$|datadir = \${datarootdir}/texmf|" -e "s|^docdir =.\+$|docdir = \${datadir}/doc/xindy|" '{}' \;
 
-   echo "-------------------------------------------------------"
-   echo "--> Proceeding with make install ..."
-   echo "-------------------------------------------------------"
-   cd Work
-   make DESTDIR="${pkgdir}" texmf="$pkgdir"/usr/share/texmf install
-   #rm -rf "${pkgdir}"/usr/{texmf,share/texmf-dist}
+   cd build
+   make DESTDIR="$pkgdir" texmf="$pkgdir"/usr/share/texmf install
+   LD_PRELOAD="$pkgdir"/usr/lib/libkpathsea.so.6 \
+   make DESTDIR="$pkgdir" texlinks
+
+   # remove stuff included in texlive-texmf
+   rm -r "$pkgdir"/usr/share/texmf-dist
+
+   # remove docs included in texlive-doc
+   rm -r "$pkgdir"/usr/share/{info,man}
+
+   # remove links to scripts
+   for _link in $(ls "$pkgdir"/usr/bin); do
+      [[ $(readlink -m "$pkgdir"/usr/bin/$_link) == */scripts/* ]] && _rmlinks+="$pkgdir/usr/bin/$_link "
+   done
+   rm $_rmlinks
 
    # remove libsynctex
-   rm -f "$pkgdir"/usr/include/synctex/*
-   rm -f "$pkgdir"/usr/lib/libsynctex.*
-   rm -f "$pkgdir"/usr/lib/pkgconfig/synctex.pc
-   rm -f "$pkgdir"/usr/share/man/man*/synctex.*
-
-   # replace upstream texmf.cnf with ours
-   rm -f "$pkgdir"/usr/share/texmf-dist/web2c/texmf.cnf
-   install -Dm644 "$srcdir"/texmf.cnf "$pkgdir"/etc/texmf/web2c/texmf.cnf
-
-   # since the location of texmf.cnf is hard-wired to be under /usr/share/texmf/web2c
-   # we make a symlink from /etc/texmf/web2c/texmf.cnf to the latter
-   ln -sf /etc/texmf/web2c/texmf.cnf "$pkgdir"/usr/share/texmf-dist/web2c/texmf.cnf
-   # replace upstream texmfcnf.lua with ours
-
-   install -m644 "$srcdir"/texmfcnf.lua "$pkgdir"/usr/share/texmf-dist/web2c/texmfcnf.lua
-
-   # use python2 instead of python for scripts.
-   sed -i '1s/python/python2/' "$pkgdir"/usr/share/texmf-dist/scripts/de-macro/de-macro
-
- }
+   rm "$pkgdir"/usr/include/synctex/*
+   rm "$pkgdir"/usr/lib/libsynctex.*
+   rm "$pkgdir"/usr/lib/pkgconfig/synctex.pc
+}

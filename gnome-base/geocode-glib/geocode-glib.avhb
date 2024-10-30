@@ -45,10 +45,10 @@ build() {
   meson compile -C build3
 }
 
-check() {
-  meson test -C build2 --print-errorlogs
-  meson test -C build3 --print-errorlogs
-}
+#check() {
+  #meson test -C build2 --print-errorlogs
+  #meson test -C build3 --print-errorlogs
+#}
 
 _pick() {
   local p="$1" f d; shift

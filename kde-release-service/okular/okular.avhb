@@ -1,39 +1,78 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=okular
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='Document Viewer'
 arch=('x86_64')
 groups=('kde-apps')
-url="http://kde.org/applications/graphics/okular/"
-license=(GPL LGPL FDL)
-depends=(chmlib djvulibre libspectre libkexiv2 poppler-qt5 qca-qt5 kpty khtml kactivities threadweaver)
-makedepends=(extra-cmake-modules ebook-tools kdegraphics-mobipocket kdoctools python)
+url='https://apps.kde.org/okular/'
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(discount
+         djvulibre
+         freetype2
+         gcc-libs
+         glibc
+         plasma-activities
+         karchive
+         kbookmarks
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         ki18n
+         kiconthemes
+         kio
+         kitemviews
+         kparts
+         kpty
+         ktextwidgets
+         kwallet
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         libkexiv2
+         libspectre
+         libtiff
+         phonon-qt6
+         poppler-qt6
+         purpose
+         qt6-base
+         qt6-declarative
+         qt6-speech
+         qt6-svg
+         threadweaver
+         zlib)
+makedepends=(ebook-tools
+             extra-cmake-modules
+             kdegraphics-mobipocket
+             kdoctools)
 optdepends=('ebook-tools: mobi and epub support'
-            'kdegraphics-mobipocket: mobi support')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/okular-${pkgver}.tar.xz"{,.sig})
-sha1sums=('7ffdde9237b805bad539edd8a6d431c845bcb03d'
-          'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+            'kdegraphics-mobipocket: mobi support'
+            'unarchiver: Comic Book Archive support (alternative)'
+            'unrar: Comic Book Archive support')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('4089c77d5be60aedbd45da0d4ba319e3909b15a640cd51d361b01d95ad33c8fb'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+options=(!zipman)
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

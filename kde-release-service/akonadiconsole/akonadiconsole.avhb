@@ -1,27 +1,56 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=akonadiconsole
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Akonadi management and debugging console"
 arch=('x86_64')
 groups=('kde-apps')
-url="https://community.kde.org/KDE_PIM"
-license=(GPL2)
-depends=(hicolor-icon-theme calendarsupport messagelib)
-makedepends=(extra-cmake-modules kdoctools kdesignerplugin boost python)
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('bfd791de0133352c4f5db64e64b04d04838b6f4e307bc326f78b24602ed29703'
+url='https://kontact.kde.org'
+license=(GPL-2.0-or-later)
+depends=(akonadi-contacts
+         akonadi-search
+         calendarsupport
+         gcc-libs
+         glibc
+         kcalendarcore
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcontacts
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         ki18n
+         kitemmodels
+         kmime
+         ktextwidgets
+         kwidgetsaddons
+         kxmlgui
+         libakonadi
+         libkdepim
+         messagelib
+         qt6-base
+         xapian-core)
+makedepends=(extra-cmake-modules
+             kdoctools)
+groups=(kde-applications
+        kde-pim)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('af2b9decc18b7b3055b44feff33520a43fa01c0f56adf8e38a86158dbecd6f3a'
             'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
   	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
+		    -DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
         -DBUILD_TESTING=OFF
   cmake --build build

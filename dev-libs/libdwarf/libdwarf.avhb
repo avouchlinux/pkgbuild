@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libdwarf
-pkgver=20200114
+pkgver=0.11.0
 pkgrel=1
 pkgdesc="A library for handling DWARF Debugging Information Format"
 arch=('x86_64')
@@ -11,21 +12,27 @@ groups=('dev-libs')
 license=('GPL' 'LGPL')
 url="https://www.prevanders.net/dwarf.html"
 depends=('elfutils')
-options+=('staticlibs')
-source=(https://www.prevanders.net/libdwarf-$pkgver.tar.gz)
+checkdepends=('python')
+provides=('libdwarf.so')
+options+=('staticlibs' 'debug')
+#_commit="245262d6ccaeed17f7564c31b78da2d4df1a3ee0"
+#source=(https://sourceforge.net/code-snapshots/git/l/li/libdwarf/code.git/libdwarf-code-$_commit.zip)
+source=(https://www.prevanders.net/libdwarf-$pkgver.tar.xz)
+sha512sums=('050cb111c1ed94980357011a623190b626b68425639ee1ab39ab09a31d0cc55e557ef35739ce1295cf0e1b51848fbcbb3633fe1f6466784db6d8eb008a93c355')
 
 build() {
   cd "$srcdir"/libdwarf-$pkgver
   # cd "$srcdir"/libdwarf-code-$_commit
+  CFLAGS+=" -ffat-lto-objects"
   ./configure --prefix=/usr --includedir=/usr/include/libdwarf --enable-shared
-  make ${MAKEFLAGS}
+  make
 }
 
-# check() {
-#   cd "$srcdir"/libdwarf-$pkgver
-#   # cd "$srcdir"/libdwarf-code-$_commit
-#   make check
-# }
+check() {
+  cd "$srcdir"/libdwarf-$pkgver
+  # cd "$srcdir"/libdwarf-code-$_commit
+  make -j1 check
+}
 
 package() {
   cd "$srcdir"/libdwarf-$pkgver
@@ -35,3 +42,4 @@ package() {
   install -dm755 "$pkgdir"/usr/share/doc/$pkgname
   install -m644 README NEWS "$pkgdir"/usr/share/doc/$pkgname/
 }
+

@@ -1,0 +1,48 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-systemd
+pkgver=235
+pkgrel=1
+pkgdesc="Python bindings for systemd"
+url="https://github.com/systemd/python-systemd"
+arch=(x86_64)
+groups=('dev-python')
+license=(LGPL-2.1-or-later)
+depends=(
+  gcc-libs
+  glibc
+  python
+  systemd
+  systemd-libs
+)
+makedepends=(
+  git
+  python-build
+  python-installer
+  python-setuptools
+  python-wheel
+)
+source=("git+$url?signed#tag=v$pkgver")
+b2sums=('bf5eb823d107abcb5e22d0d0cec3b63960833687da6d49cf96b780ff4975e07d05375e933ee0ad30dc0675c3c2baf8755f9847add21274f02bba0cd2f494ce00')
+validpgpkeys=(
+  5C251B5FC54EB2F80F407AAAC54CA336CFEB557E # Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+)
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  cd $pkgname
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd $pkgname
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim:set sw=2 sts=-1 et:

@@ -6,7 +6,7 @@
 pkgbase=qt6-base
 pkgname=(qt6-base
          qt6-xcb-private-headers)
-pkgver=6.7.3
+pkgver=6.8.0
 _realname="${pkgname/6-/}-everywhere-src-${pkgver}"
 pkgrel=1
 arch=('x86_64')

@@ -9,7 +9,7 @@ pkgname=(
   webkit2gtk
   webkit2gtk-docs
 )
-pkgver=2.46.1
+pkgver=2.46.2
 pkgrel=1
 pkgdesc="GTK+ Web content engine library"
 arch=('x86_64')
@@ -145,15 +145,15 @@ build() {
   # Upstream prefers Clang
   # https://gitlab.archlinux.org/archlinux/packaging/packages/webkitgtk-6.0/-/issues/4
   export CC=clang CXX=clang++
-  LDFLAGS+=" -fuse-ld=lld"
+  export LDFLAGS+=" -fuse-ld=lld"
 
   # Skia uses malloc_usable_size
-  CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
-  CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
+  export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
+  export CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
 
   # JITted code crashes when CET is used
-  CFLAGS+=' -fcf-protection=none'
-  CXXFLAGS+=' -fcf-protection=none'
+  export CFLAGS+=' -fcf-protection=none'
+  export CXXFLAGS+=' -fcf-protection=none'
 
   cmake -S webkitgtk-$pkgver -B build -G Ninja "${cmake_options[@]}"
   cmake --build build

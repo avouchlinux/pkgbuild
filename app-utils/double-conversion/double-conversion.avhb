@@ -1,30 +1,33 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=double-conversion
-pkgver=3.1.5
+pkgver=3.3.0
 pkgrel=1
 pkgdesc='Binary-decimal and decimal-binary routines for IEEE doubles'
 arch=('x86_64')
 groups=('app-utils')
 url='https://github.com/google/double-conversion'
-license=(BSD)
-depends=(gcc-libs)
-makedepends=(cmake)
-source=(https://github.com/google/double-conversion/archive/v$pkgver.tar.gz)
+license=(BSD-3-Clause)
+depends=(gcc-libs
+         glibc)
+makedepends=(cmake
+             git)
+source=($pkgname-$pkgver.tar.gz::https://github.com/google/double-conversion/archive/refs/tags/v$pkgver.tar.gz)
+sha256sums=('51285c0fb05d70a26f067110bec37e47d4b7705730b5c679d536baf95d5bb175')
 
 build() {
-  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+  cmake -B build -S $pkgname-$pkgver \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_INSTALL_LIBDIR=lib \
       -DBUILD_SHARED_LIBS=ON
-  ninja -C build
+  cmake --build build
 }
 
 package () {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 
-  install -Dm644 "$srcdir"/$pkgname-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/double-conversion
+  install -Dm644 $pkgname-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
+

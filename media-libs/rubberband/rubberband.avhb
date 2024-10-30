@@ -46,7 +46,7 @@ build() {
   )
   export JAVA_HOME="/usr/lib/jvm/java-$java_major-openjdk"
 
-  arch-meson build $pkgbase-$pkgver "${meson_options[@]}"
+  avouch-meson build $pkgbase-$pkgver "${meson_options[@]}"
   meson compile -C build
 }
 

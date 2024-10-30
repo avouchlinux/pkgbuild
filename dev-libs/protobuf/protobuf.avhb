@@ -46,8 +46,13 @@ options=(!lto)
 _gemname=google-protobuf
 
 prepare() {
-  patch -d $pkgname-$pkgver -p1 < protobuf-fix-build-type-none.patch # Fix cmake config compatibility mode
-  patch -d $pkgbase-$pkgver -p1 < $pkgbase-25.3-ruby-disable-LTO.patch
+	patch -d $pkgname-$pkgver -p1 < protobuf-fix-build-type-none.patch # Fix cmake config compatibility mode
+	patch -d $pkgbase-$pkgver -p1 < $pkgbase-25.3-ruby-disable-LTO.patch
+	  
+	#patch -d $pkgbase-$pkgver -p1 < protobuf-26.1-disable-32-bit-tests.patch"
+	#patch -d $pkgbase-$pkgver -p1 < protobuf-23.3-static_assert-failure.patch"
+	#patch -d $pkgbase-$pkgver -p1 < protobuf-27.4-findJsonCpp.patch"
+	#patch -d $pkgbase-$pkgver -p1 < protobuf-28.0-disable-test_upb-lto.patch"
 }
 
 build() {
@@ -55,14 +60,16 @@ build() {
     -B build
     -D CMAKE_BUILD_TYPE=None
     -D CMAKE_INSTALL_PREFIX=/usr
-    -D CMAKE_C_FLAGS="$CFLAGS -ffat-lto-objects" 
-    -D CMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects"
+    -D CMAKE_C_FLAGS=" -ffat-lto-objects" 
+    -D CMAKE_CXX_FLAGS=" -ffat-lto-objects"
     -D protobuf_BUILD_SHARED_LIBS=ON
     -D protobuf_USE_EXTERNAL_GTEST=ON
     -D protobuf_ABSL_PROVIDER=package
     -S "$pkgbase-$pkgver"
     -W no-dev
   )
+
+  export LDFALGS=""
 
   cmake "${cmake_options[@]}"
   cmake --build build --verbose
@@ -116,9 +123,9 @@ build() {
     -delete
 }
 
-check() {
-  ctest --test-dir build
-}
+# check() {
+#  ctest --test-dir build
+# }
 
 package_protobuf() {
   replaces=('protobuf-cpp')

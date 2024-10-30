@@ -1,28 +1,37 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xmlto
-pkgver=0.0.28
+pkgver=0.0.29
 pkgrel=1
 pkgdesc="Convert xml to many other formats"
 arch=('x86_64')
 groups=('app-text')
-url="http://cyberelk.net/tim/software/xmlto/"
+url="https://pagure.io/xmlto/"
 license=('GPL')
 depends=('libxslt')
 makedepends=('docbook-xsl')
-source=("https://fedorahosted.org/releases/x/m/${pkgname}/${pkgname}-${pkgver}.tar.bz2")
+source=("https://pagure.io/xmlto/archive/${pkgver}/xmlto-${pkgver}.tar.gz")
+md5sums=('556f2642cdcd005749bd4c08bc621c37')
+sha256sums=('40504db68718385a4eaa9154a28f59e51e59d006d1aa14f5bc9d6fded1d6017a')
+
+prepare() {
+  cd "$srcdir/${pkgname}-${pkgver}"
+  autoreconf -i
+}
 
 build() {
-	cd "$srcdir/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --mandir=/usr/share/man
-	make
+  cd "$srcdir/${pkgname}-${pkgver}"
+
+  ./configure BASH=/bin/bash --prefix=/usr \
+                             --mandir=/usr/share/man
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-}
+  cd "$srcdir/${pkgname}-${pkgver}"
 
+  make DESTDIR="${pkgdir}" install
+}

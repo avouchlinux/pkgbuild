@@ -1,26 +1,27 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libofx
 pkgname=('libofx' 'libofx-doc')
-pkgver=0.9.15
+pkgver=0.10.9
 pkgrel=1
 pkgdesc="API for the OFX banking standard"
 arch=('x86_64')
 groups=('dev-libs')
-url="http://libofx.sourceforge.net"
+url="https://github.com/libofx"
 license=('GPL')
 depends=('opensp' 'curl' 'libxml++2.6')
 checkdepends=('gnupg')
-source=(http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+source=(https://github.com/$pkgname/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('1ca89ff7d681c9edad312172ac464231a8de686e653213612f9417492cef0d37')
 
 build() {
   cd $pkgbase-$pkgver
   ./configure --prefix=/usr
    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-   make
+   make CXXFLAGS+=-std=c++11
 }
 
 check() {
@@ -43,3 +44,4 @@ package_libofx-doc() {
   make DESTDIR="$pkgdir" install-docDATA
   make -C doc DESTDIR="$pkgdir" install
 }
+

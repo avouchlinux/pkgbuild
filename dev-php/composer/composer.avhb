@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=composer
-pkgver=2.3.7
+pkgver=2.8.1
 pkgrel=1
 pkgdesc="Dependency Manager for PHP"
 arch=('any')
@@ -14,18 +14,9 @@ url='https://getcomposer.org/'
 depends=('php' 'unzip')
 makedepends=('git')
 source=("${pkgname}::git+https://github.com/composer/composer.git#tag=${pkgver}"
-	"${pkgname}-${pkgver}.phar::https://getcomposer.org/download/${pkgver}/composer.phar")
-sha256sums=('SKIP'
-            'fdb587131f8a11fcd475c9949ca340cc58a4b50cce6833caa8118b759a4ad1a3')
-
-getsrc() {
-    git clone https://github.com/composer/composer.git
-}
-
-pkgver(){
-	cd ${pkgname}
-	git checkout ${pkgver}
-}
+        "${pkgname}-${pkgver}.phar::https://getcomposer.org/download/${pkgver}/composer.phar")
+sha256sums=('e6ffb20b6b6db9274b258dc26ea3d603b21f59a39792c50dcf2610e6898d0f70'
+            '930b376fbd2147a623ea7b704eb9d3b8b0d6072992207aa0535aa21f6f05378e')
 
 prepare() {
 	cd "${srcdir}/${pkgname}"
@@ -37,6 +28,10 @@ build() {
 	cd "${srcdir}/${pkgname}"
 
 	php -d phar.readonly=Off bin/compile
+	# Rename to generate correct completion
+	mv composer.phar composer
+	chmod +x composer
+	./composer completion bash > completion.bash
 }
 
 check() {
@@ -45,20 +40,21 @@ check() {
 	mkdir integration-test
 	cd integration-test
 
-	php "${srcdir}/${pkgname}/composer.phar" init \
+	"${srcdir}/${pkgname}/composer" init \
 		--no-interaction \
 		--type=project \
 		--name='archlinux/test' \
 		--description='Composer Test Project' \
 		--license='GPL-3.0-or-later' \
 		--require='symfony/console:*'
-	php "${srcdir}/${pkgname}/composer.phar" update --no-interaction --no-progress --prefer-dist
-	php "${srcdir}/${pkgname}/composer.phar" validate --no-interaction
+	"${srcdir}/${pkgname}/composer" update --no-interaction --no-progress --prefer-dist
+	"${srcdir}/${pkgname}/composer" validate --no-interaction
 }
 
 package() {
 	cd "${srcdir}/${pkgname}"
 
 	install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-	install -Dm755 composer.phar "${pkgdir}/usr/bin/composer"
+	install -Dm755 composer "${pkgdir}/usr/bin/composer"
+	install -Dm644 completion.bash "${pkgdir}/usr/share/bash-completion/completions/composer"
 }

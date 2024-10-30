@@ -1,60 +1,83 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lua
-pkgver=5.3.5
+pkgver=5.4.7
 _majorver=${pkgver%.*}
 pkgrel=1
 pkgdesc='Powerful light-weight programming language designed for extending applications'
 arch=('x86_64')
 groups=('dev-lang')
-url='http://www.lua.org/'
+url='https://www.lua.org/'
 depends=('readline')
 license=('MIT')
-options=('!makeflags' '!emptydirs')
-source=(http://www.lua.org/ftp/$pkgname-$pkgver.tar.gz
+options=('!emptydirs')
+source=(https://www.lua.org/ftp/lua-$pkgver.tar.gz
         liblua.so.patch
+        paths.patch
         lua.pc
         LICENSE)
+sha256sums=('9fbf5e28ef86c69858f6d3d34eccc32e911c1a28b4120ff3e84aaa70cfbf1e30'
+            '644fba6f3e03c4d0c394d241149fc558da79d0114e7816c2a597097304249cb7'
+            '6bb84383498a96514d4c7deb79fd45bf484fa5e3253a1574a3311ee0bb7c24fa'
+            'ca9252633e782b8f85d6a94ea4f6babd4fe30bd759085b373160b1878e36ff78'
+            '142fb08b41a807b192b4b2c166696a1830a1c97967e5099ad0e579bf500e1da4')
 
 prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+  patch -d lua-$pkgver -p1 -i ../liblua.so.patch
+  patch -d lua-$pkgver -p1 -i ../paths.patch
+  cp -r lua-$pkgver lua++-$pkgver
 
-	patch -p1 -i ../liblua.so.patch
-
-	sed "s/%VER%/$_majorver/g;s/%REL%/$pkgver/g" ../lua.pc > lua.pc
-
-	# Lua 5.3.4 has wrong release version in its Makefile. Fix it.
-	sed "s/^R= \$V.4/R= \$V.5/" -i Makefile
+  sed "s/%VER%/$_majorver/g;s/%REL%/$pkgver/g" lua.pc > lua-$pkgver/lua.pc
+  sed "s/%VER%/$_majorver/g;s/%REL%/$pkgver/g;s/-llua/-llua++/g" lua.pc > lua++-$pkgver/lua++.pc
 }
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+  cd lua-$pkgver
 
-	# quite a lot of packages still use lua 5.1 API, enable 5.1 compat mode
-	make MYCFLAGS="$CFLAGS -fPIC -DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" MYLDFLAGS="$LDFLAGS" linux
+  make MYCFLAGS="$CFLAGS -fPIC" MYLDFLAGS="$LDFLAGS" linux-readline
+
+  cd ../lua++-$pkgver
+
+  make MYCFLAGS="$CXXFLAGS -fPIC" MYLDFLAGS="$LDFLAGS" CC=g++ LUA_A=liblua++.a LUA_SO=liblua++.so linux-readline
 }
 
-package() {	
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make \
-	TO_LIB="liblua.a liblua.so liblua.so.$_majorver liblua.so.$pkgver" \
-	INSTALL_DATA='cp -d' \
-	INSTALL_TOP="$pkgdir"/usr \
-	INSTALL_MAN="$pkgdir"/usr/share/man/man1 \
-	install
+package() {
+  cd lua-$pkgver
 
-	ln -sf /usr/bin/lua "$pkgdir"/usr/bin/lua$_majorver
-	ln -sf /usr/bin/luac "$pkgdir"/usr/bin/luac$_majorver
-	ln -sf /usr/lib/liblua.so.$pkgver "$pkgdir"/usr/lib/liblua$_majorver.so
+  make \
+    TO_LIB="liblua.so liblua.so.$_majorver liblua.so.$pkgver" \
+    INSTALL_DATA='cp -d' \
+    INSTALL_TOP="$pkgdir"/usr \
+    INSTALL_MAN="$pkgdir"/usr/share/man/man1 \
+    install
+  ln -sf /usr/bin/lua "$pkgdir"/usr/bin/lua$_majorver
+  ln -sf /usr/bin/luac "$pkgdir"/usr/bin/luac$_majorver
+  ln -sf /usr/lib/liblua.so.$pkgver "$pkgdir"/usr/lib/liblua$_majorver.so
 
-	install -Dm644 lua.pc "$pkgdir"/usr/lib/pkgconfig/${pkgname}53.pc
-	ln -sf ${pkgname}53.pc "$pkgdir"/usr/lib/pkgconfig/${pkgname}.pc
-	ln -sf ${pkgname}53.pc "$pkgdir"/usr/lib/pkgconfig/${pkgname}5.3.pc
-	ln -sf ${pkgname}53.pc "$pkgdir"/usr/lib/pkgconfig/${pkgname}-5.3.pc
+  install -Dm644 lua.pc "$pkgdir"/usr/lib/pkgconfig/lua54.pc
+  ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua.pc
+  ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua5.4.pc
+  ln -sf lua54.pc "$pkgdir"/usr/lib/pkgconfig/lua-5.4.pc
 
-	install -d "$pkgdir"/usr/share/doc/$pkgname
-	install -m644 doc/*.{gif,png,css,html} "$pkgdir"/usr/share/doc/$pkgname
-	install -Dm644 ../LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+  install -d "$pkgdir"/usr/share/doc/$pkgname
+  install -m644 doc/*.{gif,png,css,html} "$pkgdir"/usr/share/doc/$pkgname
+  install -Dm644 ../LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+  cd ../lua++-$pkgver
+  make \
+    TO_LIB="liblua++.so liblua++.so.$_majorver liblua++.so.$pkgver" \
+    INSTALL_BIN=null INSTALL_INC=null INSTALL_MAN=../null \
+    INSTALL_DATA='cp -d' \
+    INSTALL_TOP="$pkgdir"/usr \
+    install
+  ln -sf /usr/lib/liblua++.so.$pkgver "$pkgdir"/usr/lib/liblua++$_majorver.so
+
+  install -Dm644 lua++.pc "$pkgdir"/usr/lib/pkgconfig/lua++54.pc
+  ln -sf lua++54.pc "$pkgdir"/usr/lib/pkgconfig/lua++.pc
+  ln -sf lua++54.pc "$pkgdir"/usr/lib/pkgconfig/lua++5.4.pc
+  ln -sf lua++54.pc "$pkgdir"/usr/lib/pkgconfig/lua++-5.4.pc
 }
+

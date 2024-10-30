@@ -1,0 +1,39 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libyuv
+pkgver=r2426+464c51a03
+pkgrel=1
+pkgdesc="Library for YUV scaling"
+arch=(x86_64)
+groups=("media-libs")
+url="https://chromium.googlesource.com/libyuv/libyuv/"
+license=(custom)
+depends=(gcc-libs libjpeg-turbo)
+makedepends=(cmake git)
+# Version required by libavif
+_commit=464c51a0353c71f08fe45f683d6a97a638d47833
+source=(git+${url}#commit=${_commit})
+sha512sums=(SKIP)
+
+pkgver() {
+  cd ${pkgname}
+  printf "r%s+%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  sed -i 's|yuvconvert ${JPEG_LIBRARY}|${ly_lib_shared} ${JPEG_LIBRARY}|' ${pkgname}/CMakeLists.txt
+}
+
+build() {
+  cmake -B build -S ${pkgname} \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
+}
+
+package() {
+  make -C build DESTDIR="${pkgdir}" install
+  install -Dm644 ${pkgname}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
+}

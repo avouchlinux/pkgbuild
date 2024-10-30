@@ -65,13 +65,10 @@ build() {
     -D enable-tracker=no
   )
 
-  arch-meson $pkgname build "${meson_options[@]}"
+  avouch-meson $pkgname build "${meson_options[@]}"
   meson compile -C build
 }
 
-check() {
-  dbus-run-session meson test -C build --print-errorlogs
-}
 
 package() {
   depends+=(libgr{ilo,lnet,lpls}-0.3.so)

@@ -1,6 +1,6 @@
 # copy from factory when missing
 
-C /etc/arch-release
+C /etc/avouch-release
 C /etc/crypttab
 C /etc/fstab
 C /etc/group

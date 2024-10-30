@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,7 +13,7 @@ arch=('x86_64')
 groups=('dev-lang')
 license=(GPL)
 depends=(gmp libltdl ncurses texinfo libunistring gc libffi)
-source=(https://ftp.gnu.org/pub/gnu/$pkgname/$pkgname-$pkgver.tar.gz{,.sig})
+source=(https://ftp.gnu.org/pub/gnu/guile/guile-$pkgver.tar.xz)
 validpgpkeys=('3CE464558A84FDC69DB40CFB090B11993D9AEBB5' # Ludovic Courtès <ludo@gnu.org>
               'FF478FB264DE32EC296725A3DDC0F5358812F8F2' # Andy Wingo
               '4FD4D288D445934E0A14F9A5A8803732E4436885') # Andy Wingo <wingo@pobox.com>"
@@ -28,7 +28,7 @@ build() {
     cd $_realname-$pkgver
     ./configure --prefix=/usr --disable-static --disable-error-on-warning
     sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

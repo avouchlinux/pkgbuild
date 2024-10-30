@@ -1,38 +1,76 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=korganizer
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Calendar and scheduling Program"
 arch=('x86_64')
 groups=('kde-apps')
-url="https://community.kde.org/KDE_PIM"
-license=(GPL2)
-depends=(kdepim-runtime kontactinterface incidenceeditor)
-makedepends=(extra-cmake-modules kdoctools python qt5-tools kdesignerplugin boost)
+url='https://apps.kde.org/korganizer/'
+license=(GPL-2.0-or-later)
+depends=(akonadi-calendar
+         akonadi-contacts
+         akonadi-notes
+         calendarsupport
+         eventviews
+         gcc-libs
+         glibc
+         incidenceeditor
+         kcalendarcore
+         kcalutils
+         kcmutils
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcontacts
+         kcoreaddons
+         kcrash
+         kdepim-runtime
+         kholidays
+         ki18n
+         kiconthemes
+         kidentitymanagement
+         kio
+         kitemmodels
+         kitemviews
+         kjobwidgets
+         kmailtransport
+         kmime
+         knewstuff
+         kontactinterface
+         kparts
+         kuserfeedback
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         libakonadi
+         libkdepim
+         pimcommon
+         qt6-base)
+makedepends=(extra-cmake-modules
+             kdoctools
+             qt6-tools)
 optdepends=('kdepim-addons: additional plugins')
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('b9944d2c17a69f9cf6edec0342cd0e16d7f9b5bfba0fd33420f6892d86f03d53'
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('e38495827fef8d8364c8d4fe705432068f83cb981cbf6986bb7d8103f737ae3b'
             'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

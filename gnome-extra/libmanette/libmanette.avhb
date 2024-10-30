@@ -1,29 +1,44 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmanette
-pkgver=0.2.6
+pkgver=0.2.9
 pkgrel=1
 pkgdesc='Simple GObject game controller library'
 arch=('x86_64')
-groups=('gnome-extra')
+groups=('gnome-base')
 license=('LGPL2.1')
-url='https://wiki.gnome.org/Apps/Games'
-depends=('libevdev' 'libgudev')
-makedepends=('gobject-introspection' 'meson' 'vala')
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+url='https://gnome.pages.gitlab.gnome.org/libmanette/'
+license=(LGPL-2.1-or-later)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  libevdev
+  libgudev
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+source=("git+https://gitlab.gnome.org/GNOME/$pkgname.git#tag=$pkgver")
+b2sums=(8c8ea03efb067e91984dbecb54eaed747644eb675ecb7b98691b5b52915aa88ce96343e62328096d814282e769438944b04d2456c3e978cfa094ff813231f596)
 
 build() {
-	avouch-meson ${pkgname}-${pkgver} build
-	ninja -C build
+  avouch-meson $pkgname build \
+    -D doc=true
+  meson compile -C build
 }
 
 check() {
-	meson test -C build
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

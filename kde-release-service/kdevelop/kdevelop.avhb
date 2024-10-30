@@ -1,45 +1,110 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdevelop
-pkgver=24.08.1
-_clangver=13.0.0
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='C++ IDE using KDE technologies'
 arch=('x86_64')
 groups=('kde-apps')
 url='http://www.kdevelop.org/'
-license=(GPL)
-depends=(clang=$_clangver libksysguard kitemmodels knotifyconfig ktexteditor grantlee libkomparediff2 qt5-webengine
-         kcmutils threadweaver knewstuff)
-makedepends=(extra-cmake-modules kdoctools kdevelop-pg-qt llvm qt5-tools plasma-framework krunner okteta boost purpose subversion)
-optdepends=('konsole: embedded terminal'
-            'git: Git support' 'subversion: SVN support'
-            'gdb: GNU debugger support' 'lldb: LLDB debugger support'
-            'qt5-doc: Qt documentation integration'
+license=(GPL-2.0-or-later)
+depends=(clang
+         gcc-libs
+         glibc
+         karchive
+         kbookmarks
+         kcmutils
+         kcodecs
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kguiaddons
+         ki18n
+         kiconthemes
+         kio
+         kitemmodels
+         kitemviews
+         kjobwidgets
+         knewstuff
+         knotifications
+         knotifyconfig
+         kparts
+         kservice
+         ktexteditor
+         ktexttemplate
+         ktextwidgets
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         libkomparediff2
+         libksysguard
+         qt6-5compat
+         qt6-base
+         qt6-declarative
+         qt6-webengine
+         sh
+         sonnet
+         syntax-highlighting
+         threadweaver)
+makedepends=(astyle
+             boost
+             extra-cmake-modules
+             kdevelop-pg-qt
+             kdoctools
+             krunner
+             libplasma
+             llvm
+#            okteta
+             purpose
+             qt6-tools
+             subversion)
+optdepends=('apr: SVN support'
+            'apr-util: SVN support'
+            'astyle: astyle plugin'
+            'clazy: clazy analyzer plugin'
             'cmake: cmake integration'
-            'qt5-tools: qthelp plugin'
-            'okteta: GNU debugger support'
-            'plasma-framework: for the plasma addons'
+            'cppcheck: code analyzer'
+            'gdb: GNU debugger support'
+            'git: Git support'
+            'heaptrack: memory profiler'
+            'kate: for additional plugins'
+            'kio-extras: man pages plugin'
+            'kirigami: sessions applet'
+            'konsole: embedded terminal'
+            'krunner: sessions runner'
+            'ksvg: sessions applet'
+            'libplasma: Plasma addons'
+            'lldb-mi: LLDB debugger support'
+            'meson: meson integration'
+#           'okteta: GNU debugger support'
             'purpose: patch review plugin'
-            'cppcheck: code analyzer' 'heaptrack: memory profiler'
-            'kdevelop-clang-tidy: clang-tidy analyzer plugin' 'clazy: clazy analyzer plugin')
-source=("https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('cedd1c7ba8e352a76ec021218cf2e35a6c060875ef3d27964246c48d0f2ae81c'
+            'python: debugger support'
+            'subversion: SVN support'
+            'qt6-doc: Qt documentation integration'
+            'qt6-tools: qthelp plugin'
+            'subversion: SVN support')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('3dfc388f3598a193d69555446f917f44181e02dea3800ff0e6a0b9e8081d0a0c'
             'SKIP')
-validpgpkeys=('329FD02C5AA48FCC77A4BBF0AC44AC6DB29779E6'  # Sven Brauch <mail@svenbrauch.de>
-              '364EFA5F639572907D392999C64CF56B13CACE5D'  # Kevin Funk <kfunk@kde.org>
-              'E191FD5BE6F46870F09E82B2024E7FB43D015474') # Friedrich W. H. Kossebau <kossebau@kde.org>
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }
+
 
 package() {
   DESTDIR="$pkgdir" cmake --install build

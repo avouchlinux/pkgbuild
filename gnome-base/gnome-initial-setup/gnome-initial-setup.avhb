@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-initial-setup
-pkgver=47.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system"
 arch=('x86_64')

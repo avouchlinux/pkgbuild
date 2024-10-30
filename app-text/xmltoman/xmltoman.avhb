@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,8 +11,10 @@ arch=('any')
 groups=('app-text')
 url='http://xmltoman.sourceforge.net/'
 license=('GPL')
+arch=('any')
 depends=('perl-xml-parser')
-source=("http://downloads.sourceforge.net/project/${pkgname}/${pkgname}/${pkgname}-${pkgver}.tar.gz/${pkgname}-${pkgver}.tar.gz")
+source=("https://downloads.sourceforge.net/project/${pkgname}/${pkgname}/${pkgname}-${pkgver}.tar.gz/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('347722731e2101ecd0619f88f4efdbca534810c96977a1281af685e8a61f4c1a826a71a9f0e3af43cc899936640787366a78077f36d23a9efcfeb789dbcfae22')
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
@@ -23,4 +25,3 @@ package() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	make install PREFIX=/usr DESTDIR="${pkgdir}"
 }
-

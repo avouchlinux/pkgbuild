@@ -1,62 +1,69 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=kate
 pkgname=(kwrite kate)
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
+pkgdesc='Advanced text editor'
 arch=('x86_64')
 groups=('kde-apps')
-license=(GPL LGPL FDL)
-makedepends=(extra-cmake-modules kdoctools python plasma-framework knewstuff ktexteditor threadweaver kitemmodels kactivities)
-source=("https://download.kde.org/stable/applications/${pkgver}/src/${pkgbase}-${pkgver}.tar.xz"{,.sig})
-sha256sums=('f25a39c7e272713940e82d53c1e8b266cf1d7acad3eeb7dd229f166fc8e0667d'
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+url='https://apps.kde.org/kate/'
+depends=(gcc-libs
+         glibc
+         kbookmarks
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kguiaddons
+         ki18n
+         kiconthemes
+         kio
+         knewstuff
+         kparts
+         kservice
+         ktexteditor
+         ktextwidgets
+         kuserfeedback
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         qt6-base
+         syntax-highlighting)
+optdepends=('clang: C and C++ LSP support'
+            'git: git-blame plugin' 
+            'konsole: open a terminal in Kate'
+            'python-lsp-server: Python LSP support'
+            'qt6-declarative: RBQL plugin'
+            'qtkeychain-qt6: SQL plugin'
+            'rust: Rust LSP support'
+            'texlab: LaTeX LSP support')
+makedepends=(extra-cmake-modules
+             kdoctools
+             qtkeychain-qt6)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('d85b75318895dca2f40e96ee58e91e9a6012f3587e22d7f3e0fe13beffaeca6c'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
-              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87) # Christoph Feck <cfeck@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build 
-  cmake ../$pkgbase-$pkgver \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DBUILD_TESTING=OFF
-  make
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
-package_kwrite() {
-  pkgdesc="Text Editor"
-  groups=(kde-applications kdebase)
-  url="https://www.kde.org/applications/utilities/kwrite/"
-  depends=(ktexteditor kactivities hicolor-icon-theme)
-
-  cd build
-  make DESTDIR="$pkgdir" install
-
-  find "$pkgdir" -type f -name '*kate*' -exec rm {} \;
-  rm -r "$pkgdir"/usr/lib/qt/plugins/ktexteditor \
-        "$pkgdir"/usr/share/doc/HTML/*/{kate,katepart} \
-        "$pkgdir"/usr/share/katexmltools \
-        "$pkgdir"/usr/share/locale/*/LC_MESSAGES/tabswitcherplugin.mo \
-        "$pkgdir"/usr/share/plasma/plasmoids
-}
-
-package_kate() {
-  pkgdesc="Advanced Text Editor"
-  groups=(kde-applications kdebase)
-  url="https://www.kde.org/applications/utilities/kate/"
-  depends=(knewstuff ktexteditor threadweaver kitemmodels kactivities hicolor-icon-theme)
-  optdepends=('konsole: open a terminal in Kate')
-
-  cd build
-  make DESTDIR="$pkgdir" install
-
-  find "$pkgdir" -type f -name '*kwrite*' -exec rm {} \;
-  rm -r "$pkgdir"/usr/share/doc/HTML/*/kwrite
+package() {
+  DESTDIR="$pkgdir" cmake --install build
 }

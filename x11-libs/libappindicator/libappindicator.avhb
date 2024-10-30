@@ -1,0 +1,86 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libappindicator
+pkgname=("${pkgbase}-gtk"{2,3})
+pkgver=12.10.0
+pkgrel=1
+pkgdesc='Allow applications to extend a menu via Ayatana indicators in Unity, KDE or Systray'
+url='https://launchpad.net/libappindicator'
+arch=('x86_64')
+groups=('x11-libs')
+license=('LGPL2.1' 'LGPL3')
+makedepends=('dbus-glib' 'gobject-introspection' 'libdbusmenu-gtk'{2,3} 'libindicator-gtk'{2,3} 'vala')
+options=('!emptydirs')
+source=($pkgbase-$pkgver.tar.gz::http://launchpad.net/${pkgbase}/${pkgver%.*}/${pkgver}/+download/${pkgbase}-${pkgver}.tar.gz{,.asc}
+        no-python.patch)
+validpgpkeys=('6FC05581A37D71FCECE165DB5BE41E162CD6358E')  # Charles Kerr <charles.kerr@canonical.com>
+
+prepare() {
+  (cd ${pkgbase}-${pkgver}
+    patch -p1 < "${srcdir}/no-python.patch"
+
+  # patch -p1 < ${srcdir}/libappindicator-12.10.0-conditional-py-bindings.patch
+	# http://bazaar.launchpad.net/~indicator-applet-developers/libappindicator/trunk.12.10/revision/244
+	patch -p1 < ${srcdir}/libappindicator-12.10.0-vala-inherit.patch
+	# https://bugs.launchpad.net/archlinux/+source/libappindicator/+bug/1867996
+	patch -p1 < ${srcdir}/libappindicator-12.10.0-lp1867996-fix-g-signal-emit.patch
+	patch -p1 < ${srcdir}/libappindicator-12.10.0-lp1867996-fix-iterate-search-path.patch
+
+  # Fall back to tray icon when StatusNotifierHost is not available.
+  # https://code.launchpad.net/~muktupavels/libappindicator/no-host/+merge/386817
+  # patch -p0 < "${srcdir}/no-host.patch"
+
+  sed -i 's/-Werror//' src/Makefile.am
+
+  autoreconf -vfi
+  
+  # Disable MONO for now because of https://bugs.gentoo.org/382491
+	sed -i -e '/^MONO_REQUIRED_VERSION/s:=.*:=9999:' configure
+  )
+  cp -ra ${pkgbase}-${pkgver}{,-gtk2}
+}
+
+build() {
+  export CFLAGS="${CFLAGS} -Wno-deprecated-declarations -Wno-incompatible-pointer-types"
+  export CSC='/usr/bin/mcs'
+
+  msg2 'Building gtk3...'
+  (cd ${pkgbase}-${pkgver}
+    ./configure --prefix=/usr \
+      --sysconfdir=/etc \
+      --localstatedir=/var \
+      --with-gtk=3
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make
+  )
+
+  msg2 'Building gtk2...'
+  (cd ${pkgbase}-${pkgver}-gtk2
+    ./configure --prefix=/usr \
+      --sysconfdir=/etc \
+      --localstatedir=/var \
+      --with-gtk=2
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make
+  )
+}
+
+package_libappindicator-gtk2() {
+  pkgdesc+=' (GTK+ 2 library)'
+  depends=('libdbusmenu-gtk2' 'libindicator-gtk2')
+
+  cd ${pkgbase}-${pkgver}-gtk2
+  make DESTDIR="${pkgdir}" install
+  rm -rf "${pkgdir}"/usr/share/gtk-doc
+}
+
+package_libappindicator-gtk3() {
+  pkgdesc+=' (GTK+ 3 library)'
+  depends=('libdbusmenu-gtk3' 'libindicator-gtk3')
+
+  cd ${pkgbase}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+}

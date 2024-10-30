@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=rinutils
-pkgver=0.10.0
+pkgver=0.10.3
 pkgrel=1
 pkgdesc='C11 / gnu11 utilities C library'
 arch=(any)
@@ -12,12 +12,13 @@ groups=('dev-utils')
 url='https://www.shlomifish.org/open-source/projects/'
 license=(MIT)
 depends=()
-makedepends=(cmake)
-source=(https://github.com/shlomif/rinutils/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-sha256sums=('70d89f0a8464f8f494f33704b7c9396e7fca392e8aafaa4465710c1a389e9806')
+makedepends=(cmake
+             git)
+source=(git+https://github.com/shlomif/rinutils#tag=$pkgver)
+sha256sums=('330800f03349988c358e9f444ac4995915f0413e6d9b31dbe7d27750d5023f35')
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
+  cmake -B build -S $pkgname \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DWITH_TEST_SUITE=OFF
   cmake --build build
@@ -25,5 +26,6 @@ build() {
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
-  install -Dm644 "$srcdir"/$pkgname-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  install -Dm644 $pkgname/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
+

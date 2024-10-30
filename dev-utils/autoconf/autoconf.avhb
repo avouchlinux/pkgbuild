@@ -1,50 +1,44 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=autoconf
-pkgver=2.72c
+pkgver=2.72
 pkgrel=1
 pkgdesc="A GNU tool for automatically configuring source code"
 arch=('any')
 groups=('dev-utils')
-depends=('awk' 'm4' 'diffutils' 'sh')
-makedepends=('help2man')  # needed while perl patch is present
+url="https://www.gnu.org/software/autoconf"
+depends=('awk' 'm4' 'diffutils' 'perl' 'sh')
 checkdepends=('gcc-fortran')
-# source=("https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz")
-source=("https://github.com/autotools-mirror/autoconf.git")
-patches=("$pkgname-2.71-bash5.2.patch")
-validpgpkeys=('71C2CC22B1C4602927D2F3AAA7A16B4A2527436A')
-
-getsrc() {
-    git clone ${source[0]}
-}
-
-prepare() {
-	cd "${pkgname}"
-    autoreconf -vif
-}
+source=(
+	"https://ftp.gnu.org/pub/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz"{,.sig}
+)
+sha256sums=('ba885c1319578d6c94d46e9b0dceb4014caafe2490e437a0dbca3f270a223f5a'
+            'SKIP')
+validpgpkeys=('82F854F3CE73174B8B63174091FCC32B6769AA64')  # Zack Weinberg
 
 build() {
-	cd "${pkgname}"
-    ./configure --prefix=/usr
-    make
+	cd "${pkgname}-${pkgver}"
+	./configure --prefix=/usr
+	make
 }
 
 check() {
-	cd "${pkgname}"
-	# make ${MAKEFLAGS} check
+	cd "${pkgname}-${pkgver}"
+	# disable test 227 as it is broken
+	make check TESTSUITEFLAGS="1-226 228-"
 }
 
 package() {
-	cd "${pkgname}"
-    make DESTDIR=${pkgdir} install
+	cd "${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
 
-    # license exception
-    install -Dm644 COPYING.EXCEPTION \
-        $pkgdir/usr/share/licenses/autoconf/LICENSE
+	# license exception
+	install -Dm644 COPYING.EXCEPTION "$pkgdir"/usr/share/licenses/autoconf/COPYING.EXCEPTION
 
-    # remove unwanted file
-    rm -f ${pkgdir}/usr/share/info/standards.info
+	# remove unwanted file
+	rm -f "$pkgdir"/usr/share/info/standards.info
 }
+

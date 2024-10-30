@@ -140,7 +140,7 @@ build() {
 		--with-fpm-group=http \
 		--enable-embed=shared \
 		${_phpextensions}
-	make ${MAKEFLAGS}
+	make
 
 	# apache
 	# reuse the previous run; this will save us a lot of time

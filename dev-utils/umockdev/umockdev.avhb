@@ -1,20 +1,20 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=umockdev
-pkgver=0.17.8
+pkgver=0.18.4
 pkgrel=1
 pkgdesc="Record/mock hardware devices for bug reports and regression tests"
 arch=('x86_64')
 groups=('dev-utils')
 url="https://github.com/martinpitt/umockdev/"
 license=('LGPL')
-depends=('systemd' 'libgudev')
+depends=('systemd' 'libgudev' 'libpcap')
 makedepends=('meson' 'gobject-introspection' 'gtk-doc' 'vala')
-source=($pkgname-$pkgver.tar.gz::https://github.com/martinpitt/$pkgname/archive/$pkgver.tar.gz)
-sha256sums=('0c25baaa89e79b9e4b9b9d1c01a0d7c8c5a91af107dbf3bd717527f764b9d597')
+source=(https://github.com/martinpitt/umockdev/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+sha256sums=('115306f17be78f8c99e20652e2deccdd48df38736bf00eb4f43fefc3809a319c')
 
 build() {
   cd $pkgname-$pkgver
@@ -34,3 +34,4 @@ package() {
 
   DESTDIR="${pkgdir}" meson install -C ../build
 }
+

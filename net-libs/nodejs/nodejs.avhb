@@ -5,7 +5,7 @@
 
 pkgname=nodejs
 _realname=node
-pkgver=22.9.0
+pkgver=23.0.0
 pkgrel=1
 pkgdesc='Evented I/O for V8 javascript'
 arch=('x86_64')

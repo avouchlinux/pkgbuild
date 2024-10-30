@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -20,7 +20,7 @@ sha512sums=('4228df812caec7059d7a76986c4d9a4262bd861cc53dca05f341ae6c062be05f1c3
 build() {
   cd "$srcdir/$pkgname-$pkgver"
   LIBXSLT_PREFIX=/usr LIBXML_PREFIX=/usr ./configure --prefix=/usr --enable-build-docs
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
@@ -29,3 +29,4 @@ package() {
   install -Dm0644 Copyright "$pkgdir"/usr/share/licenses/$pkgname/COPYING
   ln -s xml "$pkgdir"/usr/bin/xmlstarlet
 }
+

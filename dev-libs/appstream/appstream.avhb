@@ -42,13 +42,13 @@ makedepends=(gi-docgen
              qt6-tools
              vala
              xmlto)
-source=(git+https://github.com/ximion/appstream#tag=v$pkgver?signed)
+source=($pkgbase-$pkgver.tar.gz::https://github.com/ximion/$pkgbase/archive/refs/tags/v$pkgver.tar.gz)
 sha256sums=('2cab23b2cb57c5598aea4d99e657e20fbb806d8225aa4a201bf662e9fb1e4a63'
             'edc632e4a76ebe5efc76a56fe5f797e5c981cca6f2f0111c7ce0170d1330c788')
 validpgpkeys=(D33A3F0CA16B0ACC51A60738494C8A5FBF4DECEB) # Matthias Klumpp <matthias@tenstral.net>
 
 build() {
-  meson build appstream \
+  meson build $pkgbase-$pkgver \
     --prefix=/usr \
     --libexecdir=lib \
     -Dqt=true \

@@ -65,6 +65,9 @@ prepare() {
 
   # use fusemount3 (fuse3)
   patch -Np1 -i ../$pkgname-2023.1-use_fuse3.patch
+  
+  # https://github.com/void-linux/void-packages/issues/52273
+  patch -Np1 -i ../fix-ostree-flatpak.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxmlb
-pkgver=0.3.15
+pkgver=0.3.21
 pkgrel=1
 pkgdesc="A library to help create and query binary XML blobs"
 arch=(x86_64)

@@ -38,7 +38,7 @@ optdepends=(
 provides=(libunbound.so)
 backup=(etc/$pkgname/$pkgname.conf)
 source=(
-  git+https://github.com/NLnetLabs/unbound.git#tag=release-${pkgver}?signed
+  $pkgname-release-$pkgver.tar.gz::https://github.com/NLnetLabs/unbound/archive/refs/tags/release-1.22.0.tar.gz
   $pkgname-1.14.0-trust_anchor_file.patch
   $pkgname-sysusers.conf
   $pkgname-tmpfiles.conf
@@ -60,8 +60,8 @@ validpgpkeys=('EDFAA3F2CA4E6EB05681AF8E9F6F1C2D7E045F8D' # W.C.A. Wijngaards <wo
 
 prepare() {
   # enable trusted-anchor-file and set it to an unbound specific location
-  patch -p1 -d $pkgname -i ../$pkgname-1.14.0-trust_anchor_file.patch
-  cd $pkgname
+  patch -p1 -d $pkgname-release-$pkgver -i ../$pkgname-1.14.0-trust_anchor_file.patch
+  cd $pkgname-release-$pkgver
   autoreconf -fiv
 }
 
@@ -90,7 +90,7 @@ build() {
     --with-pyunbound
   )
 
-  cd $pkgname
+  cd $pkgname-release-$pkgver
   ./configure "${configure_options[@]}"
   # prevent excessive overlinking due to libtool
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
@@ -98,7 +98,7 @@ build() {
 }
 
 check() {
-  make -k check -C $pkgname
+  make -k check -C $pkgname-release-$pkgver
 }
 
 package() {
@@ -109,7 +109,7 @@ package() {
     systemd-libs libsystemd.so
   )
 
-  make DESTDIR="$pkgdir" install -C $pkgname
+  make DESTDIR="$pkgdir" install -C $pkgname-release-$pkgver
   install -vDm 644 $pkgname/contrib/$pkgname.service -t "$pkgdir/usr/lib/systemd/system/"
   install -vDm 644 $pkgname/LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
   install -vDm 644 $pkgname-sysusers.conf "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"

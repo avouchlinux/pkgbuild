@@ -1,0 +1,68 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=loupe
+pkgver=47.1
+pkgrel=1
+pkgdesc="A simple image viewer for GNOME"
+url="https://gitlab.gnome.org/GNOME/loupe"
+arch=(x86_64)
+groups=('gnome-base')
+license=(GPL-3.0-or-later)
+groups=(gnome)
+depends=(
+  bubblewrap
+  cairo
+  dconf
+  gcc-libs
+  glib2
+  glibc
+  glycin
+  graphene
+  gtk4
+  hicolor-icon-theme
+  lcms2
+  libadwaita
+  libgweather-4
+  libseccomp
+)
+makedepends=(
+  git
+  itstool
+  meson
+  rust
+)
+source=("git+$url.git?signed#tag=${pkgver/[a-z]/.&}")
+b2sums=('5a9feb046acbaff3f8bfaa4ac86b33823990b98939170b5fe10e5e59844d773b3765dbdf470f6ca3a9eebe7f8e964462b3145b2c3a712120feb88642741ee6da')
+validpgpkeys=(
+  4587A0EE1EE5478AAB82C0A93BA28A5559F08EBD # Sophie Herold <sophieherold@gnome.org>
+)
+
+# Use LTO
+export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+
+# Use debug
+export CARGO_PROFILE_RELEASE_DEBUG=2
+
+prepare() {
+  cd $pkgname
+
+  # Match CARGO_HOME in src/meson.build
+  CARGO_HOME="$srcdir/build/cargo-home" \
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs --no-rebuild
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir" --no-rebuild
+}

@@ -1,37 +1,35 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=geos
-pkgver=3.9.1
+pkgver=3.12.2
 pkgrel=1
 pkgdesc="C++ port of the Java Topology Suite"
 arch=('x86_64')
 groups=('dev-libs')
-url="https://trac.osgeo.org/geos/"
-license=('LGPL')
-depends=('gcc-libs' 'bash')
-options=('!emptydirs')
+url="https://libgeos.org/"
+license=(LGPL)
+depends=(gcc-libs bash)
+makedepends=(cmake)
+options=(!emptydirs)
 changelog=$pkgname.changelog
 source=(https://download.osgeo.org/$pkgname/$pkgname-$pkgver.tar.bz2)
-sha256sums=('7e630507dcac9dc07565d249a26f06a15c9f5b0c52dd29129a0e3d381d7e382a')
+sha256sums=('34c7770bf0090ee88488af98767d08e779f124fa33437e0aabec8abd4609fec6')
 
 build() {
-  cd "${srcdir}"/$pkgname-$pkgver
-
-  ./configure --prefix=/usr
-  make
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_DOCUMENTATION=OFF
+  make -C build
 }
 
 check() {
-  cd "${srcdir}"/$pkgname-$pkgver
-
-  make check
+  ctest --test-dir build --verbose
 }
 
 package() {
-  cd "${srcdir}"/$pkgname-$pkgver
-
-  make DESTDIR="${pkgdir}" install
+  make -C build DESTDIR="${pkgdir}" install
 }
+

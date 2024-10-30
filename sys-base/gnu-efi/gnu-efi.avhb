@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnu-efi
-pkgver=3.0.17
+pkgver=3.0.18
 pkgrel=1
 pkgdesc="Library for building UEFI Applications using GNU toolchain"
 url="https://sourceforge.net/projects/gnu-efi/"

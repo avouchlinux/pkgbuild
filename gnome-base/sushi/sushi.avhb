@@ -1,0 +1,88 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=sushi
+pkgver=46.0
+pkgrel=1
+pkgdesc="A quick previewer for Nautilus"
+url="https://gitlab.gnome.org/GNOME/sushi"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  evince
+  freetype2
+  gcc-libs
+  gdk-pixbuf2
+  gjs
+  glib2
+  glibc
+  gst-plugin-gtk
+  gst-plugins-base-libs
+  gstreamer
+  gtk3
+  gtksourceview4
+  harfbuzz
+  libepoxy
+  libsoup3
+  pango
+)
+makedepends=(
+  git
+  gobject-introspection
+  meson
+)
+optdepends=(
+  'libreoffice: OpenDocument formats'
+  'webkit2gtk-4.1: Render HTML files'
+)
+groups=(gnome)
+source=("git+$url.git?signed#tag=${pkgver/[a-z]/.&}"
+        sushi-gst-set-timeout.patch
+        sushi-detect-llvmpipe.patch
+        sushi-audio-position-update.patch
+        sushi-update-mime-types.patch)
+b2sums=('fdc05965a8e4b2de9e406ad12133cc2d54c439e48adb138f5f71b18f4ede706bc67f6e9e48eac3f600819ea49d099bb13102b0628be1aefa155da686884c7aa1'
+        'b49184552620cc35d3132bedd052d73898ffe96d70d764d3142343c9458049dab3b39861f900fe968ccd95949e3581872a3b553edb60623c735f4a2af555d8c6'
+        'bff347d69e11ae64d43310187c1ecd32a55584aecf1cfbb78ebc0d96e7fc9e971866acb38114c68674894a0fc7190954087b5d862038ea58c5fb9d729042e9f9'
+        'b35843f7c9f6f8427add53876d4cab566a450513f2ea749788c31089474a1a1868caec0dc4d1bceee02ba0b5353fc56a175b09124b6cb1aa3acac175f19d5704'
+        'e32cde0a647c83184583ed32198741378a0d11ec0324b6f51e1bff95c0c00b17c842b9aaf53c654f1ebf0199164c1de55db0e3a27b3734ebc3293bc1d8422893')
+validpgpkeys=(
+  550660707A6F40376B9B9F8D504A78811E6160CC # Corey Berla <corey@berla.me>
+)
+
+prepare() {
+  cd sushi
+
+  # Set timeout for gst_element_get_state to avoid freeze when switching to fullscreen
+  # https://gitlab.gnome.org/GNOME/sushi/-/merge_requests/55
+  git apply -3 ../sushi-gst-set-timeout.patch
+
+  # Fix llvmpipe detection
+  # https://gitlab.gnome.org/GNOME/sushi/-/merge_requests/56
+  git apply -3 ../sushi-detect-llvmpipe.patch
+
+  # Fix position update for audio mode
+  # https://gitlab.gnome.org/GNOME/sushi/-/merge_requests/59
+  git apply -3 ../sushi-audio-position-update.patch
+
+  # Update Totem provided mime type lists
+  # https://gitlab.gnome.org/GNOME/sushi/-/merge_requests/60
+  git apply -3 ../sushi-update-mime-types.patch
+}
+
+build() {
+  avouch-meson sushi build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

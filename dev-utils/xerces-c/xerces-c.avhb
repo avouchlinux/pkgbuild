@@ -1,25 +1,24 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xerces-c
-pkgver=3.2.3
+pkgver=3.2.5
 pkgrel=1
 pkgdesc="A validating XML parser written in a portable subset of C++"
 arch=('x86_64')
 groups=('dev-utils')
 url="https://xerces.apache.org/xerces-c/"
 license=('APACHE')
-depends=('gcc-libs' 'curl' 'libnsl')
-source=("https://apache.osuosl.org/xerces/c/3/sources/${pkgname}-${pkgver}.tar.xz")
-md5sums=('a5fa4d920fce31c9ca3bfef241644494')
+depends=('gcc-libs' 'curl' 'libnsl' 'icu')
+source=("https://archive.apache.org/dist/xerces/c/3/sources/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('545cfcce6c4e755207bd1f27e319241e50e37c0c27250f11cda116018f1ef0f5')
 
 build() {
   cd "${pkgname}-${pkgver}"
 
-  [[ "${CARCH}" = "i686" ]] && SSE2="--disable-sse2"
-  ./configure --prefix=/usr --sysconfdir=/etc ${SSE2}
+  ./configure --prefix=/usr --sysconfdir=/etc
   make
 }
 
@@ -27,3 +26,4 @@ package() {
   cd "${pkgname}-${pkgver}"
   make DESTDIR="${pkgdir}/" install
 }
+

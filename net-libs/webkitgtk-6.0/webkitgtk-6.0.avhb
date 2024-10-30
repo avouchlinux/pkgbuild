@@ -9,7 +9,7 @@ pkgname=(
   webkitgtk-6.0-docs
 )
 _realname=webkitgtk
-pkgver=2.46.1
+pkgver=2.46.2
 pkgrel=1
 pkgdesc="GTK+ Web content engine library"
 arch=('x86_64')

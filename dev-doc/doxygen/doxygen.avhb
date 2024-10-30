@@ -56,11 +56,11 @@ prepare() {
 }
 
 build() {
-  cmake -B build -S $pkgbase-Release_${pkgver//./_} \
+  cmake -B build -S $pkgbase-Release_${pkgver//./_} -GNinja \
     -DCMAKE_BUILD_TYPE:STRING=None \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DDOC_INSTALL_DIR:PATH=share/doc/doxygen \
-    -Dbuild_doc:BOOL=ON \
+    -Dbuild_doc:BOOL=OFF \
     -Dbuild_wizard:BOOL=ON \
     -Duse_sys_spdlog:BOOL=ON \
     -Duse_sys_sqlite3:BOOL=ON \

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=rpcsvc-proto
-pkgver=1.4.1
+pkgver=1.4.4
 pkgrel=1
 pkgdesc='rpcsvc protocol definitions from glibc'
 arch=('x86_64')
@@ -12,7 +12,8 @@ groups=('dev-utils')
 url='https://github.com/thkukuk/rpcsvc-proto'
 license=(BSD)
 depends=(glibc)
-source=(https://github.com/thkukuk/rpcsvc-proto/archive/v$pkgver.tar.gz)
+source=(https://github.com/thkukuk/rpcsvc-proto/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha512sums=('8477709678a5af6338011e730a20ba5fc5e97f6f360738a956fd96ad26da309135ff042c65b3590bc35fee907e2eea7203aa782963efd30d066aa1306c2c5326')
 
 prepare() {
   cd $pkgname-$pkgver
@@ -30,3 +31,4 @@ package() {
   make DESTDIR="$pkgdir" install
   install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+

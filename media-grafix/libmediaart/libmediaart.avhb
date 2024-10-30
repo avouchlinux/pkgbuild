@@ -4,19 +4,12 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmediaart
-pkgver=1.9.4
+pkgver=1.9.6
 pkgrel=1
 pkgdesc="Library tasked with managing, extracting and handling media art caches"
-url="https://git.gnome.org/browse/libmediaart"
+url='https://gitlab.gnome.org/GNOME/libmediaart'
 arch=('x86_64')
 groups=('media-grafix')
-
-pkgname=libmediaart
-pkgver=1.9.6
-pkgrel=3
-pkgdesc='Library tasked with managing, extracting and handling media art caches'
-arch=(x86_64)
-url='https://gitlab.gnome.org/GNOME/libmediaart'
 license=(LGPL-2.1-or-later)
 depends=(
   gdk-pixbuf2
@@ -31,11 +24,11 @@ makedepends=(
   meson
   vala
 )
-source=("git+https://gitlab.gnome.org/GNOME/$pkgname.git#tag=$pkgver")
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 b2sums=(e5186df01967337cacdefe2e4035145bef47202f6eb58cd03b7fe49f6adcbfc0505c4f1f89305600872e5403cae7a22fdc47c6e3ea246daa0cc25593a5d30fbb)
 
 build() {
-  arch-meson $pkgname build \
+  avouch-meson $pkgname-$pkgver build \
     -D gtk_doc=true
   meson compile -C build
 }

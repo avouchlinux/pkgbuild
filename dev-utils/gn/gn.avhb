@@ -1,10 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gn
-pkgver=0.1877.595e3be7
+pkgver=0.2174.b3a0bff4
+_commit=b3a0bff47dd81073bfe67a402971bad92e4f2423
 pkgrel=1
 pkgdesc="Meta-build system that generates build files for Ninja"
 arch=('x86_64')
@@ -14,14 +15,11 @@ license=('BSD')
 depends=('gcc-libs')
 makedepends=('clang' 'ninja' 'python' 'git')
 source=(git+https://gn.googlesource.com/gn#commit=$_commit)
-
-# getsrc(){
-#   git clone https://gn.googlesource.com/gn 
-# }
+sha256sums=('SKIP')
 
 pkgver() {
   cd $pkgname
-  echo 0.$(git rev-list --count initial-commit..).$(git rev-parse --short HEAD)
+  echo 0.$(git rev-list --count initial-commit..).$(git rev-parse --short=8 HEAD)
 }
 
 build() {
@@ -46,3 +44,5 @@ package() {
     "$pkgdir/usr/share/vim/vimfiles/"
   install -Dm644 -t "$pkgdir/usr/share/emacs/site-lisp" misc/emacs/gn-mode.el
 }
+
+

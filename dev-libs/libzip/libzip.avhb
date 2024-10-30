@@ -1,25 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libzip
-pkgver=1.6.1
+pkgver=1.11.1
 pkgrel=1
 pkgdesc="A C library for reading, creating, and modifying zip archives"
 arch=('x86_64')
 groups=('dev-libs')
-url="http://www.nih.at/libzip/index.html"
-license=('BSD')
-depends=('zlib')
-source=("http://www.nih.at/${pkgname}/${pkgname}-${pkgver}.tar.xz")
+url="https://libzip.org"
+depends=('zlib' 'bzip2' 'zstd' 'openssl' 'gnutls')
+makedepends=('cmake')
+provides=('libzip.so')
+source=("${url}/download/${pkgname}-${pkgver}.tar.xz")
+sha256sums=('721e0e4e851073b508c243fd75eda04e4c5006158a900441de10ce274cc3b633')
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib
-	ninja -C build
+  cmake -B build -S ${pkgname}-${pkgver} \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -Wno-dev
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build  install
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -Dm644 ${pkgname}-${pkgver}/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

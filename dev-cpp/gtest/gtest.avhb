@@ -1,34 +1,41 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gtest
 _realname=googletest-release
-pkgver=1.11.0
+pkgver=1.15.2
 pkgrel=1
 pkgdesc='Google Test - C++ testing utility'
 arch=('x86_64')
 groups=('dev-cpp')
-url='https://github.com/google/googletest/'
-license=('BSD')
-makedepends=('python3' 'cmake' 'gcc-libs' 'sh')
-options=(!makeflags)
-source=(https://github.com/google/googletest/archive/release-${pkgver}.tar.gz)
-
-prepare() {
-  cd ${_realname}-${pkgver}
-  cp ../gtest-version.patch gtest-version.patch
-  sed "s|__GOOGLETEST_VERSION__|${pkgver}|g" -i gtest-version.patch
-  patch -Np1 -i gtest-version.patch
-}
+url='https://github.com/google/googletest'
+license=('BSD-3-Clause')
+depends=(
+  'gcc-libs'
+  'glibc'
+)
+makedepends=(
+  'cmake'
+  'python'
+)
+optdepends=('python: gmock generator')
+conflicts=('gmock')
+replaces=('gmock')
+provides=('gmock')
+_srcname=googletest-${pkgver}
+source=("${_srcname}.tar.gz::https://github.com/google/googletest/archive/v${pkgver}.tar.gz")
+sha512sums=('9046841044a2bf7edfd96854ad9c44ffae4fcb9fb59a075b367507c0762a98eb32cb6968d46663228272e26321e96f4dd287c95baa22c6af9bad902b8b6ede4e')
 
 build() {
-  cmake -S ${_realname}-${pkgver} -B build \
+ cmake -H${_srcname} -Bbuild \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=None \
+    -Wno-dev \
     -DBUILD_SHARED_LIBS=ON \
-    -Dgtest_build_tests=ON
+    -Dgtest_build_tests=ON \
+    -DGOOGLETEST_VERSION=$pkgver
   cmake --build build
 }
 
@@ -37,17 +44,16 @@ check() {
 }
 
 package() {
-  DESTDIR="${pkgdir}" cmake --build build --target install
+  DESTDIR="${pkgdir}" cmake --install build
 
   # Shouldn't be present
   find "${pkgdir}" -name '*.pump' -printf 'Removing %P\n' -delete
 
-  cd ${_realname}-${pkgver}
+  cd ${_srcname}
   install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
   install -Dm 644 README.md CONTRIBUTORS -t "${pkgdir}/usr/share/doc/${pkgname}"
 
   cd googletest
-  install -Dm 755 scripts/gtest-config.in -t "${pkgdir}/usr/bin"
   install -Dm 644 cmake/* -t "${pkgdir}/usr/src/googletest/cmake"
   install -Dm 644 src/* -t "${pkgdir}/usr/src/googletest/src"
   install -Dm 644 CMakeLists.txt -t "${pkgdir}/usr/src/googletest"
@@ -56,11 +62,10 @@ package() {
   install -Dm 644 cmake/* -t "${pkgdir}/usr/src/gmock/cmake"
   install -Dm 644 src/* -t "${pkgdir}/usr/src/gmock/src"
   install -Dm 644 CMakeLists.txt -t "${pkgdir}/usr/src/gmock"
-  install -Dm 644 scripts/generator/{*.py,LICENSE,README*} -t "${pkgdir}/usr/share/gmock/generator"
-  install -Dm 644 scripts/generator/cpp/* -t "${pkgdir}/usr/share/gmock/generator/cpp"
 
   sed -i 's|src/||' "${pkgdir}/usr/src/gmock/src/gmock-all.cc"
 
   python -m compileall -d /usr/share/gmock "${pkgdir}/usr/share/gmock"
   python -O -m compileall -d /usr/share/gmock "${pkgdir}/usr/share/gmock"
 }
+

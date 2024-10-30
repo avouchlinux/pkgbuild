@@ -21,15 +21,29 @@ sha256sums=('f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3'
 prepare() {
   cd "$srcdir/$pkgname-$pkgver"
   patch -p1 -i ../scoped-mock-log.patch # Install target needed by protobuf
-}
+  patch -p1 -i ../abseil-cpp-20230802.0-sdata-tests.patch
+  patch -p1 -i ../abseil-cpp-20240722.0-lto-odr.patch
+  patch -p1 -i ../abseil-cpp-include-cstdint.patch
+  # patch -p1 -i ../abseil-cpp-20211102.0-r2-gcc-13.patch
+  patch -p1 -i ../abseil-cpp-atomic.patch
+  }
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
+  
+  # We are using hardened flags
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  export CFLAGS=
+  export CXXFLAGS=
+  export LDFLAGS=
+  
   cmake -Bbuild \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_CXX_FLAGS="${CXXFLAGS} -DNDEBUG" \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_CXX_STANDARD=17 \
+    -DABSL_PROPAGATE_CXX_STD=ON \
     -DBUILD_SHARED_LIBS=ON \
     -DABSL_BUILD_TEST_HELPERS=ON \
     -DABSL_USE_EXTERNAL_GOOGLETEST=ON \

@@ -21,11 +21,14 @@ sha256sums=('7b404c63361ed35b3667aec75cc37b54298d56dd2bcf369de3373212cc06fd98'
 
 prepare() {
   cd $pkgname-$pkgver
-  patch -p1 -i ../protobuf-26.patch
+  #patch -p1 -i ../protobuf-26.patch
+  patch -p1 -i ../protobuf-c-1.5.0-Clean-CMake.patch
 }
 
 build() {
   cd "$pkgname-$pkgver"
+  protobuf_CFLAGS="-I/usr/include -DPROTOBUF_USE_DLLS" \
+  # protobuf_LIBS="-L/usr/lib -lprotobuf" \
   ./configure --prefix=/usr --disable-static
   make
 }

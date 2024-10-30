@@ -36,6 +36,7 @@ build() {
   )
 
   cd $pkgname-$pkgver
+  export CFLAGS+=" -Wno-implicit-function-declaration"
   ./configure "${configure_options[@]}"
   make
 }

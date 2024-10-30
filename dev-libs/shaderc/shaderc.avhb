@@ -1,62 +1,64 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=shaderc
-pkgver=2021.1
+pkgver=2024.2
 pkgrel=1
 pkgdesc='Collection of tools, libraries and tests for shader compilation'
 url='https://github.com/google/shaderc'
 arch=('x86_64')
 groups=('dev-libs')
-license=('Apache')
+license=('Apache-2.0')
 depends=('glibc' 'gcc-libs' 'glslang' 'spirv-tools')
-makedepends=('asciidoctor' 'cmake' 'ninja' 'python')
+makedepends=('asciidoctor' 'cmake' 'ninja' 'python' 'spirv-headers')
 provides=('libshaderc_shared.so')
-source=(https://github.com/google/shaderc/archive/v${pkgver}.tar.gz
-        'fix-glslang-link-order.patch::https://github.com/google/shaderc/pull/463/commits/21c8be385b3fab5edcb934a6d99f69fd389c4e67.patch'
-        'shaderc-2019.0-fix-build-against-new-glslang.patch')
+source=(https://github.com/google/shaderc/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('eb0cdb0d3661455848a14dc498f80919e9289a0e1da05d4dd7aee4395fd50512ee76d7a034b07184c6cde53d750b83fcb813582113e46145edb7642ba0e7b7ab')
+b2sums=('412ae17ef03be1f8e6c89373a0279b801d7131b5bfa11624e6359cb392f8f7e7c0a2017c3fd3424030e6ee06267a46d1ce0b84f8ede69c35696675c5cf088f7c')
 
 prepare() {
   cd ${pkgname}-${pkgver}
-  # cd ${pkgname}
-  #patch -Np1 < ../fix-glslang-link-order.patch
-  #patch -Np1 < ../shaderc-2019.0-fix-build-against-new-glslang.patch
-
-  # Unbundle glslang, spirv-headers, spirv-tools
-  sed -i \
-		-e "s|\$<TARGET_FILE:spirv-dis>|/usr/bin/spirv-dis|" \
-		glslc/test/CMakeLists.txt || die
 
   # de-vendor libs and disable git versioning
   sed '/examples/d;/third_party/d' -i CMakeLists.txt
   sed '/build-version/d' -i glslc/CMakeLists.txt
 
-  # Manually create build-version.inc as we disabled git versioning
   cat <<- EOF > glslc/src/build-version.inc
-"${pkgver}\\n"
-"2020.3\n"
-"8.13.3559\n"
+"${pkgver}"
 EOF
+
 }
 
 build() {
-  export CFLAGS+=" ${CPPFLAGS}"
-  export CXXFLAGS+=" ${CPPFLAGS}"
-  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+  cd ${pkgname}-${pkgver}
+  cmake \
+    -B build \
+    -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects" \
     -DSHADERC_SKIP_TESTS=ON \
+    -DPYTHON_EXECUTABLE=python \
     -Dglslang_SOURCE_DIR=/usr/include/glslang
   ninja -C build
 
-  #cd ../glslc
-  #asciidoctor -b manpage README.asciidoc -o glslc.1
+  cd glslc
+  asciidoctor -b manpage README.asciidoc -o glslc.1
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  ninja -C build test
 }
 
 package() {
+  cd ${pkgname}-${pkgver}
   DESTDIR="${pkgdir}" ninja -C build install
-  # install -Dm 644 glslc/glslc.1 -t "${pkgdir}/usr/share/man/man1"
+  install -Dm 644 glslc/glslc.1 -t "${pkgdir}/usr/share/man/man1"
+
+  # Remove unused shaderc_static.pc
+  # rm "${pkgdir}/usr/lib/pkgconfig/shaderc_static.pc"
 }
+

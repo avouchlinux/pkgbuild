@@ -53,11 +53,11 @@ makedepends=(
   python
   python-gobject
 )
-source=("git+https://gitlab.gnome.org/GNOME/localsearch.git#tag=${pkgver/[a-z]/.&}")
+source=("https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/3.8.0/localsearch-$pkgver.tar.gz")
 b2sums=('75005c92fc3b949b063985f1dfa780a328ce66b58e51a824b6b2ed1b494d24bf15b7b9c62811923887197229b4dc29deee9898ab331f8d4a99e3c08127a02644')
 
 prepare() {
-  cd localsearch
+  cd $pkgbase-$pkgver
 }
 
 build() {
@@ -67,7 +67,7 @@ build() {
     -D tests_tap_protocol=true
   )
 
-  avouch-meson localsearch build "${meson_options[@]}"
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
@@ -103,3 +103,4 @@ package_localsearch-testutils() {
   )
   mv testutils/* "$pkgdir"
 }
+

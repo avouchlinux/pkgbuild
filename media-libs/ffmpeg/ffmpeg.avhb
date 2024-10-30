@@ -129,6 +129,8 @@ prepare() {
 
 build() {
   cd ffmpeg-$pkgver
+  
+  export CFLAGS="$CFLAGS -Wno-incompatible-pointer-types"
 
   ./configure \
     --prefix=/usr \

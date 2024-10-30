@@ -10,26 +10,30 @@ pkgdesc="Framework for testing other programs"
 arch=('any')
 url="http://www.gnu.org/software/dejagnu/"
 license=('GPL')
-depends=('sh' 'expect')
-groups=('dev-utils')
-install=dejagnu.install
-source=(http://ftp.gnu.org/gnu/dejagnu/${pkgname}-${pkgver}.tar.gz{,.sig})
-md5sums=('1fdc2eb0d592c4f89d82d24dfdf02f0b'
-         'SKIP')
-validpgpkeys=('CB0B31452BBE862933013D9176362888B55988D4')   # Ben Elliston
+url='https://www.gnu.org/software/dejagnu/'
+license=(GPL)
+depends=(sh expect)
+checkdepends=(tcl)
+source=(https://ftp.gnu.org/gnu/dejagnu/${pkgname}-${pkgver}.tar.gz{,.sig})
+sha256sums=('87daefacd7958b4a69f88c6856dbd1634261963c414079d0c371f589cd66a2e3'
+            'SKIP')
+validpgpkeys=('152F3EADD335FF629611128567DADC3E3F743649'  # Ben Elliston
+              'D231B45ECB0B7BD8F6E7A682CE9D6843AABACC90') # Jacob Bachmeyer (2021 DejaGnu Release Signing Key)
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make
+  mkdir -p build
+  cd build
+  ../$pkgname-$pkgver/configure --prefix=/usr
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd build
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd build
+  make DESTDIR="$pkgdir" install
 }
+

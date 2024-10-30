@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libuv
-pkgver=1.47.0
+pkgver=1.49.2
 pkgrel=1
 pkgdesc="Multi-platform support library with a focus on asynchronous I/O"
 arch=('x86_64')
@@ -12,24 +12,38 @@ groups=('dev-libs')
 url="https://github.com/libuv/libuv"
 license=('custom')
 depends=('glibc' 'libnsl')
-makedepends=('python-sphinx')
-source=("https://github.com/libuv/libuv/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+makedepends=('git' 'python-sphinx')
+source=("git+https://github.com/libuv/libuv.git?signed#tag=v${pkgver}")
+sha512sums=('32969566356a5fd5a3a69ec5038ca6c407bac9270924f38b55305fb3d96c38acc273b043f2117981a91de4f26b4b1abb06ffd8f690328f62d147852e1cdde0f7')
+# PGP key IDs are available from https://github.com/libuv/libuv/blob/v1.x/MAINTAINERS.md
+validpgpkeys=('57353E0DBDAAA7E839B66A1AFF47D5E4AD8B4FDC'  # Colin Ihrig (@cjihrig)
+              '612F0EAD9401622379DF4402F28C3C8DA33C03BE'  # Santiago Gimeno
+              'AEAD0A4B686767751A0E4AEF34A25FB128246514'
+              'CFBB9CA9A5BEAFD70E2B3C5A79A67C55A3679C8B') # Jameson Nash (@vtjnash)
+
+prepare() {
+    cd $pkgname
+    # Disable tests that fail on build.a.o (but pass locally)
+    sed -e '/udp_multicast_join/d' \
+        -e '/tcp_connect6_link_local/d' \
+        -i test/test-list.h
+}
 
 build() {
-    cd "$srcdir"/$pkgname-$pkgver
+    cd $pkgname
     ./autogen.sh
     ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+    make
     make man -C docs
 }
 
 check() {
-    cd "$srcdir"/$pkgname-$pkgver
-    # make ${MAKEFLAGS} check
+    cd $pkgname
+    make check
 }
 
 package() {
-    cd "$srcdir"/$pkgname-$pkgver
+    cd $pkgname
 
     make DESTDIR="$pkgdir" install
 
@@ -44,3 +58,4 @@ package() {
     install -Dm644 docs/build/man/libuv.1 \
         "$pkgdir"/usr/share/man/man1/libuv.1
 }
+

@@ -24,21 +24,11 @@ makedepends=(
   meson
 )
 provides=(libgepub-${pkgver%.*}.so)
-_commit=d1e8eeb17f2e3a3b0f164d2bf61bcd5cee7d1629  # tags/0.7.1^0
-source=("git+$url.git#commit=$_commit")
+source=("https://download.gnome.org/sources/libgepub/0.7/$pkgname-$pkgver.tar.xz")
 b2sums=('SKIP')
 
-pkgver() {
-  cd libgepub
-  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
-}
-
-prepare() {
-  cd libgepub
-}
-
 build() {
-  avouch-meson libgepub build
+  avouch-meson $pkgname-$pkgver build
   meson compile -C build
 }
 

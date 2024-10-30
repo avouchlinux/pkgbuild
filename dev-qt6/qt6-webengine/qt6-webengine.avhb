@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-webengine
-pkgver=6.7.3
+pkgver=6.8.0
 pkgrel=1
 _realname="${pkgname/6-/}"
 _tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
@@ -97,6 +97,7 @@ build() {
     -DQT_FEATURE_webengine_system_ffmpeg=ON \
     -DQT_FEATURE_webengine_system_icu=ON \
     -DQT_FEATURE_webengine_system_libevent=ON \
+    -DQT_FEATURE_webengine_system_re2=ON \
     -DQT_FEATURE_webengine_proprietary_codecs=ON \
     -DQT_FEATURE_webengine_kerberos=ON \
     -DQT_FEATURE_webengine_webrtc_pipewire=ON

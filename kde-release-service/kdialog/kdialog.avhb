@@ -1,36 +1,47 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdialog
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="A utility for displaying dialog boxes from shell scripts"
 arch=('x86_64')
 groups=('kde-apps')
-url="https://www.kde.org/"
-license=(LGPL)
-depends=(kdelibs4support)
-makedepends=(extra-cmake-modules kdoctools kdesignerplugin python)
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('5c15be232239e47d7150066a68a78cf39fdcbfe0e86ab2698e3a920da5f28ea0'
+url='https://apps.kde.org/kdialog/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kcoreaddons
+         kdbusaddons
+         kguiaddons
+         ki18n
+         kiconthemes
+         kio
+         ktextwidgets
+         kwidgetsaddons
+         kwindowsystem
+         libx11
+         qt6-base)
+makedepends=(extra-cmake-modules)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('16dacc107a8e8aa7537e9b51ddadd7d91b5ac4760e5517b1a65adc9a73fa7c80'
             'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

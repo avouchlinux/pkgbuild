@@ -1,32 +1,62 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=seahorse
-pkgver=41.0
+pkgver=47.0.1
 pkgrel=1
 pkgdesc="GNOME application for managing PGP keys."
 arch=('x86_64')
 groups=('gnome-extra')
 license=(GPL)
-url="http://projects.gnome.org/seahorse/"
-depends=(gtk3 gcr libsecret libsoup desktop-file-utils dconf gpgme)
-makedepends=(libldap intltool yelp-tools gobject-introspection openssh libsm vala meson)
-optdepends=('openssh: SSH support')
+url="https://wiki.gnome.org/Apps/Seahorse"
+arch=(x86_64)
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-SA-3.0')
+depends=(
+  dconf
+  gcc-libs
+  gcr
+  gdk-pixbuf2
+  glib2
+  glibc
+  gpgme
+  gtk3
+  hicolor-icon-theme
+  libhandy
+  libldap
+  libpwquality
+  libsecret
+  libsoup3
+  org.freedesktop.secrets
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+  vala
+  yelp-tools
+)
 provides=(x11-ssh-askpass)
-options=('!emptydirs')
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+groups=(gnome-extra)
+source=(
+  "https://gitlab.gnome.org/GNOME/$pkgname/-/archive/47.0.1/$pkgname-$pkgver.tar.gz"
+)
+b2sums=('e8d8fae487e872c180ee1e8743a95a58445f89b41471067c065745c052703f57b003b49364f350a4fe76fdcdf0ce38b7c8b16baab4a86120dcc90906b5aab390')
+validpgpkeys=('A7C626E13F9AD776776BD9CA1D8A57CF2E8D36A3') # Niels De Graef (nielsdg) <nielsdegraef@gmail.com>
 
 build() {
-	avouch-meson ${pkgname}-${pkgver} build
-	ninja -C build
+  avouch-meson $pkgname-$pkgver build -D manpage=true
+  meson compile -C build
 }
 
 check() {
-	meson test -C build
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }
+
+

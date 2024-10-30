@@ -1,0 +1,52 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-dbusmock
+pkgver=0.32.1
+pkgrel=1
+pkgdesc="Mock D-Bus objects for tests"
+url="https://github.com/martinpitt/python-dbusmock"
+arch=(any)
+groups=('dev-python')
+license=(LGPL-3.0-or-later)
+depends=(
+  glib2
+  python
+  python-dbus
+  python-gobject
+)
+makedepends=(
+  git
+  python-build
+  python-installer
+  python-setuptools
+  python-setuptools-scm
+  python-wheel
+)
+source=("git+https://github.com/martinpitt/python-dbusmock#tag=$pkgver")
+b2sums=('3b4978c49f2f4a60a2439456b67ba09eb4ade9443e1889263c36e2571ed69e9eeb2d79823c58bfe5c7c9be7d59251592b12543ef07c37e437a0e75563131db16')
+validpgpkeys=(
+  3DB46B55EFA59D40E6232148D14EF15DAFE11347 # Martin Pitt <martin@piware.de>
+)
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  cd $pkgname
+
+  # Suppress local version
+  export SETUPTOOLS_SCM_PRETEND_VERSION="${pkgver%%+*}"
+
+  python -m build --wheel --no-isolation
+}
+
+package() {
+  cd $pkgname
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim:set sw=2 sts=-1 et:

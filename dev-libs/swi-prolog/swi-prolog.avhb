@@ -1,44 +1,59 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=swi-prolog
 _realname=swipl
-pkgver=8.0.3
+pkgver=9.2.7 # using the stable version
 pkgrel=1
 pkgdesc='Prolog environment'
 arch=('x86_64')
 groups=('dev-libs')
-url='https://www.swi-prolog.org/'
-license=(GPL LGPL)
-depends=(libarchive libyaml qt5-base)
-makedepends=(cmake jdk-openjdk junit libjpeg libxft libxinerama libxpm ninja unixodbc)
-optdepends=('unixodbc:     for using the odbc4pl library'
-            'libjpeg:      for using the pl2xpce library'
-            'libxpm:       for using the pl2xpce library'
-            'libxinerama:  for using the pl2xpce library'
-            'libxft:       for using the pl2xpce library'
-            'jdk-openjdk:  for using Prolog from Java'
-            'java-runtime: for using Prolog from Java')
-source=("https://www.swi-prolog.org/download/stable/src/swipl-$pkgver.tar.gz")
+url='https://www.swi-prolog.org'
+license=(BSD-2-Clause)
+depends=(db5.3 gperftools libarchive libxcrypt libyaml qt5-base util-linux-libs)
+makedepends=(cmake jdk-openjdk libjpeg-turbo libxft libxinerama libxpm ninja python-protobuf unixodbc)
+checkdepends=(java-hamcrest junit)
+optdepends=('java-runtime: for using Prolog from Java'
+            'jdk-openjdk: for using Prolog from Java'
+            'libjpeg: for using the pl2xpce library'
+            'libxft: for using the pl2xpce library'
+            'libxinerama: for using the pl2xpce library'
+            'libxpm: for using the pl2xpce library'
+            'python: for using Prolog from Python'
+            'unixodbc: for using the odbc4pl library')
+source=("$pkgname-$pkgver.tar.gz::$url/download/stable/src/swipl-$pkgver.tar.gz"
+        bdb_5.3.patch)
+b2sums=('c81e83ec62a48127e46248ef0a1cc518a7c3358158207a1402bc93d14e8f51b87dd260d67fb3cc8fdf19fe2b0fa88dc4eb0e1fd6ff99183d06362ae7f86c32a5'
+        '37e14768ec59f9aee4363c5ffd63be8c50c04eecf269e52e8aadd5cadbc99f6286aa676b1145b1391490ab49072039d896eed588e934ba769d09c6bdb2d2222d')
+
+prepare() {
+  cd swipl-$pkgver
+  patch -Np1 -i ../bdb_5.3.patch
+}
 
 build() {
-  cmake -S $_realname-$pkgver -B build -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_C_FLAGS="$CFLAGS -fPIC -ffile-prefix-map=$PWD= -w" \
-    -DLIBEDIT_LIBRARIES=/usr/lib/libedit.so.0 \
-    -DLIBEDIT_INCLUDE_DIR=/usr/include \
-    $_realname-$pkgver/scripts/pgo-compile.sh
+  cmake \
+    -B build \
+    -D BDB_INCLUDE_DIR=/usr/include/db5.3 \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_C_FLAGS="$CFLAGS -fPIC -ffile-prefix-map=$PWD= -w" \
+    -D CMAKE_INSTALL_PREFIX=/usr \
+    -D LIBEDIT_INCLUDE_DIR=/usr/include \
+    -D LIBEDIT_LIBRARIES=/usr/lib/libedit.so.0 \
+    -G Ninja \
+    -S swipl-$pkgver
   ninja -C build
 }
 
 check() {
-  cd build
-  # the prolog_in_java test fails
-  #ctest -j 8 || true
+  # skip the jpl:prolog_in_java test, for now (has been reported upstream)
+  ctest -E "jpl:prolog_in_java" --test-dir build || cat build/Testing/Temporary/LastTest.log
 }
 
 package() {
   DESTDIR="$pkgdir" ninja -C build install
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" swipl-$pkgver/LICENSE
 }
+

@@ -1,31 +1,92 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdepim-addons
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='Addons for KDE PIM applications'
 arch=('x86_64')
 groups=('kde-apps')
 url='https://kontact.kde.org'
-license=(GPL LGPL FDL)
-depends=(incidenceeditor ktnef libksieve akonadi-notes akonadi-import-wizard kparts poppler-qt5 kitinerary discount)
-makedepends=(extra-cmake-modules kdoctools boost)
-groups=(kde-applications kdepim)
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('a748027568ed2f82f9178c24f6eba18f1d5af26f51d1cc1ddedea645e04190a6'
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(akonadi-calendar
+         akonadi-contacts
+         akonadi-import-wizard
+         akonadi-mime
+         calendarsupport
+         discount
+         gcc-libs
+         glibc
+         gpgme
+         grantleetheme
+         incidenceeditor
+         kcalendarcore
+         kcalutils
+         kcmutils
+         kcodecs
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcontacts
+         kcoreaddons
+         kdeclarative
+         kguiaddons
+         ki18n
+         kiconthemes
+         kidentitymanagement
+         kimap
+         kio
+         kirigami
+         kirigami-addons
+         kitemmodels
+         kitemviews
+         kitinerary
+         kmailtransport
+         kmime
+         kpimtextedit
+         kpkpass
+         kservice
+         ktextaddons
+         ktexttemplate
+         ktnef
+         kwidgetsaddons
+         kxmlgui
+         libakonadi
+         libgravatar
+         libkleo
+         libksieve
+         mailcommon
+         mailimporter
+         messagelib
+         pimcommon
+         prison
+         qgpgme-qt6
+         qt6-base
+         qt6-declarative
+         qt6-webengine
+         sh
+         syntax-highlighting)
+makedepends=(corrosion
+             extra-cmake-modules
+             kdoctools
+             kaddressbook)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('ce45080ca328ff2b020cf8e1d7b0924a0d7dc4830111bc948141c1e256afa912'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
-              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87) # Christoph Feck <cfeck@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+options=(!lto)
 
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
-  	    -DCMAKE_INSTALL_PREFIX=/usr \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-        -DCMAKE_INSTALL_LIBEXECDIR=lib \
-        -DBUILD_TESTING=OFF
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
   cmake --build build
 }
 

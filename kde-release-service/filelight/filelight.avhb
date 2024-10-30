@@ -1,27 +1,41 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=filelight
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='View disk usage information'
-url='http://kde.org/applications/utilities/filelight'
+url='https://apps.kde.org/filelight/'
 arch=('x86_64')
 groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('kparts' 'hicolor-icon-theme')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python')
-install=${pkgname}.install
-source=("http://download.kde.org/stable/applications/${pkgver}/src/filelight-${pkgver}.tar.xz")
-sha1sums=('7b791cd8f659d41dc3c5cdbf1f492f9d7099c810')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kcoreaddons
+         kcrash
+         ki18n
+         kio
+         kirigami
+         kirigami-addons
+         kwidgetsaddons
+         qqc2-desktop-style
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('5e904cdf4573fa5b8578e4157da348ad46e7281992bfbd6af59c9430e16ba94e'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver -G Ninja \
-  	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
-        -DCMAKE_INSTALL_LIBEXECDIR=lib \
-        -DBUILD_TESTING=OFF
+  cmake -B build -S $pkgname-$pkgver \
+    -DBUILD_TESTING=OFF
   cmake --build build
 }
 

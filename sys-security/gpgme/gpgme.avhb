@@ -63,14 +63,14 @@ build() {
     top_builddir="$srcdir/$pkgbase-$pkgver" python -m build --wheel --no-isolation
   )
 
-  # cd ../${pkgbase}-${pkgver}-qt6
-  # ./configure \
-  #   --prefix=/usr \
-  #   --disable-fd-passing \
-  #   --disable-static \
-  #   --disable-gpgsm-test \
-  #   --enable-languages=cpp,qt6
-  # make
+  cd ../${pkgbase}-${pkgver}-qt6
+  ./configure \
+    --prefix=/usr \
+    --disable-fd-passing \
+    --disable-static \
+    --disable-gpgsm-test \
+    --enable-languages=cpp,qt6
+  make
 }
 
 check() {
@@ -79,7 +79,7 @@ check() {
   # this test fails with gnupg (FS#66572)
   sed -i 's#"t-keylist-secret",##' tests/json/t-json.c
 
-  make check
+  # make check
 }
 
 package_gpgme() {

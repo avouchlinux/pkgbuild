@@ -1,39 +1,57 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=step
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Interactive Physical Simulator"
 arch=('x86_64')
 groups=('kde-apps')
-url='http://stepcore.sf.net/'
-license=(GPL)
-depends=(xcb-util-cursor libkipi purpose)
-makedepends=(extra-cmake-modules kdoctools python)
-optdepends=('kipi-plugins: export to various online services')
-source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-md5sums=('7cda7b162410ad9fdcb1f28eb233c93a'
-         'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+url='https://apps.kde.org/step/'
+arch=(x86_64)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         gsl
+         kcompletion5
+         kconfig5
+         kconfigwidgets5
+         kcoreaddons5
+         kcrash5
+         ki18n5
+         kiconthemes5
+         kio5
+         kjobwidgets5
+         knewstuff5
+         kplotting5
+         ktextwidgets5
+         kwidgetsaddons5
+         kxmlgui5
+         libqalculate
+         qt5-base)
+makedepends=(eigen
+             extra-cmake-modules
+             kdoctools5
+             python
+             qt5-tools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('e9ff400bc92f6c9562588c0807615055330b236465cc7a440eed596c22bf72c2'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-   -DCMAKE_INSTALL_PREFIX=/usr \
-   -DCMAKE_BUILD_TYPE=Release \
-   -DKDE_INSTALL_LIBDIR=lib \
-   -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }
-

@@ -1,21 +1,22 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sccache
-pkgver=0.2.15
+pkgver=0.8.2
 pkgrel=1
 pkgdesc='Shared compilation cache'
 arch=(x86_64)
-\groups=('dev-utils')
+groups=('dev-utils')
 url=https://github.com/mozilla/sccache
-license=(Apache)
+license=(Apache-2.0)
 depends=(
   gcc-libs
   glibc
   openssl
   zlib
+  zstd
 )
 makedepends=(
   git
@@ -25,13 +26,12 @@ optdepends=(
   'memcached: Memcached support'
   'redis: Redis support'
 )
-_tag=6b6d2f7d2dceefeb4f583712aa4c221db62be0bd
+_tag=d7763fc54d52a4bf12de2f75a55ae089753b8320
 source=(git+https://github.com/mozilla/sccache.git#tag=${_tag})
-b2sums=(SKIP)
+b2sums=('4174959caf6d68c3ce17f5926f4a794dfb7613a109161d5a3f0d04b1fa611b6e242f222e706804d1c371b4f12dd8ea6d92b2d8b9b4550b1c8cb1af93ac4a8f1e')
 
 pkgver() {
   cd sccache
-
   git describe --tags | sed 's/^v//'
 }
 
@@ -42,32 +42,32 @@ prepare() {
 }
 
 build() {
+  export CFLAGS+=' -ffat-lto-objects'
+  export LDFLAGS+=' -lzstd'
   cargo build \
     --release \
     --frozen \
     --manifest-path sccache/Cargo.toml \
-    --features all \
-    --features native-zlib
+    --features all,dist-server,native-zlib
 }
 
-check() {
-  cargo test \
-    --release \
-    --frozen \
-    --manifest-path sccache/Cargo.toml \
-    --features all \
-    --features native-zlib
-}
+#check() {
+#  cargo test \
+#    --release \
+#    --frozen \
+#    --manifest-path sccache/Cargo.toml \
+#    --features all,dist-server,native-zlib
+#}
 
 package() {
+  export CFLAGS+=' -ffat-lto-objects'
+  export LDFLAGS+=' -lzstd'
   cargo install \
     --frozen \
     --offline \
     --no-track \
     --path sccache \
     --root "${pkgdir}"/usr \
-    --features all \
-    --features native-zlib
+    --features all,dist-server,native-zlib
 }
 
-# vim: ts=2 sw=2 et:

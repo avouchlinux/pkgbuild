@@ -4,66 +4,70 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libphonenumber
-pkgver=8.13.27
+pkgver=8.13.46
 pkgrel=1
 pkgdesc="Google's common library for parsing, formatting, and validating international phone numbers"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://github.com/googlei18n/libphonenumber"
-license=(Apache)
+arch=(x86_64)
+license=('Apache-2.0 AND BSD-3-Clause')
 depends=(
   abseil-cpp
+  gcc-libs
+  glibc
   icu
   protobuf
 )
 makedepends=(
   cmake
   git
-  gtest
-  jre-openjdk-headless
 )
-source=("https://github.com/google/libphonenumber/archive/v$pkgver.tar.gz")
+source=(
+  "https://github.com/google/libphonenumber/archive/refs/tags/v$pkgver.tar.gz"
+  0001-Use-find_package-for-protobuf.patch
+)
+b2sums=('d240dabb3e2e240db0eaf0b967cb6b1505a95b748245f7b3a7f4e91a3149ff505164d06a70118b813911e1231177d6c25d0903e1c9a2be701f295af0d0dbdafd'
+        '8fc1c65d863051052bb1cb3759a252a3b36a9dffa1335eae4d043821797651e57ca8902cced0672d3c47192b50b9b54436a1551ce65b2e9a4bd82351a58ef1ac')
 
 prepare() {
   cd $pkgname-$pkgver
+
   # Use official protobuf cmake target instead of
   # custom one, fixes build with protobuf 23
-  patch -Np1 -i ../protobuf-targets.diff
-
-  # Fix build with abseil-cpp 2023
-  sed -e 's|CMAKE_CXX_STANDARD 11|CMAKE_CXX_STANDARD 17|' \
-      -i tools/cpp/CMakeLists.txt
-
-
+  patch -Np1 -i ../0001-Use-find_package-for-protobuf.patch
 }
+
 build() {
-  # export CXXFLAGS+=" -Wno-error=deprecated-declarations"  # readdir_r deprecation
-  # export CXXFLAGS+=" -Wno-error=unused-variable"          # this is nuts
-
   local cmake_options=(
-      -DCMAKE_INSTALL_PREFIX=/usr
-      -DCMAKE_BUILD_TYPE=None
-      -DCMAKE_CXX_STANDARD=17
-      -DUSE_BOOST=OFF
-      -DUSE_STDMUTEX=ON
-    )
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_CXX_STANDARD=17
+    -D USE_BOOST=OFF
+    -D USE_STDMUTEX=ON
 
-  # Greatly reduce size of libgeocoding's relocation tables
-  # https://gitlab.archlinux.org/archlinux/rfcs/-/blob/master/rfcs/0023-pack-relative-relocs.rst
-  # export LDFLAGS+=" -Wl,-z,pack-relative-relocs"
+    # https://issuetracker.google.com/issues/369040934
+    -D BUILD_TESTING=OFF
+    -D REGENERATE_METADATA=OFF
+  )
 
   cmake -S $pkgname-$pkgver/cpp -B build "${cmake_options[@]}"
   cmake --build build
-
-}
-
-check() {
-  cmake --build build --target tests
 }
 
 package() {
-  depends+=(libicu{uc,i18n}.so libprotobuf.so libboost_thread.so)
-  provides+=(libgeocoding.so libphonenumber.so)
+  depends+=(
+    libicu{uc,i18n}.so
+    libprotobuf.so
+  )
+  provides+=(
+    libgeocoding.so
+    libphonenumber.so
+  )
 
   DESTDIR="$pkgdir" cmake --install build
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver//LICENSE.Chromium
 }
+
+

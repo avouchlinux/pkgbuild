@@ -1,46 +1,64 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
+# Careful when upgrading this package! It usually breaks ABI without bumping
+# soname. Also, be very mindful of the version of spirv-tools that this links
+# to. Upstream actually expects the use of the particular commits of
+# spirv-tools and spirv-headers that are provided in known_good.json. However,
+# if we went that route, we'd have to vendor the resulting spirv-tools libs
+# from this glslang build and they would be incompatible with system libs,
+# resulting in us having to ship both. Instead, I recommend just waiting until
+# upstream releases a compatible version of spirv-tools, then updating the
+# spriv-tools system package and only then building glslang against that.
 pkgname=glslang
-pkgver=11.4.0
+pkgver=14.3.0
 pkgrel=1
 pkgdesc='An OpenGL and OpenGL ES shader front end and validator'
 arch=('x86_64')
 groups=('dev-utils')
 url='https://github.com/KhronosGroup/glslang'
-license=('BSD')
-depends=('gcc-libs' 'spirv-tools' 'python')
-makedepends=('cmake' 'ninja')
+license=('BSD-3-Clause')
+depends=('gcc-libs' 'spirv-tools')
+makedepends=('cmake' 'ninja' 'spirv-headers' 'python')
 options=('staticlibs')
 source=(${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/glslang/archive/${pkgver}.tar.gz)
+sha256sums=('be6339048e20280938d9cb399fcdd06e04f8654d43e170e8cce5a56c9a754284')
 
 build() {
   cd ${pkgname}-${pkgver}
-  mkdir -p build-{shared,static}
-  (cd build-shared
-    cmake .. \
-      -GNinja \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_SHARED_LIBS=ON
-    ninja
-  )
-  (cd build-static
-    cmake .. \
-      -GNinja \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_SHARED_LIBS=OFF
-    ninja
-  )
+
+  # we need fat LTO objects to not break consumers during linking
+  CXXFLAGS+=" -ffat-lto-objects"
+  cmake \
+    -Bbuild-static \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+    -DBUILD_SHARED_LIBS=OFF
+  cmake --build build-static
+  cmake \
+    -Bbuild-shared \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DGLSLANG_TESTS=ON
+  cmake --build build-shared
+}
+
+check() {
+  cd ${pkgname}-${pkgver}
+  ninja -Cbuild-shared test
 }
 
 package() {
   cd ${pkgname}-${pkgver}
-  DESTDIR="${pkgdir}" ninja -C build-shared install
-  DESTDIR="${pkgdir}" ninja -C build-static install
+  DESTDIR="${pkgdir}" cmake --install build-static
+  DESTDIR="${pkgdir}" cmake --install build-shared
 
   install -Dm644 LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 
@@ -49,3 +67,5 @@ package() {
     ln -sf "${lib}" "${lib}.0"
   done
 }
+
+

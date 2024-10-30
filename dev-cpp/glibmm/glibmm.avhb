@@ -1,19 +1,30 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=glibmm
 pkgname=(glibmm glibmm-docs)
-pkgver=2.78.0
+pkgver=2.82.0
 pkgrel=1
 pkgdesc="C++ bindings for GLib"
 url="http://www.gtkmm.org/"
 arch=('x86_64')
 groups=('dev-cpp')
-license=(LGPL)
-depends=(glib2 libsigc++)
-makedepends=(git mm-common perl-xml-parser clang)
+license=(LGPL-2.1-or-later)
+depends=(
+  glib2
+  libsigc++
+)
+makedepends=(
+  clang
+  git
+  meson
+  mm-common
+  perl-xml-parser
+)
+checkdepends=(glib-networking)
+
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {

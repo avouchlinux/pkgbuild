@@ -12,7 +12,8 @@ groups=('media-libs')
 url="http://modplug-xmms.sourceforge.net/"
 license=('custom')
 depends=('gcc-libs')
-source=(https://downloads.sourceforge.net/modplug-xmms/${pkgname}-${pkgver}.tar.gz
+source=(#https://downloads.sourceforge.net/modplug-xmms/${pkgname}-${pkgver}.tar.gz # not working at least in pakistan
+        https://download.videolan.org/pub/contrib/modplug/${pkgname}-${pkgver}.tar.gz
         libmodplug-0.8.9.0-no-fast-math.patch)
 sha256sums=('457ca5a6c179656d66c01505c0d95fafaead4329b9dbaa0f997d00a3508ad9de'
             '24b97252803b39546199715158ab1d61616755c6c9756f8b2b9b1948477ce4ed')

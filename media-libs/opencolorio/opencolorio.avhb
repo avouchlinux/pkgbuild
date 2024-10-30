@@ -20,30 +20,25 @@ source=($pkgname-$pkgver.tar.gz::https://github.com/AcademySoftwareFoundation/Op
 sha512sums=('11ad89b3ac30700be58181a0bdd4154a3ae2bf59651edb48629c51c7f1fadf221394abb285efd9b6c259195821a4e531043b266eea36d8fa4382f23c3b54ab6d')
 
 build() {
-  cd OpenColorIO-$pkgver
-
-  export CXXFLAGS+=" -ffat-lto-objects"
-  cmake \
-    -GNinja \
-    -Bbuild \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DCMAKE_SKIP_INSTALL_RPATH=YES \
-    -Wno-dev
-  ninja -C build
+	export CXXFLAGS+=" -ffat-lto-objects"
+	
+	cmake -B build -S $_realname-$pkgver -G Ninja \
+ 		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DCMAKE_SKIP_INSTALL_RPATH=YES \
+        -Wno-dev
+	cmake --build build
 }
 
 check() {
-  cd OpenColorIO-$pkgver/build
+	  cd $srcdir/build
 
-  # Currently broken
-  # ctest -E test_gpu
+	  # Currently broken
+	  # ctest -E test_gpu
 }
 
 package() {
-  cd OpenColorIO-$pkgver
-
-  DESTDIR="$pkgdir" ninja -C build install
-  install -Dm644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
+	DESTDIR="$pkgdir" ninja -C build install
+	install -Dm644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
 }

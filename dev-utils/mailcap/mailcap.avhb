@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mailcap
-pkgver=2.1.53
+pkgver=2.1.54
 pkgrel=1
 pkgdesc="Helper application and MIME type associations for file types"
 url="https://pagure.io/mailcap"
@@ -14,26 +14,36 @@ license=(MIT)
 makedepends=(git)
 checkdepends=(python)
 provides=(mime-types)
+conflicts=(mime-types)
+replaces=(mime-types)
 backup=(
   etc/mailcap
   etc/mime.types
   etc/nginx/mime.types
 )
-source=("https://pagure.io/mailcap/archive/r2-1-53/mailcap-r2-1-53.tar.gz")
-sha256sums=('SKIP')
+_commit=9699055a1b4dfb90f7594ee2e8dda705fa56d3b8  # tags/r2-1-54
+source=("git+https://pagure.io/mailcap#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd mailcap
+  git describe --tags | sed 's/^r//;s/-/./;s/-/./;s/-/+/g'
+}
 
 build() {
-  cd $pkgname-r2-1-53
+  cd mailcap
   make
 }
 
 check() {
-  cd $pkgname-r2-1-53
+  cd mailcap
   make check
 }
 
 package() {
-  cd $pkgname-r2-1-53
+  cd mailcap
   make DESTDIR="$pkgdir" install
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
 }
+
+

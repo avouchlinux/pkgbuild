@@ -1,0 +1,54 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-maps
+pkgver=47.1
+pkgrel=1
+pkgdesc="Find places around the world"
+url="https://wiki.gnome.org/Apps/Maps"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  dconf
+  hicolor-icon-theme
+  gcc-libs
+  geoclue
+  geocode-glib-2
+  gjs
+  glib2
+  glibc
+  gtk4
+  json-glib
+  libadwaita
+  libgweather-4
+  libportal
+  librest
+  librsvg
+  libshumate
+  libxml2
+  pango
+)
+makedepends=(
+  git
+  gobject-introspection
+  meson
+  yelp-tools
+)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-v${pkgver} build
+	ninja -C build
+}
+
+check() {
+	meson test -C build --print-errorlogs
+}
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

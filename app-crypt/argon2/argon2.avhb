@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,25 +13,26 @@ groups=('app-crypt')
 url='https://github.com/P-H-C/phc-winner-argon2'
 license=('Apache' 'custom:CC0')
 depends=('glibc')
-install=argon2.install
+provides=('libargon2.so')
 source=("https://github.com/P-H-C/phc-winner-argon2/archive/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('daf972a89577f8772602bf2eb38b6a3dd3d922bf5724d45e7f9589b5e830442c')
 
 build() {
   cd "$srcdir/phc-winner-$pkgname-$pkgver"
 
-  make OPTTARGET='none' LIBRARY_REL='lib'
+  make ARGON2_VERSION="${pkgver}" OPTTARGET='none' LIBRARY_REL='lib'
 }
 
 check() {
   cd "$srcdir/phc-winner-$pkgname-$pkgver"
 
-  make OPTTARGET='none' LIBRARY_REL='lib' test
+  make ARGON2_VERSION="${pkgver}" OPTTARGET='none' LIBRARY_REL='lib' test
 }
 
 package() {
   cd "$srcdir/phc-winner-$pkgname-$pkgver"
 
-  make OPTTARGET='none' LIBRARY_REL='lib' DESTDIR="$pkgdir" install
+  make ARGON2_VERSION="${pkgver}" OPTTARGET='none' LIBRARY_REL='lib' DESTDIR="$pkgdir" install
 
   install -D -m0644 LICENSE "${pkgdir}/usr/share/licenses/argon2/LICENSE"
 }

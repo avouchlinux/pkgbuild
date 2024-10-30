@@ -1,38 +1,38 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=slang
-pkgver=2.3.2
+pkgver=2.3.3
 pkgrel=1
 pkgdesc="S-Lang is a powerful interpreted language"
 arch=('x86_64')
 groups=('dev-lang')
-url="http://www.jedsoft.org/slang/"
+url="https://www.jedsoft.org/slang/"
 license=('GPL')
 depends=('pcre')
 backup=('etc/slsh.rc')
 options=('!makeflags')
-source=(http://www.jedsoft.org/releases/slang/${pkgname}-${pkgver}.tar.bz2{,.asc})
-sha1sums=('a8ea7f1b5736160a94efb67b137a0f5b9916bdf2'
-          'SKIP')
-validpgpkeys=('AE962A02D29BFE4A4BB2805FDE401E0D5873000A')  # John E. Davis
+source=(https://www.jedsoft.org/releases/slang/${pkgname}-${pkgver}.tar.bz2{,.asc})
+sha256sums=('f9145054ae131973c61208ea82486d5dd10e3c5cdad23b7c4a0617743c8f5a18'
+            'SKIP')
+validpgpkeys=('64083373E9E1DE997EBBE7784B82D0B82930237D')  # John E. Davis
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc
-	# with ${MAKEFLAGS} build fails
-	make
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd ${pkgname}-${pkgver}
+
+  [[ $CARCH = "i686" ]] || make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install-all
 }
 

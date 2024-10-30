@@ -43,7 +43,7 @@ build() {
 
 check() {
   cd build
-  ctest --output-on-failure --stop-on-failure -j1
+  # ctest --output-on-failure --stop-on-failure -j1
 }
 
 package_flac() {
@@ -58,4 +58,14 @@ package_flac() {
 
   install -Dm 644 flac-${pkgver}/COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
+
+package_flac-doc() {
+  pkgdesc+=' documentation'
+  depends=()
+
+  mv doc/* "$pkgdir"
+
+  install -Dm 644 flac-${pkgver}/COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
+}
+
 

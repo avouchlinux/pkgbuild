@@ -1,0 +1,14 @@
+--- ../fibheap.c	2024-05-26 20:55:52.000000000 +0500
++++ libiberty/fibheap.c	2024-10-22 12:58:49.016958442 +0500
+@@ -22,9 +22,9 @@
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+-#ifdef HAVE_LIMITS_H
++
+ #include <limits.h>
+-#endif
++
+ #ifdef HAVE_STDLIB_H
+ #include <stdlib.h>
+ #endif

@@ -1,0 +1,73 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=kustomize
+pkgver=5.4.3
+pkgrel=1
+pkgdesc="Template-free customization of Kubernetes YAML manifests"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/kubernetes-sigs/kustomize"
+license=('Apache-2.0')
+makedepends=('go')
+depends=('glibc')
+optdepends=('helm')
+options=('!lto')
+source=("https://github.com/kubernetes-sigs/kustomize/archive/kustomize/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('d7390cdce3cae5c36e0e60842044e82c27ca95cf9c4227639fd0c782d793dc13d6acf989c65adbeedc0ba26a3eda1c76a602c0afc42a89a6e8a8cc3ba3a31299')
+b2sums=('49b6fdc95be19555d87198e5c658de2add9cc5856ae725740e4c2b5a97b08eb2505da866f877887ea401ff45334e9f6c860a650b02c150d604ff0ae8d0a414f7')
+
+prepare() {
+  cd "kustomize-kustomize-v${pkgver}/kustomize"
+
+  GOPATH="${srcdir}"
+  go mod download
+}
+
+build(){
+  cd "kustomize-kustomize-v${pkgver}/kustomize"
+
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  GOPATH="${srcdir}"
+  export GOPROXY=off
+  go build \
+    -trimpath \
+    -buildmode=pie \
+    -mod=readonly \
+    -modcacherw \
+    -ldflags " \
+      -X sigs.k8s.io/kustomize/api/provenance.version=${pkgver} \
+      -X sigs.k8s.io/kustomize/api/provenance.buildDate=$(date -u +'%Y-%m-%dT%H:%M:%SZ' --date=@${SOURCE_DATE_EPOCH}) \
+      -compressdwarf=false \
+      -linkmode external \
+      -extldflags \"${LDFLAGS}\"" \
+    .
+}
+
+check(){
+  cd "kustomize-kustomize-v${pkgver}/kustomize"
+
+  go test ./...
+}
+
+package(){
+  cd "kustomize-kustomize-v${pkgver}/kustomize"
+
+  # install completions
+  mkdir -p "${pkgdir}/usr/share/bash-completion/completions"
+  ./kustomize completion bash >  "${pkgdir}/usr/share/bash-completion/completions/kustomize"
+  mkdir -p "${pkgdir}/usr/share/zsh/site-functions/"
+  ./kustomize completion zsh >  "${pkgdir}/usr/share/zsh/site-functions/_kustomize"
+  mkdir -p "${pkgdir}/usr/share/fish/vendor_completions.d"
+  ./kustomize completion fish >  "${pkgdir}/usr/share/fish/vendor_completions.d/kustomize.fish"
+
+  # install binary
+  install -D kustomize "${pkgdir}/usr/bin/kustomize"
+}
+
+# vim: ts=2 sw=2 et:

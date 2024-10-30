@@ -1,37 +1,80 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdepim-runtime
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc='Extends the functionality of kdepim'
 arch=('x86_64')
 groups=('kde-apps')
-url='https://community.kde.org/KDE_PIM'
-license=('GPL' 'LGPL' 'FDL')
-depends=(libkgapi libkolab akonadi-calendar knotifyconfig kross kalarmcal kmbox kimap hicolor-icon-theme)
-makedepends=(extra-cmake-modules kdoctools boost python kdesignerplugin)
-source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha1sums=('f182605d39755536d57416a3c142b50c31af426c'
-          'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+url='https://kontact.kde.org'
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(akonadi
+         akonadi-calendar
+         akonadi-contacts
+         akonadi-mime
+         akonadi-notes
+         gcc-libs
+         glibc
+         kcalendarcore
+         kcmutils
+         kcodecs
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcontacts
+         kcoreaddons
+         kdav
+         ki18n
+         kidentitymanagement
+         kimap
+         kio
+         kjobwidgets
+         kldap
+         kmailtransport
+         kmime
+         kmbox
+         knotifications
+         knotifyconfig
+         kservice
+         ktextaddons
+         ktextwidgets
+         kwallet
+         kwidgetsaddons
+         kwindowsystem
+         libakonadi
+         libkgapi
+         libkolabxml
+         libsasl
+         qca-qt6
+         qt6-base
+         qt6-networkauth
+         qt6-speech
+         qt6-webengine
+         qtkeychain-qt6)
+makedepends=(boost
+             extra-cmake-modules
+             kdoctools
+             libetebase)
+optdepends=('libetebase: EteSync resource')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('240e13fc506f03572c08c0f297f4cf26d313a467e173cfe408b2d29ec6eef0f9'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

@@ -17,17 +17,17 @@ depends=(
   libcdio
 )
 makedepends=(git)
-source=("git+https://github.com/rocky/libcdio-paranoia.git#tag=release-$pkgver")
+source=("$pkgname-release-${pkgver/+/-}.tar.gz::https://github.com/libcdio/libcdio-paranoia/archive/refs/tags/release-${pkgver/+/-}.tar.gz")
 b2sums=(c7badd7b7fa2c65df0b328a9aacc001ff970ea9cc4212ea6b68ffc13f4e301bbed7239f50e52ff453dc78ce1bb0a69ecfd3efb0801c1af8556f926daf822562e)
 validpgpkeys=(DAA63BC2582034A02B923D521A8DE5008275EC21) # R. Bernstein <rocky@panix.com>
 
 prepare() {
-  cd $pkgname
+  cd $pkgname-release-${pkgver/+/-}
   autoreconf -fi
 }
 
 build() {
-  cd $pkgname
+  cd $pkgname-release-${pkgver/+/-}
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
@@ -37,11 +37,11 @@ build() {
 }
 
 check() {
-  cd $pkgname
+  cd $pkgname-release-${pkgver/+/-}
   make check
 }
 
 package() {
-  cd $pkgname
+  cd $pkgname-release-${pkgver/+/-}
   make DESTDIR="$pkgdir" install
 }

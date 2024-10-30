@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,13 +10,39 @@ pkgdesc="Create and modify archives"
 url="https://wiki.gnome.org/Apps/FileRoller"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(gtk3 dconf libarchive file json-glib libnotify zip unzip)
-makedepends=(yelp-tools git libnautilus-extension meson appstream-glib)
-optdepends=('p7zip: 7z, arj, exe and encrypted zip files support'
-            'unrar: better RAR archive support'
-            'unace: ACE archive support'
-            'lrzip: lrzip archive support')
+license=(GPL-2.0-or-later)
+depends=(
+  dconf
+  file
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
+  json-glib
+  libadwaita
+  libarchive
+  libnautilus-extension
+  libportal
+  libportal-gtk4
+  pango
+  unzip
+  zip
+)
+makedepends=(
+  appstream-glib
+  git
+  glib2-devel
+  meson
+  yelp-tools
+)
+optdepends=(
+  'lrzip: lrzip archive support'
+  'p7zip: 7z, arj, exe and encrypted zip files support'
+  'squashfs-tools: squashfs image support'
+  'unace: ACE archive support'
+  'unrar: better RAR archive support'
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {

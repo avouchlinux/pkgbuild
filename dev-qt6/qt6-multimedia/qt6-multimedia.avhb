@@ -7,7 +7,7 @@ pkgbase=qt6-multimedia
 pkgname=(qt6-multimedia
          qt6-multimedia-ffmpeg
          qt6-multimedia-gstreamer)
-pkgver=6.7.3
+pkgver=6.8.0
 pkgrel=1
 _realname=${pkgbase/6-/}
 _tarname="${pkgbase/6-/}-everywhere-src-${pkgver}"

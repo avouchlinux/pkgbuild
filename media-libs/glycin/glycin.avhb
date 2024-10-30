@@ -1,0 +1,89 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=glycin
+pkgver=1.1.1
+pkgrel=1
+pkgdesc="Sandboxed and extendable image decoding"
+arch=(x86_64)
+groups=('media-base')
+url="https://gitlab.gnome.org/sophie-h/glycin"
+license=('MPL-2.0 OR LGPL-2.1-or-later')
+depends=(
+  bubblewrap
+  cairo
+  fontconfig
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  lcms2
+  libjxl
+  librsvg
+  libseccomp
+)
+makedepends=(
+  clang
+  git
+  gobject-introspection
+  libheif
+  meson
+  rust
+  vala
+)
+optdepends=(
+  'libheif: heif/heic file support'
+)
+checkdepends=(
+  dav1d
+  ffmpeg
+  rav1e
+  svt-av1
+)
+provides=(
+  libglycin-1.so
+  libglycin-gtk4-1.so
+)
+source=(
+  "git+https://gitlab.gnome.org/sophie-h/glycin.git#tag=${pkgver/[a-z]/.&}"
+  "git+https://gitlab.gnome.org/sophie-h/test-images.git"
+)
+b2sums=('a0ad1183946deeeac2d7dc8040c2257ed259be5ac66f4bdb20de9ee1ec6825ae95e86f0f27296ad7a65e03aac75bcbfc9deda8e1a34afea41e6be023eb17eeb8'
+        'SKIP')
+
+# Use LTO
+export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+
+# Use debug
+export CARGO_PROFILE_RELEASE_DEBUG=2
+
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git submodule set-url tests/test-images "$srcdir/test-images"
+  git -c protocol.file.allow=always -c protocol.allow=never submodule update
+
+  # Match cargo_home in meson.build
+  CARGO_HOME="$srcdir/build/cargo-home" \
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
+
+build() {
+  local meson_options=(
+    -D test_skip_install=false
+  )
+
+  avouch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+# check() {
+#   RUST_BACKTRACE=full meson test -v -C build --print-errorlogs --no-rebuild
+# }
+
+package() {
+  meson install -C build --destdir "$pkgdir" --no-rebuild
+}

@@ -1,28 +1,41 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hicolor-icon-theme
-pkgver=0.17
+pkgver=0.18
 pkgrel=1
 pkgdesc="Freedesktop.org Hicolor icon theme"
 arch=(any)
 groups=('x11-themes')
-url="http://icon-theme.freedesktop.org/wiki/HicolorTheme"
-license=('GPL2')
-source=("http://icon-theme.freedesktop.org/releases/${pkgname}-${pkgver}.tar.gz")
+url="https://gitlab.freedesktop.org/xdg/default-icon-theme"
+license=(GPL-2.0-or-later)
+makedepends=(
+  git
+  meson
+)
+source=("$pkgname::git+$url.git?signed#tag=v$pkgver")
+b2sums=('d3a46022453e0301fa4dd8b76e3c761ef256e27a380ff1d87cc30d26c6745fc7403eaace80590bfaa98f8f58ddf39959b85f05e76c049fa7634d7e79165c7967')
+validpgpkeys=(
+  D33A3F0CA16B0ACC51A60738494C8A5FBF4DECEB # Matthias Klumpp <matthias@tenstral.net>
+)
+
+prepare() {
+  cd default-icon-theme
+}
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make
+  avouch-meson default-icon-theme build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+  meson install -C build --destdir "$pkgdir"
 }
+
 

@@ -14,7 +14,7 @@ url='https://glew.sourceforge.net/'
 license=(BSD GPL MIT)
 depends=(glu libxi libxmu)
 conflicts=(glew)
-source=("https://downloads.sourceforge.net/$_pkgbase/$_pkgbase-$pkgver.tgz")
+source=("https://downloads.sourceforge.net/$_realname/$_realname-$pkgver.tgz")
 
 prepare() {
   cd "$_realname-$pkgver"

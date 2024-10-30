@@ -1,49 +1,50 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=flux
-pkgver=0.149.0
+pkgver=0.15.2
 pkgrel=1
 pkgdesc='Lightweight scripting language for querying databases and working with data'
 arch=('x86_64')
 groups=('dev-lang')
-url='https://github.com/influxdata/flux'
-license=('MIT')
-depends=('gcc-libs')
-makedepends=('git' 'go' 'cargo' 'clang')
-source=("git+https://github.com/influxdata/flux#tag=v$pkgver")
-sha512sums=('SKIP')
-
-getsrc() {
-    git clone https://github.com/influxdata/flux
-}
+url="https://fluxcd.io/"
+license=("apache")
+depends=("glibc")
+makedepends=('go>=1.16', 'kustomize>=3.0')
+optdepends=('kubectl: for apply actions on the Kubernetes cluster',
+'bash-completion: auto-completion for flux in Bash',
+'zsh-completions: auto-completion for flux in ZSH')
+source=(
+  "${pkgname}-${pkgver}.tar.gz::https://github.com/fluxcd/flux2/archive/v${pkgver}.tar.gz"
+)
+sha512sums=('33390c6ab0feb57d874840a26740bc48b7d7577b35b2928eacec9931cc92ae213c0f2f44e164a88779501e50affd1cb3193b05b7185f685cfdf00f698abb2e04')
+b2sums=('e12ba4e2f0099f17ad06532805ce9711db4722060ac96d0692f14fc4996ca99d7d9849cd7d44de3146b62b3d5a3006b1d4acb85d2927c3e896f71a9014de62d0')
 
 build() {
-    cd flux
+  cd "flux2-${pkgver}"
+  export CGO_LDFLAGS="$LDFLAGS"
+  export CGO_CFLAGS="$CFLAGS"
+  export CGO_CXXFLAGS="$CXXFLAGS"
+  export CGO_CPPFLAGS="$CPPFLAGS"
+  export GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  ./manifests/scripts/bundle.sh "${PWD}/manifests" "${PWD}/cmd/flux/manifests"
+  go build -ldflags "-linkmode=external -X main.VERSION=${pkgver}" -o ${pkgname} ./cmd/flux
+}
 
-    export CGO_CPPFLAGS="${CPPFLAGS}"
-    export CGO_CFLAGS="${CFLAGS}"
-    export CGO_CXXFLAGS="${CXXFLAGS}"
-    export CGO_LDFLAGS="${LDFLAGS}"
-    export GOFLAGS='-buildmode=pie -trimpath -ldflags=-linkmode=external -mod=readonly -modcacherw'
-    export PKG_CONFIG=$PWD/pkg-config
-
-    go build -o pkg-config github.com/influxdata/pkg-config
-    go build ./cmd/flux
-
-    target=$(
-        eval $(rustc --print cfg | grep target)
-        echo $target_arch-$target_vendor-$target_os-$target_env
-    )
-    mv libflux/target/$target/release/libflux.so .
+check() {
+  cd "flux2-${pkgver}"
+  make test
 }
 
 package() {
-    cd flux
+  cd "flux2-${pkgver}"
+  install -Dm755 ${_srcname} "${pkgdir}/usr/bin/${pkgname}"
+  install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
-    install -Dm775 libflux.so -t "$pkgdir/usr/lib"
-    install -Dm775 flux -t "$pkgdir/usr/bin"
-    install -Dm644 LICENSE -t "$pkgdir/usr/share/licenses/flux"
+  "${pkgdir}/usr/bin/${_srcname}" completion bash | install -Dm644 /dev/stdin "${pkgdir}/usr/share/bash-completion/completions/${_srcname}"
+  "${pkgdir}/usr/bin/${_srcname}" completion fish | install -Dm644 /dev/stdin "${pkgdir}/usr/share/fish/vendor_completions.d/${_srcname}.fish"
+  "${pkgdir}/usr/bin/${_srcname}" completion zsh | install -Dm644 /dev/stdin "${pkgdir}/usr/share/zsh/site-functions/_${_srcname}"
 }
+

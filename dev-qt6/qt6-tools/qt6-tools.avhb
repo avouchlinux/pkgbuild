@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-tools
-pkgver=6.7.3
+pkgver=6.8.0
 pkgrel=1
 _realname=${pkgname/6-/}
 _tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
@@ -28,27 +28,16 @@ makedepends=(clang
 optdepends=('clang: for qdoc and lupdate'
             'litehtml: for assistant'
             'qt6-declarative: for qdoc and lupdate')
-# source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
-source=(git+https://code.qt.io/qt/$_realname#tag=v$pkgver
-        git+https://code.qt.io/playground/qlitehtml)
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
+# source=(git+https://code.qt.io/qt/$_realname#tag=v$pkgver
+#         git+https://code.qt.io/playground/qlitehtml)
 sha256sums=('41a81ffdf6411a5f350f7c7099c1431fbd5ff009e3e0cd5f236f7fec9544c5e1'
             'SKIP')
 
-prepare() {
-  cd $_realname
-  git submodule init
-  git submodule set-url src/assistant/qlitehtml "$srcdir"/qlitehtml
-  git -c protocol.file.allow=always submodule update
-  git submodule update --init --recursive
-
-  git cherry-pick -n 46ffaed90df8c14d67b4b16fdf5e0b87ab227c88 # Fix crash in Designer
-}
-
 build() {
-  cmake -B build -S $_realname -G Ninja \
+  cmake -B build -S $_tarname -G Ninja \
     -DINSTALL_PUBLICBINDIR=usr/bin \
-    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
-    -DFEATURE_clang=OFF # Clang 19.1.1 build failed, revisit
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
   cmake --build build
 }
 

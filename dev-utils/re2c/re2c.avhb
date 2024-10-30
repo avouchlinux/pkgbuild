@@ -1,31 +1,38 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=re2c
-pkgver=1.0.1
+pkgver=3.1
 pkgrel=1
+epoch=1
 pkgdesc='A tool for generating C-based recognizers from regular expressions'
 arch=('x86_64')
 groups=('dev-utils')
+url="https://github.com/google/re2"
 depends=(gcc-libs)
-url='http://re2c.sourceforge.net/'
-license=(GPL)
-source=(http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+makedepends=(cmake)
+checkdepends=(python)
+url='https://re2c.org'
+license=('public domain')
+source=(re2c-$pkgver.tar.gz::https://github.com/skvadrik/re2c/archive/$pkgver.tar.gz)
+sha256sums=('087c44de0400fb15caafde09fd72edc7381e688a35ef505ee65e0e3d2fac688b')
 
 build() {
-	cd $pkgname-$pkgver
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  cmake -B build -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
 }
 
 check() {
-	cd $pkgname-$pkgver
-	make tests
+  cd $pkgname-$pkgver
+  cmake --build build --target check
 }
 
 package() {
-	cd $pkgname-$pkgver
-	make DESTDIR="$pkgdir" install
+  cd $pkgname-$pkgver
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
+

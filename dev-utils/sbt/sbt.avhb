@@ -1,29 +1,48 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sbt
 epoch=1
-pkgver=1.9.7
+pkgver=1.10.3
 pkgrel=1
 pkgdesc='The interactive build tool'
 arch=('any')
 groups=('dev-utils')
 url='https://www.scala-sbt.org/'
-license=('BSD')
+license=('Apache-2.0')
+_jdkver=8
 depends=('java-runtime-headless' 'sh')
+makedepends=('sbt' 'git' "jdk${_jdkver}-openjdk")
 optdepends=('rsync: offline installation support')
-IFS='.' read -a _pkgver <<< "${pkgver}"
-_majorver=${_pkgver[0]}.x
 install=sbt.install
-source=(https://github.com/${pkgname}/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tgz{,.asc}
-        LICENSE)
+options=(!debug)
+source=(git+https://github.com/sbt/sbt.git#tag=v${pkgver})
 validpgpkeys=('2EE0EA64E40A89B84B2DF73499E82A75642AC823') # sbt build tool
-sha512sums=('7fb230f892567ec37938cbbcd771611e80c4684ec165781ceed8fbc391648f9a68f2254da1cadf8e8b6c615001c16508c825b3cdda6a8969d3fcb37de962d701'
-            'SKIP'
-            '49fefd36f8e3e796efd2b95aec76781832f64163445b6ebba624e385446bcbd308e27a82770b5e7b1ce7d4cd406d771549f0a121f1310611c92b3e15bff209d0')
+sha256sums=('b9923ebdbbf1c0634efba78539b322144e475167dcd4b2453c0e1e0bbbe30cb1')
+b2sums=('4dc7a5b210c7d8d311f23cb0a08e05a9d0f51354d72131743fc1c97dd52a625e246bb4421f67af4aecc3eef1f291477aaa4ea8eb1df52c28a013efe64b4f6d2a')
 backup=(etc/${pkgname}/sbtopts)
+
+build() {
+  cd "${pkgname}/launcher-package"
+  export JAVA_HOME="/usr/lib/jvm/java-$_jdkver-openjdk"
+  export PATH="/usr/lib/jvm/java-$_jdkver-openjdk/bin:$PATH"
+  sbt \
+    -Dsbt.build.version=${pkgver} \
+    -Dsbt.build.offline=false \
+    clean \
+    universal:packageBin \
+    universal:packageZipTarball
+  tar -xf target/universal/sbt.tgz -C "${srcdir}"
+}
+
+check() {
+  cd "${pkgname}"
+  export JAVA_HOME="/usr/lib/jvm/java-$_jdkver-openjdk"
+  export PATH="/usr/lib/jvm/java-$_jdkver-openjdk/bin:$PATH"
+  sbt test
+}
 
 package() {
   cd "${pkgname}"
@@ -32,7 +51,7 @@ package() {
   cp -r bin "${pkgdir}"/usr/share/${pkgname}
   rm "${pkgdir}"/usr/share/${pkgname}/bin/*{.bat,.exe,-darwin}
   chmod -x "${pkgdir}"/usr/share/${pkgname}/bin/*
-  chmod +x "${pkgdir}"/usr/share/${pkgname}/bin/{sbt,sbtn-x86_64-pc-linux}
+  chmod +x "${pkgdir}"/usr/share/${pkgname}/bin/{sbt,sbtn-${CARCH}-pc-linux}
   mkdir -p "${pkgdir}"/usr/bin
   ln -s /usr/share/${pkgname}/bin/sbt "${pkgdir}"/usr/bin/sbt
 
@@ -41,5 +60,6 @@ package() {
   rm "${pkgdir}"/etc/${pkgname}/sbtconfig.txt
   ln -s /etc/${pkgname} "${pkgdir}"/usr/share/${pkgname}/conf
 
-  install -D "${srcdir}"/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}
+  install -D LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}
 }
+

@@ -41,7 +41,7 @@ makedepends=(
 checkdepends=(ttf-dejavu)
 source=(
   # librsvg tags use SSH signatures which makepkg doesn't understand
-  "git+https://gitlab.gnome.org/GNOME/librsvg.git#tag=$pkgver"
+  "https://download.gnome.org/sources/librsvg/2.59/$pkgbase-$pkgver.tar.xz"
 )
 b2sums=('6cf8c04102d4f9afea32999b44c31b858ef82d9f320581e9a88e39a42b51c40feeba524de914d5b6c84128d603c4f04d8aa66b57ed613f942fce1c25bc1bff91')
 
@@ -52,7 +52,7 @@ export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
 export CARGO_PROFILE_RELEASE_DEBUG=2
 
 prepare() {
-  cd librsvg
+  cd $pkgbase-$pkgver
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
 }
 
@@ -61,7 +61,7 @@ build() {
     -D avif=enabled
   )
 
-  arch-meson librsvg build "${meson_options[@]}"
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 

@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=keycloak
-pkgver=18.0.1
-_java=11
+pkgver=26.0.1
+_java=21
 pkgrel=1
 pkgdesc="Open Source Identity and Access Management For Modern Applications and Services"
 arch=('any')
@@ -24,18 +24,19 @@ source=(https://github.com/keycloak/keycloak/archive/$pkgver/$pkgname-$pkgver.ta
         keycloak.sysusers
         keycloak.tmpfiles
         common.sh
-        pin-java-version.patch)
-sha512sums=('e058cb91331545022e4aecfea1e2dff4978503bd3e45a1b9ac6bc04211914796e224f502d1e96cf7a2fa66d957fb508d6a5b7235ddd3dc2062789fa2491aa029'
-            '1512520528b6893997b8a3c4899fbb84a897f604f279f64fc1228785a27544499f1c8951f8997129fb2b857d2d3c11b09fb9493f83faa20a0594c759adbe0823'
+        pin-java-version.patch
+)
+sha512sums=('5ac81a157a5174f0221ba1f6e0d1673adc69d5ec2e00ac4db99d6c04f76a121079103662f3ab055fc220fc967567830d8efd1ee0280018ddb48a960424a1f1da'
+            '850628262b0d641e4284f566593590e6c0e91a6a3854c6817503e2c1dcaa6034aeefbe7e2ea4766f5f5536df279613b1e0472d13b41e8a4c58031f384b5a859a'
             '2e2ba147007ad74e38579a8838d79de47beac509b4bd1a14d7f80905953d79a7396d781f141b461ec688f5ceef9a1081a825a4ca8afc1ea12c178d8ae7f5a7dd'
             '155db40105c08d0aaa810ca5533dc16fc9f82060280541ede6fafd754d30b4844f6d10ace1417a5ad68d89fc54e1b9e6d906ce7ccf973f4ac964422211ed9a72'
-            '4ae3f9fc42bfee602480c1c8cc2d65b44305622b426b74070758fe1c92a06ff12901ffebacbfe2ba34cbf783a8787f6073f74db3674c96e7a6109ed5b45d3a07'
-            'c0351896427c7b7b73f446481a30dc735365a91541e7039cd613d1c7357c55c9559e388bc260e004c2a52211df1d23d9e24cc9c8ca956398f6e508ef96cb0ee2')
+            'e8b82a9cb21a028389e9305d4920b1e4cb2ee0cf738f06198dbc9524412b71d11cd21e00ae9cf005305af7ca369606426c86dffb98d9b78f6883b91772f127eb'
+            '907ca315537d753ea0c3203487818d5d10a5f4b6f60a117027c6f76ffc4d97bd332a3503621a2f3d053839dc2a3f56b49b83fa7ba5b6fb002bb548285101f1c7')
 
 prepare() {
   cd $pkgname-$pkgver
 
-  patch -Np1 -i "$srcdir"/pin-java-version.patch
+  # patch -Np1 -i "$srcdir"/pin-java-version.patch
 }
 
 build() {
@@ -47,7 +48,8 @@ build() {
     -DskipTestsuite \
     -DskipExamples \
     -DskipTests \
-    clean package
+    -Dproject.build.outputTimestamp="$SOURCE_DATE_EPOCH" \
+    clean install
 }
 
 package() {
@@ -83,3 +85,5 @@ package() {
 
   install -Dm 644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.txt"
 }
+
+

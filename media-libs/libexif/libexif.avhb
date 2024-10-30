@@ -7,6 +7,7 @@ pkgname=libexif
 pkgver=0.6.24
 pkgrel=1
 pkgdesc="A library to parse an EXIF file and read the data from those tags"
+url='https://github.com/libexif/libexif'
 arch=('x86_64')
 groups=('media-libs')
 license=('LGPL')
@@ -34,3 +35,4 @@ package() {
   cd ${pkgname}-${pkgver}
   make DESTDIR="${pkgdir}" install
 }
+

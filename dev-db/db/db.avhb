@@ -26,21 +26,21 @@ prepare() {
 	# core, ~300MB each. This patch uses links instead, saves a lot of space.
 	patch -Np1 -i "${srcdir}"/db-6.0.20-test-link.patch
 
-	# patch -Np1 -i "${srcdir}"/db-4.8.30-tls-configure.patch
+	patch -Np1 -i "${srcdir}"/db-4.8.30-tls-configure.patch
+	
+	
 }
 build() {
   cd ${pkgname}-${pkgver}/build_unix
     # No Parallel build
-  export MAKE_EXTRA_FLAGS=""
   ../dist/configure \
     --prefix=/usr \
     --enable-compat185 \
     --enable-shared \
     --enable-static \
     --enable-cxx \
-    --enable-dbm \
-    --enable-stl
-  make LIBSO_LIBS=-lpthread -j1
+    --enable-dbm
+  make LIBSO_LIBS=-lpthread
 }
 
 package() {

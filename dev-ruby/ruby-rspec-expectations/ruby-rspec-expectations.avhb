@@ -1,0 +1,36 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_gemname=rspec-expectations
+pkgname=ruby-${_gemname}
+pkgver=3.13.3
+pkgrel=1
+pkgdesc='Provides a readable API to express expected outcomes of a code example'
+url='https://github.com/rspec/rspec-expectations'
+arch=('any')
+groups=('dev-ruby')
+license=('MIT')
+depends=(
+  ruby
+  ruby-diff-lcs
+  ruby-rspec-support
+)
+makedepends=(
+  ruby-rdoc
+)
+options=('!emptydirs')
+source=(https://rubygems.org/downloads/${_gemname}-${pkgver}.gem)
+noextract=(${_gemname}-${pkgver}.gem)
+sha512sums=('887d378bccf08f8f42dd3b580dc67dac0d91b7e08a23ab924bd8d618fae2f37132048b473a288a9f1c40096271e4312c28fc91383a074eda53d62939bb8c58fe')
+
+package() {
+  local _gemdir="$(ruby -e'puts Gem.default_dir')"
+  gem install --ignore-dependencies --no-user-install -i "${pkgdir}${_gemdir}" -n "${pkgdir}/usr/bin" ${_gemname}-${pkgver}.gem
+  install -Dm 644 "${pkgdir}${_gemdir}/gems/${_gemname}-${pkgver}/LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm 644 "${pkgdir}${_gemdir}/gems/${_gemname}-${pkgver}/README.md" "${pkgdir}/usr/share/doc/${pkgname}/README"
+  rm "${pkgdir}/${_gemdir}/cache/${_gemname}-${pkgver}.gem"
+}
+
+# vim: ts=2 sw=2 et:

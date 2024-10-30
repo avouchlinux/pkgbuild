@@ -1,21 +1,21 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=diffutils
-pkgver=3.8
+pkgver=3.10
 pkgrel=1
 pkgdesc="Utility programs used for creating patch files"
 arch=('x86_64')
 groups=('dev-utils')
-url="http://www.gnu.org/software/diffutils"
+url='https://www.gnu.org/software/diffutils'
 license=('GPL3')
 depends=('glibc' 'bash')
 validpgpkeys=('155D3FC500C834486D1EEA677FD9FCCB000BEEEE') # Jim Meyering
 source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
-md5sums=('4824adc0e95dbbf11dfbdfaad6a1e461'
-         'SKIP')
+sha256sums=('90e5e93cc724e4ebe12ede80df1634063c7a855692685919bfe60b556c9bd09e'
+            'SKIP')
 
 prepare() {
   cd $pkgname-$pkgver
@@ -25,23 +25,24 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    message "Applying patch $src..."
+    msg2 "Applying patch $src..."
     patch -Np1 < "../$src"
   done
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd $pkgname-$pkgver
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR=${pkgdir} install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }
+

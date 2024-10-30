@@ -1,24 +1,56 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kalzium
-pkgver=24.08.1
+pkgver=24.08.2
 pkgrel=1
 pkgdesc="Periodic Table of Elements"
-url="http://kde.org/applications/education/kalzium/"
+url='https://apps.kde.org/kalzium/'
 arch=('x86_64')
 groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('kdebase-runtime' 'avogadro' 'chemical-mime-data')
-makedepends=('cmake' 'automoc4' 'mesa' 'eigen' 'facile' 'ocaml')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/kalzium-${pkgver}.tar.xz")
-sha1sums=('ca68516e652e5adeb74ea11f51c3ed71859dd42c')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(avogadrolibs
+         avogadrolibs-qt5
+         gcc-libs
+         glibc
+         kcompletion5
+         kconfig5
+         kconfigwidgets5
+         kcoreaddons5
+         ki18n5
+         kio5
+         kitemviews5
+         knewstuff5
+         kplotting5
+         ktextwidgets5
+         kwidgetsaddons5
+         kxmlgui5
+         kunitconversion5
+         openbabel
+         qt5-base
+         qt5-script
+         qt5-svg)
+makedepends=(eigen
+             extra-cmake-modules
+             facile
+             kdoctools5
+             ocaml
+             python)
+groups=(kde-applications
+        kde-education)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('9b8c8ef30333c23ab29bb9bce3d7324cf9dd1a36af481d326d2c7b6324b2b357'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
   	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
+		    -DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
         -DBUILD_TESTING=OFF
   cmake --build build

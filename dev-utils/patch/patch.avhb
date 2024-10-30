@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,7 +9,7 @@ pkgrel=1
 pkgdesc="A utility to apply patch files to original sources"
 arch=('x86_64')
 groups=('dev-utils')
-url="http://www.gnu.org/software/patch/patch.html"
+url='https://www.gnu.org/software/patch/'
 license=('GPL')
 depends=('glibc' 'attr')
 makedepends=('ed')
@@ -23,6 +23,8 @@ source=("https://ftp.gnu.org/gnu/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig}
         '19599883ffb6a450d2884f081f8ecf68edbed7ee.patch' # Fix memory leaks introduced in CVE-2018-1000165
         'https://github.com/mirror/patch/commit/369dcccdfa6336e5a873d6d63705cfbe04c55727.patch'
         'https://github.com/mirror/patch/commit/9c986353e420ead6e706262bf204d6e03322c300.patch' # CVE-2018-6952
+        'test-read-only.patch'
+        'https://github.com/mirror/patch/commit/61d7788b83b302207a67b82786f4fd79e3538f30.patch' # FS#78539
         )
 sha256sums=('ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd'
             'SKIP'
@@ -32,7 +34,9 @@ sha256sums=('ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd'
             '473f8a7fa8152a3c7803633e2a3072dab545b74377ea618451ceda4283643364'
             '6d64a8b8ddfb802ec0aa804388eb5ef51ac808c7a5c111d10490c270eb4fe727'
             'e1fc8a8aa2cad71b2a6207241ea71a33a7e3dacb8533ad54af35170c5a6562d1'
-            '4b9e81985ca057fa39daed34a4710eb113f08b3d1ce77a7121ddd8e3fae8007a')
+            '4b9e81985ca057fa39daed34a4710eb113f08b3d1ce77a7121ddd8e3fae8007a'
+            'cce641860eeb7d02f7f3430337e35b76d3c87b615a53dbdf0b0f588f0f9dc57b'
+            '2107c03d5e207e56fb2e6ac281a1778343b58536c3a053d24d258f80c3976c42')
 
 prepare() {
   cd $pkgname-$pkgver
@@ -42,7 +46,7 @@ prepare() {
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    message "Applying patch $src..."
+    msg2 "Applying patch $src..."
     patch -Np1 < "../$src"
   done
   autoreconf -fiv
@@ -51,15 +55,16 @@ prepare() {
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {
   cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

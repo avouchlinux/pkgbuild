@@ -1,0 +1,53 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libsidplayfp
+pkgver=2.10.0
+pkgrel=1
+pkgdesc='Library to play Commodore 64 music'
+arch=('x86_64')
+groups=(media-sound)
+url='https://github.com/libsidplayfp/libsidplayfp'
+license=('GPL-2.0-only')
+depends=('glibc' 'gcc-libs' 'libgcrypt')
+makedepends=('git' 'vice' 'xa')
+optdepends=('vice: better SID support')
+source=(
+  "$pkgname::git+$url#tag=v$pkgver"
+  'github.com-libsidplayfp-exsid-driver::git+https://github.com/libsidplayfp/exsid-driver'
+  'github.com-libsidplayfp-resid::git+https://github.com/libsidplayfp/resid'
+)
+sha512sums=('018122a8bd979316db4d671214b354a74a2fa34e2114156d00cd7bf2e930572a3144ebc93a16954131ce13e24bc212bfe8af9e0b4a6060d653e54e4c7a57dc3c'
+            'SKIP'
+            'SKIP')
+b2sums=('c8d7cdb3974bf8b3b9caae47b3ea0ec7bf6dde281d9ce11502493e70d5cfb69ff969d0890512c91d24ef2195ae24e9f334beb5af47fdd620432fe213bb16dee8'
+        'SKIP'
+        'SKIP')
+
+prepare() {
+  cd "$pkgname"
+
+  # prepare git submodule(s)
+  git submodule init
+  git config submodule.src/builders/exsid-builder/driver.url "$srcdir/github.com-libsidplayfp-exsid-driver"
+  git config submodule.src/builders/resid-builder/resid.url "$srcdir/github.com-libsidplayfp-resid"
+  git -c protocol.file.allow=always submodule update
+}
+
+build() {
+  cd "$pkgname"
+
+  autoreconf -vfi
+
+  ./configure --prefix=/usr
+
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+  make
+}
+
+package() {
+  DESTDIR="$pkgdir" make -C "$pkgname" install
+}

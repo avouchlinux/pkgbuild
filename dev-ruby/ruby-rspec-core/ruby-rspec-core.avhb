@@ -1,0 +1,35 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_gemname=rspec-core
+pkgname=ruby-${_gemname}
+pkgver=3.13.1
+pkgrel=1
+pkgdesc='RSpec runner and formatters'
+url='https://github.com/rspec/rspec-core'
+arch=('any')
+groups=('dev-ruby')
+license=('MIT')
+depends=(
+  ruby-erb
+  ruby-rspec-support
+)
+makedepends=(
+  ruby-rdoc
+)
+options=('!emptydirs')
+source=(https://rubygems.org/downloads/${_gemname}-${pkgver}.gem)
+noextract=(${_gemname}-${pkgver}.gem)
+sha512sums=('c6b906fab43ece1145480331372094eb9c02059d8aa7903b22d9bca3e6f76f34e68cfcf3b40a64ff5b00b22e564d135f03c93934bc05cba9ec5d1b1cda0e2769')
+
+package() {
+  local _gemdir="$(gem environment gemdir)"
+  gem install --ignore-dependencies --no-user-install -i "${pkgdir}${_gemdir}" -n "${pkgdir}/usr/bin" ${_gemname}-${pkgver}.gem
+  install -Dm 644 "${pkgdir}${_gemdir}/gems/${_gemname}-${pkgver}/LICENSE.md" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm 644 "${pkgdir}${_gemdir}/gems/${_gemname}-${pkgver}/README.md" "${pkgdir}/usr/share/doc/${pkgname}/README"
+  rm "${pkgdir}/${_gemdir}/cache/${_gemname}-${pkgver}.gem"
+}
+
+# vim: ts=2 sw=2 et:

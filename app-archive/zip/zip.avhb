@@ -13,7 +13,7 @@ groups=('app-archive')
 url='http://www.info-zip.org/Zip.html'
 arch=('x86_64')
 license=('custom')
-depends=('bzip2')
+depends=('bzip2' 'libnatspec')
 source=("https://downloads.sourceforge.net/infozip/${pkgname}${_pkgver}.tar.gz"
         'https://src.fedoraproject.org/rpms/zip/raw/rawhide/f/zip-3.0-currdir.patch'
         'https://src.fedoraproject.org/rpms/zip/raw/rawhide/f/zip-3.0-exec-shield.patch'
@@ -35,6 +35,18 @@ prepare() {
 	patch -p1 -i ../zip-3.0-exec-shield.patch
 	patch -p1 -i ../zip-3.0-format-security.patch
 	patch -p1 -i ../zipnote.patch
+
+	# Patch from Gentoo
+	patch -p1 -i ../zip-3.0-build.patch
+	patch -p1 -i ../zip-3.0-clang-15-configure-tests.patch
+	patch -p1 -i ../zip-3.0-exec-stack.patch
+	patch -p1 -i ../zip-3.0-format-security.patch
+	patch -p1 -i ../zip-3.0-natspec.patch
+	patch -p1 -i ../zip-3.0-no-crypt.patch
+	patch -p1 -i ../zip-3.0-pic.patch
+	# patch -p1 -i ../zip-3.0-zipnote-freeze.patch
+
+
 }
 
 build() {

@@ -1,20 +1,22 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=asciidoctor
-pkgver=2.0.10
+pkgver=2.0.23
 pkgrel=1
 pkgdesc='An implementation of AsciiDoc in Ruby'
 arch=('any')
 groups=('dev-ruby')
-url='http://asciidoctor.org'
+url='https://asciidoctor.org'
 license=('MIT')
 makedepends=('ruby-rdoc')
 depends=('ruby')
-options=(!emptydirs)
+options=('!emptydirs')
 source=("https://rubygems.org/downloads/${pkgname}-${pkgver}.gem")
 noextract=("$pkgname-$pkgver.gem")
+sha512sums=('61aeb0c78438b61cdd7caf31840c82fc68d94ed296e381927c1e3a0b36be5bc29a025a7d9a076c19293f1c8b69056120f0493456106eeeb4a083afb59a414328')
 
 package() {
     local _gemdir="$(ruby -e 'puts Gem.default_dir')"
@@ -31,3 +33,4 @@ package() {
     rm "$pkgdir/$_gemdir/cache/$pkgname-$pkgver.gem"
     rm -rf "$pkgdir/$_gemdir/gems/$pkgname-$pkgver/man"
 }
+

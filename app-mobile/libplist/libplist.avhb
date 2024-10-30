@@ -4,37 +4,48 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libplist
-pkgver=2.2.0
+pkgver=2.6.0
 pkgrel=1
 pkgdesc="A library to handle Apple Property List format whereas it's binary or XML"
 arch=('x86_64')
 groups=('app-mobile')
-url="http://libimobiledevice.org/"
-license=('GPL2' 'LGPL2.1')
-depends=('glib2')
-makedepends=('python3' 'cython' 'autoconf-archive' 'git' 'python-setuptools')
-options=('!makeflags')
-source=("https://github.com/libimobiledevice/libplist/archive/refs/tags/$pkgver.tar.gz")
+url='https://libimobiledevice.org/'
+license=(LGPL-2.1-or-later)
+depends=(
+  gcc-libs
+  glibc
+)
+makedepends=(
+  cython
+  git
+  python-setuptools
+)
+optdepends=('python: Python bindings')
+source=("git+https://github.com/libimobiledevice/libplist.git#tag=$pkgver")
+b2sums=(b122bd4ec6f0b88cf1e7159f8beff6d702d755f47624765a324c2ffb8011d834d81ff422433e87f72d3ace67f7909e9197a263dc82428e2f38d31315fc0ff2d2)
 
 prepare() {
-  cd ${pkgname}-${pkgver}
-  NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname
+  autoreconf -fi
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
-  ./configure --prefix=/usr
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
 }
 
 check() {    
-  cd ${pkgname}-${pkgver}
+  cd $pkgname
   make check  
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
+  cd $pkgname
   make DESTDIR="$pkgdir" install
-  install -D -m644 cython/plist.pxd "${pkgdir}"/usr/include/plist/cython/plist.pxd
 }
+

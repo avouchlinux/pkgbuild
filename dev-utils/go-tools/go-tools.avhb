@@ -1,68 +1,54 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=go-tools
-epoch=2
-pkgver=1.14+6180+49ce184b
+epoch=4
+pkgver=0.26.0
 pkgrel=1
 pkgdesc='Developer tools for the Go programming language'
 arch=('x86_64')
 groups=('dev-utils')
 url='https://golang.org/'
-license=(BSD)
+license=(BSD-3-Clause)
 depends=(glibc)
-makedepends=(git go-pie)
-_commit=575de47986ce07f39826bf8d5e365d5ebf51ee63
-_net_commit=ef20fe5d793301b553005db740f730d87993f778
-source=(go-tools::git+https://go.googlesource.com/tools#commit=$_commit
-        golang-net::git+https://github.com/golang/net#commit=$_net_commit)
+makedepends=(git go)
+source=(go-tools::git+https://go.googlesource.com/tools#tag=v$pkgver)
+sha256sums=('a1713523619638ad9dc651f07df8b0a6d97dc0579af427ff497789439bdc2f2b')
 
-_tools=(benchcmp callgraph compilebench cover digraph eg fiximports
-        go-contrib-init godex godoc goimports gomvpkg gorename gotype 
-        goyacc guru html2article present ssadump stringer toolstash)
-
-getsrc() {
-  git clone https://go.googlesource.com/tools
-  git clone https://github.com/golang/net
-
-  mv tools go-tools
-  mv net go-net
-}
-
-pkgver() {
-
-  local _gover=1.14
-  cd go-tools
-  printf "%s+%s+%s" $_gover "$(git rev-list --count HEAD)" \
-    "$(git rev-parse --short HEAD)"
-}
+_tools=(benchcmp callgraph compilebench digraph eg fiximports
+        go-contrib-init godex godoc goimports gomvpkg gotype 
+        goyacc html2article present ssadump stringer toolstash)
 
 prepare() {
-  mkdir -p gopath/src/golang.org/x
-  cp -rf go-tools gopath/src/golang.org/x/tools
-  cp -rf go-net gopath/src/golang.org/x/net
+    cd tools
+    mkdir -p bin/
 }
 
 build() {
-  export GOPATH="$srcdir/gopath"
-  cd gopath/src/golang.org/x/tools
-  go install -v -a -trimpath ./cmd/...
+  cd tools
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export GOFLAGS="-buildmode=pie -mod=readonly -modcacherw"
+  go build -ldflags "-compressdwarf=false -linkmode external" -o bin/ ./cmd/...
 }
 
 check() {
-  export GOPATH="$srcdir/gopath"
-  cd gopath/src/golang.org/x/tools
+  cd tools
   # Needs to be updated and godoc is failing the test suite
   # See https://github.com/golang/go/issues/35690
-  go test ./cmd/... || true
+  go test ./cmd/...  || true
 }
 
 package() {
+  cd tools
   for tool in ${_tools[@]}; do
-    install -Dm755 gopath/bin/$tool "$pkgdir/usr/bin/$tool"
+    install -Dm755 bin/$tool "$pkgdir/usr/bin/$tool"
   done
 
-  install -Dm644 go-tools/LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+

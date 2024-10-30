@@ -1,45 +1,46 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=fontforge
-pkgver=20200314
+pkgver=20230101
 pkgrel=1
 pkgdesc='Outline and bitmap font editor'
 url='https://fontforge.github.io/'
 arch=('x86_64')
 groups=('dev-utils')
 license=('BSD')
-makedepends=('git')
+makedepends=('cmake' 'git' 'python-setuptools' 'python-sphinx')
 depends=('libtool' 'pango' 'giflib' 'libtiff' 'libxml2' 'libspiro' 'python'
          'potrace' 'woff2' 'gtk3' 'libuninameslist')
-source=("https://github.com/${pkgname}/${pkgname}/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz")
+source=("https://github.com/${pkgname}/${pkgname}/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+        642d8a3db6d4bc0e70b429622fdf01ecb09c4c10.patch)
+sha256sums=('ca82ec4c060c4dda70ace5478a41b5e7b95eb035fe1c4cf85c48f996d35c60f8'
+            'ca4e15fca23c14851e74ad2a3551cf8426e46cf6b0c093aab43bea346a656236')
 
-prepare(){
-	cd ${pkgname}-${pkgver} 
-	# from gentoo
-	patch -Np1 -i ../20200314-stylemap.patch
-	patch -Np1 -i ../20200314-tilepath.patch
+prepare() {
+	cd "${srcdir}/${pkgname}-${pkgver}"
+	patch -Np1 -i ../642d8a3db6d4bc0e70b429622fdf01ecb09c4c10.patch
+	mkdir build
 }
 
 build() {
-  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DCMAKE_BUILD_TYPE=Release \
-	-DENABLE_MAINTAINER_TOOLS=TRUE \
-	-DENABLE_FONTFORGE_EXTRAS=TRUE \
-	-DUNIX=TRUE \
-	-DENABLE_TILE_PATH=ON \
-	-DENABLE_DOCS=OFF # help build failed with ON
-  ninja -C build
-}
+	cd "${srcdir}/${pkgname}-${pkgver}/build"
 
-check() {
-  ninja -C build test
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DENABLE_MAINTAINER_TOOLS=TRUE \
+		-DENABLE_FONTFORGE_EXTRAS=TRUE \
+		-DUNIX=TRUE \
+		..
+	make
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+	cd "${srcdir}/${pkgname}-${pkgver}/build"
+	make DESTDIR="${pkgdir}" install
+	install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

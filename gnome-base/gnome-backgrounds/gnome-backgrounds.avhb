@@ -10,7 +10,12 @@ pkgdesc="Background images and data for GNOME"
 url="https://gitlab.gnome.org/GNOME/gnome-backgrounds"
 arch=(any)
 groups=('gnome-base')
-makedepends=(glib2 meson)
+depends=(libjxl)
+makedepends=(
+  glib2
+  git
+  meson
+)
 license=(GPL)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 

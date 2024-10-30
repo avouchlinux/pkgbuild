@@ -9,6 +9,7 @@ pkgrel=1
 pkgdesc='Lightweight unit testing framework for C++'
 url='https://github.com/unittest-cpp/unittest-cpp/'
 arch=('x86_64')
+groups=('dev-utils')
 license=('MIT')
 depends=('gcc-libs')
 makedepends=('cmake')
@@ -41,4 +42,3 @@ package() {
   install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
-# vim: ts=2 sw=2 et:

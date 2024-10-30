@@ -4,18 +4,33 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-dbus-proxy
-pkgver=0.1.5
+pkgver=0.1.6
 pkgrel=1
 pkgdesc='D-Bus proxy'
 arch=('x86_64')
 groups=('dev-utils')
-url='https://github.com/flatpak/xdg-dbus-proxy'
-license=(LGPL2.1)
-depends=(glib2)
-source=($url/releases/download/$pkgver/${pkgname}-${pkgver}.tar.xz)
+url="https://github.com/flatpak/xdg-dbus-proxy"
+license=(LGPL-2.1-or-later)
+depends=(
+  dbus
+  gcc-libs
+  glib2
+  glibc
+)
+makedepends=(
+  docbook-xsl
+  git
+  meson
+)
+source=("git+$url#tag=$pkgver")
+b2sums=('fca110423a5657ddc4c197024935ea6794ea2d028678feb5ac0aefc5241b634149e32b230e5eeaee62a8a3d235fd1dfecf803a0bcdfaab7072372ee9141fc945')
+
+prepare() {
+  cd $pkgname
+}
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname build
   meson compile -C build
 }
 
@@ -26,3 +41,4 @@ check() {
 package() {
   meson install -C build --destdir "$pkgdir"
 }
+

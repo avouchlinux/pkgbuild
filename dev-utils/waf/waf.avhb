@@ -1,36 +1,46 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=waf
-pkgver=2.0.22
+pkgver=2.1.2
 pkgrel=1
 pkgdesc="General-purpose build system modelled after Scons"
 arch=('any')
 groups=('dev-utils')
 url="http://waf.io/"
-arch=('any')
-license=('BSD')
-depends=('python')
-makedepends=('unzip')
-provides=('python-waf')
-source=("https://waf.io/${pkgname}-${pkgver}.tar.bz2"{,.asc}
-        'building-waf.md')
-validpgpkeys=('8AF22DE5A06822E3474F3C7049B4C67C05277AAA') # Thomas Nagy <tnagy@waf.io>
+url="http://waf.io/"
+license=(BSD-3-Clause)
+depends=(python)
+makedepends=(
+  git
+  unzip
+)
+provides=(python-waf)
+source=(
+  git+https://gitlab.com/ita1024/waf.git?signed#tag=$pkgname-$pkgver
+  building-waf.md
+)
+sha512sums=('8d7ed7fd8b17cf9248c43373880da7195a4a0d2959dcebc22a03c251baaec28fd1aaeab3851b90523c0d487d8af6f3439c720954bb92d935252ba18d61104575'
+            'fce4e44c3eff4b87165ad4c6856c028f90437af26ed0d2e7cdef825987a60ebe16afda3238813bc2aa4f4f39df2a705a9df870f93c85e9d755d5d1636f07af70')
+b2sums=('9262ae8650afc788a74d37f89b2052e175af83e02be1f4d8bd78e5003b2f2f0f9d3d9f78530fb31e61e2c2ee9f94800a82160e1ddeb788f57ff669738eedc46e'
+        'a42039f8419417a312ccdb65a01b22c5e1133ebaa3e3a905387565bf2e3991ce3efb74f3b2fb0ec5e8408b665044946337c6ecfd4af1083ae2811aad9dc7d76e')
+validpgpkeys=(8C7EB2F93B0C45F5732FE5D11BAC571DCD772295)  # Waf Project <noreply@waf.io>
 
 prepare() {
-  local _py_ver=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
-  cd "$pkgname-$pkgver"
+  local py_ver=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
+
+  cd $pkgname
   # make waf find its waflib
-  sed -e "/test(i/ s|dirname|'python${_py_ver}/site-packages/waf'|" -i waf-light
+  sed -e "/test(i/ s|dirname|'python${py_ver}/site-packages/waf'|" -i waf-light
   # license needs to be extracted:
   # https://gitlab.com/ita1024/waf/issues/2251
   head -n 30 waf | tail -n 28 | sed -e 's/# //g; s/"""//g' > LICENSE
 }
 
 build() {
-  cd "$pkgname-$pkgver"
+  cd $pkgname
   ./waf-light \
     configure --prefix=/usr \
     build --make-waf
@@ -40,22 +50,19 @@ build() {
 }
 
 package() {
-  local _py_ver=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
-  cd "$pkgname-$pkgver"
+  local py_ver=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
+
+  cd $pkgname
   install -vDm 755 waf -t "$pkgdir/usr/bin"
-  install -vDm 644 wscript -t "$pkgdir/usr/share/$pkgname"
+  install -vDm 644 wscript -t "$pkgdir/usr/share/$pkgname/"
 
   # installing, byte-compiling waflib and stripping pkgdir from it
-  install -vDm 644 waflib/*.py \
-    -t "${pkgdir}/usr/lib/python${_py_ver}/site-packages/waf/waflib"
-  install -vDm 644 waflib/Tools/*.py \
-    -t "${pkgdir}/usr/lib/python${_py_ver}/site-packages/waf/waflib/Tools"
-  install -vDm 644 waflib/extras/*.py \
-    -t "${pkgdir}/usr/lib/python${_py_ver}/site-packages/waf/waflib/extras"
-  python -m compileall -d "/usr/lib/python${_py_ver}" \
-    "${pkgdir}/usr/lib/python${_py_ver}"
-  python -O -m compileall -d "/usr/lib/python${_py_ver}" \
-    "${pkgdir}/usr/lib/python${_py_ver}"
-  install -vDm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -vDm 644 {README,../building-waf}.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  install -vDm 644 waflib/*.py -t "$pkgdir/usr/lib/python$py_ver/site-packages/waf/waflib/"
+  install -vDm 644 waflib/Tools/*.py -t "$pkgdir/usr/lib/python$py_ver/site-packages/waf/waflib/Tools/"
+  install -vDm 644 waflib/extras/*.py -t "$pkgdir/usr/lib/python$py_ver/site-packages/waf/waflib/extras/"
+  python -m compileall -d "/usr/lib/python$py_ver" "$pkgdir/usr/lib/python$py_ver/"
+  python -O -m compileall -d "/usr/lib/python$py_ver" "$pkgdir/usr/lib/python$py_ver/"
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 {README,../building-waf}.md -t "$pkgdir/usr/share/doc/$pkgname/"
 }
+

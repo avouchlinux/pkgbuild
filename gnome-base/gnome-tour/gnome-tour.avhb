@@ -1,21 +1,45 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-tour
-pkgver=45.0
+pkgver=47.0
 pkgrel=1
 pkgdesc="GNOME's Tour & Greeter"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://www.gnome.org/"
-license=('GPL')
-depends=(glib2 gtk3 gdk-pixbuf2 libhandy appstream)
-makedepends=('meson' 'cargo' 'desktop-file-utils')
-optdepends=('gdm: GDM Initial Setup mode'
-            'gnome-getting-started-docs: GNOME Welcome Tour')
-source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+license=(GPL-3.0-or-later)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+)
+makedepends=(
+  appstream
+  git
+  meson
+  rust
+)
+source=(https://gitlab.gnome.org/GNOME/gnome-tour/-/archive/47.0/gnome-tour-47.0.tar.bz2)
+
+# Use LTO
+export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+
+# Use debug
+export CARGO_PROFILE_RELEASE_DEBUG=2
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Match CARGO_HOME in src/meson.build
+  CARGO_HOME="$srcdir/build/cargo-home" \
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+}
 
 build() {
   avouch-meson $pkgname-$pkgver build
@@ -23,16 +47,16 @@ build() {
 }
 
 check() {
-  meson test -C build --print-errorlogs
+  meson test -C build --print-errorlogs --no-rebuild
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
-  install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
+  meson install -C build --destdir "$pkgdir" --no-rebuild
+  # install -d -o root -g 70 -m 750 "$pkgdir/usr/share/polkit-1/rules.d"
 
   # Setup system user and group
-  echo 'u gnome-initial-setup - "GNOME Initial Setup" /run/gnome-initial-setup' |
-    install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
-  echo 'd /run/gnome-initial-setup 0700 gnome-initial-setup gnome-initial-setup -' |
-    install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
+  # echo 'u gnome-initial-setup - "GNOME Initial Setup" /run/gnome-initial-setup' |
+  #   install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+  # echo 'd /run/gnome-initial-setup 0700 gnome-initial-setup gnome-initial-setup -' |
+  #   install -Dm644 /dev/stdin "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
 }

@@ -1,0 +1,57 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-text-editor
+pkgver=47.1
+pkgrel=1
+pkgdesc="A simple text editor for the GNOME desktop"
+url="https://gitlab.gnome.org/GNOME/gnome-text-editor"
+arch=(x86_64)
+groups=('gnome-base')
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  dconf
+  editorconfig-core-c
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  gtksourceview5
+  hicolor-icon-theme
+  libadwaita
+  libspelling
+  pango
+)
+makedepends=(
+  appstream-glib
+  git
+  glib2-devel
+  meson
+  yelp-tools
+)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('95036b01c252d6d802f6b2cbf2f8fc4c7bcdf306960ad7871e241bd98ec3e7e0c64255a2e0a48b9c13a01fe92806189876b794f4ca2820a36d77f50b1c50ee0b')
+
+prepare() {
+  cd $pkgname-$pkgver
+}
+
+build() {
+  local meson_options=(
+    -D bugreport_url="https://github.com/avouchlinux/pkgbuild/issues"
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

@@ -1,11 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=osl
-_realname=openscop
-pkgver=0.9.2
+pkgver=0.9.7
 pkgrel=1
 pkgdesc="OpenScop Library"
 arch=(x86_64)
@@ -16,23 +15,18 @@ depends=(gmp)
 provides=(osl)
 source=(https://github.com/periscop/openscop/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz)
 
-prepare() {
-    cd ${_realname}
-    ./autogen.sh
-}
-
 build() {
-    cd ${_realname}
+    cd ${pkgname}-${pkgver}
     ./configure --prefix=/usr --with-gmp=system
-    make ${MAKEFLAGS}
+    make
 }
 
 check() {
-    cd ${_realname}
-    make ${MAKEFLAGS} check
+    cd ${pkgname}-${pkgver}
+    make check
 }
 
 package() {
-    cd ${_realname}
+    cd ${pkgname}-${pkgver}
     make DESTDIR="${pkgdir}/" install
 }
