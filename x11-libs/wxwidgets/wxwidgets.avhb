@@ -8,20 +8,23 @@ pkgname=(wxwidgets-common
          wxwidgets-gtk3
          wxwidgets-qt5)
 _realname=wxWidgets
-pkgver=3.2.4
+pkgver=3.2.6
 pkgrel=1
 arch=('x86_64')
 groups=('x11-libs')
 url='https://wxwidgets.org'
 license=(custom:wxWindows)
 makedepends=(cmake
+             git
              glu
              gst-plugins-base
              libmspack
              libnotify
+             nanosvg
              qt5-base
              sdl2
              webkit2gtk-4.1)
+
 source=(https://github.com/wxWidgets/wxWidgets/releases/download/v$pkgver/wxWidgets-$pkgver.tar.bz2
         https://github.com/wxWidgets/wxWidgets/commit/ed510012.patch
         https://github.com/wxWidgets/wxWidgets/commit/8ea22b5e.patch
@@ -33,8 +36,8 @@ sha256sums=('0640e1ab716db5af2ecb7389dbef6138d7679261fbff730d23845ba838ca133e'
 
 prepare() {
   patch -d wxWidgets-$pkgver -p1 < ed510012.patch # Fix undefined symbols in Qt build
-  patch -d wxWidgets-$pkgver -p1 < 8ea22b5e.patch # Avoid crash with GTK3 if console program is using a GUI wxApp
-  patch -d wxWidgets-$pkgver -p1 < 9174c672.patch # Fix KiCad glitches in Plasma 6
+  # patch -d wxWidgets-$pkgver -p1 < 8ea22b5e.patch # Avoid crash with GTK3 if console program is using a GUI wxApp
+  # patch -d wxWidgets-$pkgver -p1 < 9174c672.patch # Fix KiCad glitches in Plasma 6
 }
 
 build() {
@@ -50,9 +53,11 @@ build() {
     -DwxUSE_LIBPNG=sys \
     -DwxUSE_LIBTIFF=sys \
     -DwxUSE_LIBLZMA=sys \
+    -DwxUSE_NANOSVG=sys \
     -DwxUSE_LIBMSPACK=ON \
     -DwxUSE_PRIVATE_FONTS=ON \
     -DwxUSE_GTKPRINT=ON
+
   cmake --build build-gtk3
 
   cmake -B build-qt5 -S wxWidgets-$pkgver \
@@ -67,13 +72,16 @@ build() {
     -DwxUSE_LIBPNG=sys \
     -DwxUSE_LIBTIFF=sys \
     -DwxUSE_LIBLZMA=sys \
+    -DwxUSE_NANOSVG=sys \
     -DwxUSE_LIBMSPACK=ON \
     -DwxUSE_PRIVATE_FONTS=ON
+
   cmake --build build-qt5
 
 # Run configure to generate the Makefile, cmake doesn't install translations
   cd wxWidgets-$pkgver
   ./configure --prefix=/usr
+  make -C locale allmo
 }
 
 package_wxwidgets-common() {

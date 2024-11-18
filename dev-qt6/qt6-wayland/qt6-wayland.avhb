@@ -4,6 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-wayland
+_pkgver=6.8.0
 pkgver=6.8.0
 pkgrel=1
 _realname=${pkgname/6-/}
@@ -19,26 +20,17 @@ depends=(gcc-libs
          libxkbcommon
          qt6-base
          qt6-declarative
+         qt6-svg
          wayland)
 makedepends=(cmake
              git
              ninja)
-source=(git+https://code.qt.io/qt/$_realname#tag=v$pkgver)
-sha256sums=('3a92357c143e981b3eda636fb07bf4057805c83bfe732cc6634fb26a219a80a9')
-
-prepare() {
-  cd $_realname
-
-  git cherry-pick -n 92bcb8f6b7a852c7a5d662fc34de561692a7a454
-  git cherry-pick -n c2f61bc47baacf2e6a44c6c3c4e4cbf0abfa4095
-  git cherry-pick -n 406995207eae8d644b6e5262aa716a48c7e471a8
-  git cherry-pick -n 632127d7f1d86cba4dd17361f24f9fd70a0ae44c
-}
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_tarname.tar.xz")
+sha256sums=('09927060c5595c33176d7a9828b427a0934484c0741d910437a49c6cad5165d4')
 
 build() {
-  cmake -B build -S $_realname -G Ninja \
+  cmake -B build -S $_tarname -G Ninja \
     -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
-
   cmake --build build
 }
 

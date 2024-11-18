@@ -1,6 +1,7 @@
-# Maintainer: David Runge <dvzrv@archlinux.org>
-# Maintainer: Christian Heusel <gromit@archlinux.org>
-# Contributor: Eric Bélanger <eric@archlinux.org>
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 _name=Audacity
 pkgbase=audacity
@@ -8,8 +9,8 @@ pkgname=(
   audacity
   audacity-docs
 )
-pkgver=3.4.2
-pkgrel=2
+pkgver=3.7.0
+pkgrel=1
 epoch=1
 pkgdesc="A program that lets you manipulate digital audio waveforms"
 arch=(x86_64)
@@ -62,22 +63,18 @@ makedepends=(
 )
 source=(
   https://github.com/audacity/audacity/archive/refs/tags/$_name-$pkgver.tar.gz
-  https://github.com/$pkgbase/$pkgbase/releases/download/$_name-$pkgver/$pkgbase-manual-$pkgver.zip
-  audacity_3_4_2_update_vst3_cmake_args.patch
+  https://github.com/$pkgbase/$pkgbase/releases/download/$_name-$pkgver/$pkgbase-manual-$pkgver.tar.gz
   audacity_3_4_2_enable_tests_without_conan.patch
 )
-sha512sums=('a4a3bc68e46988e5538edbe6d8f42428b69e3f294b8d65337600e6806b516100d20a92135954f073c863d29767b904b781bd3a09cec40b8a85ee4463f52e1759'
-            'a840409a98ba570113e445264feac22555585c9a6e64191a3d90d693f55325d9bf0a028869828f0ad3074e451087563ef47064d2774348184fe62bbd88dfde5f'
-            '075ab510b28ce96be049bc62d11d4f978090268376e76865fc41424d2f76ec79f9625ab5479aee488bf357c773346fefd2e0cc3884acb5ba14083c4e79276e35'
+sha512sums=('849fe662339ea64d9c9b5d9982a7c08761f40e3ecf0c5ac517f3e7c9b54f17630fc2c409686b3298297778d5bb45005b21b37e25d6c30291ee65209a8353377d'
+            'f7842659c868f34105599cbecf18d0d9f58a6bfbfa4249766e21911ae96b7d3d918f05a21ccae6fad9c28700724110caead8bb2a82f0bffe100cc207c187ce27'
             'ab92475e599fd4345d33a7ae6cd47231ab614b92ca9a71e732a073b31ec18ad92f3d1384183b0821e75b4ba1bb4987c5369c1398604d6c4ea01a20f94fb7b976')
-b2sums=('f5bcf6adb925c22b74d6bb1f9605e428f00d776715dd221ae2e2026ffe65a03410279f01690c9b671df9a4924940e5a93dc3535b6a41626663ccdda5ccf7554f'
-        '3b49bd9ac0ceb8ee36ac8506fbec159ad6ed884ed1a1b5619a7f309c951400699fd92e1e79771bd5ca23055e2b6d24138007e613eddd8cc97ed4b443da4b5f6d'
-        'c3da5f1c01f712053ada2101d489dfab0dcd2a6cafa65a29c17de12274a4373d2e63de65888b1ffaccac85b64508f260596beb301d36d7e305002cd3a76eb679'
+b2sums=('a79a37e8408188d4388addcd6fe0afe9b6a5fc7be6404e150a375407eb91d4199f97a41da0c684e43b33f5b79ffe34c5f5a0432230de61c99df1a649188a0875'
+        '0dc62a881f2d25df0fe1d9fa10b3ba424030e84111e8c0e2029bb2eedf310962883da45bcc0c0919575ebab1f62998003d34cbf8184af62a044f536c5f84c368'
         '0c176336ca8df12f443e6935e8293afa3408e0e7b6a290417007bbbc0500c8eb8716ae3265665a80d85d689f9b369e5edf7986e8507288af77e8eea4ebedd624')
 
 prepare() {
     cd "$pkgname-$_name-$pkgver"
-    patch --forward --strip=1 --input="${srcdir}/audacity_3_4_2_update_vst3_cmake_args.patch"
     # https://github.com/audacity/audacity/discussions/5841#discussioncomment-8138725
     patch --forward --strip=1 --input="${srcdir}/audacity_3_4_2_enable_tests_without_conan.patch"
 }
@@ -176,5 +173,5 @@ package_audacity-docs() {
   pkgdesc+=" - documentation"
 
   install -vdm 755 "$pkgdir/usr/share/doc/$pkgbase/html/"
-  cp -av $pkgbase-manual-$pkgver/* "$pkgdir/usr/share/doc/$pkgbase/html/"
+  cp -av help/manual/* "$pkgdir/usr/share/doc/$pkgbase/html/"
 }

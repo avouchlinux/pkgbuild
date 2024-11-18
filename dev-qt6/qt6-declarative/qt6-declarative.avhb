@@ -26,8 +26,19 @@ optdepends=('qt6-languageserver: for qmlls')
 source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
 sha256sums=('13d6b12d1c1eabdc6e6775e344e3479bf42ffabeadb20bee94882dc3eb003820')
 
+prepare()
+{
+  cd $_tarname 
+  patch -Np1 -i ../qtdeclarative-6.8.0-QTBUG-129797.patch
+}
+
 build() {
-  cmake -B build -S $_tarname -G Ninja \
+  # The -flto flag seems to be used only when compiling and not linking,
+	# which breaks the NDK clang fallback to emulated TLS - see
+	# https://github.com/termux/termux-packages/issues/21733:
+	export LDFLAGS=" -flto"
+
+  cmake -B build -S $_tarname  -G Ninja \
     -DINSTALL_PUBLICBINDIR=usr/bin \
     -DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
     -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects"

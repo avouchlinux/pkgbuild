@@ -1,0 +1,62 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-anyio
+# https://github.com/agronholm/anyio/blob/master/docs/versionhistory.rst
+pkgver=4.4.0
+pkgrel=1
+pkgdesc='High level compatibility layer for multiple asynchronous event loop implementations'
+arch=(any)
+groups=('dev-python')
+url='https://github.com/agronholm/anyio'
+license=(MIT)
+depends=(python python-idna python-sniffio)
+makedepends=(python-build python-installer python-setuptools python-setuptools-scm python-wheel
+             python-uvloop python-trio)
+checkdepends=(python-pytest python-trustme python-hypothesis python-pytest-mock python-psutil)
+optdepends=(
+  'python-trio: trio backend'
+  'python-outcome: trio backend'
+  'python-uvloop: use uvloop for asyncio backend'
+  'python-pytest: pytest plugin'
+)
+source=(https://github.com/agronholm/anyio/archive/$pkgver/anyio-$pkgver.tar.gz
+        no-exceptiongroup.diff)
+sha256sums=('3df2b985706beedb4306bcf04545d09e18e7171b14076c0326f9a18c830534f4'
+            '4d44828f163d98e6e27861f96493c9684980abe193ece5eb8cd649553f6e2a37')
+
+export SETUPTOOLS_SCM_PRETEND_VERSION=$pkgver
+
+prepare() {
+  cd anyio-$pkgver
+  # Remove "error" from pytest filterwarnings
+  sed -i '/"error"/d' pyproject.toml
+
+  # Avoid checkdepends on python-exceptiongroup, which was removed from Arch Linux [1].
+  # Specifically, I rewrite a test to use the new except* syntax, which is inspired by [2].
+  # [1] https://gitlab.archlinux.org/archlinux/packaging/state/-/commit/de33ab36729b786b80bf314f4e0296fc0cefec5b
+  # [2] https://github.com/agronholm/exceptiongroup?tab=readme-ov-file#catching-exceptions
+  patch -Np1 -i ../no-exceptiongroup.diff
+}
+
+build() {
+  cd anyio-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd anyio-$pkgver
+  # Install to a temporary root as the test suite requires the entry point for
+  # its pytest plugin
+  pyver=$(python -c "import sys; print('{}.{}'.format(*sys.version_info[:2]))")
+  python -m installer --destdir="$PWD/tmp_install" dist/*.whl
+  PYTHONPATH="$PWD/tmp_install/usr/lib/python$pyver/site-packages" pytest
+}
+
+package() {
+  cd anyio-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
+}

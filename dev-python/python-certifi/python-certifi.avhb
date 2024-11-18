@@ -1,0 +1,58 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-certifi
+pkgver=2024.08.30
+pkgrel=1
+pkgdesc="Python package for providing Mozilla's CA Bundle (using system CA store)"
+arch=(any)
+groups=('dev-python')
+url="https://github.com/certifi/python-certifi"
+license=(MPL-2.0)
+depends=(
+  ca-certificates
+  python
+)
+makedepends=(
+  python-build
+  python-installer
+  python-setuptools
+  python-wheel
+)
+checkdepends=(python-pytest)
+source=($url/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+sha512sums=('f3aed04d82abb59477b9aba8b8eb0dee689fffb56c116fcd26c4282e058eaa5f7344f714c2e7fba7fe25297f1e0215aa8c5caca9696cd3abda27a5f17d26d010')
+b2sums=('3d287a3f46802a8a447c9e8a758d6edf74e06954ed9f8a48cec80df96f8631a60c4f35aa34697224c2171a0808a07d63da9f635d5dee6db73da7e9d185003f32')
+
+prepare() {
+  cd $pkgname-$pkgver
+  # Use system CA store. Replacing the copy in the source tree so the test suite is actually run against it.
+  ln -sf /etc/ssl/certs/ca-certificates.crt certifi/cacert.pem
+  # Our CA store has non-ASCII comments, but we are not packaging for JVM
+  # https://github.com/certifi/python-certifi/issues/50
+  sed -i 's/encoding="ascii"/encoding="utf-8"/' certifi/core.py
+}
+
+build() {
+  cd $pkgname-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $pkgname-$pkgver
+  pytest
+}
+
+package() {
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+
+  cd $pkgname-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Replace CA store here again because the symlink was installed as a file
+  ln -sf /etc/ssl/certs/ca-certificates.crt "$pkgdir"/$site_packages/certifi/cacert.pem
+
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

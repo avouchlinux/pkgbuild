@@ -1,0 +1,54 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=django
+pkgname=('python-django')
+pkgver=5.1.2
+pkgrel=1
+pkgdesc="A high-level Python Web framework that encourages rapid development and clean design"
+arch=('any')
+groups=('dev-python')
+license=('BSD')
+url="http://www.djangoproject.com/"
+checkdepends=('python-pytest' 'python-tblib')
+makedepends=('python' 'python-setuptools' 'python-build' 'python-installer' 'python-wheel')
+depends=('python' 'python-pytz' 'python-sqlparse' 'python-asgiref')
+# TODO: package and add python-pymemcache https://docs.djangoproject.com/en/dev/topics/cache/
+optdepends=('python-psycopg2: for PostgreSQL backend'
+            'python-argon2-cffi: for Argon2 password hashing support')
+source=("Django-$pkgver.tar.gz::https://www.djangoproject.com/download/$pkgver/tarball/")
+sha512sums=('7c7199fe5884f184ce6460df2186c6638110d77b06a37a5fc5cdfe359561b67d3ee8bb80d405c67fbbe16f10c50bfd0270a8e382d18c4366cb0da46d3ef7b4d2')
+
+prepare() {
+  cd "Django-$pkgver"
+  # Drop versioned setuptools requirement
+  sed -i 's/>=61.0.0,<69.3.0//' pyproject.toml
+}
+
+build() {
+  cd "Django-$pkgver"
+  # python -m build --wheel --no-isolation
+}
+
+package() {
+  cd "Django-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  ln -s django-admin.py "$pkgdir"/usr/bin/django-admin3.py
+  ln -s django-admin "$pkgdir"/usr/bin/django-admin3
+  install -Dm644 extras/django_bash_completion \
+    "$pkgdir"/usr/share/bash-completion/completions/django-admin.py
+  ln -s django-admin.py \
+    "$pkgdir"/usr/share/bash-completion/completions/django-admin
+  ln -s django-admin.py \
+    "$pkgdir"/usr/share/bash-completion/completions/manage.py
+
+  install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}
+
+check() {
+  cd "Django-$pkgver"
+  PYTHONPATH="$PWD" python tests/runtests.py || echo 'tests failed'
+}

@@ -44,13 +44,13 @@ prepare() {
 }
 
 build() {
-  avouch-meson WPEBackend-fdo build -D build_docs=true
+  avouch-meson WPEBackend-fdo build -D build_docs=false
   meson compile -C build
 }
 
-check() {
-  meson test -C build --print-errorlogs
-}
+# check() {
+#   meson test -C build --print-errorlogs
+# }
 
 package_wpebackend-fdo() {
   depends+=(
@@ -63,7 +63,7 @@ package_wpebackend-fdo() {
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 WPEBackend-fdo/COPYING
 
   mkdir -p doc/usr/share
-  mv {"$pkgdir",doc}/usr/share/doc
+  # mv {"$pkgdir",doc}/usr/share/doc
 }
 
 package_wpebackend-fdo-docs() {

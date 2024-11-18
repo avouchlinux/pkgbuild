@@ -50,7 +50,7 @@ _pick() {
 }
 
 build() {
-  arch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname-$pkgver build
   meson compile -C build
 }
 

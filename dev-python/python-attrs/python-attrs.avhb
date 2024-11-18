@@ -1,0 +1,43 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-attrs
+pkgver=23.2.0
+_commit=9e443b18527dc96b194e92805fa751cbf8434ba9
+pkgrel=3
+pkgdesc="Attributes without boilerplate."
+arch=('any')
+groups=('dev-python')
+license=('MIT')
+url="https://www.attrs.org"
+depends=('python')
+makedepends=('git' 'python-build' 'python-installer' 'python-hatchling' 'python-hatch-vcs'
+             'python-hatch-fancy-pypi-readme')
+checkdepends=('python-pytest' 'python-cloudpickle' 'python-hypothesis' 'python-zope-interface')
+source=("git+https://github.com/python-attrs/attrs.git#commit=$_commit")
+sha512sums=('SKIP')
+
+prepare() {
+  cd attrs
+  git cherry-pick -n b9084fab02c009a593b604562a69f36a5915c8e5 # Fix build with pytest 8
+}
+
+build() {
+  cd attrs
+  python -m build -nw
+}
+
+check() {
+  cd attrs
+  python -m installer -d tmp_install dist/*.whl
+  local python_version=$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+  PYTHONPATH="$PWD/tmp_install/usr/lib/python${python_version}/site-packages" pytest
+}
+
+package() {
+  cd attrs
+  python -m installer -d "$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

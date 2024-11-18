@@ -1,0 +1,53 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=virtualgl
+pkgver=3.1.1
+pkgrel=1
+pkgdesc="Redirects 3D commands from an OpenGL application onto a server-side 3D graphics card"
+arch=('x86_64')
+groups=('media-libs')
+url="https://virtualgl.org"
+license=('LGPL')
+depends=('libxv' 'glu' 'libjpeg-turbo' 'xcb-util-keysyms' 'opencl-driver' 'ocl-icd' 'xorg-xhost' 'inetutils')
+makedepends=('cmake' 'mesa' 'libxtst' 'opencl-headers' 'ninja')
+source=("https://github.com/VirtualGL/virtualgl/releases/download/${pkgver}/VirtualGL-${pkgver}.tar.gz"{,.sig}
+        "$pkgname.sysusers")
+sha512sums=('40007910dce4ba1aa6bb00fc1e57af8e9d6a77a5a6c795d8f13c9883abc44787871a0bede8621de2fb042585f471281ba9e8bbd16d81c4049ddca8539f535e7e'
+            'SKIP'
+            'fa97a6c40a216db1632563187bbc5452025cfb8f93341b84e8d71894113f4236f4c64cb38bdd0c4ac55eececec2aad6f357b8716af08b181d3f1352da34fe799')
+validpgpkeys=('AE1A7BA4EFFF9A9987E1474C4BACCAB36E7FE9A1') # The VirtualGL Project (Signing key for official binaries) <information@VirtualGL.org>
+
+prepare() {
+  cd "VirtualGL-$pkgver"
+
+  # FS#48403
+  export LDFLAGS="${LDFLAGS/--as-needed,}"
+}
+
+build() {
+  cd "VirtualGL-$pkgver"
+
+  cmake \
+      -GNinja \
+      -Bbuild \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DTJPEG_INCLUDE_DIR=/usr/include \
+      -DTJPEG_LIBRARY=/usr/lib/libturbojpeg.so \
+      -DCMAKE_INSTALL_LIBDIR=/usr/lib/virtualgl \
+      -DCMAKE_INSTALL_BINDIR=/usr/bin \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/${pkgname} \
+      -DVGL_FAKEXCB=1
+  ninja -C build
+}
+
+package() {
+  cd "VirtualGL-$pkgver"
+  DESTDIR="$pkgdir" ninja -C build install
+
+  mv "$pkgdir"/usr/bin/glxinfo "$pkgdir"/usr/bin/vglxinfo
+  mv "$pkgdir"/usr/bin/eglinfo "$pkgdir"/usr/bin/veglinfo
+  install -Dm0644 "${srcdir}/${pkgname}.sysusers" "${pkgdir}/usr/lib/sysusers.d/${pkgname}.conf"
+}

@@ -1,0 +1,40 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-networkx
+pkgver=3.3
+pkgrel=1
+pkgdesc='Python package for the creation, manipulation, and study of the structure, dynamics, and functions of complex networks.'
+arch=('any')
+groups=('dev-python')
+license=('BSD-3-Clause')
+url="https://networkx.org/"
+depends=('python-numpy' 'python-scipy' 'python-matplotlib' 'python-pandas')
+optdepends=('python-lxml: for GraphML XML format'
+            'python-pydot: for graph drawing and graph layout algorithms in pure Python via GraphViz'
+            'python-pygraphviz: for graph drawing and graph layout algorithms with bindings to GraphViz'
+            'python-sympy: for polynomial algorithms')
+makedepends=('python-build' 'python-installer' 'python-wheel' 'python-setuptools')
+checkdepends=('python-pytest' 'python-lxml' 'python-pydot' 'python-pygraphviz')
+source=("https://github.com/networkx/networkx/archive/networkx-$pkgver.tar.gz")
+sha512sums=('c51b2eca70c510b8154ea84d38f2e3834dccd8be1c5c8321085414c1f85a198a049c0ceac4a6689f7db1a1a7893a96d9a96c17216f47b3cf963e5bd3830b454b')
+
+build() {
+  cd networkx-networkx-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd networkx-networkx-$pkgver
+  pytest -v
+}
+
+package() {
+  cd networkx-networkx-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -D -m 644 LICENSE.txt "$pkgdir"/usr/share/licenses/$pkgname/LICENSE.txt
+  mkdir -p "$pkgdir"/usr/share/doc/$pkgname
+  cp -r examples "$pkgdir"/usr/share/doc/$pkgname
+}

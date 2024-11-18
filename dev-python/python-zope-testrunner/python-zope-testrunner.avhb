@@ -1,0 +1,59 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-zope-testrunner
+_pkgname=zope.testrunner
+pkgver=6.6
+pkgrel=1
+pkgdesc="Zope testrunner script"
+arch=('any')
+groups=('dev-python')
+url="https://github.com/zopefoundation/zope.testrunner"
+license=('ZPL-2.1')
+depends=(
+  'python'
+  'python-setuptools'
+  'python-zope-exceptions'
+  'python-zope-interface'
+)
+makedepends=(
+  'python-build'
+  'python-installer'
+  'python-wheel'
+)
+checkdepends=('python-zope-testing')
+source=(
+  "$url/archive/$pkgver/$pkgname-$pkgver.tar.gz"
+  "dont-package-tests.patch"
+)
+sha512sums=('5c4c16e0185a6eacc54a9f30cc0c5e3bb097d0e138884240a6ad21e6bb516035ed32a4d43bd4f84e67ed2bcba9be631a774246c0031cc949a6bca97c06751fac'
+            '46be2d2002c45e9e5fa9ea60e1b5832fae29e0438c07fd47017043a662a4c943b24535c9bce49ed215065866f6a5651b5b79a4a4e09484707b81347f7b2ab1df')
+
+prepare() {
+  cd $_pkgname-$pkgver
+  patch -Np1 -i ../dont-package-tests.patch
+}
+
+build() {
+  cd $_pkgname-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $_pkgname-$pkgver
+  python -m installer --destdir=tmp_install dist/*.whl
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  cp -r src/zope/testrunner/tests "$PWD/tmp_install/$site_packages/zope/testrunner"
+  export PYTHONPATH="$PWD/tmp_install/$site_packages"
+  ./tmp_install/usr/bin/zope-testrunner \
+    --test-path="$PWD/tmp_install/$site_packages" -vc
+}
+
+package() {
+  cd $_pkgname-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim:set ts=2 sw=2 et:

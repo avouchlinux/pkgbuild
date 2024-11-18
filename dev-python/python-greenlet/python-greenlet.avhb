@@ -1,0 +1,37 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-greenlet
+pkgver=3.1.0
+pkgrel=1
+pkgdesc="Lightweight in-process concurrent programming"
+license=("MIT")
+arch=('x86_64')
+groups=('dev-python')
+url="https://pypi.org/project/greenlet/"
+depends=('python')
+makedepends=('python-build' 'python-installer' 'python-setuptools'
+             'python-wheel')
+checkdepends=('python-objgraph' 'python-psutil')
+source=("https://files.pythonhosted.org/packages/source/g/greenlet/greenlet-${pkgver}.tar.gz")
+sha512sums=('2c0d97848757e6346933426e3f6feb18120b3a63695a746acddbb467e01503174c46aea9b62e7507e8700f3450581ff2460f45700331368333977abebeb805eb')
+
+build() {
+    cd greenlet-$pkgver
+    python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+    cd greenlet-$pkgver
+    local _python_version=$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
+    PYTHONPATH="$PWD/build/lib.linux-$CARCH-cpython-$_python_version" python -m unittest discover -v greenlet.tests
+}
+
+package() {
+    cd greenlet-$pkgver
+    python -m installer --destdir="$pkgdir" dist/*.whl
+    rm -rf "$pkgdir"/usr/lib/python*/site-packages/greenlet/tests
+    install -Dm644 LICENSE.PSF -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

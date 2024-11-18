@@ -1,0 +1,43 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pyopenssl
+pkgver=24.2.1
+pkgrel=1
+pkgdesc='Python wrapper around the OpenSSL library'
+arch=('any')
+groups=('dev-python')
+url='https://pyopenssl.org/'
+license=('Apache-2.0')
+depends=('python' 'python-cryptography')
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+)
+checkdepends=('python-pytest' 'python-pretend' 'python-pytest-rerunfailures')
+source=("$pkgname::git+https://github.com/pyca/pyopenssl#tag=$pkgver")
+sha512sums=('6701d2edcd54fb30cb525a3d464cdf27e1b13f81a4fa5980fe2e7c25eb73a00a347e7e6748709bc665b24253a6a81a6c9658f02686db79bb34d0dfd432a051f6')
+b2sums=('d4e7f411569a930ffea1b79851b052c23a567a44c9e63562018830890bbacd0d449fd73c41d6a25998a73f41a9da676d7a2820639bc55cc0ddfd1fb91d7e76d2')
+
+build() {
+  cd "$pkgname"
+
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$pkgname"
+
+  PYTHONPATH="$PWD"/build/lib pytest -v
+}
+
+package() {
+  cd "$pkgname"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

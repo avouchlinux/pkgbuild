@@ -1,33 +1,28 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-connectivity
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10+kde+r6
+_basever=5.15.15
+pkgver=5.15.15+kde+r3
 pkgrel=1
-_commit=9a4e6f887f35b8018c30afdeaaef152a875c9a2b
+_commit=f2a9c5d1235d88cc26f2cfa348a037b65e31a5ae
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='Provides access to Bluetooth hardware'
 depends=('qt5-base' 'bluez-libs')
 makedepends=('qt5-declarative' 'git')
 optdepends=('qt5-declarative: QML bindings')
-source=(git+https://invent.kde.org/qt/qt/$_realname#commit=$_commit)
-sha256sums=('SKIP')
-options=(debug)
-
-getsrc(){
-  git clone https://invent.kde.org/qt/qt/$_realname.git
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('37c90538f6c9bf560af6029314b58b53a7782d00015be3e4aef058f2fcd67c09')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -38,8 +33,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

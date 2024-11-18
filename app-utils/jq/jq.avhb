@@ -1,19 +1,21 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=jq
-pkgver=1.6
+pkgver=1.7.1
 pkgrel=1
 pkgdesc='Command-line JSON processor'
 arch=('x86_64')
 groups=('app-utils')
-url='http://stedolan.github.io/jq/'
+url='https://jqlang.github.io/jq/'
 license=('MIT')
 depends=('glibc' 'oniguruma')
-makedepends=('autoconf' 'automake' 'bison' 'flex' 'python2')
-source=("https://github.com/stedolan/jq/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz")
+makedepends=('autoconf' 'automake' 'bison' 'flex' 'python')
+source=("https://github.com/jqlang/jq/releases/download/${pkgname}-${pkgver}/${pkgname}-${pkgver}.tar.gz")
+changelog=ChangeLog
+sha512sums=('464861fb2e0d6934b616f1dc7f8002d7dae727c8c0c07b385b813e7522ba1ada8ead4165e1d99c892e3ea76e238c55a15b718c738805419721920f88f8d8478c')
 
 build() {
     cd "${pkgname}-${pkgver}"
@@ -26,3 +28,4 @@ package() {
     make DESTDIR="${pkgdir}" prefix=/usr install
     install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

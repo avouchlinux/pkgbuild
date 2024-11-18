@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libclc
-pkgver=18.1.8
+pkgver=19.1.1
 pkgrel=1
 pkgdesc="Library requirements of the OpenCL C programming language"
 arch=('any')

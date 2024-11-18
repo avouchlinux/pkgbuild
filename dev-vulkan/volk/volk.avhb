@@ -1,0 +1,36 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=volk
+pkgver=1.3.295
+pkgrel=1
+pkgdesc="Meta loader for Vulkan API"
+arch=('x86_64')
+groups=('dev-vulkan')
+url="https://github.com/zeux/volk"
+license=('MIT')
+depends=('vulkan-headers' 'vulkan-icd-loader')
+makedepends=('cmake' 'git')
+source=($pkgname-$pkgver.tar.gz::https://github.com/zeux/volk/archive/refs/tags/$pkgver.tar.gz)
+b2sums=('SKIP')
+
+build() {
+	if [[ $CC != clang* ]]; then
+		export CFLAGS+=" -ffat-lto-objects"
+	fi
+	cmake -S $pkgname-$pkgver -B build \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_C_FLAGS_RELEASE="-DNDEBUG" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DVOLK_INSTALL=ON \
+		-Wno-dev
+	cmake --build build
+}
+
+package() {
+	# shellcheck disable=SC2154
+	DESTDIR="$pkgdir" cmake --install build
+	install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname $pkgname-$pkgver/LICENSE.md
+}

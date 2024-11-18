@@ -1,0 +1,50 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=pyright
+pkgver=1.1.388
+pkgrel=1
+pkgdesc='Type checker for the Python language'
+arch=(any)
+groups=('app-text')
+url=https://microsoft.github.io/pyright
+license=(MIT)
+depends=(nodejs)
+makedepends=(
+  git
+  npm
+)
+source=("$pkgname-$pkgver.tar.gz::https://github.com/microsoft/pyright/archive/refs/tags/1.1.388.tar.gz")
+b2sums=('0fff61fb10a85f5b313e056b5fe2a2f3caa8df6361d36e0b7ec36210c8ae442296e3e6df8df935263a3951e8795e8c7f1813c7f67271612bada572c54bfb9e51')
+
+prepare() {
+  cd $pkgname-$pkgver
+  npm ci
+}
+
+build() {
+  cd $pkgname-$pkgver/packages/$pkgname
+  npm run build
+}
+
+check() {
+  cd $pkgname-$pkgver/packages/$pkgname-internal
+  npm test
+}
+
+package() {
+  local mod_dir=/usr/lib/node_modules/$pkgname
+
+  install -d "$pkgdir"/{usr/bin,$mod_dir}
+  ln -s $mod_dir/index.js "$pkgdir"/usr/bin/$pkgname
+  ln -s $mod_dir/langserver.index.js "$pkgdir"/usr/bin/$pkgname-langserver
+
+  cd $pkgname-$pkgver
+  install -Dm644 -t "$pkgdir"/usr/share/doc/$pkgname README.md
+  install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname LICENSE.txt
+
+  cd packages/$pkgname
+  cp -r dist {,langserver.}index.js package.json "$pkgdir"/$mod_dir
+}

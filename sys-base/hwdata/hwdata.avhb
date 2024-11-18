@@ -1,20 +1,23 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hwdata
-pkgver=0.359
+pkgver=0.389
 pkgrel=1
 pkgdesc="hardware identification databases"
 makedepends=('git')
 groups=('sys-base')
+replaces=('hwids')
 url=https://github.com/vcrhonek/hwdata
 license=('GPL-2.0-or-later')
 arch=('any')
 source=("git+https://github.com/vcrhonek/hwdata.git#tag=v${pkgver}?signed")
 validpgpkeys=('3C40194FB79138CE0F78FD4919C2F062574F5403') # Vitezslav Crhonek
-sha256sums=('SKIP')
+b2sums=('525f50372f6ddc1c01e31149edd9fbe69b6b7d1867fe501941f169fd983f264f16b42a2b932f2b3e41aab5a8152a3ce7dd69b38cacd76b25a6440ba1583a994d')
+
+
 
 build() {
   cd ${pkgname}

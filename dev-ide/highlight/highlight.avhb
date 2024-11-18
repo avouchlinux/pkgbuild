@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=highlight
 pkgname=(highlight highlight-gui)
-pkgver=3.56
+pkgver=4.14
 pkgrel=1
 url="http://www.andre-simon.de/doku/highlight/highlight.html"
 license=('GPL')
@@ -26,8 +26,8 @@ prepare() {
 build() {
   cd "$srcdir/$pkgbase-$pkgver"
 
-  make ${MAKEFLAGS} QMAKE=qmake-qt5
-  make ${MAKEFLAGS} QMAKE=qmake-qt5 gui
+  make QMAKE=qmake-qt5
+  # make QMAKE=qmake-qt5 gui -j1
 }
 
 package_highlight() {
@@ -47,3 +47,4 @@ package_highlight-gui() {
   install -dm755 "$pkgdir/usr/bin"
   make DESTDIR="$pkgdir" QMAKE=qmake-qt5 install-gui
 }
+

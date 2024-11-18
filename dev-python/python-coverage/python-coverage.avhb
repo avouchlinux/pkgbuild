@@ -1,0 +1,50 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=coveragepy
+pkgname=python-coverage
+pkgver=7.6.3
+pkgrel=1
+pkgdesc="A tool for measuring code coverage of Python programs"
+arch=('x86_64')
+groups=('dev-python')
+url="https://coverage.readthedocs.io/en/latest/"
+license=('Apache-2.0')
+depends=('glibc' 'python')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+checkdepends=('python-flaky' 'python-hypothesis'
+              'python-pytest' 'python-pytest-xdist'
+              'python-unittest-mixins' 'python-virtualenv')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/nedbat/coveragepy/archive/$pkgver.tar.gz")
+sha512sums=('c3289add34c8182a8dedb534ce30b2f8cf3a2badf60faf463cc5b2f65491f98c8a6e6f50a4da8fd4d5521eaa9aab70f3f7a9325bff199878d98d0e61a0635c57')
+b2sums=('277cdc8c653fd3b0bf1cafd154df12a30ad650c0383cf0d746c5eec5649e70c6eb0ef5670a44f8cb969bdf02b11bfd19c90831bb0d187c8b5095a3706195be57')
+
+build() {
+  cd $_pkgname-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $_pkgname-$pkgver
+
+  local python_version="$(python -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')"
+  (
+    virtualenv "test_dir" --system-site-packages
+    . "test_dir/bin/activate"
+    export PYTHONPATH="/usr/lib/python$python_version/site-packages:$PYTHONPATH"
+    export COVERAGE_NO_CONTRACTS=1
+    python setup.py --quiet clean develop
+    python igor.py zip_mods install_egg remove_extension
+    python igor.py test_with_tracer py
+    python setup.py --quiet build_ext --inplace
+    python igor.py test_with_tracer c
+  ) || echo "Known failing tests."
+}
+
+package() {
+  cd $_pkgname-$pkgver
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

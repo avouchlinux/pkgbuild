@@ -1,0 +1,42 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-brotlicffi
+pkgver=1.1.0.0
+pkgrel=1
+pkgdesc='Python bindings to the Brotli compression library'
+arch=(x86_64)
+groups=('dev-python')
+url=https://github.com/python-hyper/brotlicffi
+license=(MIT)
+depends=(
+  brotli
+  python
+  python-cffi
+)
+makedepends=(
+  git
+  python-setuptools
+)
+_tag=353f6f16f0a1871d761fa2f68cd2efedc35afc9a
+source=(git+https://github.com/python-hyper/brotlicffi.git#tag=${_tag})
+b2sums=(SKIP)
+
+pkgver() {
+  cd brotlicffi
+  git describe --tags | sed 's/^v//'
+}
+
+build() {
+  cd brotlicffi
+  USE_SHARED_BROTLI=1 python setup.py build
+}
+
+package() {
+  cd brotlicffi
+  python setup.py install --root="${pkgdir}" --optimize=1 --skip-build
+  install -Dm 644 LICENSE -t "${pkgdir}"/usr/share/licenses/python-brotlicffi
+}
+

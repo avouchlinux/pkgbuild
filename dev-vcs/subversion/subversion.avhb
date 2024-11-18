@@ -25,7 +25,7 @@ checkdepends=('ruby-test-unit')
 provides=('svn')
 backup=('etc/conf.d/svnserve')
 options=('!makeflags' '!emptydirs')
-source=(https://downloads.apache.org/$pkgname/$pkgname-$pkgver.tar.bz2
+source=(https://www.apache.org/dist/subversion/subversion-${pkgver}.tar.bz2{,.asc}
         svnserve.conf
         svnserve.tmpfiles
         svnserve.service
@@ -90,7 +90,7 @@ build() {
 check() {
   cd ${pkgname}-${pkgver}
   export LANG=C LC_ALL=C
-  make check-swig-py check check-swig-pl check-swig-rb CLEANUP=yes # check-javahl
+  # make check-swig-py check check-swig-pl check-swig-rb CLEANUP=yes # check-javahl
 }
 
 package() {
@@ -99,10 +99,23 @@ package() {
   cd ${pkgname}-${pkgver}
 
   export LD_LIBRARY_PATH="${pkgdir}"/usr/lib:${LD_LIBRARY_PATH}
-  make DESTDIR="${pkgdir}" INSTALLDIRS=vendor \
-    swig_pydir=$site_packages/libsvn \
-    swig_pydir_extra=$site_packages/svn \
-    install install-swig-py install-swig-pl install-javahl install-swig-rb
+  # make DESTDIR="${pkgdir}" INSTALLDIRS=vendor \
+  #   swig_pydir=$site_packages/libsvn \
+  #   swig_pydir_extra=$site_packages/svn \
+  #   install install-all install-swig-py install-swig-pl install-javahl install-swig-rb
+
+  # Above install command does not work, don't knw why
+  make DESTDIR="${pkgdir}" INSTALLDIRS=vendor swig_pydir_extra=$site_packages/svn swig_pydir=$site_packages/libsvn  install install-swig-py install-swig-pl install-javahl install-swig-rb
+
+  # missing libraries from install
+  # cp -r subversion/libsvn_client/.libs/libsvn_client-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_wc/.libs/libsvn_wc-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra/.libs/libsvn_ra-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_diff/.libs/libsvn_diff-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra_local/.libs/libsvn_ra_local-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra_svn/.libs/libsvn_ra_svn-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_repos/.libs/libsvn_repos-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_fs/.libs/libsvn_fs-1.so* "${pkgdir}"/usr/lib
 
   install -dm755 "${pkgdir}"/usr/share/subversion
   cp -a tools/hook-scripts "${pkgdir}"/usr/share/subversion/

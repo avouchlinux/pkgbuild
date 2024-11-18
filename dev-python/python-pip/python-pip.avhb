@@ -1,66 +1,97 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
+_name=pip
 pkgname=python-pip
-_realname=pip
-pkgver=22.1.2
+pkgver=24.3.1
 pkgrel=1
-pkgdesc="The PyPA recommended tool for installing python3 packages"
+pkgdesc="The PyPA recommended tool for installing Python packages"
 url="https://pip.pypa.io/"
-arch=('any')
+arch=(any)
 groups=('dev-python')
-license=('MIT')
-_deps=('appdirs' 'cachecontrol' 'colorama' 'contextlib2' 'distlib' 'distro' 'html5lib'
-       'msgpack' 'packaging' 'pep517' 'progress' 'pyparsing' 'pytoml' 'requests' 'retrying'
-       'setuptools' 'six' 'webencodings')
-makedepends=("${_deps[@]/#/python-}" 'python2-ipaddress' 'python3-sphinx')
-checkdepends=('python-pytest-runner' 'python-scripttest' 'python-virtualenv' 'python-pretend'
-              'python-yaml' 'python-mock' 'python-freezegun' 'python-cryptography' 'python-pip'
-              'python-wheel' 'python-werkzeug' 'git' 'subversion')
-source=("https://github.com/pypa/pip/archive/${pkgver}.tar.gz")
-
-shopt -s extglob
+license=(MIT)
+depends=(
+  python
+  python-attrs  # for vendored rich
+  python-cryptography  # for vendored requests and urllib3
+  python-filelock  # for vendored python-cachecontrol
+  python-wheel  # for internal misc utils
+)
+makedepends=(
+  python-build
+  python-installer
+  python-myst-parser
+  python-setuptools
+  python-sphinx
+  python-sphinx-copybutton
+  python-sphinx-inline-tabs
+)
+checkdepends=(
+  git
+  python-freezegun
+  python-proxy.py
+  python-pytest
+  python-pytest-rerunfailures
+  python-pytest-xdist
+  python-scripttest
+  python-tomli-w
+  python-virtualenv
+  python-werkzeug
+  subversion
+)
+source=(https://github.com/pypa/$_name/archive/$pkgver/$_name-$pkgver.tar.gz)
+sha512sums=('9cf5f18eefd559cf27bc026e5206b0028ea77fd904a61fea9a6682b519305c962dd19170b841581bd05ff72192a9c458ec0eba173fa66db0438b046111ff5856')
+b2sums=('c70524bfedf46776d5ab8da24754e8177caac6d87cc90aa86b144c0fe9718860fe3d08823f655495c059dbece6e0ecbb2ac8e655cff3124693f64a35deac512e')
 
 prepare() {
-  cd $_realname-$pkgver
-  # patch -p1 -i ../pip-vendor-appdirs.patch
-
-  # Remove certifi usage
-  sed -i 's|from pip._vendor.certifi import where|where = lambda: "/etc/ssl/certs/ca-certificates.crt"|' src/pip/_internal/commands/debug.py
-
+  # pip is moving towards a separate sphinx config without towncrier https://github.com/pypa/pip/issues/12881
+  # since python-sphinxcontrib-towncrier is broken, we remove its use (as it is not needed for manpages)
+  sed '/towncrier/d' -i $_name-$pkgver/docs/html/conf.py
 }
 
 build() {
-  cd $_realname-$pkgver
-  python3 setup.py build
+  cd $_name-$pkgver
 
-  # cd docs/
-  # PYTHONPATH="$srcdir/pip-$pkgver/src/" sphinx-build -W -b man -d build/doctrees/man man build/man -c html
-  # mkdir -p build/man-pip2
-  # cd build/man
-  # for manfile in *; do
-  #   sed 's/pip/pip2/g;s/PIP/PIP2/g' $manfile > ../man-pip2/${manfile/pip/pip2}
-  # done
+  python -m build --wheel --no-isolation
+
+  cd docs/
+  PYTHONPATH="$srcdir/$_name-$pkgver/src/" python pip_sphinxext.py
+  PYTHONPATH="$srcdir/$_name-$pkgver/src/" sphinx-build -b man -d build/doctrees/man man build/man -c html
 }
 
 check() {
-  cd $_realname-$pkgver
-  # python3 setup.py pytest
+  local _site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  local _deselected=(
+    # deselect tests that would require python-pip in checkdepends (may or may not work due to devendored dependencies when python-pip is updated)
+    --deselect tests/unit/test_direct_url_helpers.py::test_from_link_vcs_with_source_dir_obtains_commit_id
+    --deselect tests/unit/test_direct_url_helpers.py::test_from_link_vcs_without_source_dir
+    --deselect tests/unit/test_wheel_builder.py::test_should_cache_git_sha
+    # disable downloading the internet
+    --deselect tests/unit/test_req.py::TestRequirementSet::test_download_info_web_archive
+    --deselect tests/unit/test_req.py::TestRequirementSet::test_download_info_vcs
+    --deselect tests/unit/test_network_session.py::TestPipSession::test_proxy
+  )
+
+  cd $_name-$pkgver
+  # install to temporary location
+  python -m installer --destdir=test_dir dist/*.whl
+  export PYTHONPATH="test_dir/$_site_packages:$PYTHONPATH"
+  pytest -vv -m unit "${_deselected[@]}" tests/
 }
 
 package() {
-  cd $_realname-$pkgver
-  python setup.py install --prefix=/usr --root="$pkgdir"
+  local _site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
 
-  install -D -m644 LICENSE.txt \
-	  "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
 
-  # install -Dm644 -t "$pkgdir"/usr/share/man/man1 docs/build/man/*
+  install -vDm 644 LICENSE.txt -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 docs/build/man/*.1 -t "$pkgdir/usr/share/man/man1/"
+  install -vDm 644 {NEWS,README}.rst -t "$pkgdir/usr/share/doc/$pkgname/"
 
-  PYTHONPATH="$pkgdir"/usr/lib/python3.10/site-packages "$pkgdir"/usr/bin/pip completion --bash \
-    | install -Dm644 /dev/stdin "$pkgdir"/usr/share/bash-completion/completions/pip
-  PYTHONPATH="$pkgdir"/usr/lib/python3.10/site-packages "$pkgdir"/usr/bin/pip completion --fish \
-    | install -Dm644 /dev/stdin "$pkgdir"/usr/share/fish/vendor_completions.d/pip.fish
+  PYTHONPATH="$pkgdir/$_site_packages" "$pkgdir"/usr/bin/pip completion --bash | install -vDm 644 /dev/stdin "$pkgdir"/usr/share/bash-completion/completions/pip
+  PYTHONPATH="$pkgdir/$_site_packages" "$pkgdir"/usr/bin/pip completion --zsh | tail -n+3 | install -vDm 644 /dev/stdin "$pkgdir"/usr/share/zsh/site-functions/_pip
+  PYTHONPATH="$pkgdir/$_site_packages" "$pkgdir"/usr/bin/pip completion --fish | install -vDm 644 /dev/stdin "$pkgdir"/usr/share/fish/vendor_completions.d/pip.fish
 }

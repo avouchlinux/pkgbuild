@@ -1,33 +1,28 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-charts
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10
+_basever=5.15.15
+pkgver=5.15.15
 pkgrel=1
-_commit=7ce22b0633eb9d1eb59854fee4f2f545e1b842e0
+_commit=0c97aae7dc242ac0710e09397672ad878761157a
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3')
 pkgdesc='Provides a set of easy to use chart components'
 depends=('qt5-base')
 makedepends=('qt5-declarative' 'git')
 optdepends=('qt5-declarative: QML bindings')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('5b6b7b7fba10aa98a9f3830d09321213af1e3cf2671f5379bf3e18d82f6fdc6e')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -38,8 +33,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

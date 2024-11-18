@@ -1,33 +1,28 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-lottie
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10
+_basever=5.15.15
+pkgver=5.15.15
 pkgrel=1
-_commit=f65b6a268832fc86e1263a6597f2e369aefecd19
+_commit=bdbd77ef5529b894699fe8d01642e75230e59f24
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='A family of player software for a certain json-based file format for describing 2d vector graphics animations'
 depends=('qt5-base')
 makedepends=('qt5-declarative' 'git')
 optdepends=('qt5-declarative: QML bindings')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')  
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('44be8983e5205eb8411e38eaccdd20adc90db418797ab8bb81f81fe331b3618a')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -38,8 +33,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

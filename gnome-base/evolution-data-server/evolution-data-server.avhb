@@ -9,7 +9,7 @@ pkgname=(
   libedataserverui4
   evolution-data-server-docs
 )
-pkgver=3.54.0
+pkgver=3.54.1
 pkgrel=1
 pkgdesc="Centralized access to appointments and contacts"
 url="https://wiki.gnome.org/Apps/Evolution"

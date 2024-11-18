@@ -1,0 +1,50 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pyname=astroid
+pkgname=python-$_pyname
+pkgver=3.3.5
+pkgrel=1
+pkgdesc='A common base representation of python source code'
+arch=(any)
+groups=('dev-python')
+url="https://github.com/pylint-dev/$_pyname"
+license=(LGPL-2.1-or-later)
+depends=(python)
+makedepends=(python-{build,installer,wheel}
+             python-setuptools)
+checkdepends=(python-attrs
+              python-dateutil
+              python-pyqt6
+              python-regex
+              python-six
+              python-urllib3
+              python-pip
+              python-pytest)
+replaces=(python-logilab-astng)
+conflicts=(python-logilab-astng)
+_archive="$_pyname-$pkgver"
+source=("$url/archive/v$pkgver/$_archive.tar.gz")
+sha256sums=('cf0c065acb7f3dc61f045ec6fddf247084277a3db527969bae375bccc03ed110')
+
+prepare() {
+	cd "$_archive"
+	sed -i -e '/^requires =/s/~=[0-9.]\+//g' pyproject.toml
+}
+
+build() {
+	cd "$_archive"
+	python -m build -wn
+}
+
+check() {
+	cd "$_archive"
+	pytest
+}
+
+package() {
+	cd "$_archive"
+	python -m installer -d "$pkgdir" dist/*.whl
+}

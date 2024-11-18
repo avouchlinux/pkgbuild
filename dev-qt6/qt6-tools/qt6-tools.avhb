@@ -28,7 +28,7 @@ makedepends=(clang
 optdepends=('clang: for qdoc and lupdate'
             'litehtml: for assistant'
             'qt6-declarative: for qdoc and lupdate')
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_tarname.tar.xz")
 # source=(git+https://code.qt.io/qt/$_realname#tag=v$pkgver
 #         git+https://code.qt.io/playground/qlitehtml)
 sha256sums=('41a81ffdf6411a5f350f7c7099c1431fbd5ff009e3e0cd5f236f7fec9544c5e1'

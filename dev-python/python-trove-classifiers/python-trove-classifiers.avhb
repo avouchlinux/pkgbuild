@@ -1,0 +1,40 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-trove-classifiers
+pkgver=2024.10.21.16
+pkgrel=1
+pkgdesc="Canonical source for classifiers on PyPI (pypi.org)"
+url="https://github.com/pypa/trove-classifiers"
+license=('Apache-2.0')
+arch=('any')
+groups=('dev-python')
+depends=('python')
+makedepends=('git' 'python-calver' 'python-setuptools' 'python-wheel' 'python-build' 'python-installer')
+checkdepends=('python-pytest')
+source=("git+https://github.com/pypa/trove-classifiers.git#tag=$pkgver")
+sha512sums=('849d9ddd1ee35069ddc62115810246ae6b140038b3549ff05ada2b2859dc93812d2a29c8449d7fc8554a6fb7d8a9b08dec3314cd64ac03d997885c0c3fbf7b13')
+
+prepare() {
+  cd trove-classifiers
+  # calver doesn't detect git tags
+  echo "Version: $pkgver" > PKG-INFO
+}
+
+build() {
+  cd trove-classifiers
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd trove-classifiers
+  pytest
+  PYTHONPATH="$PWD"/build/lib python -m tests.lib
+}
+
+package() {
+  cd trove-classifiers
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

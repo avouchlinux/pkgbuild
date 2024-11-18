@@ -1,0 +1,45 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pathspec
+_name=${pkgname#python-}
+pkgver=0.12.1
+pkgrel=1
+pkgdesc='Utility library for gitignore style pattern matching of file paths'
+arch=('any')
+groups=('dev-python')
+url=https://github.com/cpburnz/python-pathspec
+license=('MPL2')
+depends=('python')
+makedepends=(
+  'git'
+  'python-build'
+  'python-flit-core'
+  'python-installer'
+  'python-wheel'
+)
+source=("git+$url.git#tag=v$pkgver")
+b2sums=('3cf1c642db6a7562c986f880fe917c1add214abf8c4a004315273ee05e5c4ca44252d1c09259bb7dcacf429b139041912e517414540b2250ad81f089549d5a57')
+
+build() {
+  cd $pkgname
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd $pkgname
+  python -m unittest
+}
+
+package() {
+  cd $pkgname
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/"$_name"-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

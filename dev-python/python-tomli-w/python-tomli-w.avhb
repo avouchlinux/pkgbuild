@@ -1,0 +1,47 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-tomli-w
+pkgver=1.0.0
+pkgrel=7
+pkgdesc="A lil' TOML writer"
+url=https://github.com/hukkin/tomli-w
+license=(MIT)
+arch=(any)
+groups=('dev-python')
+depends=(python)
+makedepends=(
+  git
+  python-build
+  python-flit-core
+  python-installer
+)
+checkdepends=(
+  python-pytest
+  python-tomli
+)
+_tag=19099125f32e7c491603e393263754262b356956
+source=(git+https://github.com/hukkin/tomli-w.git#tag=${_tag})
+b2sums=(SKIP)
+
+pkgver() {
+  cd tomli-w
+  git describe --tags
+}
+
+build() {
+  cd tomli-w
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd tomli-w
+  python -m pytest
+}
+
+package() {
+  python -m installer --destdir="${pkgdir}" tomli-w/dist/*.whl
+  install -Dm 644 tomli-w/LICENSE -t "${pkgdir}"/usr/share/licenses/python-tomli-w/
+}

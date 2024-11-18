@@ -7,18 +7,20 @@ pkgname=ttf-urdufonts
 _realname=urdufonts
 pkgdesc="Urdu fonts (Jameel Noori Nastaleeq (+kasheeda), Nafees Web Naskh, PDMS Saleem Quran Font) and font configuration to set Jameel Noori Nastaleeq as default font for Urdu"
 license=('custom')
-pkgver=1.2
+pkgver=1.3
 pkgrel=1
 arch=('any')
 groups=('media-fonts')
 depends=('fontconfig' 'xorg-font-utils')
 url="http://www.urdujahan.com/font.html"
 source=("
-        #http://urdu.ca/UrduFonts.zip"
-        "http://www.urdujahan.com/urdu-fonts/Pak%20Nastaleeq%20(Beta%20Release).ttf"
-        "http://www.urdujahan.com/urdu-fonts/Fajer%20Noori%20Nastalique%2015-12-2006.ttf"
-        "http://www.urdujahan.com/urdu-fonts/asunaskh.ttf"
-        "http://www.urdujahan.com/urdu-fonts/Jameel%20Noori%20Nastaleeq.zip"
+        http://urdu.ca/UrduFonts.zip"
+        https://github.com/abid-mujtaba/ttf-jameel-noori-nastaleeq/archive/refs/tags/v1.1.0.zip
+        "https://urdufonts.net/downloadfiles/zippedfontstyles/a/a/aa-sameer-almas-regular.zip"
+        "https://urdufonts.net/downloadfiles/zippedfontstyles/3/0/300-regular.zip"
+        "https://urdufonts.net/downloadfiles/zippedfontstyles/a/l/alqalam-taj-nastaleeq-regular.zip"
+        "https://urdufonts.net/downloadfiles/zippedfontstyles/a/l/alvi-nastaleeq-regular.zip"
+        "https://urdufonts.net/downloadfiles/zippedfontstyles/g/a/gandhara-suls-regular.zip"
         "http://www.urdujahan.com/ur.txt"
         "90-fonts-urdu.conf" "LICENSE")
 install=$pkgname.install
@@ -26,6 +28,7 @@ install=$pkgname.install
 package() {
     install -D -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
     install -d "$pkgdir/usr/share/fonts/TTF"
+    cp -dpr --no-preserve=ownership *.ttf "$pkgdir/usr/share/fonts/TTF/"
     cp -dpr --no-preserve=ownership $_realname/*.ttf "$pkgdir/usr/share/fonts/TTF/"
     install -D -m644 90-fonts-urdu.conf "$pkgdir/etc/fonts/conf.d/90-fonts-urdu.conf"
     

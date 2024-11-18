@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,21 +10,23 @@ pkgrel=1
 pkgdesc='PHP and hence web-based tool to administrate MySQL over the WWW'
 arch=('any')
 groups=('www-apps')
-url='http://www.phpmyadmin.net'
+url='https://www.phpmyadmin.net'
 license=('GPL')
-depends=('mariadb-clients' 'php')
+depends=('mysql-clients' 'php')
 backup=(etc/webapps/phpmyadmin/config.inc.php)
 source=(https://files.phpmyadmin.net/phpMyAdmin/$pkgver/phpMyAdmin-$pkgver-all-languages.tar.xz)
-sha256sums=('f94ed0fc5df38e049746e40852135bf55b9af0fd9fcee07f175919c463ad58a5')
+sha512sums=('8b440d90d887fa0391810732cad2b4bf502f0e045324e1f159cb06e34dae4268febaef0a6a8ac0e58d0cb0f945f3497354313585f80555f199c609de378ca873')
 
 package() {
-	_instdir="$pkgdir"/usr/share/webapps/phpMyAdmin
-	mkdir -p "$_instdir" "$pkgdir"/etc/webapps/phpmyadmin
-	cd "$_instdir"
+  _instdir="$pkgdir"/usr/share/webapps/phpMyAdmin
+  mkdir -p "$_instdir" "$pkgdir"/etc/webapps/phpmyadmin
+  cd "$_instdir"
 
-	cp -ra "$srcdir"/phpMyAdmin-$pkgver-all-languages/* .
+  cp -ra "$srcdir"/phpMyAdmin-$pkgver-all-languages/* .
 
-	ln -s /etc/webapps/phpmyadmin/config.inc.php "$_instdir"/config.inc.php
-	cp "$_instdir"/config.sample.inc.php "$pkgdir"/etc/webapps/phpmyadmin/config.inc.php
-	install -D -m644 ${srcdir}/apache.conf ${pkgdir}/etc/httpd/conf/extra/phpmyadmin.conf
+  ln -s /etc/webapps/phpmyadmin/config.inc.php "$_instdir"/config.inc.php
+  cp "$_instdir"/config.sample.inc.php "$pkgdir"/etc/webapps/phpmyadmin/config.inc.php
+  
+  rm -f "$pkgdir"/usr/share/webapps/phpMyAdmin/vendor/composer/ca-bundle/res/cacert.pem
+  ln -s /etc/ssl/certs/ca-certificates.crt "$pkgdir"/usr/share/webapps/phpMyAdmin/vendor/composer/ca-bundle/res/cacert.pem
 }

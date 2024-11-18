@@ -1,0 +1,31 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=wl-clipboard
+pkgver=2.2.1
+pkgrel=1
+epoch=1
+pkgdesc="Command-line copy/paste utilities for Wayland"
+arch=('x86_64')
+groups=('app-admin')
+url="https://github.com/bugaevc/wl-clipboard"
+license=('GPL3')
+depends=('wayland')
+optdepends=(
+    'xdg-utils: for content type inference in wl-copy'
+    'mailcap: for type inference in wl-paste'
+)
+makedepends=('meson' 'wayland-protocols')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/bugaevc/wl-clipboard/archive/v$pkgver.tar.gz")
+sha256sums=('6eb8081207fb5581d1d82c4bcd9587205a31a3d47bea3ebeb7f41aa1143783eb')
+
+build() {
+    avouch-meson "$pkgname-$pkgver" build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

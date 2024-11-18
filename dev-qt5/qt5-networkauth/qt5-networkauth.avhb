@@ -1,32 +1,27 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-networkauth
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10
+_basever=5.15.15
+pkgver=5.15.15+kde+r1
 pkgrel=1
-_commit=a0f23c6a1f11bd7c6a8e4fd34f10bdb0a35789fa
+_commit=17d6ed940cea4ead62f4055184d4fc69bf06b789
 arch=(x86_64)
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
 pkgdesc='Network authentication module'
 depends=(qt5-base)
 makedepends=(git)
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('d97ce847d22baaa4bf4bd5da3937497a04273432e7485c680da7c3d0fcc8ebb8')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -37,8 +32,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

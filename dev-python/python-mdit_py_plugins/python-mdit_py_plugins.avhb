@@ -1,0 +1,43 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=mdit-py-plugins
+pkgname=python-mdit_py_plugins
+pkgver=0.4.2
+pkgrel=1
+pkgdesc='Collection of core plugins for markdown-it-py'
+arch=('any')
+groups=('dev-python')
+url='https://github.com/executablebooks/mdit-py-plugins'
+license=('MIT')
+depends=('python-markdown-it-py')
+makedepends=('python-build' 'python-installer' 'python-flit-core')
+checkdepends=('python-pytest' 'python-pytest-regressions')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+sha512sums=('203a0243968eb9240436c992b70ad0a4b13a747af9ec1799408975cf430d908e8c161cc6810385e21e09eb2d50aeae73f0aed11790898e5d6291b0d4c20521cd')
+
+build() {
+  cd $_pkgname-$pkgver
+
+  python -m build -wn
+}
+
+check() {
+  cd $_pkgname-$pkgver
+
+  python -m pytest
+}
+
+package() {
+  cd $_pkgname-$pkgver
+
+  python -m installer -d "$pkgdir" dist/*.whl
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/"${_pkgname//-/_}"-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

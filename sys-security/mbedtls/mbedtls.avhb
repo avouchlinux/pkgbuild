@@ -1,0 +1,85 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=mbedtls
+pkgver=3.6.1
+pkgrel=1
+pkgdesc='An open source, portable, easy to use, readable and flexible TLS library'
+arch=(x86_64)
+groups=('sys-security')
+url=https://tls.mbed.org
+license=(Apache-2.0)
+depends=(
+  glibc
+  sh
+)
+checkdepends=(python)
+makedepends=(
+  cmake
+  git
+  ninja
+  python
+)
+provides=(
+  libmbedcrypto.so
+  libmbedtls.so
+  libmbedx509.so
+  polarssl
+)
+replaces=(polarssl)
+conflicts=(polarssl)
+options=(staticlibs)
+_tag=b727a6982c8f4d97dc8a979d7af417a08a551e5e
+source=(
+  git+https://github.com/Mbed-TLS/mbedtls.git#tag=${_tag}
+  git+https://github.com/Mbed-TLS/mbedtls-framework.git
+)
+b2sums=('9a38000d9a88443d9b48f43c811eb5ffc7b03a779c283482f6025235729a7e72474fe71e0293ee48a61e7621e03e0b89462e02c64fc16461bae0e30ff4f8a357'
+        'SKIP')
+
+prepare() {
+  cd mbedtls
+  git submodule init framework
+  git config submodule.framework.url "${srcdir}"/mbedtls-framework
+  git -c protocol.file.allow=always submodule update framework
+  scripts/config.py set MBEDTLS_HAVE_SSE2
+  scripts/config.py set MBEDTLS_THREADING_C
+  scripts/config.py set MBEDTLS_THREADING_PTHREAD
+}
+
+pkgver() {
+  cd mbedtls
+  git describe --tags | sed 's/^v//; s/^mbedtls-//'
+}
+
+build() {
+  export CFLAGS+=' -ffat-lto-objects'
+  cmake -S mbedtls -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+    -DUSE_STATIC_MBEDTLS_LIBRARY=ON \
+    -Wno-dev
+  cmake --build build
+}
+
+check() {
+  LD_LIBRARY_PATH="${srcdir}"/build/library ctest --test-dir build
+}
+
+package() {
+  DESTDIR="${pkgdir}" cmake --install build
+
+  # rename generic utils
+  local _prog _baseprog
+  for _prog in "${pkgdir}"/usr/bin/*; do
+  _baseprog=$(basename "$_prog")
+    mv -v "$_prog" "${_prog//$_baseprog/mbedtls_$_baseprog}"
+  done
+
+  # fixup static lib permissions
+  chmod 644 "$pkgdir"/usr/lib/*.a
+}

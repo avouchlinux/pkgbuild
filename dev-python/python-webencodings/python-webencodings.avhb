@@ -1,0 +1,31 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-webencodings
+pkgver=0.5.1
+pkgrel=1
+arch=('any')
+groups=('dev-python')
+url="https://github.com/gsnedders/python-webencodings"
+license=('BSD')
+pkgdesc="This is a Python implementation of the WHATWG Encoding standard."
+depends=('python')
+makedepends=('python' 'python-setuptools')
+checkdepends=('python-pytest')
+source=($pkgname-$pkgver.tar.gz::https://github.com/gsnedders/python-webencodings/archive/v${pkgver}.tar.gz)
+sha256sums=('082367f568a7812aa5f6922ffe3d9d027cd83829dc32bcaac4c874eeed618000')
+
+package() {
+    cd ${pkgname}-${pkgver}
+
+    python setup.py install --root="${pkgdir}"
+    install -D -m644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+
+check() {
+    cd ${pkgname}-${pkgver}/webencodings
+
+    pytest tests.py
+}

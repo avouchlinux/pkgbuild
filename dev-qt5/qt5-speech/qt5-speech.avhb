@@ -1,33 +1,28 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-speech
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10+kde+r1
+_basever=5.15.15
+pkgver=5.15.15+kde+r1
 pkgrel=1
-_commit=75142c77cda8ef3a5c1cae69863e963797c667b5
+_commit=71574a57103f0da64ce5e4c0ac6d70141496d5e8
 arch=(x86_64)
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
 pkgdesc='Qt module to make text to speech and speech recognition easy'
 depends=(qt5-multimedia)
 makedepends=(git flite speech-dispatcher)
 optdepends=('flite: flite TTS backend' 'speech-dispatcher: speech-dispatcher TTS backend')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('8f4dc8c9583f9146f360dad6dc9611cc0d022aaabc0117c8d6ed539266eec185')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -38,8 +33,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

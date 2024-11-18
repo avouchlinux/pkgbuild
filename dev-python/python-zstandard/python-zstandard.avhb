@@ -1,0 +1,37 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=('python-zstandard')
+_pkgname='zstandard'
+pkgver=0.22.0
+pkgrel=1
+pkgdesc="Python bindings to the Zstandard (zstd) compression library"
+url="https://github.com/indygreg/python-zstandard"
+arch=('x86_64')
+groups=('dev-python')
+depends=('python')
+makedepends=('python-setuptools')
+checkdepends=('python-hypothesis')
+optdepends=('python-cffi')
+license=('BSD')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/indygreg/python-zstandard/archive/$pkgver.tar.gz")
+sha256sums=('34ce7ef020afca1344c538a778e2a2e30dc43b11509aa4cb5cf076228d959ca7')
+
+build() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    python setup.py build_ext
+}
+
+check() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    python setup.py build_ext --inplace
+    python -m unittest discover -vs .
+}
+
+package() {
+    cd "${srcdir}/${pkgname}-${pkgver}"
+    python setup.py install --root="${pkgdir}" --optimize=1
+    install -D -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=brotli
-pkgname=('brotli' 'python3-brotli' 'brotli-testdata')
+pkgname=('brotli' 'python-brotli' 'brotli-testdata')
 pkgver=1.1.0
 pkgrel=1
 pkgdesc='Generic-purpose lossless compression algorithm'
@@ -55,7 +55,7 @@ package_brotli() {
   install -Dm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname"
 }
 
-package_python3-brotli() {
+package_python-brotli() {
   pkgdesc+=' - python library'
   depends=('python')
 

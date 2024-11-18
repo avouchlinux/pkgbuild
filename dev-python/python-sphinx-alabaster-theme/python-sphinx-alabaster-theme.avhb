@@ -1,0 +1,40 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=alabaster
+pkgname=python-sphinx-alabaster-theme
+pkgver=1.0.0
+pkgrel=1
+pkgdesc='Light, configurable Sphinx theme'
+arch=(any)
+groups=('dev-python')
+url=https://github.com/sphinx-doc/alabaster
+license=(BSD-3-Clause)
+depends=(python)
+makedepends=(
+  git
+  python-build
+  python-flit-core
+  python-installer
+  python-wheel
+)
+source=("git+$url.git#tag=$pkgver")
+b2sums=('896b353747c9c1de8f8f4d89c16dc3a89fb9dcce0e9182308011e38183c239bb7d4655e281ce791fddc0bffe72ba938cc9ac0182621f798f62b2f51a8b2e4c55')
+
+build() {
+  cd $_name
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+package() {
+  cd $_name
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/$_name-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

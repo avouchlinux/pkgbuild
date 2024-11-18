@@ -3,7 +3,8 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=serd
+pkgbase=serd
+pkgname=(serd serd-docs)
 pkgver=0.32.2
 pkgrel=1
 pkgdesc="Lightweight C library for RDF syntax supporting reading/ writing Turtle and NTriples."
@@ -40,7 +41,7 @@ _pick() {
 }
 
 build() {
-  arch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname-$pkgver build
   meson compile -C build
 }
 

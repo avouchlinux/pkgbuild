@@ -1,21 +1,61 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=epiphany
-pkgver=45.0
+pkgver=47.2
 pkgrel=1
 pkgdesc="A GNOME web browser based on the WebKit rendering engine"
-url="https://wiki.gnome.org/Apps/Web"
+url="https://apps.gnome.org/Epiphany"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(webkit2gtk gcr icu libdazzle libhandy)
-makedepends=(docbook-xml startup-notification lsb-release gobject-introspection yelp-tools
-             appstream-glib git meson)
-checkdepends=(xorg-server-xvfb)
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$pkgver.tar.xz)
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  dconf
+  gcc-libs
+  gcr-4
+  gdk-pixbuf2
+  glib2
+  glibc
+  gmp
+  gstreamer
+  gtk4
+  hicolor-icon-theme
+  json-glib
+  libadwaita
+  libarchive
+  libportal
+  libportal-gtk4
+  libsecret
+  libsoup3
+  libxml2
+  nettle
+  pango
+  sqlite
+  webkitgtk-6.0
+)
+makedepends=(
+  docbook-xml
+  git
+  glib2-devel
+  gobject-introspection
+  lsb-release
+  meson
+  startup-notification
+  yelp-tools
+)
+checkdepends=(
+  aspell
+  glibc-locales
+  hspell
+  hunspell
+  libvoikko
+  nuspell
+  xorg-server-xvfb
+)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/${pkgver:0:4}/$pkgname-$pkgver.tar.bz2)
 
 build() {
     avouch-meson ${pkgname}-${pkgver} build
@@ -23,9 +63,36 @@ build() {
 }
 
 check() {
-    xvfb-run meson test -C build --print-errorlogs || :
+  export \
+    XDG_RUNTIME_DIR="$PWD/runtime-dir" \
+    LIBGL_ALWAYS_SOFTWARE=1 \
+    WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1
+    LC_COLLATE=en_US.UTF-8
+
+  mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+
+  local meson_tests=(
+    'validate-desktop'
+    'validate-appdata'
+    'Embed shell test'
+    'Embed utils test'
+    'Encodings test'
+    'File helpers test'
+    'History test'
+    'Location entry test'
+    'Migration test'
+    'Search engine manager test'
+    'SQLite test'
+    'String test'
+    'URI helpers test'
+    # 'Web view test'
+    'Web extension test'
+  )
+
+  dbus-run-session xvfb-run -s '-nolisten local' \
+    meson test -C build --print-errorlogs "${meson_tests[@]}"
 }
 
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

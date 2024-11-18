@@ -1,0 +1,30 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=sphinx-copybutton
+pkgname=python-$_name
+pkgver=0.5.2
+pkgrel=1
+pkgdesc="Sphinx extension to add a \"copy\" button to code blocks"
+arch=('any')
+groups=('dev-python')
+url="https://github.com/executablebooks/sphinx-copybutton"
+license=('MIT')
+depends=('python-sphinx')
+makedepends=('python-setuptools')
+source=(https://files.pythonhosted.org/packages/source/s/$_name/$_name-$pkgver.tar.gz)
+sha256sums=('4cf17c82fb9646d1bc9ca92ac280813a3b605d8c421225fd9913154103ee1fbd')
+
+build() {
+  cd $_name-$pkgver
+  python setup.py build
+}
+
+package() {
+  cd $_name-$pkgver
+  python setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+  install -Dm644 -t "$pkgdir/usr/share/doc/$pkgname" README.md
+}

@@ -25,7 +25,7 @@ validpgpkeys=('163EB50119225DB3DF8F49EA17ACBA8DFA970E17'  # Richard Hughes <rich
 build() {
   avouch-meson ${pkgname} build  \
     -D efi_sbat_distro_id='arch' \
-    -D efi_sbat_distro_summary='Arch Linux' \
+    -D efi_sbat_distro_summary='Avouch Linux' \
     -D efi_sbat_distro_pkgname=${pkgname} \
     -D efi_sbat_distro_version=${pkgver} \
     -D efi_sbat_distro_url="https://archlinux.org/packages/community/x86_64/${pkgname}/" \

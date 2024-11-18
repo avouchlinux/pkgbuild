@@ -1,0 +1,55 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=charset_normalizer
+pkgname=python-charset-normalizer
+pkgver=3.4.0
+pkgrel=1
+pkgdesc='Encoding and language detection alternative to chardet'
+arch=(any)
+groups=('dev-python')
+url=https://github.com/Ousret/charset_normalizer
+license=(MIT)
+depends=(python)
+makedepends=(
+  git
+  python-build
+  python-installer
+  python-setuptools
+  python-wheel
+)
+checkdepends=(
+  python-pytest
+)
+source=("git+$url.git#tag=$pkgver")
+b2sums=('b2c14a0d34434c4fd9af70879d51507db9d613213a370c6f63cd0052f25e06a3b6cec6bcd9a0830d2fd946825174dc0b52b3bc2a08b81ced7cf7bb2df3c66ccc')
+
+pkgver() {
+  cd $_name
+  git describe --tags
+}
+
+build() {
+  cd $_name
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd $_name
+  # Override addopts as they invoke coverage testing
+  pytest --override-ini="addopts="
+}
+
+package() {
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/$_name-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+  cd $_name
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+
+# vim: ts=2 sw=2 et:

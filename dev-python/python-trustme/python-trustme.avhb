@@ -1,0 +1,45 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-trustme
+_pyname=${pkgname/python-/}
+pkgver=1.1.0
+pkgrel=1
+pkgdesc='Library for fake certificate authority (CA) to generate fake TLS certs'
+url='https://trustme.readthedocs.io'
+arch=('any')
+groups=('dev-python')
+license=('MIT')
+depends=('python' 'python-cryptography' 'python-idna' 'python-pyopenssl')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+checkdepends=('python-pytest' 'python-service-identity')
+source=(https://github.com/python-trio/trustme/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('74577cdb6cb4fdf7d6bb10d34f19f199fe5a0cc889eeed36077be23817e5d80ca8656633d9123e1171a9f61f8352558d43ca0a7d75eed85449e815869f47fa38')
+b2sums=('deceabea4e20c252c5cab51929a30e223b7118f8fba6cfcd699f590783f16cc3c43aab0c0ad1e84ea4ac690e429b0a670a78d6688431e433c652378e768d21da')
+
+build() {
+  cd ${_pyname}-${pkgver}
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd ${_pyname}-${pkgver}
+  export PYTHONPATH=$(pwd)/src
+  py.test
+}
+
+package() {
+  cd ${_pyname}-${pkgver}
+  python -m installer --destdir="${pkgdir}" dist/*.whl
+  install -Dm 644 README.rst -t "${pkgdir}/usr/share/doc/${pkgname}"
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  ln -s "${site_packages}/${_pyname}-${pkgver}.dist-info/LICENSE.MIT" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE.MIT"
+}
+
+# vim: ts=2 sw=2 et:

@@ -1,0 +1,34 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=slurp
+pkgver=1.5.0
+pkgrel=1
+pkgdesc='Select a region in a Wayland compositor'
+arch=('x86_64')
+groups=('app-utils')
+url="https://github.com/emersion/slurp"
+license=('MIT')
+depends=('cairo' 'wayland' 'libxkbcommon')
+makedepends=('meson' 'scdoc' 'wayland-protocols')
+source=(
+    "$pkgname-$pkgver.tar.gz::https://github.com/emersion/slurp/releases/download/v$pkgver/slurp-$pkgver.tar.gz"
+    "$pkgname-$pkgver.tar.gz.sig::https://github.com/emersion/slurp/releases/download/v$pkgver/slurp-$pkgver.tar.gz.sig"
+)
+validpgpkeys=("34FF9526CFEF0E97A340E2E40FDE7BE0E88F5E48") # emersion
+sha256sums=('eeb282b2adc8db5614b852596340b69da6f3954cf6cfbdc4392da509c934208a'
+            'SKIP')
+
+build() {
+    avouch-meson "$pkgname-$pkgver" build
+    ninja -C build
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+    cd "$pkgname-$pkgver"
+    install -Dm 0644 LICENSE -t "$pkgdir/usr/share/licenses/slurp/"
+    install -Dm 0644 README.md -t "$pkgdir/usr/share/doc/slurp/"
+}

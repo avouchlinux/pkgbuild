@@ -1,0 +1,48 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pytest-enabler
+_pkgname=${pkgname#python-}
+pkgver=3.3.0
+pkgrel=1
+pkgdesc="Enable installed pytest plugins"
+arch=(any)
+groups=('dev-python')
+license=(MIT)
+url="https://github.com/jaraco/pytest-enabler"
+depends=(
+  python
+  python-jaraco.context
+  python-jaraco.functools
+  python-pytest
+  python-toml
+)
+makedepends=(
+  git
+  python-build
+  python-installer
+  python-setuptools-scm
+  python-wheel
+)
+# python-pytest-cov is an actual dependency for one of the tests.
+checkdepends=(python-pytest-cov)
+source=("git+$url.git#tag=v$pkgver")
+sha256sums=('1b0a9eddc1f67939b4a66d5bd29c4343fbe6842df94528bb04a77a7a5df9ccfb')
+
+build() {
+  cd "$_pkgname"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$_pkgname"
+  PYTHONPATH=$PWD pytest
+}
+
+package() {
+  cd "$_pkgname"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

@@ -1,0 +1,217 @@
+ Makefile                       |  2 +-
+ arch/Kconfig                   |  4 ++--
+ drivers/firmware/sysfb.c       | 18 +++++++++++++++++-
+ include/linux/user_namespace.h |  4 ++++
+ init/Kconfig                   | 16 ++++++++++++++++
+ kernel/fork.c                  | 14 ++++++++++++++
+ kernel/sysctl.c                | 12 ++++++++++++
+ kernel/user_namespace.c        |  7 +++++++
+ 8 files changed, 73 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 692bbdf40fb5f2e371f6432527d08d0e2bf4c3b7..807da446402a0ff417f2cb1ce94525ce05962d14 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,7 +2,7 @@
+ VERSION = 6
+ PATCHLEVEL = 11
+ SUBLEVEL = 7
+-EXTRAVERSION =
++EXTRAVERSION = -avouch1
+ NAME = Baby Opossum Posse
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 975dd22a2dbd22dc1fa7ef727149d99e5ebcbe0a..de69b8f5b5be85518254d5f72383a2d0fb9e1cd5 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1050,7 +1050,7 @@ config ARCH_MMAP_RND_BITS
+ 	int "Number of bits to use for ASLR of mmap base address" if EXPERT
+ 	range ARCH_MMAP_RND_BITS_MIN ARCH_MMAP_RND_BITS_MAX
+ 	default ARCH_MMAP_RND_BITS_DEFAULT if ARCH_MMAP_RND_BITS_DEFAULT
+-	default ARCH_MMAP_RND_BITS_MIN
++	default ARCH_MMAP_RND_BITS_MAX
+ 	depends on HAVE_ARCH_MMAP_RND_BITS
+ 	help
+ 	  This value can be used to select the number of bits to use to
+@@ -1084,7 +1084,7 @@ config ARCH_MMAP_RND_COMPAT_BITS
+ 	int "Number of bits to use for ASLR of mmap base address for compatible applications" if EXPERT
+ 	range ARCH_MMAP_RND_COMPAT_BITS_MIN ARCH_MMAP_RND_COMPAT_BITS_MAX
+ 	default ARCH_MMAP_RND_COMPAT_BITS_DEFAULT if ARCH_MMAP_RND_COMPAT_BITS_DEFAULT
+-	default ARCH_MMAP_RND_COMPAT_BITS_MIN
++	default ARCH_MMAP_RND_COMPAT_BITS_MAX
+ 	depends on HAVE_ARCH_MMAP_RND_COMPAT_BITS
+ 	help
+ 	  This value can be used to select the number of bits to use to
+diff --git a/drivers/firmware/sysfb.c b/drivers/firmware/sysfb.c
+index a3df782fa687b0f14a2646eccaf635c3bb247b2b..940d8f51434176586bad53de43bd892a7846c177 100644
+--- a/drivers/firmware/sysfb.c
++++ b/drivers/firmware/sysfb.c
+@@ -35,6 +35,22 @@
+ #include <linux/screen_info.h>
+ #include <linux/sysfb.h>
+ 
++static int skip_simpledrm;
++
++static int __init simpledrm_disable(char *opt)
++{
++	if (!opt)
++                return -EINVAL;
++
++	get_option(&opt, &skip_simpledrm);
++
++	if (skip_simpledrm)
++		pr_info("The simpledrm driver will not be probed\n");
++
++	return 0;
++}
++early_param("nvidia-drm.modeset", simpledrm_disable);
++
+ static struct platform_device *pd;
+ static DEFINE_MUTEX(disable_lock);
+ static bool disabled;
+@@ -145,7 +161,7 @@ static __init int sysfb_init(void)
+ 
+ 	/* try to create a simple-framebuffer device */
+ 	compatible = sysfb_parse_mode(si, &mode);
+-	if (compatible) {
++	if (compatible && !skip_simpledrm) {
+ 		pd = sysfb_create_simplefb(si, &mode, parent);
+ 		if (!IS_ERR(pd))
+ 			goto put_device;
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 6030a823561735bf5c8c3329d26023735b63b638..60b7fe5fa74ad4e2d051efc3d2ae2f55682a238b 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -156,6 +156,8 @@ static inline void set_userns_rlimit_max(struct user_namespace *ns,
+ 
+ #ifdef CONFIG_USER_NS
+ 
++extern int unprivileged_userns_clone;
++
+ static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+ {
+ 	if (ns)
+@@ -189,6 +191,8 @@ extern bool current_in_userns(const struct user_namespace *target_ns);
+ struct ns_common *ns_get_owner(struct ns_common *ns);
+ #else
+ 
++#define unprivileged_userns_clone 0
++
+ static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
+ {
+ 	return &init_user_ns;
+diff --git a/init/Kconfig b/init/Kconfig
+index 5783a0b8751726ad97189d786dca9ee43cb8cd3c..5ea91114707c5cf43b10cc7de4260390e489d9d1 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1265,6 +1265,22 @@ config USER_NS
+ 
+ 	  If unsure, say N.
+ 
++config USER_NS_UNPRIVILEGED
++	bool "Allow unprivileged users to create namespaces"
++	default y
++	depends on USER_NS
++	help
++	  When disabled, unprivileged users will not be able to create
++	  new namespaces. Allowing users to create their own namespaces
++	  has been part of several recent local privilege escalation
++	  exploits, so if you need user namespaces but are
++	  paranoid^Wsecurity-conscious you want to disable this.
++
++	  This setting can be overridden at runtime via the
++	  kernel.unprivileged_userns_clone sysctl.
++
++	  If unsure, say Y.
++
+ config PID_NS
+ 	bool "PID Namespaces"
+ 	default y
+diff --git a/kernel/fork.c b/kernel/fork.c
+index dc08a23747338ca7ecbf823f97be4a1ad1a64a18..49ae2412d5b5a80f4d692dd8a4b1fbc16e0c1dc2 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -106,6 +106,10 @@
+ #include <linux/pidfs.h>
+ #include <linux/tick.h>
+ 
++#ifdef CONFIG_USER_NS
++#include <linux/user_namespace.h>
++#endif
++
+ #include <asm/pgalloc.h>
+ #include <linux/uaccess.h>
+ #include <asm/mmu_context.h>
+@@ -2136,6 +2140,10 @@ __latent_entropy struct task_struct *copy_process(
+ 	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
+ 		return ERR_PTR(-EINVAL);
+ 
++	if ((clone_flags & CLONE_NEWUSER) && !unprivileged_userns_clone)
++		if (!capable(CAP_SYS_ADMIN))
++			return ERR_PTR(-EPERM);
++
+ 	/*
+ 	 * Thread groups must share signals as well, and detached threads
+ 	 * can only be started up within the thread group.
+@@ -3285,6 +3293,12 @@ int ksys_unshare(unsigned long unshare_flags)
+ 	if (unshare_flags & CLONE_NEWNS)
+ 		unshare_flags |= CLONE_FS;
+ 
++	if ((unshare_flags & CLONE_NEWUSER) && !unprivileged_userns_clone) {
++		err = -EPERM;
++		if (!capable(CAP_SYS_ADMIN))
++			goto bad_unshare_out;
++	}
++
+ 	err = check_unshare_flags(unshare_flags);
+ 	if (err)
+ 		goto bad_unshare_out;
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 79e6cb1d5c48f8e4f48580114f09bed9d65481af..676e89dc38c339cfb7042f5d9ad825fea9d7b19b 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -80,6 +80,9 @@
+ #ifdef CONFIG_RT_MUTEXES
+ #include <linux/rtmutex.h>
+ #endif
++#ifdef CONFIG_USER_NS
++#include <linux/user_namespace.h>
++#endif
+ 
+ /* shared constants to be used in various sysctls */
+ const int sysctl_vals[] = { 0, 1, 2, 3, 4, 100, 200, 1000, 3000, INT_MAX, 65535, -1 };
+@@ -1618,6 +1621,15 @@ static struct ctl_table kern_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec,
+ 	},
++#ifdef CONFIG_USER_NS
++	{
++		.procname	= "unprivileged_userns_clone",
++		.data		= &unprivileged_userns_clone,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec,
++	},
++#endif
+ #ifdef CONFIG_PROC_SYSCTL
+ 	{
+ 		.procname	= "tainted",
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index 0b0b95418b16a7aa69078c6db3f59f7a15f388c2..c4b835b91fc005ade70657aeb7b5f41b06678888 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -22,6 +22,13 @@
+ #include <linux/bsearch.h>
+ #include <linux/sort.h>
+ 
++/* sysctl */
++#ifdef CONFIG_USER_NS_UNPRIVILEGED
++int unprivileged_userns_clone = 1;
++#else
++int unprivileged_userns_clone;
++#endif
++
+ static struct kmem_cache *user_ns_cachep __ro_after_init;
+ static DEFINE_MUTEX(userns_state_mutex);
+ 

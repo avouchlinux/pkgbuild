@@ -3,7 +3,8 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=sord
+pkgbase=sord
+pkgname=(sord sord-docs)
 pkgver=0.16.16
 pkgrel=1
 pkgdesc="A lightweight C library for storing RDF data in memory"
@@ -38,7 +39,7 @@ _pick() {
 }
 
 build() {
-  arch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname-$pkgver build
   meson compile -C build
 }
 

@@ -1,0 +1,44 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libva-intel-driver-hybrid
+_realname=intel-vaapi-driver
+pkgver=2.4.1
+pkgrel=1
+pkgdesc='VA-API implementation for Intel G45 and HD Graphics family'
+arch=('x86_64')
+groups=('x11-libs')
+url='https://01.org/linuxmedia/vaapi'
+license=('MIT')
+depends=('libva' 'libdrm')
+makedepends=('git' 'meson')
+replaces=('libva-driver-intel')
+source=("https://github.com/intel/intel-vaapi-driver/archive/$pkgver.tar.gz")
+
+prepare() {
+  cd intel-vaapi-driver-$pkgver
+
+  # Only relevant if intel-gpu-tools is installed,
+  # since then the shaders will be recompiled
+  # sed -i '1s/python$/&2/' src/shaders/gpp.py
+
+  # Fix undefined variable in src/meson.build
+  # sed -i 's/2.2.0/2.2.0.0/' meson.build
+  
+  # Fix building with GCC-10 and above
+  # sed -e 's/const/extern &/' \
+  #   -i src/gen9_hevc_enc_kernels_binary.h
+}
+
+build() {
+  export CFLAGS+=' -fcommon' # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+  avouch-meson -Denable_hybrid_codec=true intel-vaapi-driver-$pkgver build
+  ninja -C build
+}
+
+package() {
+  DESTDIR="${pkgdir}" meson install -C build
+  install -Dm 644 intel-vaapi-driver-$pkgver/COPYING -t "${pkgdir}"/usr/share/licenses/libva-intel-driver
+}

@@ -21,7 +21,7 @@ pkgname=('php'
          'php-sqlite'
          'php-tidy'
          'php-xsl')
-pkgver=8.3.12
+pkgver=8.3.13
 pkgrel=1
 arch=('x86_64')
 groups=('dev-lang')

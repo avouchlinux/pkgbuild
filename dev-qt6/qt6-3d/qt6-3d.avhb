@@ -6,7 +6,8 @@
 pkgname=qt6-3d
 pkgver=6.8.0
 pkgrel=1
-_realname="${pkgname/6-/}-everywhere-src-${pkgver}"
+_realname=${pkgname/6-/}
+_tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
 arch=('x86_64')
 groups=('dev-qt6')
 url='https://www.qt.io'
@@ -24,11 +25,11 @@ makedepends=(assimp
 optdepends=('assimp: assimp importer plugin'
             'qt6-declarative: QML bindings'
             'qt6-shadertools: RHI renderer')
-source=("https://download.qt.io/official_releases/qt/6.7/6.8.0/submodules/qt3d-everywhere-src-6.8.0.tar.xz")
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_tarname.tar.xz")
 sha256sums=('ff6434da878062aea612a9d7323bd615c2f232c4462c26323f1a5511aac6db89')
 
 build() {
-  cmake -B build -S $_realname -G Ninja \
+  cmake -B build -S $_tarname -G Ninja \
     -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
 
   cmake --build build

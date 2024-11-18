@@ -1,0 +1,28 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xclip
+pkgver=0.13
+pkgrel=1
+pkgdesc='Command line interface to the X11 clipboard'
+url='https://github.com/astrand/xclip'
+arch=('x86_64')
+groups=('app-admin')
+license=('GPL')
+depends=('libxmu')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('ca5b8804e3c910a66423a882d79bf3c9450b875ac8528791fb60ec9de667f758')
+
+build() {
+	cd "${pkgname}-${pkgver}"
+	./bootstrap
+	./configure --prefix=/usr
+	make
+}
+
+package() {
+	cd "${pkgname}-${pkgver}"
+	make DESTDIR="${pkgdir}" install
+}

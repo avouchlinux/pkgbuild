@@ -5,16 +5,18 @@
 
 pkgname=(cuda cuda-tools)
 pkgbase=cuda
-pkgver=12.4.0
-_driverver=550.54.14
+pkgver=12.6.2
+# Before upgrading, make sure that we ship at least this version of
+# nvidia-utils as otherwise we'll get stuff such as #7.
+_driverver=560.35.03
 pkgrel=1
 pkgdesc="NVIDIA's GPU programming toolkit"
 arch=('x86_64')
 groups=('dev-nvidia')
 url="https://developer.nvidia.com/cuda-zone"
 license=(LicenseRef-NVIDIA-CUDA)
-depends=('opencl-nvidia' 'nvidia-utils' 'python' 'gcc')
-options=(!strip staticlibs)
+depends=('opencl-nvidia' 'python' 'gcc')
+options=(!strip !debug staticlibs)
 install=cuda.install
 source=(https://developer.download.nvidia.com/compute/cuda/${pkgver}/local_installers/cuda_${pkgver}_${_driverver}_linux.run
         cuda.sh
@@ -46,9 +48,12 @@ source=(https://developer.download.nvidia.com/compute/cuda/${pkgver}/local_insta
         nvidia-ml.pc
         nvjpeg.pc
         nvrtc.pc
-        nvToolsExt.pc)
-sha512sums=('329b81c63dcefa5c6713eeb2dc5ccc223f5b456f4b7558bd3723d166357d8bb4c79d12082ea396aaadae8b5593b20584f7bd0cf617bb3494e4423b58726255a1'
-            '56a85e8a0b9ae5d4c4132a778af0d8f13589e68e0ac2def05fb5cb99e09da90f104c00debb072f7d689d8abd030b80898c361d902000e59a7b938776c6112cd8'
+        nvToolsExt.pc
+        nsight-compute.desktop
+        nsight-systems.desktop
+        nvvp.desktop)
+sha512sums=('b43be2aadc3b261a9758d303d893c7a31bfb353dcfda1adbef1dcc4eb3e7a52dc2ebfb0f30e68c1a08fec68f843e49540ab838436447fb70f9d1b2f2d7246dd4'
+            '3cac229e13762e09032c60b10c01d1af8da15871ec7ef76606fc69780c5d5e0410bf65c6b94230787fd9bb18c9d92083b3f65da36db97bbc8edb7a027c45a5be'
             '714d973bc79446f73bebe85306b3566fe25b554bcbcba2fcbe76709a3eca71fb5d183ab4da2d3b5e9326cb9cd8d13a93f6d4a005ea5a41f7ef8e6c6e81e06b5e'
             'a4b3b03682801a98a1d8c1d14c084fd35efd384d92d497e230e3a28e0bd97b1fa48a93ccb2150f892f0b4154ca4ea2d66f5484a6a59b5c9b49963de42ecf1736'
             'd69d3ec0e270648f55d8c3e420f89d056b120eca5b25e9e7fc1cca799d1a252909ee31ff399c137223eca57cdf82b856221a251b6ff1daf5d6f75c1a582b1e32'
@@ -77,11 +82,17 @@ sha512sums=('329b81c63dcefa5c6713eeb2dc5ccc223f5b456f4b7558bd3723d166357d8bb4c79
             'c2c0a15c1a1c4fe51c2be1eaf4ff790042b9d42b5959d02522ed7ad18b4c5880dd7d9cdfe88a6d1850b34ce7a22599fadc0e11ca94b595210c9150e44b5e8e66'
             'ede3cfcaaa655e73e47bd3475d94d33933c6e7c89c7dc7c98d9491e066ab4cf504e12ed4f1eab9edaeb358154bd86a43d359304675efa4fd4a67d01c97986f3b'
             '4405d88a132f3cf4e6c506962860503537a3c946fbd5f1c29c52bb6e6b45b13d14333bc772c62589337875200b23b0af17c9e5ce188d2f4018f488ea75501054'
-            '16003e7e6307d39a95fe246a7d079e9a3d827bd03fd5f03bdd2051a5033a1f93d9c8531073ef587808a9d0c75d20e3d79417a90b14102bc872d32c2c7a5ebdcb')
+            '16003e7e6307d39a95fe246a7d079e9a3d827bd03fd5f03bdd2051a5033a1f93d9c8531073ef587808a9d0c75d20e3d79417a90b14102bc872d32c2c7a5ebdcb'
 
-prepare() {
-  sh cuda_${pkgver}_${_driverver}_linux.run --target "${srcdir}" --noexec
-}
+'78109166c44bd9d84399f97805b2d7b3dc2dffd5730f2f7c5dde1c07c4e90e3a5af14ff2b46f4b90b8b8390f72ca509526e38042ecfb57f50bb69ccb1f34db15'
+
+'1f3edd63bc8d252f2818204657da9bcf9c78ec009d4b4e2addbad83e619c1ebaad9c28c0e592974d29e1ce1c29588ff9100a0970febe789cdea7316d16884cce'
+
+'0fdd26868445946d5a3a64fd1a9a996dab6e85ee07b08e7c64a66a5db194653b98817bee876838c792cf57fcd4747173f1b1e77b083a9bbbb68932c0aa95185a')
+
+# prepare() {
+#   sh cuda_${pkgver}_${_driverver}_linux.run --target "${srcdir}" --noexec
+# }
 
 build() {
   local _prepdir="${srcdir}/prep"
@@ -94,7 +105,6 @@ build() {
   mv cuda_demo_suite/extras/demo_suite "${_prepdir}/opt/cuda/extras/demo_suite"
   mv cuda_sanitizer_api/compute-sanitizer "${_prepdir}/opt/cuda/extras/compute-sanitizer"
   rm -rf cuda_sanitizer_api
-
   for lib in *; do
     if [[ "$lib" =~ .*"version.json".* ]]; then
       continue
@@ -103,27 +113,7 @@ build() {
   done
 
   # Delete some unnecessary files
-  rm -r "${_prepdir}"/opt/cuda/bin/cuda-uninstaller
-
-  # Define compilers for CUDA to use.
-  # This allows us to use older versions of GCC if we have to.
-  # NOTE: As of cuda 12.3, this appears to be broken on its own.
-  # It worked with cuda 12.2. Due to this bug. we now additionally need an
-  # entry in cuda.sh for this to be recognized.
-  ln -s /usr/bin/gcc "${_prepdir}/opt/cuda/bin/gcc"
-  ln -s /usr/bin/g++ "${_prepdir}/opt/cuda/bin/g++"
-
-  # Install profile and ld.so.config files
-  install -Dm644 "${srcdir}/cuda.sh" "${_prepdir}/etc/profile.d/cuda.sh"
-  install -Dm644 "${srcdir}/cuda.conf" "${_prepdir}/etc/ld.so.conf.d/cuda.conf"
-
-  # Install pkgconfig files
-  mkdir -p "$_prepdir"/usr/lib/pkgconfig
-  cp "${srcdir}"/*.pc "${_prepdir}"/usr/lib/pkgconfig
-
-  mkdir -p "${_prepdir}/usr/share/licenses/${pkgname}"
-  ln -s /opt/cuda/EULA.txt "${_prepdir}/usr/share/licenses/${pkgname}/EULA.txt"
-  ln -s /opt/cuda/README "${_prepdir}/usr/share/licenses/${pkgname}/README"
+  rm -rf "${_prepdir}"/opt/cuda/bin/cuda-uninstaller
 
   # Add a symlink lib->lib64 as some libraries might expect that (FS#76951)
   ln -s lib64 "${_prepdir}/opt/cuda/lib"
@@ -146,18 +136,31 @@ package_cuda() {
   provides=('cuda-toolkit' 'cuda-sdk' 'libcudart.so' 'libcublas.so' 'libcusolver.so' 'libcusparse.so')
   optdepends=('gdb: for cuda-gdb'
               'glu: required for some profiling tools in CUPTI'
+              'nvidia-utils: for NVIDIA drivers (not needed in CDI containers)'
               'rdma-core: for GPUDirect Storage (libcufile_rdma.so)')
 
   local _prepdir="${srcdir}/prep"
 
   cd "${_prepdir}"
-  cp -a * "${pkgdir}"
+  cp -ar * "${pkgdir}"
 
   # remove broken links
-  # rm -f "${pkgdir}"/opt/cuda/include/include
-  # rm -f "${pkgdir}"/opt/cuda/lib64/lib64
+  rm "${pkgdir}"/opt/cuda/include/include
+  rm "${pkgdir}"/opt/cuda/lib64/lib64
 
-  rm -rf "${pkgdir}"/opt/cuda/{bin/nvvp,bin/computeprof,libnvvp,nsight*}
+  # Install pkgconfig files
+  install -Dt "${pkgdir}"/usr/lib/pkgconfig "${srcdir}"/*.pc
+
+  # Install profile and ld.so.config files
+  install -Dm644 "${srcdir}/cuda.sh" "${pkgdir}/etc/profile.d/cuda.sh"
+  install -Dm644 "${srcdir}/cuda.conf" "${pkgdir}/etc/ld.so.conf.d/cuda.conf"
+
+  rm -r "${pkgdir}"/opt/cuda/{bin/nvvp,bin/computeprof,libnvvp,nsight*}
+
+  # Licenses
+  mkdir -p "${pkgdir}/usr/share/licenses/${pkgname}"
+  ln -s /opt/cuda/EULA.txt "${pkgdir}/usr/share/licenses/${pkgname}/EULA.txt"
+  ln -s /opt/cuda/README "${pkgdir}/usr/share/licenses/${pkgname}/README"
 }
 
 package_cuda-tools() {
@@ -173,7 +176,10 @@ package_cuda-tools() {
   mv "${_prepdir}"/opt/cuda/bin/computeprof "${pkgdir}/opt/cuda/bin/computeprof"
   mv "${_prepdir}"/opt/cuda/libnvvp "${pkgdir}/opt/cuda"
 
-  # licenses
+  # Install desktop entries
+  install -Dt "${pkgdir}"/usr/share/applications "${srcdir}"/*.desktop
+
+  # Licenses
   mkdir -p "${pkgdir}/usr/share/licenses"
   ln -s /usr/share/licenses/cuda "${pkgdir}/usr/share/licenses/${pkgname}"
 }

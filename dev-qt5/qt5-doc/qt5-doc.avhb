@@ -6,23 +6,26 @@
 pkgbase=qt5-doc
 pkgname=(qt5-doc qt5-examples)
 _realname="qt-everywhere-opensource-src"
-pkgver=5.15.10
+_basever=5.15.15
+pkgver=$_basever
 pkgrel=1
 arch=('any')
 groups=('dev-qt')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
-makedepends=('qt5-tools' 'python' 'pciutils' 'libxtst' 'libxcursor' 'libxrandr' 'libxss' 'libxcomposite'
+makedepends=('qt5-tools' 'python' 'pciutils' 'libxtst' 'libxcursor' 'libxrandr' 'libxss' 'libxcomposite' 'libxkbfile'
              'gperf' 'nss' 'clang' 'nodejs')
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver}/single/${_realname}-${pkgver}.tar.xz"
+groups=('qt5')
+_pkgfqn="qt-everywhere-opensource-src-${pkgver}"
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver}/single/$_pkgfqn.tar.xz"
          qt5-webengine-python3.patch
          no-qmake.patch)
-sha256sums=('b7412734698a87f4a0ae20751bab32b1b07fdc351476ad8e35328dbe10efdedb'
+sha256sums=('b423c30fe3ace7402e5301afbb464febfb3da33d6282a37a665be1e51502335e'
             '398c996cb5b606695ac93645143df39e23fa67e768b09e0da6dbd37342a43f32'
-            '7893df4981d6611c5aaeb4cc69bc77d14b4251842b205591a563f9a7184dfb0a')
+            'db90fa31381fa0814c9c8c803c9e2f9b36bdd6f52da753399e500c0692352498')
 
 prepare() {
-  cd ${_realname/opensource-/}-${pkgver}
+  cd ${_pkgfqn/opensource-/}
 
   ln -s /usr/bin qttools/
   ln -s /usr/bin/{rcc,uic,moc,qmake} qtbase/bin/
@@ -32,7 +35,7 @@ prepare() {
 }
 
 build() {
-  cd ${_realname/opensource-/}-${pkgver}
+  cd ${_pkgfqn/opensource-/}
 
   ./configure -confirm-license -opensource \
     -prefix /usr \
@@ -42,14 +45,14 @@ build() {
     -datadir /usr/share/qt \
     -sysconfdir /etc/xdg \
     -nomake examples
-  make ${MAKEFLAGS} docs
+  make docs
 }
 
 package_qt5-doc() {
   pkgdesc='A cross-platform application and UI framework (Documentation)'
   depends=('qt5-base')
 
-  cd ${_realname/opensource-/}-${pkgver}
+  cd ${_pkgfqn/opensource-/}
   make INSTALL_ROOT="$pkgdir" install_docs
 
   install -d "$pkgdir"/usr/share/licenses
@@ -64,19 +67,12 @@ package_qt5-examples() {
 
   # The various example dirs have conflicting .pro files, but
   # QtCreator requires them to be in the same top-level directory.
-  # Matching the Qt5 installer, only the qtbase project is kept.
+  # Matching the Qt installer, only the qtbase project is kept.
   mkdir -p $_base
-  cp ${_realname/opensource-/}-${pkgver}/qtbase/examples/examples.pro $_base
-
-  _fdirs=$(find "${_realname/opensource-/}-${pkgver}" -maxdepth 2 -type d -name examples)
+  cp ${_pkgfqn/opensource-/}/qtbase/examples/examples.pro $_base
+  _fdirs=$(find "${_pkgfqn/opensource-/}" -maxdepth 2 -type d -name examples)
   for _dir in $_fdirs; do
-      _mod=$(basename ${_dir%/examples})
-
-      if [ -e "$_dir/README" ]; then
-        cp $_dir/README $_dir/README.$_mod
-      fi
-
-#     mkdir $_base/$_mod
-      cp -rn $_dir/* $_base
+    rm -f $_dir/{examples.pro,README}
+    cp -rn $_dir/* $_base
   done
 }

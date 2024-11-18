@@ -1,0 +1,96 @@
+# Copyright 2010-2020 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=texlive-texmf
+pkgname=('texlive-texmf' 'texlive-doc' 'texlive-fonts')
+pkgver=20240312
+_realname=texlive-$pkgver-texmf
+pkgrel=1
+license=('GPL')
+arch=('x86_64')
+groups=('dev-texlive')
+depends=('texlive')
+url='http://tug.org/texlive/'
+source=("https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/${pkgver:0:4}/texlive-$pkgver-texmf.tar.xz")
+
+package_texlive-texmf() {
+   pkgdesc="TeX Live - Large collection of add-on packages for LaTeX"
+
+   # tar -xf $srcarchivedir/$_realname.tar.xz -C $pkgdir/usr/share --strip-components=1
+   cd $_realname
+
+   # split packages
+   mv texmf-dist/doc $srcdir/
+   mv texmf-dist/fonts $srcdir/
+
+   # install remaining foles
+   mkdir -p $pkgdir/usr/share
+   mv texmf-dist $pkgdir/usr/share/
+
+   #############################################################
+   ### install texmf tree
+   echo "--> installing the /etc/texmf tree"
+   install -d -m755 "$pkgdir"/etc/texmf/web2c
+   install -d -m755 "$pkgdir"/etc/texmf/chktex
+   install -d -m755 "$pkgdir"/etc/texmf/dvips/config
+   install -d -m755 "$pkgdir"/etc/texmf/dvipdfmx
+   install -d -m755 "$pkgdir"/etc/texmf/tex/generic/config
+   install -d -m755 "$pkgdir"/etc/texmf/tex/generic/tex-ini-files
+   install -d -m755 "$pkgdir"/etc/texmf/ttf2pk
+   install -d -m755 "$pkgdir"/etc/texmf/xdvi
+
+   # copy config files to $TEXMFCONFIG tree
+   cp -a "$pkgdir"/usr/share/texmf-dist/chktex/chktexrc \
+     	"$pkgdir"/etc/texmf/chktex/
+   cp -a "$pkgdir"/usr/share/texmf-dist/web2c/mktex.cnf \
+   	  "$pkgdir"/etc/texmf/web2c/
+   cp -a "$pkgdir"/usr/share/texmf-dist/web2c/updmap-hdr.cfg \
+   	  "$pkgdir"/etc/texmf/web2c/
+   cp -a "$pkgdir"/usr/share/texmf-dist/web2c/fmtutil-hdr.cnf \
+   	  "$pkgdir"/etc/texmf/web2c/fmtutil.cnf
+   cp -a "$pkgdir"/usr/share/texmf-dist/dvips/config/config.ps \
+   	  "$pkgdir"/etc/texmf/dvips/config/
+   cp -a "$pkgdir"/usr/share/texmf-dist/dvipdfmx/dvipdfmx.cfg \
+   	  "$pkgdir"/etc/texmf/dvipdfmx/
+   cp -a "$pkgdir"/usr/share/texmf-dist/tex/generic/tex-ini-files/pdftexconfig.tex \
+   	  "$pkgdir"/etc/texmf/tex/generic/tex-ini-files/
+   cp -a "$pkgdir"/usr/share/texmf-dist/tex/generic/config/language.dat \
+   	  "$pkgdir"/etc/texmf/tex/generic/config/
+   cp -a "$pkgdir"/usr/share/texmf-dist/tex/generic/config/language.def \
+   	  "$pkgdir"/etc/texmf/tex/generic/config/
+   cp -a "$pkgdir"/usr/share/texmf-dist/ttf2pk/ttf2pk.cfg \
+   	  "$pkgdir"/etc/texmf/ttf2pk/
+   cp -a "$pkgdir"/usr/share/texmf-dist/xdvi/XDvi \
+   	  "$pkgdir"/etc/texmf/xdvi/
+
+   # remove TL specific warnings in the language.{dat,def} files:
+   sed -i -e '/DO NOT EDIT/,+3 d' "$pkgdir"/etc/texmf/tex/generic/config/language.*
+
+   # It has been established by debian that the python scripts in latex-make will work with python3, 
+   # so update them to invoke that by running the following command as the root user:
+
+   for F in $pkgdir/usr/share/texmf-dist/scripts/latex-make/*.py ; do
+   sed -i 's%/usr/bin/env python%/usr/bin/python3%' $F
+   done
+}
+
+package_texlive-doc() {
+   pkgdesc="TeX Live documents"
+
+   mkdir -p $pkgdir/usr/share/texmf-dist
+   mv $srcdir/doc $pkgdir/usr/share/texmf-dist/
+
+}
+
+package_texlive-fonts() {
+   pkgdesc="TeX Live fonts collection"
+
+   mkdir -p $pkgdir/usr/share/texmf-dist
+   mv $srcdir/fonts $pkgdir/usr/share/texmf-dist/
+
+   install -d -m755 "$pkgdir"/etc/fonts/conf.avail
+   install -m644 "$srcdir"/09-texlive-fonts.conf "$pkgdir"/etc/fonts/conf.avail/
+
+}  

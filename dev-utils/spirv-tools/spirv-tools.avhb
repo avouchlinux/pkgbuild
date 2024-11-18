@@ -14,7 +14,6 @@ arch=('x86_64')
 groups=('dev-utils')
 url="https://www.khronos.org/vulkan/"
 license=('Apache-2.0')
-groups=(vulkan-devel)
 depends=('gcc-libs' 'sh')
 makedepends=('cmake' 'python' 'ninja' 'spirv-headers')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/v${_tag}.tar.gz")

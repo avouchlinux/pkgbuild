@@ -13,7 +13,7 @@ url="https://nouveau.freedesktop.org/"
 license=('MIT')
 depends=('systemd-libs' 'mesa' 'libdrm' 'glibc')
 makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.2' 'systemd')
-conflicts=('xorg-server<21.1.1' 'X-ABI-VIDEODRV_VERSION<25' 'X-ABI-VIDEODRV_VERSION>=26')
+conflicts=('xorg-server<=21.1.1' 'X-ABI-VIDEODRV_VERSION<=25' 'X-ABI-VIDEODRV_VERSION>=26')
 groups=('xorg-drivers')
 source=(https://xorg.freedesktop.org/archive/individual/driver/$pkgname-$pkgver.tar.bz2{,.sig}
         xorg-server-21.1.diff)

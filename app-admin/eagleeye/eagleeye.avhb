@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,27 +8,17 @@ pkgver=0.4.0
 pkgrel=1
 pkgdesc="Avouch Linux package installer"
 arch=('x86_64')
-groups=('sys-apps')
+groups=('app-admin')
 url="http://www.avouch.org/projects/eagleeye/"
 license=('GPL')
 depends=('python')
 install=eagleeye.install
-source=("https://github.com/qurbanullah/eagleeye.git")
-
-getsrc() {
-  [ -d $pkgname ] && rm -r $pkgname
-	git clone $source
-}
+source=("git+https://github.com/avouchlinux/eagleeye.git")
 
 build() {
   cd $pkgname
   python3 setup.py build
 }
-
-# check() {
-#   cd $pkgname
-#   python3 setup.py pytest
-# }
 
 package() {
   cd $pkgname

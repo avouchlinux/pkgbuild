@@ -7,6 +7,7 @@ pkgname=assimp
 pkgver=5.4.2
 pkgrel=1
 pkgdesc="Library to import various well-known 3D model formats in an uniform manner"
+url='https://github.com/assimp/assimp'
 arch=('x86_64')
 groups=('media-grafix')
 license=('BSD')

@@ -3,12 +3,23 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
+
+# README
+# this package requires glibc-debug to run the check() function
+# as -debug packages are not available in [core], it has to be applied manually
+# whenever the tests shall run
+#
+# For a fresh build:
+# pkgctl build -I ../../glibc/trunk/glibc-debug*.pkg.tar.zst
+# pkgctl build
+
 pkgname=valgrind
-pkgver=3.23.0
+pkgver=3.24.0
 pkgrel=1
 pkgdesc='Tool to help find memory-management problems in programs'
 arch=('x86_64')
 groups=('dev-utils')
+license=('GPL-2.0-or-later')
 url='https://valgrind.org/'
 depends=('glibc' 'perl' 'debuginfod')
 makedepends=('gdb' 'lib32-glibc' 'lib32-gcc-libs' 'docbook-xml'
@@ -27,22 +38,22 @@ validpgpkeys=(
   0E9FFD0C16A1856CF9C7C690BA0166E698FA6035 # Julian Seward <jseward@acm.org>
   EC3CFE88F6CA0788774F5C1D1AA44BE649DE760A # Mark Wielaard <mjw@gnu.org>
 )
-sha512sums=('27d038faaaf6154cace2df18c3573291393548ba0738dbb6aba58eab6324c5beaa95fc5f3c0271663ca071baf829b15d806f7e81074f7cf087bef20ea0ed3117'
+sha512sums=('6c131ff93d1f432d8362a47285cc377cba224ebca4f18e922c6156f7736d43020ece14d8fd16913498ab00fd18c85e2042a7d5351c3901e80413c584ebb406f3'
             'SKIP'
             'e0cec39381cefeca09ae4794cca309dfac7c8693e6315e137e64f5c33684598726d41cfbb4edf764fe985503b13ff596184ca5fc32b159d500ec092e4cf8838c')
-b2sums=('9312761b0531006725f13270984b26c48f71ebe66e355b04410d7c01773c9b78ec21db3259cab398e58b3b68f93f5f074db06efe1f359bd7cf423515576191a4'
+b2sums=('e11ad08f0062bd39788cd71d7ce058dec7a7207fbbe25f0dbfc7fb5735667809681cec2c843659553fbd49bcc6c71bdb93d87ffda3589247e4ee87c98fe51332'
         'SKIP'
         'af556fdf3c02e37892bfe9afebc954cf2f1b2fa9b75c1caacfa9f3b456ebc02bf078475f9ee30079b3af5d150d41415a947c3d04235c1ea8412cf92b959c484a')
 options=(!lto) # https://bugs.kde.org/show_bug.cgi?id=338252
 
 prepare() {
   cd valgrind-${pkgver}
-  # patch -Np1 < ../valgrind-3.7.0-respect-flags.patch
-  
-	# patch -Np1 < ../valgrind-3.15.0-Build-ldst_multiple-test-with-fno-pie.patch
-	# patch -Np1 < ../valgrind-3.21.0-glibc-2.34-suppressions.patch
-	# patch -Np1 < ../0004-Bug-478624-Valgrind-incompatibility-with-binutils-2..patch
-	
+  patch -Np1 < ../valgrind-3.9.0-cachegrind-improvements.patch
+  patch -Np1 < ../valgrind-3.9.0-ldso-supp.patch
+	patch -Np1 < ../valgrind-3.16.0-some-stack-protector.patch
+  patch -Np1 < ../valgrind-3.16.0-some-Wl-z-now.patch
+
+
   sed -i 's|sgml/docbook/xsl-stylesheets|xml/docbook/xsl-stylesheets-1.79.2-nons|' docs/Makefile.am
 
   autoreconf -ifv
@@ -50,6 +61,9 @@ prepare() {
 
 build() {
   cd valgrind-${pkgver}
+
+  export CFLAGS=
+  export LDFLAGS=
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
@@ -106,10 +120,9 @@ package() {
   cd valgrind-${pkgver}
   make DESTDIR="${pkgdir}" install
 
-  # install -Dm644 docs/*.1 -t "$pkgdir/usr/share/man/man1"
+  install -Dm644 docs/*.1 -t "$pkgdir/usr/share/man/man1"
 
   if check_option 'debug' n; then
     find "${pkgdir}/usr/bin" -type f -executable -exec strip $STRIP_BINARIES {} + || :
   fi
 }
-
