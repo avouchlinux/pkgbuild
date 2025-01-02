@@ -1,0 +1,89 @@
+yatana-ido
+cairo
+fltk
+gdk-pixbuf2
+gtk2 ##################
+gtk3
+gtk4
+gtkd
+gtkglext
+gtk-layer-shell
+libappindicator
+libayatana-indicator
+libdbusmenu
+libdecor
+libdisplay-info
+libdmx ##################
+libdrm
+libfm
+libfontenc
+libfs ##################
+libgedit-amtk
+libgedit-gtksourceview
+libglvnd
+libice
+libindicator
+liblbxutil ##################
+libpciaccess
+libportal
+libsm
+libva
+libva-intel-driver
+libva-vdpau-driver
+libvdpau
+libvpl
+libvdpau-va-gl
+libx11
+libxau
+libxaw
+libxaw3d ##################
+libxcb
+libxcomposite
+libxcursor
+libxcvt
+libxdamage
+libxdmcp
+libxevie ##################
+libxext
+libxfixes
+libxfont1 ##################
+libxfont2
+libxfontcache ##################
+libxft
+libxi
+libxinerama
+libxkbfile
+libxkbui ##################
+libxmu
+libxp
+libxpm
+libxpresent
+libxrandr
+libxrender
+libxres
+libxscrnsaver ##################
+libxshmfence
+libxt
+libxtrap ##################
+libxtst
+libxv
+libxvmc
+libxxf86dga ##################
+libxxf86misc ##################
+libxxf86vm
+pango
+pangox-compat
+pixman
+qcoro
+qscintilla
+startup-notification
+wxwidgets
+xcb-util
+xcb-util-cursor
+xcb-util-errors
+xcb-util-image
+xcb-util-keysyms
+xcb-util-renderutil
+xcb-util-wm
+xpyb
+xtrans

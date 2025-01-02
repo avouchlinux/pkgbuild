@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>aisleriot</Name>
+	 <Name>atomix</Name>
+	 <Name>five-or-more</Name>
+	 <Name>four-in-a-row</Name>
+	 <Name>girl</Name>
+	 <Name>gnome-2048</Name>
+	 <Name>gnome-chess</Name>
+	 <Name>gnome-klotski</Name>
+	 <Name>gnome-mahjongg</Name>
+	 <Name>gnome-mines</Name>
+	 <Name>gnome-nibbles</Name>
+	 <Name>gnome-robots</Name>
+	 <Name>gnome-sudoku</Name>
+	 <Name>gnome-taquin</Name>
+	 <Name>gnome-tetravex</Name>
+	 <Name>hitori</Name>
+	 <Name>iagno</Name>
+	 <Name>libgames-support</Name>
+	 <Name>libgnome-games-support</Name>
+	 <Name>lightsoff</Name>
+	 <Name>quadrapassel</Name>
+	 <Name>swell-foop</Name>
+	 <Name>tali</Name>
+</Packages>

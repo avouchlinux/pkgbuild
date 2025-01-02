@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>gpart</Name>
+	 <Name>gparted</Name>
+	 <Name>nbd</Name>
+	 <Name>open-iscsi</Name>
+	 <Name>open-isns</Name>
+	 <Name>parted</Name>
+	 <Name>partitionmanager</Name>
+	 <Name>thin-provisioning-tools</Name>
+</Packages>

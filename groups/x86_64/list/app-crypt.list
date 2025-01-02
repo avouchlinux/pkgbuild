@@ -1,0 +1,11 @@
+argon2
+botan
+jose
+libtomcrypt
+pesign
+qca
+qtkeychain-qt5
+qtkeychain-qt6
+rhash
+tpm2-tss
+xxhash

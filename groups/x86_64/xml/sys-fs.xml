@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>aufs-util</Name>
+	 <Name>btrfs-progs</Name>
+	 <Name>cryfs</Name>
+	 <Name>dmg2img</Name>
+	 <Name>dosfstools</Name>
+	 <Name>e2fsprogs</Name>
+	 <Name>encfs</Name>
+	 <Name>exfat-utils</Name>
+	 <Name>extundelete</Name>
+	 <Name>fuse-exfat</Name>
+	 <Name>fuseiso</Name>
+	 <Name>jfsutils</Name>
+	 <Name>ntfs-3g</Name>
+	 <Name>reiserfsprogs</Name>
+	 <Name>squashfs-tools</Name>
+	 <Name>sshfs</Name>
+	 <Name>sysfsutils</Name>
+	 <Name>xfsdump</Name>
+	 <Name>xfsprogs</Name>
+</Packages>

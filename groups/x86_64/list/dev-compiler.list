@@ -1,0 +1,17 @@
+bin86
+clang
+compiler-rt
+dejagnu
+dev86
+fpc
+fpc-src
+gcc
+gc
+go
+ldc
+llvm
+luajit
+nasm
+orc
+vala
+yasm

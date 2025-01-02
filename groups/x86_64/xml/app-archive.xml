@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>brotli</Name>
+	 <Name>bzip2</Name>
+	 <Name>cabextract</Name>
+	 <Name>gzip</Name>
+	 <Name>lz4</Name>
+	 <Name>lzo2</Name>
+	 <Name>minizip</Name>
+	 <Name>p7zip</Name>
+	 <Name>rar</Name>
+	 <Name>sharutils</Name>
+	 <Name>snappy</Name>
+	 <Name>unzip</Name>
+	 <Name>upx</Name>
+	 <Name>xarchiver</Name>
+	 <Name>xz</Name>
+	 <Name>zip</Name>
+	 <Name>zstd</Name>
+	 <Name>zziplib</Name>
+</Packages>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>dleyna-server</Name>
+	 <Name>fluxion</Name>
+	 <Name>gsasl</Name>
+	 <Name>radvd</Name>
+	 <Name>socat</Name>
+	 <Name>spluginwrapper</Name>
+	 <Name>ssh-askpass</Name>
+	 <Name>openssh-askpass</Name>
+	 <Name>x11-ssh-askpass</Name>
+	 <Name>stunnel</Name>
+	 <Name>youtube-dl</Name>
+</Packages>

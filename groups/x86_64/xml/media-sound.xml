@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>audacious</Name>
+	 <Name>audacious-plugins</Name>
+	 <Name>mpd</Name>
+	 <Name>mpg123</Name>
+	 <Name>pavucontrol</Name>
+	 <Name>pnmixer</Name>
+	 <Name>sayonara-player</Name>
+	 <Name>wildmidi</Name>
+	 <Name>zita-resampler</Name>
+</Packages>

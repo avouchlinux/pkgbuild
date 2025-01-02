@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>isl</Name>
+	 <Name>osl</Name>
+	 <Name>cloog</Name>
+	 <Name>crypto++</Name>
+	 <Name>fcgi</Name>
+	 <Name>fvk</Name>
+	 <Name>grantlee-qt4</Name>
+	 <Name>hiredis</Name>
+	 <Name>intel-tbb</Name>
+	 <Name>libappindicator</Name>
+	 <Name>libdbusmenu-qt</Name>
+	 <Name>libexplain</Name>
+	 <Name>libisocodes</Name>
+	 <Name>libjson</Name>
+	 <Name>libofx</Name>
+	 <Name>liboil</Name>
+	 <Name>libotf</Name>
+	 <Name>libpsl</Name>
+	 <Name>libsass</Name>
+	 <Name>libtommath</Name>
+	 <Name>libutf8proc</Name>
+	 <Name>libuv</Name>
+	 <Name>libzip</Name>
+	 <Name>m17n-lib</Name>
+	 <Name>newt</Name>
+	 <Name>ocl-icd</Name>
+	 <Name>offload-nvptx</Name>
+	 <Name>oniguruma</Name>
+	 <Name>opencl-headers</Name>
+	 <Name>ostree</Name>
+	 <Name>glpk</Name>
+	 <Name>ppl</Name>
+	 <Name>process-cpp</Name>
+	 <Name>properties-cpp</Name>
+	 <Name>protobuf</Name>
+	 <Name>publicsuffix-list</Name>
+	 <Name>qjson</Name>
+	 <Name>qoauth</Name>
+	 <Name>qqwing</Name>
+	 <Name>seed</Name>
+	 <Name>tre</Name>
+	 <Name>ucl</Name>
+	 <Name>vc</Name>
+	 <Name>yajl</Name>
+</Packages>

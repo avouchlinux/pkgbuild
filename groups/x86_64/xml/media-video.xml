@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>avidemux</Name>
+	 <Name>ffmpegthumbnailer</Name>
+	 <Name>ffmulticonverter</Name>
+	 <Name>flashplugin</Name>
+	 <Name>gnome-mplayer</Name>
+	 <Name>handbrake</Name>
+	 <Name>kmplayer</Name>
+	 <Name>mjpegtools</Name>
+	 <Name>mkclean</Name>
+	 <Name>mplayer</Name>
+	 <Name>mpv</Name>
+	 <Name>pitivi</Name>
+	 <Name>smplayer</Name>
+	 <Name>smplayer-skins</Name>
+	 <Name>smplayer-themes</Name>
+	 <Name>smtube</Name>
+	 <Name>transcode</Name>
+	 <Name>transmageddon</Name>
+	 <Name>vlc</Name>
+	 <Name>winff</Name>
+	 <Name>xine-ui</Name>
+</Packages>

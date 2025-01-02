@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>texlive-bibtexextra</Name>
+	 <Name>texlive-bin</Name>
+	 <Name>texlive-core</Name>
+	 <Name>texlive-extra</Name>
+	 <Name>texlive-fontsextra</Name>
+	 <Name>texlive-formatsextra</Name>
+	 <Name>texlive-games</Name>
+	 <Name>texlive-humanities</Name>
+	 <Name>texlive-langchinese</Name>
+	 <Name>texlive-langcyrillic</Name>
+	 <Name>texlive-langextra</Name>
+	 <Name>texlive-langgreek</Name>
+	 <Name>texlive-langjapanese</Name>
+	 <Name>texlive-langkorean</Name>
+	 <Name>texlive-latexextra</Name>
+	 <Name>texlive-music</Name>
+	 <Name>texlive-pictures</Name>
+	 <Name>texlive-pstricks</Name>
+	 <Name>texlive-publishers</Name>
+	 <Name>texlive-science</Name>
+</Packages>

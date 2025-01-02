@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>composer</Name>
+	 <Name>pdepend</Name>
+	 <Name>php-box</Name>
+	 <Name>php-codesniffer</Name>
+	 <Name>phpcov</Name>
+	 <Name>php-cs-fixer</Name>
+	 <Name>phpdocumentor2</Name>
+	 <Name>phpdox</Name>
+	 <Name>phploc</Name>
+	 <Name>phpmetrics</Name>
+	 <Name>phptok</Name>
+	 <Name>phpunit</Name>
+	 <Name>phpunit-skeleton-generator</Name>
+	 <Name>producer</Name>
+	 <Name>semver</Name>
+</Packages>

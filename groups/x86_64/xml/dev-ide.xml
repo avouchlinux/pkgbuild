@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>aptana-studio</Name>
+	 <Name>bluefish</Name>
+	 <Name>codelite</Name>
+	 <Name>eclipse</Name>
+	 <Name>geany</Name>
+	 <Name>geany-plugins</Name>
+	 <Name>glade</Name>
+	 <Name>highlight</Name>
+	 <Name>netbeans</Name>
+	 <Name>phpstorm</Name>
+	 <Name>svnkit</Name>
+	 <Name>zendstudio</Name>
+</Packages>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>lxdm</Name>
+	 <Name>sddm</Name>
+	 <Name>sddm-config-editor</Name>
+	 <Name>sddm-theme-breeze</Name>
+	 <Name>sddm-theme-solarized</Name>
+</Packages>

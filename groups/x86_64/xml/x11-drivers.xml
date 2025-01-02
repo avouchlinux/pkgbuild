@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>xf86-input-evdev</Name>
+	 <Name>xf86-input-joystick</Name>
+	 <Name>xf86-input-keyboard</Name>
+	 <Name>xf86-input-libinput</Name>
+	 <Name>xf86-input-mouse</Name>
+	 <Name>xf86-input-synaptics</Name>
+	 <Name>xf86-input-void</Name>
+	 <Name>xf86-input-wacom</Name>
+	 <Name>xf86-video-amdgpu</Name>
+	 <Name>xf86-video-ark</Name>
+	 <Name>xf86-video-ast</Name>
+	 <Name>xf86-video-ati</Name>
+	 <Name>xf86-video-cirrus</Name>
+	 <Name>xf86-video-dummy</Name>
+	 <Name>xf86-video-fbdev</Name>
+	 <Name>xf86-video-geode</Name>
+	 <Name>xf86-video-glint</Name>
+	 <Name>xf86-video-i128</Name>
+	 <Name>xf86-video-i740</Name>
+	 <Name>xf86-video-intel</Name>
+	 <Name>xf86-video-mach64</Name>
+	 <Name>xf86-video-mga</Name>
+	 <Name>xf86-video-neomagic</Name>
+	 <Name>xf86-video-nouveau</Name>
+	 <Name>xf86-video-nv</Name>
+	 <Name>xf86-video-openchrome</Name>
+	 <Name>xf86-video-r128</Name>
+	 <Name>xf86-video-savage</Name>
+	 <Name>xf86-video-siliconmotion</Name>
+	 <Name>xf86-video-sis</Name>
+	 <Name>xf86-video-tdfx</Name>
+	 <Name>xf86-video-trident</Name>
+	 <Name>xf86-video-vboxvideo</Name>
+	 <Name>xf86-video-vesa</Name>
+	 <Name>xf86-video-vmware</Name>
+	 <Name>xf86-video-voodoo</Name>
+</Packages>

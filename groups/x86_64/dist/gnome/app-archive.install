@@ -1,0 +1,24 @@
+brotli-1.1.0-1-avh040-x86_64.avh.tar.zst
+python3-brotli-1.1.0-1-avh040-x86_64.avh.tar.zst
+brotli-testdata-1.1.0-1-avh040-x86_64.avh.tar.zst
+bzip2-1.0.8-1-avh02-x86_64.avhp.tar.zstd
+cabextract-1.9.1-1-avh02-x86_64.avhp.tar.zstd
+gzip-1.10-1-avh02-x86_64.avhp.tar.zstd
+lz4-1.9.2-1-avh02-x86_64.avhp.tar.zstd
+lzo2-2.10-1-avh02-x86_64.avhp.tar.zstd
+# p7zip-17.04-1-avh02-x86_64.avhp.tar.zstd
+pigz-2.4-1-avh02-x86_64.avhp.tar.zstd
+sharutils-4.15.2-1-avh02-x86_64.avhp.tar.zstd
+snappy-1.1.8-1-avh02-x86_64.avhp.tar.zstd
+unrar-5.9.2-1-avh02-x86_64.avhp.tar.zstd
+libunrar-5.9.2-1-avh02-x86_64.avhp.tar.zstd
+unzip-6.0-1-avh02-x86_64.avhp.tar.zstd
+upx-3.96-1-avh02-x86_64.avhp.tar.zstd
+# xarchiver-0.5.4.14-1-avh02-x86_64.avhp.tar.zstd
+# xarchiver-gtk2-0.5.4.14-1-avh02-x86_64.avhp.tar.zstd
+xz-5.2.5-1-avh02-x86_64.avhp.tar.zstd
+zip-3.0-1-avh02-x86_64.avhp.tar.zstd
+zlib-1.2.11-1-avh02-x86_64.avhp.tar.zstd
+minizip-1.2.11-1-avh02-x86_64.avhp.tar.zstd
+zstd-1.5.0-1-avh02-x86_64.avhp.tar.zstd
+zziplib-0.13.71-1-avh02-x86_64.avhp.tar.zstd

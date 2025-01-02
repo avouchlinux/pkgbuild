@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>aak</Name>
+	 <Name>adi</Name>
+	 <Name>alum</Name>
+	 <Name>amp</Name>
+	 <Name>apm</Name>
+	 <Name>aum</Name>
+	 <Name>checkpolicy</Name>
+	 <Name>checkpolicy-2.5</Name>
+	 <Name>dcfldd</Name>
+	 <Name>eagleeye</Name>
+	 <Name>fbset</Name>
+	 <Name>fwupd</Name>
+	 <Name>fwupdate</Name>
+	 <Name>hdparm</Name>
+	 <Name>help2man</Name>
+	 <Name>moreutils</Name>
+	 <Name>osinfo-db-tools</Name>
+	 <Name>pick</Name>
+	 <Name>policycoreutils</Name>
+	 <Name>secilc</Name>
+	 <Name>sg3_utils</Name>
+	 <Name>smartmontools</Name>
+	 <Name>time</Name>
+	 <Name>usbredir</Name>
+</Packages>

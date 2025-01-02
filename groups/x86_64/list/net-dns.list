@@ -1,0 +1,8 @@
+avahi
+bind
+c-ares
+dnssec-anchors
+fstrm
+idnkit
+nsd
+nss-mdns

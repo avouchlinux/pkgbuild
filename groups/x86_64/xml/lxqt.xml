@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>compton-conf</Name>
+	 <Name>libfm-qt</Name>
+	 <Name>liblxqt</Name>
+	 <Name>libqtxdg</Name>
+	 <Name>libstatgrab</Name>
+	 <Name>libsysstat</Name>
+	 <Name>lx-control-center</Name>
+	 <Name>lxde-icon-theme</Name>
+	 <Name>lximage-qt</Name>
+	 <Name>lxmenu-data</Name>
+	 <Name>lxqt-about</Name>
+	 <Name>lxqt-admin</Name>
+	 <Name>lxqt-build-tools</Name>
+	 <Name>lxqt-common</Name>
+	 <Name>lxqt-config</Name>
+	 <Name>lxqt-connman-applet</Name>
+	 <Name>lxqt-globalkeys</Name>
+	 <Name>lxqt-l10n</Name>
+	 <Name>lxqt-notificationd</Name>
+	 <Name>lxqt-openssh-askpass</Name>
+	 <Name>lxqt-panel</Name>
+	 <Name>lxqt-policykit</Name>
+	 <Name>lxqt-powermanagement</Name>
+	 <Name>lxqt-qtplugin</Name>
+	 <Name>lxqt-runner</Name>
+	 <Name>lxqt-session</Name>
+	 <Name>lxqt-sudo</Name>
+	 <Name>lxqt-themes</Name>
+	 <Name>lxtask</Name>
+	 <Name>menu-cache</Name>
+	 <Name>obconf-qt</Name>
+	 <Name>pavucontrol-qt</Name>
+	 <Name>pcmanfm-qt</Name>
+	 <Name>qps</Name>
+	 <Name>qterminal</Name>
+	 <Name>qtermwidget</Name>
+	 <Name>screengrab</Name>
+</Packages>

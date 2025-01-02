@@ -1,0 +1,12 @@
+argon2-20190702-1-avh040-x86_64.avh.tar.zst
+botan-3.6.1-1-avh040-x86_64.avh.tar.zst
+jose-11-2-avh040-x86_64.avh.tar.zst
+libtomcrypt-1.18.2-1-avh040-x86_64.avh.tar.zst
+pesign-113-1-avh030-x86_64.avh.tar.zst
+qca-qt5-2.3.9-1-avh040-x86_64.avh.tar.zst
+qca-qt6-2.3.9-1-avh040-x86_64.avh.tar.zst
+qtkeychain-qt5-0.14.3-1-avh040-x86_64.avh.tar.zst
+qtkeychain-qt6-0.14.3-1-avh040-x86_64.avh.tar.zst
+rhash-1.4.4-1-avh040-x86_64.avh.tar.zst
+tpm2-tss-3.0.0-1-avh030-x86_64.avh.tar.zst
+xxhash-0.8.2-1-avh040-x86_64.avh.tar.zst

@@ -1,0 +1,62 @@
+# groovy-3.0.3-1-avh02-x86_64.avhp.tar.zstd
+# lazarus-2.0.8-1-avh02-x86_64.avhp.tar.zstd
+# lazarus-gtk2-2.0.8-1-avh02-x86_64.avhp.tar.zstd
+# lazarus-qt5-2.0.8-1-avh02-x86_64.avhp.tar.zstd
+lua-5.3.5-1-avh02-x86_64.avhp.tar.zstd
+lua51-5.1.5-1-avh02-x86_64.avhp.tar.zstd
+lua52-5.2.4-1-avh02-x86_64.avhp.tar.zstd
+# mono-6.12.0.107-1-avh02-x86_64.avhp.tar.zstd
+# ocaml-4.12.0-1-avh02-x86_64.avhp.tar.zstd
+# ocaml-compiler-libs-4.12.0-1-avh02-x86_64.avhp.tar.zstd
+perl-5.32.1-1-avh02-x86_64.avhp.tar.zstd
+# php7-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-cgi-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-apache-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-fpm-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-embed-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-phpdbg-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-dblib-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-enchant-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-gd-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-imap-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-intl-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-sodium-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-odbc-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-pgsql-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-pspell-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-snmp-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-sqlite-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-tidy-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php7-xsl-7.4.28-1-avh02-x86_64.avhp.tar.zstd
+# php-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-cgi-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-apache-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-fpm-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-embed-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-phpdbg-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-dblib-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-enchant-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-gd-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-imap-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-intl-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-sodium-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-odbc-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-pgsql-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-pspell-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-snmp-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-sqlite-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-tidy-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# php-xsl-8.1.3-1-avh02-x86_64.avhp.tar.zstd
+# python2-2.7.18-1-avh02-x86_64.avhp.tar.zstd
+python3-3.10.3-1-avh02-x86_64.avhp.tar.zstd
+# python3-tests-3.10.3-1-avh02-x86_64.avhp.tar.zstd
+# qt5pas-2.6.r63051-1-avh02-x86_64.avhp.tar.zstd
+# r-3.6.3-1-avh02-x86_64.avhp.tar.zstd
+# ruby-2.7.1-1-avh02-x86_64.avhp.tar.zstd
+# ruby-docs-2.7.1-1-avh02-x86_64.avhp.tar.zstd
+# rust-1.58.1-1-avh02-x86_64.avhp.tar.zstd
+# lib32-rust-libs-1.58.1-1-avh02-x86_64.avhp.tar.zstd
+# rust-musl-1.58.1-1-avh02-x86_64.avhp.tar.zstd
+# rust-wasm-1.58.1-1-avh02-x86_64.avhp.tar.zstd
+# rust-src-1.58.1-1-avh02-x86_64.avhp.tar.zstd
+# sassc-3.6.1-1-avh02-x86_64.avhp.tar.zstd

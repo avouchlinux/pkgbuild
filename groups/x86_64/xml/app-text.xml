@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>asciidoc</Name>
+	 <Name>convertlit</Name>
+	 <Name>dblatex</Name>
+	 <Name>docbook2x</Name>
+	 <Name>docbook-dsssl</Name>
+	 <Name>docbook-sgml31</Name>
+	 <Name>docbook-sgml45</Name>
+	 <Name>docbook-sgml50</Name>
+	 <Name>docbook-utils</Name>
+	 <Name>docbook-xml</Name>
+	 <Name>docbook-xsl</Name>
+	 <Name>docbook-xsl-saxon</Name>
+	 <Name>docutils</Name>
+	 <Name>libstaroffice</Name>
+	 <Name>linuxdoc-tools</Name>
+	 <Name>man2html</Name>
+	 <Name>mupdf</Name>
+	 <Name>openjade</Name>
+	 <Name>opensp</Name>
+	 <Name>qpdf</Name>
+	 <Name>rarian</Name>
+	 <Name>sgml-common</Name>
+	 <Name>tidy</Name>
+	 <Name>tinyxml2</Name>
+	 <Name>xindy</Name>
+	 <Name>xmldiff</Name>
+	 <Name>xmlto</Name>
+	 <Name>xmltoman</Name>
+	 <Name>xpdf</Name>
+</Packages>

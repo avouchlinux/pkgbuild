@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>apache-ant</Name>
+	 <Name>beanshell2</Name>
+	 <Name>fastjar</Name>
+	 <Name>fop</Name>
+	 <Name>icedtea-sound</Name>
+	 <Name>java7-openjdk</Name>
+	 <Name>java8-openjdk</Name>
+	 <Name>java-avalon-framework</Name>
+	 <Name>java-batik</Name>
+	 <Name>java-common</Name>
+	 <Name>java-commons-io</Name>
+	 <Name>java-commons-logging</Name>
+	 <Name>java-hamcrest</Name>
+	 <Name>java-jai</Name>
+	 <Name>java-jline</Name>
+	 <Name>java-xmlgraphics-commons</Name>
+	 <Name>jdk7</Name>
+	 <Name>jre7</Name>
+	 <Name>junit</Name>
+	 <Name>maven</Name>
+	 <Name>rhino</Name>
+	 <Name>saxon-he</Name>
+</Packages>

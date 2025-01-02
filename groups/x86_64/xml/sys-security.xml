@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>libgpg-error</Name>
+	 <Name>libassuan</Name>
+	 <Name>libgcrypt</Name>
+	 <Name>libgksu</Name>
+	 <Name>cracklib</Name>
+	 <Name>pambase</Name>
+	 <Name>pam</Name>
+	 <Name>shadow</Name>
+	 <Name>krb5</Name>
+	 <Name>openssl-1.0</Name>
+	 <Name>openssl</Name>
+	 <Name>cyrus-sasl</Name>
+	 <Name>p11-kit</Name>
+	 <Name>nss</Name>
+	 <Name>ca-certificates</Name>
+	 <Name>ca-certificates-cacert</Name>
+	 <Name>nettle</Name>
+	 <Name>libpwquality</Name>
+	 <Name>libsecret</Name>
+	 <Name>gnupg</Name>
+	 <Name>gpgme</Name>
+	 <Name>gnutls</Name>
+	 <Name>pkcs11-helper</Name>
+	 <Name>liboauth</Name>
+	 <Name>libmcrypt</Name>
+	 <Name>unbound</Name>
+	 <Name>libsepol</Name>
+	 <Name>libselinux</Name>
+	 <Name>setools</Name>
+	 <Name>ustr</Name>
+	 <Name>libsemanage</Name>
+	 <Name>sepolgen</Name>
+	 <Name>sudo</Name>
+	 <Name>volume_key</Name>
+	 <Name>haveged</Name>
+	 <Name>libsodium</Name>
+	 <Name>openssh-askpass</Name>
+	 <Name>selinux-refpolicy-arch</Name>
+	 <Name>selinux-refpolicy-src</Name>
+</Packages>

@@ -1,0 +1,21 @@
+adi-0.2.0-1-avh02-x86_64.avhp.tar.zstd
+augeas-1.12.0-1-avh02-x86_64.avhp.tar.zstd
+# bolt-0.9-1-avh02-x86_64.avhp.tar.zstd
+cgmanager-0.42-1-avh02-x86_64.avhp.tar.zstd
+chrpath-0.16-1-avh02-x86_64.avhp.tar.zstd
+dmidecode-3.2-1-avh02-x86_64.avhp.tar.zstd
+edac-utils-0.18-1-avh02-x86_64.avhp.tar.zstd
+eagleeye-0.2.0-1-avh02-x86_64.avhp.tar.zstd
+# flashrom-1.2-1-avh02-x86_64.avhp.tar.zstd
+imvirt-0.9.6-1-avh02-x86_64.avhp.tar.zstd
+laptop-detect-0.16-1-avh02-x86_64.avhp.tar.zstd
+lsb-release-1.4-1-avh02-x86_64.avhp.tar.zstd
+malcontent-0.7.0-1-avh02-x86_64.avhp.tar.zstd
+# packagekit-1.2.4-1-avh02-x86_64.avhp.tar.zstd
+# libpackagekit-glib-1.2.4-1-avh02-x86_64.avhp.tar.zstd
+# packagekit-qt5-1.0.2-1-avh02-x86_64.avhp.tar.zstd
+syslog-ng-3.27.1-1-avh02-x86_64.avhp.tar.zstd
+system-config-printer-1.5.11-1-avh02-x86_64.avhp.tar.zstd
+systemd-ui-3-1-avh02-x86_64.avhp.tar.zstd
+systemd-swap-4.4.0-1-avh02-x86_64.avhp.tar.zstd
+# tripwire

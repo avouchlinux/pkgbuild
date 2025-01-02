@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>git</Name>
+	 <Name>mercurial</Name>
+	 <Name>rabbitvcs</Name>
+	 <Name>rabbitvcs-nautilus</Name>
+	 <Name>rabbitvcs-thunar</Name>
+	 <Name>sparkleshare</Name>
+	 <Name>subversion</Name>
+</Packages>

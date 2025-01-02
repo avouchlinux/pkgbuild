@@ -1,0 +1,28 @@
+# clang-13.0.0-1-avh02-x86_64.avhp.tar.zstd
+# compiler-rt-13.0.0-1-avh02-x86_64.avhp.tar.zstd
+# fpc-3.2.0-1-avh02-x86_64.avhp.tar.zstd
+# fpc-src-3.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gc-8.0.4-1-avh02-x86_64.avhp
+# gcc-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+gcc-libs-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# lib32-gcc-libs-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gcc-fortran-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gcc-objc-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gcc-ada-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gcc-go-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# gcc-d-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# libgccjit-11.2.0-1-avh02-x86_64.avhp.tar.zstd
+# ghc-libs-9.0.1-1-avh02-x86_64.avhp
+# ghc-9.0.1-1-avh02-x86_64.avhp
+# ghc-static-9.0.1-1-avh02-x86_64.avhp
+# go-1.14.2-1-avh02-x86_64.avhp
+# go-pie-1.14.2-1-avh02-x86_64.avhp
+# ldc-1.21.0-1-avh02-x86_64.avhp
+# liblphobos-1.21.0-1-avh02-x86_64.avhp
+# llvm-13.0.0-1-avh02-x86_64.avhp.tar.zstd
+llvm-libs-13.0.0-1-avh02-x86_64.avhp.tar.zstd
+# llvm-ocaml-13.0.0-1-avh02-x86_64.avhp.tar.zstd
+luajit-2.0.5-1-avh02-x86_64.avhp.tar.zstd
+# nasm-2.15.05-1-avh02-x86_64.avhp.tar.zstd
+# vala-0.54.6-1-avh02-x86_64.avhp.tar.zstd
+# yasm-1.3.0-1-avh02-x86_64.avhp.tar.zstd

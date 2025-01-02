@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>xcb-proto</Name>
+	 <Name>xorgproto</Name>
+	 <Name>xorg-server</Name>
+</Packages>

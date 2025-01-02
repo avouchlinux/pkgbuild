@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>augeas</Name>
+	 <Name>cgmanager</Name>
+	 <Name>chrpath</Name>
+	 <Name>syslog-ng</Name>
+	 <Name>systemd-ui</Name>
+	 <Name>tripwire</Name>
+</Packages>

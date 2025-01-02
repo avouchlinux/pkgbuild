@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>babeltrace</Name>
+	 <Name>catfish</Name>
+	 <Name>ccache</Name>
+	 <Name>cmake</Name>
+	 <Name>cmocka</Name>
+	 <Name>ctags</Name>
+	 <Name>flatpak</Name>
+	 <Name>ftjam</Name>
+	 <Name>gendesk</Name>
+	 <Name>glslang</Name>
+	 <Name>gperftools</Name>
+	 <Name>gtk-doc</Name>
+	 <Name>gyp</Name>
+	 <Name>hardening-check</Name>
+	 <Name>hardening-wrapper</Name>
+	 <Name>intltool</Name>
+	 <Name>itstool</Name>
+	 <Name>iucode-tool</Name>
+	 <Name>kup</Name>
+	 <Name>lld</Name>
+	 <Name>lldb</Name>
+	 <Name>marked</Name>
+	 <Name>marked-man</Name>
+	 <Name>meson</Name>
+	 <Name>minimist</Name>
+	 <Name>minisign</Name>
+	 <Name>ninja</Name>
+	 <Name>ostree</Name>
+	 <Name>qbs</Name>
+	 <Name>ragel</Name>
+	 <Name>re2c</Name>
+	 <Name>remake</Name>
+	 <Name>rpcsvc-proto</Name>
+	 <Name>scons</Name>
+	 <Name>source-highlight</Name>
+	 <Name>spirv-tools</Name>
+	 <Name>strace</Name>
+	 <Name>waf</Name>
+	 <Name>xdg-dbus-proxy</Name>
+	 <Name>xdg-desktop-portal</Name>
+</Packages>

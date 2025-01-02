@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>libkdegames4</Name>
+	 <Name>libkdegames</Name>
+	 <Name>blinken</Name>
+	 <Name>bomber</Name>
+	 <Name>bovo</Name>
+	 <Name>granatier</Name>
+	 <Name>kapman</Name>
+	 <Name>katomic</Name>
+	 <Name>kblackbox</Name>
+	 <Name>kblocks</Name>
+	 <Name>kbounce</Name>
+	 <Name>kbreakout</Name>
+	 <Name>kdiamond</Name>
+	 <Name>kfourinline</Name>
+	 <Name>kgoldrunner</Name>
+	 <Name>khangman</Name>
+	 <Name>kigo</Name>
+	 <Name>killbots</Name>
+	 <Name>kiriki</Name>
+	 <Name>kjumpingcube</Name>
+	 <Name>klickety</Name>
+	 <Name>klines</Name>
+	 <Name>kmahjongg</Name>
+	 <Name>kmines</Name>
+	 <Name>knavalbattle</Name>
+	 <Name>kolf</Name>
+	 <Name>kollision</Name>
+	 <Name>konquest</Name>
+	 <Name>kpat</Name>
+	 <Name>kreversi</Name>
+	 <Name>kshisen</Name>
+	 <Name>ksirk</Name>
+	 <Name>ksnakeduel</Name>
+	 <Name>kspaceduel</Name>
+	 <Name>ksquares</Name>
+	 <Name>ksudoku</Name>
+	 <Name>kteatime</Name>
+	 <Name>ktuberling</Name>
+	 <Name>kubrick</Name>
+	 <Name>lskat</Name>
+	 <Name>palapeli</Name>
+	 <Name>picmi</Name>
+</Packages>

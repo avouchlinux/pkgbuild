@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>apache</Name>
+	 <Name>cmsmadesimple</Name>
+	 <Name>cmsms</Name>
+	 <Name>dokuwiki</Name>
+	 <Name>drupal</Name>
+	 <Name>firefox</Name>
+	 <Name>firefox-langpacks</Name>
+	 <Name>flyspray</Name>
+	 <Name>froxlor</Name>
+	 <Name>gitea</Name>
+	 <Name>gitlist</Name>
+	 <Name>gitphp</Name>
+	 <Name>gogs</Name>
+	 <Name>google-chrome</Name>
+	 <Name>haproxy</Name>
+	 <Name>joomla</Name>
+	 <Name>mantisbt</Name>
+	 <Name>mediawiki</Name>
+	 <Name>nginx</Name>
+	 <Name>opera</Name>
+	 <Name>phpmyadmin</Name>
+	 <Name>pound</Name>
+	 <Name>qupzilla</Name>
+	 <Name>sentora</Name>
+	 <Name>squid</Name>
+	 <Name>squirrelmail</Name>
+	 <Name>steam</Name>
+	 <Name>typo3</Name>
+	 <Name>varnish</Name>
+	 <Name>w3m</Name>
+	 <Name>wordpress</Name>
+</Packages>

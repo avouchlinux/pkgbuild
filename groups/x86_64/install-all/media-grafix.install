@@ -1,0 +1,95 @@
+argyllcms-3.3.0-1-avh040-x86_64.avh.tar.zst
+assimp-5.4.2-1-avh040-x86_64.avh.tar.zst
+# asymptote failed to build
+babl-0.1.108-1-avh040-x86_64.avh.tar.zst
+chafa-1.14.2-1-avh040-x86_64.avh.tar.zst
+djvulibre-3.5.28-1-avh040-x86_64.avh.tar.zst
+exif-0.6.21-1-avh040-x86_64.avh.tar.zst
+gd-2.3.3-1-avh040-x86_64.avh.tar.zst
+gegl-0.4.48-1-avh040-x86_64.avh.tar.zst
+ghostscript-10.04.0-1-avh040-x86_64.avh.tar.zst
+ghostxps-10.04.0-1-avh040-x86_64.avh.tar.zst
+ghostpcl-10.04.0-1-avh040-x86_64.avh.tar.zst
+glfw-3.4-1-avh040-x86_64.avh.tar.zst
+# gmic failed to build
+grantlee-5.3.1-1-avh040-x86_64.avh.tar.zst
+# graphicsmagick failed to build
+graphite-1.3.14-1-avh040-x86_64.avh.tar.zst
+graphite-docs-1.3.14-1-avh040-x86_64.avh.tar.zst
+graphviz-12.1.2-1-avh040-x86_64.avh.tar.zst
+gumbo-parser-0.12.1-1-avh040-x86_64.avh.tar.zst
+harfbuzz-10.0.1-1-avh040-x86_64.avh.tar.zst
+harfbuzz-cairo-10.0.1-1-avh040-x86_64.avh.tar.zst
+harfbuzz-icu-10.0.1-1-avh040-x86_64.avh.tar.zst
+harfbuzz-utils-10.0.1-1-avh040-x86_64.avh.tar.zst
+harfbuzz-docs-10.0.1-1-avh040-x86_64.avh.tar.zst
+iec16022-0.3.1-1-avh040-x86_64.avh.tar.zst
+ijs-0.35-1-avh040-x86_64.avh.tar.zst
+imagemagick-7.1.1.39-1-avh040-x86_64.avh.tar.zst
+imath-3.1.12-1-avh040-x86_64.avh.tar.zst
+jbig2dec-0.20-1-avh040-x86_64.avh.tar.zst
+jbigkit-2.1-1-avh040-x86_64.avh.tar.zst
+libabw-0.1.3-1-avh040-x86_64.avh.tar.zst
+libart-lgpl-2.3.21-1-avh040-x86_64.avh.tar.zst
+libcdr-0.1.7-1-avh040-x86_64.avh.tar.zst
+libcmis-0.6.2-1-avh040-x86_64.avh.tar.zst
+# libe-book failed to build
+# libemf failed to build
+# libepubgen failed to build
+# libetonyek failed to build
+libexttextcat-3.4.7-1-avh040-x86_64.avh.tar.zst
+libfreehand-0.1.2-1-avh040-x86_64.avh.tar.zst
+libgphoto2-2.5.24-1-avh040-x86_64.avh.tar.zst
+# libixion failed to build
+liblangtag-0.6.7-1-avh040-x86_64.avh.tar.zst
+libmediaart-1.9.6-1-avh040-x86_64.avh.tar.zst
+# libmspub failed to build
+# libmwaw failed to build
+# libmypaint failed to build
+# libnumbertext failed to build
+# libodfgen failed to build
+# liborcus failed to build
+libpagemaker-0.0.4-1-avh040-x86_64.avh.tar.zst
+libpaper-2.2.5-1-avh040-x86_64.avh.tar.zst
+libqxp-0.0.2-1-avh040-x86_64.avh.tar.zst
+libraw-0.21.3-1-avh040-x86_64.avh.tar.zst
+# librevenge failed to build
+librsvg-2.59.1-1-avh040-x86_64.avh.tar.zst
+librsvg-docs-2.59.1-1-avh040-x86_64.avh.tar.zst
+libspectre-0.2.12-1-avh040-x86_64.avh.tar.zst
+libspiro-20240903-1-avh040-x86_64.avh.tar.zst
+# libvisio failed to build
+libwebp-1.4.0-1-avh040-x86_64.avh.tar.zst
+libwmf-0.2.13-1-avh040-x86_64.avh.tar.zst
+# libwpd failed to build
+# libwpg failed to build
+# libwps failed to build
+# libxmi failed to build
+libzmf-0.0.2-1-avh040-x86_64.avh.tar.zst
+litehtml-0.9-1-avh040-x86_64.avh.tar.zst
+mdds-2.1.1-1-avh040-x86_64.avh.tar.zst
+# metis failed to build
+mypaint-brushes-2.0.2-1-avh040-x86_64.avh.tar.zst
+# netpbm failed to build
+openexr-3.2.4-1-avh040-x86_64.avh.tar.zst
+poppler-24.09.0-1-avh040-x86_64.avh.tar.zst
+poppler-glib-24.09.0-1-avh040-x86_64.avh.tar.zst
+poppler-qt5-24.09.0-1-avh040-x86_64.avh.tar.zst
+poppler-qt6-24.09.0-1-avh040-x86_64.avh.tar.zst
+poppler-data-0.4.12-1-avh040-x86_64.avh.tar.zst
+# poster failed to build
+proj-9.5.0-1-avh040-x86_64.avh.tar.zst
+psiconv-0.9.9-1-avh040-x86_64.avh.tar.zst
+psutils-3.3.5-1-avh040-x86_64.avh.tar.zst
+qrencode-4.1.1-1-avh040-x86_64.avh.tar.zst
+sane-1.3.1-1-avh040-x86_64.avh.tar.zst
+# sane-frontends failed to build
+shared-color-profiles-0.1.5-1-avh040-x86_64.avh.tar.zst
+shared-color-targets-0.1.7-1-avh040-x86_64.avh.tar.zst
+# suitesparse failed to build
+# t1lib failed to build
+t1utils-1.42-1-avh040-x86_64.avh.tar.zst
+uchardet-0.0.8-1-avh040-x86_64.avh.tar.zst
+woff2-1.0.2-1-avh040-x86_64.avh.tar.zst
+wv-1.2.9-1-avh040-x86_64.avh.tar.zst
+zbar-0.23.93-1-avh040-x86_64.avh.tar.zst

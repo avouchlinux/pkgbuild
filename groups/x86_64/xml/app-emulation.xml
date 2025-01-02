@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>bubblewrap</Name>
+	 <Name>libcacard</Name>
+	 <Name>libvirt</Name>
+	 <Name>libvirt-glib</Name>
+	 <Name>lxc</Name>
+	 <Name>playonlinux</Name>
+	 <Name>q4wine</Name>
+	 <Name>qemu</Name>
+	 <Name>sdlmame</Name>
+	 <Name>tilix</Name>
+	 <Name>vde2</Name>
+	 <Name>wine</Name>
+	 <Name>wine_gecko</Name>
+	 <Name>wine-mono</Name>
+	 <Name>winetricks</Name>
+	 <Name>xen</Name>
+	 <Name>zsnes</Name>
+</Packages>
