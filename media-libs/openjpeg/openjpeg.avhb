@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=openjpeg
-pkgver=1.5.2
+pkgver=1.5.1
 pkgrel=1
 pkgdesc="An open source JPEG 2000 codec"
 arch=('x86_64')
@@ -19,6 +19,39 @@ source=(http://downloads.sourceforge.net/openjpeg.mirror/${pkgname}-${pkgver}.ta
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
+
+	### patches from fedora
+	## upstreamable patches
+	patch -Np1 -i ../openjpeg-1.5.1-cmake_libdir.patch
+	patch -Np1 -i ../openjpeg-1.5.1-doxygen_timestamp.patch
+	# Only compile with -ffast-math, linking with it causes problem for library users
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1127544
+	patch -Np1 -i ../openjpeg-fast-math.patch
+
+	## upstream patches:
+	# http://code.google.com/p/openjpeg/issues/detail?id=155
+	patch -Np0 -i ../openjpeg-1.5-r2029.patch
+	# http://code.google.com/p/openjpeg/issues/detail?id=152
+	patch -Np0 -i ../openjpeg-1.5-r2031.patch
+	# http://code.google.com/p/openjpeg/issues/detail?id=169
+	patch -Np0 -i ../openjpeg-1.5-r2032.patch
+	# http://code.google.com/p/openjpeg/issues/detail?id=166
+	patch -Np0 -i ../openjpeg-1.5-r2033.patch
+
+	## security patches
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1036491
+	patch -Np1 -i ../openjpeg-1.5.1-CVE-2013-6052.patch
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1036493
+	patch -Np1 -i ../openjpeg-1.5.1-CVE-2013-6053.patch
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1036495
+	# omitted due to regression https://bugzilla.redhat.com/show_bug.cgi?id=1047494
+	patch -Np1 -i ../openjpeg-1.5.1-CVE-2013-6045.patch
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1037945
+	patch -Np1 -i ../openjpeg-1.5.1-CVE-2013-1447.patch
+	# https://bugzilla.redhat.com/show_bug.cgi?id=1037948
+	patch -Np1 -i ../openjpeg-1.5.1-CVE-2013-6887.patch
+	patch -Np1 -i ../openjpeg-c99.patch
+
 
 	autoreconf -fi
 	# make sure we use system libs

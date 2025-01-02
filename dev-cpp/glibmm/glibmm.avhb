@@ -4,8 +4,11 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=glibmm
-pkgname=(glibmm glibmm-docs)
-pkgver=2.82.0
+pkgname=(
+  glibmm
+  glibmm-docs
+)
+pkgver=2.66.7
 pkgrel=1
 pkgdesc="C++ bindings for GLib"
 url="http://www.gtkmm.org/"

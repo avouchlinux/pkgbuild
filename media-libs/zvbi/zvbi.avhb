@@ -30,6 +30,10 @@ validpgpkeys=(FA26CA784BE188927F22B99F6570EA01146F7354) # Ileana Dumitrescu <ile
 
 prepare() {
   cd zvbi
+  patch -Np1 -i ../zvbi-0.2.24-tvfonts.patch
+  patch -Np1 -i ../zvbi-0.2.25-openfix.patch
+  patch -Np1 -i ../zvbi-0.2.42-fix_sincos_declaration.patch
+
   NOCONFIGURE=1 ./autogen.sh
 }
 

@@ -22,7 +22,7 @@ pkgname=('php-legacy'
          'php-legacy-tidy'
          'php-legacy-xsl')
 pkgver=8.2.24
-pkgrel=2
+pkgrel=1
 arch=('x86_64')
 groups=('dev-lang')
 license=('PHP-3.01')

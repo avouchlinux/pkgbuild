@@ -9,23 +9,23 @@
  8 files changed, 73 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 692bbdf40fb5f2e371f6432527d08d0e2bf4c3b7..807da446402a0ff417f2cb1ce94525ce05962d14 100644
+index c10952585c14b083349926e4b3a835604d86e8d7..fbeb1cc86345c3e9f0cca646343aba0f8c7bb4c3 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
  VERSION = 6
- PATCHLEVEL = 11
- SUBLEVEL = 7
+ PATCHLEVEL = 12
+ SUBLEVEL = 6
 -EXTRAVERSION =
 +EXTRAVERSION = -avouch1
  NAME = Baby Opossum Posse
  
  # *DOCUMENTATION*
 diff --git a/arch/Kconfig b/arch/Kconfig
-index 975dd22a2dbd22dc1fa7ef727149d99e5ebcbe0a..de69b8f5b5be85518254d5f72383a2d0fb9e1cd5 100644
+index bd9f095d69fa0300605b455d1d4f89da77129192..5fc4aa6b6b67a286d2e3541c4ac16839a7a5aedf 100644
 --- a/arch/Kconfig
 +++ b/arch/Kconfig
-@@ -1050,7 +1050,7 @@ config ARCH_MMAP_RND_BITS
+@@ -1089,7 +1089,7 @@ config ARCH_MMAP_RND_BITS
  	int "Number of bits to use for ASLR of mmap base address" if EXPERT
  	range ARCH_MMAP_RND_BITS_MIN ARCH_MMAP_RND_BITS_MAX
  	default ARCH_MMAP_RND_BITS_DEFAULT if ARCH_MMAP_RND_BITS_DEFAULT
@@ -34,7 +34,7 @@ index 975dd22a2dbd22dc1fa7ef727149d99e5ebcbe0a..de69b8f5b5be85518254d5f72383a2d0
  	depends on HAVE_ARCH_MMAP_RND_BITS
  	help
  	  This value can be used to select the number of bits to use to
-@@ -1084,7 +1084,7 @@ config ARCH_MMAP_RND_COMPAT_BITS
+@@ -1123,7 +1123,7 @@ config ARCH_MMAP_RND_COMPAT_BITS
  	int "Number of bits to use for ASLR of mmap base address for compatible applications" if EXPERT
  	range ARCH_MMAP_RND_COMPAT_BITS_MIN ARCH_MMAP_RND_COMPAT_BITS_MAX
  	default ARCH_MMAP_RND_COMPAT_BITS_DEFAULT if ARCH_MMAP_RND_COMPAT_BITS_DEFAULT
@@ -80,10 +80,10 @@ index a3df782fa687b0f14a2646eccaf635c3bb247b2b..940d8f51434176586bad53de43bd892a
  		if (!IS_ERR(pd))
  			goto put_device;
 diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
-index 6030a823561735bf5c8c3329d26023735b63b638..60b7fe5fa74ad4e2d051efc3d2ae2f55682a238b 100644
+index 7183e5aca28291a02cb186bcd8adba81b635b58f..56573371a2f8aff498768f0f3cbd17bbb8b0e15e 100644
 --- a/include/linux/user_namespace.h
 +++ b/include/linux/user_namespace.h
-@@ -156,6 +156,8 @@ static inline void set_userns_rlimit_max(struct user_namespace *ns,
+@@ -159,6 +159,8 @@ static inline void set_userns_rlimit_max(struct user_namespace *ns,
  
  #ifdef CONFIG_USER_NS
  
@@ -92,7 +92,7 @@ index 6030a823561735bf5c8c3329d26023735b63b638..60b7fe5fa74ad4e2d051efc3d2ae2f55
  static inline struct user_namespace *get_user_ns(struct user_namespace *ns)
  {
  	if (ns)
-@@ -189,6 +191,8 @@ extern bool current_in_userns(const struct user_namespace *target_ns);
+@@ -192,6 +194,8 @@ extern bool current_in_userns(const struct user_namespace *target_ns);
  struct ns_common *ns_get_owner(struct ns_common *ns);
  #else
  
@@ -102,10 +102,10 @@ index 6030a823561735bf5c8c3329d26023735b63b638..60b7fe5fa74ad4e2d051efc3d2ae2f55
  {
  	return &init_user_ns;
 diff --git a/init/Kconfig b/init/Kconfig
-index 5783a0b8751726ad97189d786dca9ee43cb8cd3c..5ea91114707c5cf43b10cc7de4260390e489d9d1 100644
+index 7256fa127530ff893604722a740885551d50c777..164a449360644bc52e6032e1509ff5c65a068193 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1265,6 +1265,22 @@ config USER_NS
+@@ -1309,6 +1309,22 @@ config USER_NS
  
  	  If unsure, say N.
  
@@ -129,10 +129,10 @@ index 5783a0b8751726ad97189d786dca9ee43cb8cd3c..5ea91114707c5cf43b10cc7de4260390
  	bool "PID Namespaces"
  	default y
 diff --git a/kernel/fork.c b/kernel/fork.c
-index dc08a23747338ca7ecbf823f97be4a1ad1a64a18..49ae2412d5b5a80f4d692dd8a4b1fbc16e0c1dc2 100644
+index ce8be55e5e04b31faff120fff14c396372e9f1e5..e97e527cec69d7adaad8365c7ea8a1f54c86445b 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -106,6 +106,10 @@
+@@ -107,6 +107,10 @@
  #include <linux/pidfs.h>
  #include <linux/tick.h>
  
@@ -143,7 +143,7 @@ index dc08a23747338ca7ecbf823f97be4a1ad1a64a18..49ae2412d5b5a80f4d692dd8a4b1fbc1
  #include <asm/pgalloc.h>
  #include <linux/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -2136,6 +2140,10 @@ __latent_entropy struct task_struct *copy_process(
+@@ -2158,6 +2162,10 @@ __latent_entropy struct task_struct *copy_process(
  	if ((clone_flags & (CLONE_NEWUSER|CLONE_FS)) == (CLONE_NEWUSER|CLONE_FS))
  		return ERR_PTR(-EINVAL);
  
@@ -154,7 +154,7 @@ index dc08a23747338ca7ecbf823f97be4a1ad1a64a18..49ae2412d5b5a80f4d692dd8a4b1fbc1
  	/*
  	 * Thread groups must share signals as well, and detached threads
  	 * can only be started up within the thread group.
-@@ -3285,6 +3293,12 @@ int ksys_unshare(unsigned long unshare_flags)
+@@ -3311,6 +3319,12 @@ int ksys_unshare(unsigned long unshare_flags)
  	if (unshare_flags & CLONE_NEWNS)
  		unshare_flags |= CLONE_FS;
  
@@ -198,7 +198,7 @@ index 79e6cb1d5c48f8e4f48580114f09bed9d65481af..676e89dc38c339cfb7042f5d9ad825fe
  	{
  		.procname	= "tainted",
 diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
-index 0b0b95418b16a7aa69078c6db3f59f7a15f388c2..c4b835b91fc005ade70657aeb7b5f41b06678888 100644
+index aa0b2e47f2f21bef96c45e09aaa4bc05dc5216b9..d74d857b1696077ae00e87af3de1afc76425d538 100644
 --- a/kernel/user_namespace.c
 +++ b/kernel/user_namespace.c
 @@ -22,6 +22,13 @@

@@ -18,7 +18,7 @@ sha512sums=('2b14f7f8d4d58c2bfc6c30aa0d24b6789c0887b2869cfb6be98d03b7b001a74a1fb
 
 prepare() {
   cd vkd3d-$pkgver
-  ./configure --prefix=/usr --with-spirv-tools
+  ./configure --prefix=/usr --with-spirv-tools --disable-doxygen-doc
 }
 
 build() {

@@ -6,6 +6,7 @@
 pkgname=xine-lib
 pkgver=1.2.13
 pkgrel=1
+_hgver=hg20240723
 pkgdesc="A multimedia playback engine"
 arch=('x86_64')
 groups=('media-libs')
@@ -39,11 +40,17 @@ makedepends=('mercurial' 'mesa' 'libdvdnav' 'libdvdread' 'vcdimager' 'glu' 'sdl'
              'wayland' 'aalib' 'a52dec' 'faad2' 'flac' 'libdca' 'libmad'
              'libmodplug'  'libmpcdec' 'wavpack' 'gdk-pixbuf2' 'imagemagick'
              'libcaca' 'libmng' 'libnfs' 'libnsl' 'smbclient')
-source=(https://downloads.sourceforge.net/project/xine/xine-lib/$pkgver/xine-lib-$pkgver.tar.xz
+source=(# https://downloads.sourceforge.net/project/xine/xine-lib/$pkgver/xine-lib-$pkgver.tar.gz
+        http://deb.debian.org/debian/pool/main/x/xine-lib-1.2/xine-lib-1.2_1.2.13+hg20240723.orig.tar.gz
         xine-lib-imagemagick7.patch)
 
+prepare() {
+    cd "${srcdir}/${pkgname}-1.2"
+    ./autogen.sh
+}
+
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
+    cd "${srcdir}/${pkgname}-1.2"
     export CFLAGS+=' -fomit-frame-pointer -fcommon'
 
     # hack for recursive mutex support is needed, configure failes
@@ -58,6 +65,6 @@ build() {
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
+    cd "${srcdir}/${pkgname}-1.2"
     make DESTDIR="${pkgdir}" install
 }

@@ -3,15 +3,15 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libkate
-_realname=kate
+pkgbase=libkate
+pkgname=(libkate libkate-docs)
 pkgver=0.4.1
+_realname=kate
 pkgrel=1
 pkgdesc="A karaoke and text codec for embedding in ogg"
 arch=('x86_64')
 groups=('media-libs')
 url="https://wiki.xiph.org/OggKate"
-arch=(x86_64)
 makedepends=(libpng libogg)
 source=(
   https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/$pkgname/$pkgname-$pkgver.tar.gz

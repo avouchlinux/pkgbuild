@@ -26,8 +26,9 @@ prepare() {
 
 build() {
 	cd "${srcdir}/${pkgname}_r${pkgver}/build"
+	  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
 	cmake -DCMAKE_INSTALL_PREFIX=/usr ..
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

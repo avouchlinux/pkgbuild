@@ -5,7 +5,7 @@
 
 pkgname=r
 _realname=R
-pkgver=4.4.1
+pkgver=4.4.2
 pkgrel=1
 pkgdesc="Language and environment for statistical computing and graphics"
 arch=('x86_64')
@@ -95,7 +95,8 @@ build() {
 
 package() {
   cd R-$pkgver
-  make DESTDIR="$pkgdir" install install-pdf install-info
+  # make DESTDIR="$pkgdir" install install-pdf install-info
+  make DESTDIR="$pkgdir" install
 
 # install libRmath.so
   cd src/nmath/standalone

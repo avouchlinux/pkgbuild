@@ -90,9 +90,9 @@ sha512sums=('b43be2aadc3b261a9758d303d893c7a31bfb353dcfda1adbef1dcc4eb3e7a52dc2e
 
 '0fdd26868445946d5a3a64fd1a9a996dab6e85ee07b08e7c64a66a5db194653b98817bee876838c792cf57fcd4747173f1b1e77b083a9bbbb68932c0aa95185a')
 
-# prepare() {
-#   sh cuda_${pkgver}_${_driverver}_linux.run --target "${srcdir}" --noexec
-# }
+prepare() {
+  sh cuda_${pkgver}_${_driverver}_linux.run --target "${srcdir}" --noexec
+}
 
 build() {
   local _prepdir="${srcdir}/prep"

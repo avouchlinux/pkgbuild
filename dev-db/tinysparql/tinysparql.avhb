@@ -82,5 +82,3 @@ package_tinysparql-docs() {
   depends=()
   mv docs/* "$pkgdir"
 }
-
-# vim:set sw=2 sts=-1 et:

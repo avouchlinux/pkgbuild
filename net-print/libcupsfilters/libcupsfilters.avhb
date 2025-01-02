@@ -1,0 +1,47 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libcupsfilters
+pkgver=2.1.0
+pkgrel=1
+pkgdesc="OpenPrinting CUPS Filters - contains all the code of the filters of the former cups-filters package as library functions"
+arch=('x86_64')
+groups=('net-print')
+url="https://github.com/OpenPrinting/libcupsfilters"
+license=('Apache-2.0 WITH LLVM-exception')
+depends=('libcups' 'libexif' 'qpdf' 'poppler'
+         'libjpeg-turbo' 'libpng' 'libtiff' 'lcms2'
+         'fontconfig' 'glibc' 'gcc-libs' 'dbus')
+makedepends=(
+	'ghostscript' 
+#        'mupdf-tools' ???
+)
+checkdepends=('ttf-dejavu') # ttf-dejavu for make check
+source=("https://github.com/OpenPrinting/libcupsfilters/releases/download/$pkgver/$pkgname-$pkgver.tar.xz")
+sha256sums=('cbe900c7783e4aab0b1681629fad7322d82d082a51e8bae7e1c741d26bdcd294')
+
+build() {
+  cd "$pkgname"-$pkgver
+  ./configure --prefix=/usr  \
+    --sysconfdir=/etc \
+    --sbindir=/usr/bin \
+    --localstatedir=/var \
+    --disable-mutool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
+
+check() {
+  cd "$pkgname"-$pkgver
+  make check
+}
+
+package() {
+  cd "$pkgname"-$pkgver
+  make DESTDIR="$pkgdir/" install
+  # license
+  mkdir -p "${pkgdir}"/usr/share/licenses/${pkgname}
+  install -m644 "${srcdir}"/${pkgname}-${pkgver}/{COPYING,NOTICE} "${pkgdir}"/usr/share/licenses/${pkgname}/
+}

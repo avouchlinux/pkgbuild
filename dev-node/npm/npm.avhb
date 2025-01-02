@@ -24,12 +24,12 @@ source=("npm-cli::git+https://github.com/npm/cli.git#tag=v$pkgver")
 b2sums=('c73f7cc47e85f08e775bed88c4796534b3a91fc0e5f7667d098164fd4eeed94d92df1aa280e43a63de12168d6113a04a0aabe9186d707a34306c693ce4fa2e86')
 
 build() {
-  cd cli
+  cd npm-cli
   node scripts/resetdeps.js
 }
 
 check() {
-  cd cli
+  cd npm-cli
   # Windows shims test failure
   mv test/bin/windows-shims.js{,.bak}
   node . run test --ignore-scripts -- --no-coverage
@@ -42,7 +42,7 @@ package() {
   install -d "$pkgdir"/usr/share/{bash-completion/completions,licenses/$pkgname}
   ln -s $mod_dir/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 
-  cd cli
+  cd npm-cli
   node . install -g --prefix="$pkgdir/usr" "$(node . pack --ignore-scripts | tail -1)"
   node . completion > "$pkgdir"/usr/share/bash-completion/completions/npm
   echo 'globalconfig=/etc/npmrc' > "$pkgdir"/$mod_dir/npmrc

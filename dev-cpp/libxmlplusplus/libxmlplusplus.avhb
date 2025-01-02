@@ -1,49 +1,75 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgbase=libxmlplusplus
-pkgname=('libxmlplusplus' 'libxmlplusplus-docs')
+pkgbase=libxml++
+pkgname=(
+  libxml++
+  libxml++-docs
+)
 _realname="libxml++"
-pkgver=3.2.2
+pkgver=3.2.5
 pkgrel=1
 arch=('x86_64')
 groups=('dev-cpp')
 license=('LGPL')
-url="http://libxmlplusplus.sourceforge.net/"
-makedepends=('pkgconfig' 'glibmm-docs' 'libxml2' 'glibmm' 'git' 'mm-common')
-options=('!emptydirs')
-source=("https://gitlab.gnome.org/GNOME/libxmlplusplus/-/archive/$pkgver/libxmlplusplus-$pkgver.tar.bz2")
-sha256sums=('SKIP')
+url="https://libxmlplusplus.github.io/libxmlplusplus/"
+license=(LGPL-2.1-or-later)
+depends=(
+  glibmm
+  libxml2
+)
+makedepends=(
+  git
+  glibmm-docs
+  meson
+  mm-common
+)
+options=(!emptydirs)
+_commit=52dd87b44307195d17696568b40ff50a018a1fe3  # tags/3.2.5^0
+source=("git+https://github.com/libxmlplusplus/libxmlplusplus#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd libxmlplusplus
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd libxmlplusplus
+}
 
 build() {
-	cd $_realname-$pkgver
-	./autogen.sh --prefix=/usr
-	
-	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-	make ${MAKEFLAGS}
+  local meson_options=(
+    -D maintainer-mode=true
+  )
+
+  avouch-meson libxmlplusplus build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-	cd $_realname-$pkgver
-	make ${MAKEFLAGS} check
+  meson test -C build --print-errorlogs
 }
 
-package_libxmlplusplus() {
-	pkgdesc="C++ bindings to libxml2"
-	depends=('libxml2' 'glibmm')
-	replaces=('libxml++2')
-	provides=("libxml++2=${pkgver}")
-	conflicts=('libxml++2')
+# Do not remove the space before the () or commitpkg will
+# accidentally to run this function on the system (!!!) 
+package_libxml++ () {
+  provides=(libxml++-3.0.so)
 
-	cd $_realname-$pkgver
-	make DESTDIR="${pkgdir}" install doc_subdirs=
+  meson install -C build --destdir "$pkgdir"
+
+  # Split -docs
+  mkdir -p docs/usr/share
+  mv -t docs/usr/share "$pkgdir"/usr/share/{devhelp,doc}
 }
 
-package_libxmlplusplus-docs() {
-	pkgdesc="Developer documentation for libxml++"
-	depends=('glibmm-docs')
+package_libxml++-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  options=(!strip)
 
-	cd $_realname-$pkgver
-	make DESTDIR="${pkgdir}" -C docs install	  
+  mv -t "$pkgdir" docs/*
 }
+

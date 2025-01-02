@@ -12,7 +12,7 @@ arch=('x86_64')
 groups=('media-libs')
 license=('LGPL')
 depends=('glibc')
-source=("https://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
+source=("https://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.gz"
         switch-default-server-to-gnudb.org.patch)
 sha256sums=('35ce0ee1741ea38def304ddfe84a958901413aa829698357f0bee5bb8f0a223b'
             '3ee8610efa71322adb9095405da11b56386ac2c5825f976a84410c6270e59149')
@@ -24,6 +24,7 @@ prepare() {
 
 build() {
   cd ${pkgname}-${pkgver}
+  export CFLAGS+=" -Wno-incompatible-pointer-types"
   ./configure --prefix=/usr
   make
 }

@@ -1,0 +1,78 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=forgejo
+pkgver=9.0.2
+pkgrel=1
+pkgdesc='A lightweight software forge'
+arch=('x86_64')
+groups=('dev-vcs')
+url='https://forgejo.org'
+license=('MIT')
+depends=('glibc' 'git')
+makedepends=('go' 'nodejs' 'npm')
+checkdepends=('openssh')
+optdepends=(
+  'mariadb: MariaDB support'
+  'memcached: MemCached support'
+  'openssh: GIT over SSH support'
+  'pam: Authentication via PAM support'
+  'postgresql: PostgreSQL support'
+  'redis: Redis support'
+  'sqlite: SQLite support'
+)
+backup=('etc/forgejo/app.ini')
+options=('!lto' '!debug')
+source=(
+  "$pkgname::git+https://codeberg.org/forgejo/forgejo#tag=v$pkgver"
+  'systemd.service'
+  'sysusers.conf'
+  'tmpfiles.conf'
+)
+sha512sums=('2cd1d24ca37531c317a41a97b6eabc9f9064f008f199ee066fc28aee6012b4fa7d19b0f2774b8c98a11f23daa9988a43d46a7017d486ac7283ae53a211fd4fef'
+            '91a5333ac5d9b249568aa21d93a46bc390755ece4d6aa437089c4509bcd4ad3e9617bd128faff724f1e8825b9728ee52e4805e82094224c58799f32118b50833'
+            '933c0b6cee9d32d2b11a8ee2476e20c5f06a089ed4310ffb24155902f308b4fb447b3b2f3bf7dee76be24475873da5bd026c4823cd56590b20bdf2805f4d07a8'
+            '9a3aa163892eaa889e74d066db9d620db098535b08fa51df689e7aa5885393a14b820308364196db54d7ce502791ea56b662d8aede17fad99f8f62d1a3ca6776')
+b2sums=('4c1f85e01ab8a5882528849b60f5874a1efe4e08c02520a9268f0014dfa76a3d8e59764524453315d7b498e38cda3d59bad7c89529e9fd0c2b3c9468679344cb'
+        'e1222485c0dfe63fffeb6ce03c09bd025b8c170c829c48289ce5edfdafca315097b6d532a35b6a1f423866a2982afb6416e52441e2b38e78f1e468b966ad152b'
+        'cab7b5cbf24242e3d941725111de012c0ee16495e8f367ab48cb02b2261133c262a1704f58b20fd08ec626bcb23cef2473b55e19dbf7db60c243b1f30fd13743'
+        'f48abdd1d207ee61b1f688e2050adaac30eb19514d1d7ef095cf2e92326f4218a16e37a8910d9eeabc17fda2dbf2e4709961560b5ecd3f06187eddde3312702c')
+
+prepare() {
+  cd "$pkgname"
+  make deps-frontend deps-backend deps-tools
+}
+
+build() {
+  cd "$pkgname"
+
+  export CGO_CPPFLAGS="${CPPFLAGS}"
+  export CGO_CFLAGS="${CFLAGS}"
+  export CGO_CXXFLAGS="${CXXFLAGS}"
+  export CGO_LDFLAGS="${LDFLAGS}"
+  export EXTRA_GOFLAGS="-buildmode=pie -trimpath -mod=readonly -modcacherw"
+  export LDFLAGS="-X 'code.gitea.io/gitea/modules/setting.AppWorkPath=/var/lib/forgejo/' -X 'code.gitea.io/gitea/modules/setting.CustomConf=/etc/forgejo/app.ini'"
+  export TAGS="bindata sqlite sqlite_unlock_notify pam"
+
+  make build
+}
+
+package() {
+  # systemd integration
+  install -vDm644 systemd.service "$pkgdir/usr/lib/systemd/system/$pkgname.service"
+  install -vDm644 sysusers.conf "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+  install -vDm644 tmpfiles.conf "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
+
+  cd "$pkgname"
+
+  # binary
+  install -vDm755 gitea "$pkgdir/usr/bin/$pkgname"
+
+  # configuration
+  install -vDm644 custom/conf/app.example.ini "$pkgdir/etc/$pkgname/app.ini"
+
+  # license
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

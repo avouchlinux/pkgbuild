@@ -3,12 +3,11 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgbase=linux-tools
 _realname=linux
+pkgbase=linux-tools
 pkgname=(
   'bootconfig'
   'bpf'
-  # 'cgroup_event_listener'
   'cpupower'
   'hyperv'
   'linux-tools-meta'
@@ -17,9 +16,10 @@ pkgname=(
   'turbostat'
   'usbip'
   'x86_energy_perf_policy'
+  'intel-speed-select'
 )
-pkgver=6.8.7
-_pkgver=6.8.7
+pkgver=6.12.6
+_pkgver=6.12.6
 _baseversion=${pkgver%%.*}
 pkgrel=1
 license=('GPL2')
@@ -91,19 +91,22 @@ EOF
 }
 
 build() {
-  echo ':: perf'
-  pushd ${_realname}-${_pkgver}/tools/perf
+   echo ':: perf'
+  pushd linux/tools/perf
   make -f Makefile.perf \
     prefix=/usr \
     lib=lib/perf \
     perfexecdir=lib/perf \
-    EXTRA_CFLAGS=' -Wno-error=bad-function-cast -Wno-error=declaration-after-statement -Wno-error=switch-enum' \
+    WERROR=0 \
     NO_SDT=1 \
     BUILD_BPF_SKEL=1 \
     PYTHON=python \
+    NO_LIBLLVM=1 \
     PYTHON_CONFIG=python-config \
+    LIBPFM4=1 \
     DESTDIR="$pkgdir"
   popd
+
 
   echo ':: cpupower'
   pushd ${_realname}-${_pkgver}/tools/power/cpupower
@@ -129,11 +132,6 @@ build() {
   make
   popd
 
-  # echo ':: cgroup_event_listener'
-  # pushd ${_realname}-${_pkgver}/tools/cgroup
-  # make
-  # popd
-
   echo ':: turbostat'
   pushd ${_realname}-${_pkgver}/tools/power/x86/turbostat
   make
@@ -157,6 +155,12 @@ build() {
   pushd ${_realname}-${_pkgver}/tools/bootconfig
   make
   popd
+
+  echo ':: intel-speed-select'
+  pushd ${_realname}-${_pkgver}//tools/power/x86/intel-speed-select
+  make
+  popd
+
 }
 
 package_linux-tools-meta() {
@@ -165,7 +169,6 @@ package_linux-tools-meta() {
   depends=(
     'bootconfig'
     'bpf'
-    'cgroup_event_listener'
     'cpupower'
     'hyperv'
     'perf'
@@ -173,11 +176,13 @@ package_linux-tools-meta() {
     'turbostat'
     'usbip'
     'x86_energy_perf_policy'
+    'intel-speed-select'
   )
   conflicts=(
     'acpidump'
   )
 }
+
 
 package_perf() {
   pkgdesc='Linux kernel performance auditing tool'
@@ -194,8 +199,10 @@ package_perf() {
     NO_SDT=1 \
     BUILD_BPF_SKEL=1 \
     PYTHON=python \
+    NO_LIBLLVM=1 \
     PYTHON_CONFIG=python-config \
     DESTDIR="$pkgdir" \
+    LIBPFM4=1 \
     install install-python_ext
   cd "$pkgdir"
   # add linker search path
@@ -206,6 +213,7 @@ package_perf() {
   rm -r etc/bash_completion.d
   # no exec on usr/share
   find usr/share -type f -exec chmod a-x {} \;
+
 }
 
 package_cpupower() {
@@ -262,14 +270,6 @@ package_tmon() {
   make install INSTALL_ROOT="$pkgdir"
 }
 
-# package_cgroup_event_listener() {
-#   pkgdesc='Simple listener of cgroup events'
-#   depends=('glibc')
-
-#   cd ${_realname}-${_pkgver}/tools/cgroup
-#   install -Dm755 cgroup_event_listener "$pkgdir/usr/bin/cgroup_event_listener"
-# }
-
 package_turbostat() {
   pkgdesc='Report processor frequency and idle statistics'
   depends=('glibc' 'libcap')
@@ -312,3 +312,12 @@ package_bootconfig() {
   install -dm755 "$pkgdir/usr/bin"
   make install DESTDIR="$pkgdir"
 }
+
+package_intel-speed-select() {
+  pkgdesc='Intel Speed Select'
+  depends=('libnl')
+
+  cd ${_realname}-${_pkgver}//tools/power/x86/intel-speed-select
+  make install DESTDIR="$pkgdir"
+}
+
