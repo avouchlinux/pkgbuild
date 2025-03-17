@@ -1,11 +1,11 @@
-# Copyright 2010-202 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=perl-uri
 _realname=URI
-pkgver=5.29
+pkgver=5.31
 pkgrel=1
 pkgdesc="Uniform Resource Identifiers (absolute and relative)"
 arch=('any')

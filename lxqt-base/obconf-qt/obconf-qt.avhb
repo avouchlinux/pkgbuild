@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=obconf-qt
-pkgver=0.16.4
+pkgver=0.16.5
 pkgrel=1
 pkgdesc="Openbox configuration tool. Qt port of ObConf"
 arch=("x86_64")

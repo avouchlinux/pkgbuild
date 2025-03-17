@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ark
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Archiving Tool'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/ark/'
 license=(GPL-2.0-or-later)
 depends=(breeze-icons
@@ -44,7 +44,7 @@ optdepends=('arj: ARJ format support'
             'p7zip: 7Z format support'
             'unarchiver: RAR format support'
             'unrar: RAR decompression support')
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-utilities)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('7fdf074d985bb9f8c51d9fc187580f91e03ea7188c8ec5360bd31bd5dc15b83c'

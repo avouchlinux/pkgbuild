@@ -1,17 +1,23 @@
-# composer-2.1.11-1-avh02-x86_64.avhp.tar.zstd
-# pdepend-2.5.0-1-avh02-x86_64.avhp.tar.zstd
-# php-apcu-5.1.21-1-avh02-x86_64.avhp.tar.zstd
-# php7-apcu-5.1.21-1-avh02-x86_64.avhp.tar.zstd
-# php-box-2.7.5-1-avh02-x86_64.avhp.tar.zstd
-# php-codesniffer-3.5.5-1-avh02-x86_64.avhp.tar.zstd
-# phpcov-7.0.2-1-avh02-x86_64.avhp.tar.zstd
-# php-cs-fixer-2.16.3-1-avh02-x86_64.avhp.tar.zstd
-# phpdocumentor2
-# phpdox-0.12.0-0-avh02-x86_64.avhp.tar.zstd
-# php-humbug-box-bin-3.8.0-1-avh02-x86_64.avhp.tar.zstd
-# phploc-6.0.2-1-avh02-x86_64.avhp.tar.zstd
-# phpmetrics-2.6.2-1-avh02-x86_64.avhp.tar.zstd
-# phptok-1.0.0-1-avh02-x86_64.avhp.tar.zstd
-# phpunit-9.5.9-1-avh02-x86_64.avhp.tar.zstd
-# phpunit-skeleton-generator-2.0.1-1-avh02-x86_64.avhp.tar.zstd
-# producer
+composer-2.8.1-1-avh040-x86_64.avh.tar.zst
+pdepend-2.5.0-1-avh030-x86_64.avh.tar.zst
+php-apcu-5.1.21-1-avh030-x86_64.avh.tar.zst
+php7-apcu-5.1.21-1-avh030-x86_64.avh.tar.zst
+php-box-2.7.5-1-avh030-x86_64.avh.tar.zst
+php-codesniffer-3.5.5-1-avh030-x86_64.avh.tar.zst
+phpcov-7.0.2-1-avh030-x86_64.avh.tar.zst
+php-cs-fixer
+phpdocumentor2
+phpdox-0.12.0-0-avh030-x86_64.avh.tar.zst
+php-humbug-box-bin-3.8.0-1-avh030-x86_64.avh.tar.zst
+php-igbinary-3.2.15-1-avh040-x86_64.avh.tar.zst
+php-legacy-igbinary-3.2.15-1-avh040-x86_64.avh.tar.zst
+php-imagick-3.7.0-1-avh040-x86_64.avh.tar.zst
+php-legacy-imagick-3.7.0-1-avh040-x86_64.avh.tar.zst
+phploc-6.0.2-1-avh030-x86_64.avh.tar.zst
+phpmetrics-2.6.2-1-avh030-x86_64.avh.tar.zst
+php-redis-6.0.2-2-avh040-x86_64.avh.tar.zst
+php-legacy-redis-6.0.2-2-avh040-x86_64.avh.tar.zst
+phptok-1.0.0-1-avh030-x86_64.avh.tar.zst
+phpunit-9.5.9-1-avh030-x86_64.avh.tar.zst
+phpunit-skeleton-generator-2.0.1-1-avh030-x86_64.avh.tar.zst
+producer-2.3.0-1-avh030-x86_64.avh.tar.zst

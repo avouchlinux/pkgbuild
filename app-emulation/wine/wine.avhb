@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=wine
-pkgver=9.22
+pkgver=10.1
 pkgrel=1
 _pkgbasever=${pkgver/rc/-rc}
 pkgdesc="A compatibility layer for running Windows programs"
@@ -37,6 +37,7 @@ depends=(
   wayland         lib32-wayland
 )
 makedepends=(autoconf bison perl flex mingw-w64-gcc
+  git
   alsa-lib              lib32-alsa-lib
   gnutls                lib32-gnutls
   gst-plugins-base-libs lib32-gst-plugins-base-libs
@@ -89,8 +90,6 @@ makedepends=(${makedepends[@]} ${depends[@]})
 install=wine.install
 
 build() {
-  # Allow ccache to work
-  mv $pkgname-$_pkgbasever $pkgname
 
   # Doesn't compile without remove these flags as of 4.10
   export CFLAGS="$CFLAGS -ffat-lto-objects"

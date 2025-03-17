@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=falkon
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Cross-platform QtWebEngine browser"
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://www.falkon.org/'
 license=(GPL-2.0-or-later)
 depends=(gcc-libs
@@ -36,7 +36,7 @@ optdepends=('kcoreaddons: KDE integration'
             'libgnome-keyring: gnome keyring integration'
             'purpose: KDE integration'
             'pyside6: Python plugins')
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-network)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('d7dcd1615cee623255c818458a9d95eac0f20efce3f0039eefacf4620eaef34b'

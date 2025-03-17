@@ -3,7 +3,7 @@ aspell-0.60.8.1-1-avh040-x86_64.avh.tar.zst
 aspell-en-2020.12.07-1-avh040-x86_64.avh.tar.zst
 atk-2.38.0-1-avh040-x86_64.avh.tar.zst
 at-spi2-atk-2.38.0-1-avh040-x86_64.avh.tar.zst
-at-spi2-core-2.51.0-1-avh040-x86_64.avh.tar.zst
+at-spi2-core-2.56.0-1-avh040-x86_64.avh.tar.zst
 bluez-5.72-1-avh040-x86_64.avh.tar.zst
 bluez-utils-5.72-1-avh040-x86_64.avh.tar.zst
 bluez-libs-5.72-1-avh040-x86_64.avh.tar.zst
@@ -34,16 +34,17 @@ enca-1.19-1-avh040-x86_64.avh.tar.zst
 enchant-2.6.5-1-avh040-x86_64.avh.tar.zst
 exempi-2.6.5-1-avh040-x86_64.avh.tar.zst
 exiv2-0.28.1-1-avh040-x86_64.avh.tar.zst
+fast_float-8.0.2-1-avh040-x86_64.avh.tar.zst
 ffcall-2.4-1-avh040-x86_64.avh.tar.zst
 fribidi-1.0.13-1-avh040-x86_64.avh.tar.zst
-glib2-2.82.1-1-avh040-x86_64.avh.tar.zst
-glib2-devel-2.82.1-1-avh040-x86_64.avh.tar.zst
-glib2-docs-2.82.1-1-avh040-x86_64.avh.tar.zst
+glib2-2.84.0-1-avh040-x86_64.avh.tar.zst
+glib2-devel-2.84.0-1-avh040-x86_64.avh.tar.zst
+glib2-docs-2.84.0-1-avh040-x86_64.avh.tar.zst
 # gmime2-2.6.23-1-avh030-x86_64.avh.tar.zst
 # gmime3-3.2.7-1-avh030-x86_64.avh.tar.zst
-gobject-introspection-1.82.0-1-avh040-x86_64.avh.tar.zst
-gobject-introspection-runtime-1.82.0-1-avh040-x86_64.avh.tar.zst
-libgirepository-1.82.0-1-avh040-x86_64.avh.tar.zst
+gobject-introspection-1.84.0-1-avh040-x86_64.avh.tar.zst
+gobject-introspection-runtime-1.84.0-1-avh040-x86_64.avh.tar.zst
+libgirepository-1.84.0-1-avh040-x86_64.avh.tar.zst
 gom-0.4-1-avh040-x86_64.avh.tar.zst
 graphene-1.10.8-1-avh040-x86_64.avh.tar.zst
 gtkspell2-2.0.16-1-avh040-x86_64.avh.tar.zst
@@ -80,8 +81,9 @@ libcue-2.3.0-1-avh040-x86_64.avh.tar.zst
 libdaemon-0.14-1-avh040-x86_64.avh.tar.zst
 libdatrie-0.2.13-1-avh040-x86_64.avh.tar.zst
 libedit-20240517_3.1-1-avh040-x86_64.avh.tar.zst
-libetebase-0.5.6-1-avh040-x86_64.avh.tar.zst
+libetebase-0.5.7-1-avh040-x86_64.avh.tar.zst
 libevdev-1.13.3-1-avh040-x86_64.avh.tar.zst
+libfprint-1.94.8-1-avh040-x86_64.avh.tar.zst
 libftdi-compat-0.20-1-avh040-x86_64.avh.tar.zst
 libftdi-1.5-1-avh040-x86_64.avh.tar.zst
 libgee-0.20.6-1-avh040-x86_64.avh.tar.zst
@@ -92,8 +94,9 @@ libhandy-1.8.3-1-avh040-x86_64.avh.tar.zst
 libhandy-docs-1.8.3-1-avh040-x86_64.avh.tar.zst
 libical-3.0.17-1-avh040-x86_64.avh.tar.zst
 libinih-58-1-avh040-x86_64.avh.tar.zst
-libei-1.1.0-1-avh040-x86_64.avh.tar.zst
-libinput-1.26.2-1-avh040-x86_64.avh.tar.zst
+libei-1.3.901-1-avh040-x86_64.avh.tar.zst
+libei-docs-1.3.901-1-avh040-x86_64.avh.tar.zst
+libinput-1.27.1-1-avh040-x86_64.avh.tar.zst
 libiptcdata-1.0.5-1-avh040-x86_64.avh.tar.zst
 libirman-0.5.2-1-avh040-x86_64.avh.tar.zst
 # libkeybinder2-0.3.1-1-avh030-x86_64.avh.tar.zst
@@ -134,7 +137,7 @@ muparser-2.3.4-1-avh040-x86_64.avh.tar.zst
 openpmix-4.2.9-1-avh040-x86_64.avh.tar.zst
 openpmix-docs-4.2.9-1-avh040-x86_64.avh.tar.zst
 openucx-1.15.0-1-avh040-x86_64.avh.tar.zst
-plasma-wayland-protocols-1.14.0-1-avh040-x86_64.avh.tar.zst
+plasma-wayland-protocols-1.16.0-1-avh040-x86_64.avh.tar.zst
 prrte-3.0.5-1-avh040-x86_64.avh.tar.zst
 prrte-docs-3.0.5-1-avh040-x86_64.avh.tar.zst
 rocm-core-6.0.2-2-avh040-x86_64.avh.tar.zst
@@ -158,7 +161,7 @@ talloc-2.4.2-1-avh040-x86_64.avh.tar.zst
 tevent-0.16.1-1-avh040-x86_64.avh.tar.zst
 tk-8.6.14-1-avh040-x86_64.avh.tar.zst
 tslib-1.23-1-avh040-x86_64.avh.tar.zst
-wayland-protocols-1.37-1-avh040-x86_64.avh.tar.zst
+wayland-protocols-1.40-1-avh040-x86_64.avh.tar.zst
 wayland-1.23.1-1-avh040-x86_64.avh.tar.zst
 wayland-docs-1.23.1-1-avh040-x86_64.avh.tar.zst
 wlroots-0.18.1-1-avh040-x86_64.avh.tar.zst

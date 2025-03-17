@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -29,6 +29,14 @@ source=("${pkgname}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/
         "dynamically_generate_desktop_file_protocols.patch")
 sha256sums=('51e787dbff240d69227f306685fc962daae215c755689b9de4ef0432ddf4443b'
             '88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+  # Backported patch to don't load client-rt.conf properties
+  # which was deprecated in https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/24bcacc6195ffbf8e40c9ea1374eb6666252eadc
+  # See https://github.com/mpv-player/mpv/issues/15914
+  patch -Np1 -i "${srcdir}/do_not_load_client-rt.conf_properties.patch"
+}
 
 build() {
   local _meson_options=(

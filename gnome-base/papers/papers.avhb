@@ -1,0 +1,89 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=papers
+pkgname=(
+  papers
+  papers-lib-docs
+)
+pkgver=48.0
+pkgrel=1
+pkgdesc='Document viewer for PDF and other document formats aimed at the GNOME desktop'
+arch=(x86_64)
+groups=('gnome-base')
+url='https://apps.gnome.org/Papers/'
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  dconf
+  djvulibre
+  exempi
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  graphene
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libarchive
+  libnautilus-extension
+  libtiff
+  pango
+  poppler-glib
+)
+makedepends=(
+  appstream
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  itstool
+  meson
+  rust
+)
+source=("https://gitlab.gnome.org/GNOME/Incubator/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2")
+b2sums=('8b204e0197dc264669847328928a41bf45975acf87bad8ba53559626839ea75c0a9b42d8658ad2e20e0a29275fde2b21bf9ddec99f3f57b2d7ce1cb04e93555d')
+
+prepare() {
+  cd $pkgbase-$pkgver
+
+  meson subprojects download
+
+  CARGO_HOME="$srcdir/build/cargo-home" \
+    cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')" \
+      --manifest-path=shell/Cargo.toml
+
+  # https://gitlab.gnome.org/GNOME/Incubator/papers/-/merge_requests/337
+  # git cherry-pick -n 13dcf088b201ca3446feefe92aee3aec653cb4c5
+}
+
+build() {
+  avouch-meson $pkgbase-$pkgver build
+
+  CARGO_PROFILE_RELEASE_LTO=true \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1 \
+    CARGO_PROFILE_RELEASE_DEBUG=2 \
+    CARGO_PROFILE_RELEASE_STRIP=false \
+    meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs --no-rebuild
+}
+
+package_papers() {
+  meson install -C build --destdir "$pkgdir" --no-rebuild
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_papers-lib-docs() {
+  pkgdesc+=" (library API documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}

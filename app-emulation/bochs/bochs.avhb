@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=bochs
-pkgver=2.6.11
+pkgver=2.8
 pkgrel=1
 pkgdesc="A portable x86 PC emulation software package, including GUI debugger"
 arch=('x86_64')
@@ -19,8 +19,6 @@ prepare() {
     cd "$srcdir/$pkgname-$pkgver"
     # 4.X kernel is basically 3.20
     sed -i 's/2\.6\*|3\.\*)/2.6*|3.*|4.*)/' configure*
-
-    patch -p1 < ../fix-build.patch # https://sourceforge.net/p/bochs/bugs/1411/
 }
 
 build() {

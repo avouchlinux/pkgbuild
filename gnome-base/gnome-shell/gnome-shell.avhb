@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,7 +8,7 @@ pkgname=(
   gnome-shell
   gnome-shell-docs
 )
-pkgver=47.0
+pkgver=48.0
 pkgrel=1
 epoch=1
 pkgdesc="Next generation desktop shell"

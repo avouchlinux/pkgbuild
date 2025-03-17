@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=zanshin
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="To-do management application based on Akonadi"
 arch=('x86_64')
-groups=('kde-app')
+groups=('kde-release-service')
 url='https://zanshin.kde.org'
 license=(GPL-2.0-or-later)
 depends=(gcc-libs

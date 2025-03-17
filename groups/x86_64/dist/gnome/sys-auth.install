@@ -1,4 +1,6 @@
-oath-toolkit-2.6.2-1-avh02-x86_64.avhp.tar.zstd
-polkit-123-1-avh040-x86_64.avh.tar.zst
-polkit-qt5-0.114.0-1-avh02-x86_64.avhp.tar.zstd
-rtkit-0.13+1+gc295fa8-1-avh02-x86_64.avhp.tar.zstd
+oath-toolkit-2.6.11-1-avh040-x86_64.avh.tar.zst
+polkit-125-1-avh040-x86_64.avh.tar.zst
+polkit-qt5-0.200.0-1-avh040-x86_64.avh.tar.zst
+polkit-qt6-0.200.0-1-avh040-x86_64.avh.tar.zst
+rtkit-0.13-1-avh040-x86_64.avh.tar.zst
+usbguard-1.1.3-1-avh040-x86_64.avh.tar.zst

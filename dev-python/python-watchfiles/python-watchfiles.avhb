@@ -1,0 +1,58 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-watchfiles
+pkgver=1.0.4
+pkgrel=1
+pkgdesc='Simple, modern and high performance file watching and code reload in Python'
+arch=(x86_64)
+groups=('dev-python')
+url='https://github.com/samuelcolvin/watchfiles'
+license=(MIT)
+depends=(
+  gcc-libs
+  glibc
+  python
+  python-anyio
+)
+makedepends=(
+  python-build
+  python-installer
+  python-maturin
+)
+checkdepends=(
+  python-dirty-equals
+  python-pytest
+  python-pytest-mock
+  python-pytest-timeout
+)
+source=("$url/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+b2sums=('94155b090a05f8aad33e6492c264dce4e8da20d8a0a48e314ce67566f523040ec7c14b7445331651dc24477defd3b76953ee6f9558c884aa22bf6d62e0ec6564')
+
+prepare() {
+  cd ${pkgname#python-}-$pkgver
+  # This prevents tests from detecting the watchfiles module.
+  rm -v tests/__init__.py
+}
+
+build() {
+  cd ${pkgname#python-}-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd ${pkgname#python-}-$pkgver
+  python -m venv --system-site-packages test-env
+  test-env/bin/python -m installer dist/*.whl
+  # Don't add CWD to PYTHONPATH, the watchfiles package in CWD will take
+  # precedence over installed one.
+  # test-env/bin/python -Im pytest
+}
+
+package() {
+  cd ${pkgname#python-}-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

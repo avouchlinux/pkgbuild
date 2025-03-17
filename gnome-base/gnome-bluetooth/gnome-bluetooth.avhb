@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-bluetooth
-pkgver=47.0
+pkgver=47.1
 pkgrel=1
 pkgdesc="The GNOME Bluetooth Subsystem"
 url="https://wiki.gnome.org/Projects/GnomeBluetooth"
@@ -18,7 +18,10 @@ source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkg
 build() {
     local meson_options=(
     -D gtk_doc=true
+    -D introspection=false
   )
+
+  export XDG_DATA_DIRS="/usr/share"
 
   avouch-meson gnome-bluetooth-$pkgver build "${meson_options[@]}"
   meson compile -C build

@@ -1,34 +1,33 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=open-isns
-pkgver=0.100
+pkgver=0.103
 pkgrel=1
 pkgdesc='iSNS server and client for Linux'
 arch=('x86_64')
 groups=('sys-block')
 depends=('openssl')
+makedepends=('meson')
 url='https://github.com/gonzoleeman/open-isns'
 license=('GPL')
-source=("https://github.com/gonzoleeman/${pkgname}/archive/v${pkgver}.tar.gz")
-
-prepare() {
-	cd "$srcdir"/${pkgname}-${pkgver}
-
-	sed -i 's/-Werror//' configure.ac
-	autoreconf -fi
-}
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/gonzoleeman/${pkgname}/archive/v${pkgver}.tar.gz")
+sha256sums=('47499f3ce87a832840884dcf3eedbec8c039f472fe921a5378e3b206a3fc1a32')
 
 build() {
-	cd "$srcdir"/${pkgname}-${pkgver}
+  local _meson_options=(
+    --default-library=shared
+    -Dslp=disabled
+    -Dlibdir=lib
+  )
 
-	./configure --prefix=/usr --bindir=/usr/bin --sbindir=/usr/bin --enable-shared
-	make ${MAKEFLAGS}
+  avouch-meson "${pkgname}-${pkgver}" build "${_meson_options[@]}"
+
+  meson compile -C build
 }
 
 package() {
-	cd "$srcdir"/${pkgname}-${pkgver}
-
-	make DESTDIR="${pkgdir}" install install_lib install_hdrs
+  DESTDIR="${pkgdir}" meson install -C build
 }

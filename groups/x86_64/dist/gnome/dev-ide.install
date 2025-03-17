@@ -1,15 +1,19 @@
-# anjuta
-# libanjuta
-# anjuta-extra
-# bluefish-2.2.11-1-avh02-x86_64.avhp.tar.zstd
-# geany-1.38-1-avh02-x86_64.avhp.tar.zstd
-# geany-plugins-1.38-1-avh02-x86_64.avhp.tar.zstd
-# glade-3.38.2-1-avh02-x86_64.avhp.tar.zstd
-highlight-3.56-1-avh02-x86_64.avhp.tar.zstd
-# highlight-gui-3.56-1-avh02-x86_64.avhp.tar.zstd
-# lazarus-2.0.8-1-avh02-x86_64.avhp.tar.zstd
-# lazarus-gtk2-2.0.8-1-avh02-x86_64.avhp.tar.zstd
-# lazarus-qt5-2.0.8-1-avh02-x86_64.avhp.tar.zstd
-# netbeans
-# qtcreator-5.0.2-1-avh02-x86_64.avhp.tar.zstd
-# visual-studio-code-1.64.2-1-avh02-x86_64.avhp.tar.zstd
+anjuta
+libanjuta
+anjuta-extras
+bluefish-2.2.11-1-avh030-x86_64.avh.tar.zst
+cursor-bin-0.44.11-1-avh040-x86_64.avh.tar.zst
+geany-1.38-1-avh030-x86_64.avh.tar.zst
+geany-plugins-1.38-1-avh030-x86_64.avh.tar.zst
+glade-3.38.2-1-avh030-x86_64.avh.tar.zst
+highlight-4.14-1-avh040-x86_64.avh.tar.zst
+highlight-gui-3.56-1-avh030-x86_64.avh.tar.zst
+lazarus-2.0.8-1-avh030-x86_64.avh.tar.zst
+lazarus-gtk2-2.0.8-1-avh030-x86_64.avh.tar.zst
+lazarus-qt5-2.0.8-1-avh030-x86_64.avh.tar.zst
+netbeans
+qtcreator-7.0.0-1-avh030-x86_64.avh.tar.zst
+sublime-text-4.4126-1-avh030-x86_64.avh.tar.zst
+sublime-merge-2068-1-avh030-x86_64.avh.tar.zst
+visual-studio-code-1.96.2-1-avh040-x86_64.avh.tar.zst
+zed-0.160.7-1-avh040-x86_64.avh.tar.zst

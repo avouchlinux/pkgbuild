@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kalzium
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Periodic Table of Elements"
 url='https://apps.kde.org/kalzium/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(avogadrolibs
          avogadrolibs-qt5
@@ -38,7 +38,7 @@ makedepends=(eigen
              kdoctools5
              ocaml
              python)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-education)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('9b8c8ef30333c23ab29bb9bce3d7324cf9dd1a36af481d326d2c7b6324b2b357'

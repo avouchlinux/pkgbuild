@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=goffice
-pkgver=0.10.51
+pkgver=0.10.59
 pkgrel=1
 pkgdesc="A GLib/GTK+ set of document-centric objects and charting library"
 url="https://git.gnome.org/browse/goffice"

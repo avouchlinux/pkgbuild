@@ -15,6 +15,7 @@ libdecor
 libdisplay-info
 libdmx ##################
 libdrm
+libfakekey
 libfm
 libfontenc
 libfs ##################

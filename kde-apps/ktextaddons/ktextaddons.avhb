@@ -1,11 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=ktextaddons
-pkgname=(ktextaddons
-         ktextaddons5)
+pkgname=(ktextaddons)
 pkgver=1.5.4
 pkgrel=1
 pkgdesc='Various text handling addons'
@@ -61,18 +60,9 @@ build() {
     -DBUILD_QCH=ON \
     -DQT_MAJOR_VERSION=6
   cmake --build build
-
-  # cmake -B build -S $pkgbase-$pkgver -G Ninja \
-  # 	-DCMAKE_INSTALL_PREFIX=/usr \
-	# 	-DLIB_INSTALL_DIR=lib \
-  #   -DCMAKE_INSTALL_LIBEXECDIR=lib \
-  #   -DBUILD_TESTING=OFF \
-  #   -DBUILD_DESIGNERPLUGIN=ON \
-  #   -DBUILD_QCH=ON
-  # cmake --build build5
 }
 
-package_ktextaddons() {
+package() {
   depends+=(karchive
             kcolorscheme
             kconfig
@@ -87,23 +77,4 @@ package_ktextaddons() {
             syntax-highlighting)
 
   DESTDIR="$pkgdir" cmake --install build
-}
-
-package_ktextaddons5() {
-  depends+=(karchive5
-            kconfig5
-            kconfigwidgets5
-            ki18n5
-            kio5
-            kwidgetsaddons5
-            qt5-base
-            qt5-speech
-            qtkeychain-qt5
-            sonnet5
-            syntax-highlighting5)
-  conflicts=('ktextaddons<1.5.2-3')
-  replaces=('ktextaddons<1.5.2-3')
-
-  # DESTDIR="$pkgdir" cmake --install build5
-  # rm -r "$pkgdir"/usr/share/locale # Conflicts with Qt5 version
 }

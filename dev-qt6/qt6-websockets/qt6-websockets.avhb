@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-websockets
-pkgver=6.8.0
+pkgver=6.8.2
 pkgrel=1
 _realname="${pkgname/6-/}"
 _tarname="${pkgname/6-/}-everywhere-src-${pkgver}"

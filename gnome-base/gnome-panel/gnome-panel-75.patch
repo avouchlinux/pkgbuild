@@ -1,0 +1,66 @@
+From a0a8bd7490f63af6b8de1e0e225670372624d059 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Thu, 19 Dec 2024 02:22:08 +0100
+Subject: [PATCH] clock: Fix tracking current location
+
+The clock->current variable was not updated when the first location was added to the panel, and when the current location was removed.
+---
+ modules/clock/clock-applet.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/modules/clock/clock-applet.c b/modules/clock/clock-applet.c
+index ef6601515..589b657bb 100644
+--- a/modules/clock/clock-applet.c
++++ b/modules/clock/clock-applet.c
+@@ -858,11 +858,15 @@ location_weather_updated_cb (ClockLocation  *location,
+         const gchar *icon_name;
+         const gchar *temp;
+ 
+-        if (!info || !gweather_info_is_valid (info))
++        if (!clock_location_is_current (location))
+                 return;
+ 
+-        if (!clock_location_is_current (location))
++        if (!info || !gweather_info_is_valid (info)) {
++                clock_button_set_weather (CLOCK_BUTTON (cd->panel_button),
++                                          NULL,
++                                          NULL);
+                 return;
++        }
+ 
+         icon_name = NULL;
+         if (g_settings_get_boolean (cd->applet_settings, "show-weather")) {
+@@ -921,10 +925,14 @@ locations_changed (GSettings   *settings,
+         ClockLocation *loc;
+         glong id;
+ 
+-        if (!cd->locations) {
++        if (cd->current != NULL && g_list_find (cd->locations, cd->current) == NULL) {
+                 clock_button_set_weather (CLOCK_BUTTON (cd->panel_button),
+                                           NULL,
+                                           NULL);
++
++                clock_location_set_current (cd->current, FALSE);
++                g_object_unref (cd->current);
++                cd->current = NULL;
+         }
+ 
+         for (l = cd->locations; l; l = l->next) {
+@@ -1231,10 +1239,13 @@ run_prefs_edit_save (GtkButton   *button,
+                                   TRUE,
+                                   lat,
+                                   lon,
+-                                  cd->locations == NULL);
++                                  cd->current == NULL);
+ 
+         cd->locations = g_list_append (cd->locations, loc);
+ 
++        if (cd->current == NULL && clock_location_is_current (loc))
++                cd->current = g_object_ref (loc);
++
+         g_free (city);
+ 
+         /* This will update everything related to locations to take into
+-- 
+GitLab
+

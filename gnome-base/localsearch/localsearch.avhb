@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,7 +8,7 @@ pkgname=(
   localsearch
   localsearch-testutils
 )
-pkgver=3.8.0
+pkgver=3.9.rc
 pkgrel=1
 pkgdesc="Filesystem indexer and metadata extractor"
 url="https://gnome.pages.gitlab.gnome.org/localsearch/"
@@ -53,7 +53,7 @@ makedepends=(
   python
   python-gobject
 )
-source=("https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/3.8.0/localsearch-$pkgver.tar.gz")
+source=("https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/$pkgver/localsearch-$pkgver.tar.gz")
 b2sums=('75005c92fc3b949b063985f1dfa780a328ce66b58e51a824b6b2ed1b494d24bf15b7b9c62811923887197229b4dc29deee9898ab331f8d4a99e3c08127a02644')
 
 prepare() {
@@ -63,7 +63,6 @@ prepare() {
 build() {
   local meson_options=(
     -D landlock=enabled
-    -D network_manager=disabled # Used only if miner_rss enabled
     -D tests_tap_protocol=true
   )
 

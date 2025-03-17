@@ -1,0 +1,40 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=sphinx-autobuild
+pkgname=python-$_pkgname
+pkgver=2024.10.03
+pkgrel=1
+pkgdesc='Rebuild Sphinx documentation on changes, with live-reload in the browser'
+arch=('any')
+groups=('dev-python')
+url='https://github.com/executablebooks/sphinx-autobuild'
+license=('BSD')
+depends=('python' 'python-sphinx' 'python-colorama' 'python-watchfiles' 'uvicorn' 'python-starlette')
+makedepends=('python-build' 'python-installer' 'python-flit-core')
+checkdepends=('python-pytest' 'python-httpx')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$pkgver.tar.gz")
+sha512sums=('5b919dd376cc0c2afc5d8623868e95fa7d0b9a693ea374c9ba7a6511d3bdfbfb5c0960e84d2cc64205588ad2651f80d1183260831f70144796abe17f4c2c87cc')
+
+build() {
+  cd $_pkgname-$pkgver
+
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $_pkgname-$pkgver
+
+  PYTHONPATH="$PWD" pytest
+}
+
+package() {
+  cd $_pkgname-$pkgver
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  install -Dm 644 LICENSE.rst -t "$pkgdir"/usr/share/licenses/$pkgname
+}
+

@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal-gtk
-pkgver=1.15.1
+pkgver=1.15.2
 pkgrel=1
 pkgdesc="A GTK+ backend for xdg-desktop-portal"
 url="https://github.com/flatpak/xdg-desktop-portal-gtk"

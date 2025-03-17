@@ -1,40 +1,78 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-applets
-pkgver=3.52.0
+pkgver=3.54.0
 pkgrel=1
 pkgdesc="Small applications for the GNOME Panel"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://wiki.gnome.org/Projects/GnomeApplets"
-license=('GPL')
-depends=('dbus-glib' 'gnome-panel' 'libgtop' 'tracker' 'cpupower' 'upower')
-makedepends=('autoconf-archive' 'git' 'gnome-settings-daemon' 'intltool' 'python' 'yelp-tools')
-source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+license=(GPL-2.0-or-later)
+depends=(
+  at-spi2-core
+  cairo
+  cpupower
+  dconf
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-panel
+  gsettings-desktop-schemas
+  gtk3
+  hicolor-icon-theme
+  libgtop
+  libgweather-4
+  libnotify
+  libwnck3
+  libx11
+  libxml2
+  pango
+  polkit
+  tinysparql
+  upower
+)
+makedepends=(
+  autoconf-archive
+  git
+  glib2-devel
+  yelp-tools
+)
+optdepends=('localsearch: Search bar')
+source=(
+  "git+https://gitlab.gnome.org/GNOME/$pkgname.git?signed#tag=$pkgver"
+  gnome-applets-98.patch
+)
+b2sums=(
+  3338080f7ce02eb6562180adc20151a0859dbe723cd0c843dc4941bef2cd83a2d3c0ddcb286a2b1ecbbb2b29bbd2aaa3af9ea4dc2df6ccf85937ba7f905875c5
+  d33772454e20dbfcb884e9ccbb4ad8705366c6a0313f94fef3791c90daa4d5daf50b39333b2af89992c37d34fdca99cb42384d479dd07438095ec2f67a214fe1
+)
+validpgpkeys=(7B44FD78E49334EC10B3B288A3D013EC303E1894) # Alberts Muktupāvels <alberts.muktupavels@gmail.com>
 
 prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+  cd $pkgname
 
-	# Use correct D-Bus config location
-	# sed -i '/^dbus_confdir =/ s/sysconfdir/datadir/' cpufreq/src/cpufreq-selector/Makefile.am
+  # https://gitlab.gnome.org/GNOME/gnome-applets/-/merge_requests/98
+  git apply -3 ../gnome-applets-98.patch
 
-	# NOCONFIGURE=1 ./autogen.sh
+  autoreconf -fi
 }
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr \
-		--sysconfdir=/etc --localstatedir=/var \
-		--libexecdir=/usr/lib/$pkgname \
-		--with-cpufreq-lib=cpupower \
-		--disable-static
-	make ${MAKEFLAGS}
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-debug \
+    --enable-compile-warnings
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make  DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

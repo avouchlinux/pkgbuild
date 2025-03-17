@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -7,12 +7,12 @@ pkgbase=kcachegrind
 pkgname=(kcachegrind
          kcachegrind-common
          qcachegrind)
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Visualization of Performance Profiling Data'
 url='https://apps.kde.org/kcachegrind/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 makedepends=(extra-cmake-modules
              kdoctools
@@ -37,7 +37,7 @@ build() {
 }
 
 package_kcachegrind() {
-  groups=(kde-applications
+  groups=(kde-release-servicelications
           kde-sdk)
   depends=(gcc-libs
            glibc

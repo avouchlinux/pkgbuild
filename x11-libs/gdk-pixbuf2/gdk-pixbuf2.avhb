@@ -1,11 +1,11 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gdk-pixbuf2
 _realname=gdk-pixbuf
-pkgver=2.42.10
+pkgver=2.42.12
 pkgrel=1
 pkgdesc="An image loading library"
 arch=('x86_64')

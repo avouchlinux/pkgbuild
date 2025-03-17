@@ -1,40 +1,60 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal
-pkgver=1.18.4
+pkgver=1.20.0
 pkgrel=1
 pkgdesc="Desktop integration portals for sandboxed apps"
 url="https://github.com/flatpak/xdg-desktop-portal"
 arch=('x86_64')
 groups=('dev-utils')
-license=(LGPL2.1)
+license=(LGPL-2.1-or-later)
 depends=(
   fuse3
+  gcc-libs
   gdk-pixbuf2
-  geoclue
   glib2
+  glibc
+  gstreamer
+  gst-plugins-base-libs
+  json-glib
+  libgudev
+  libpipewire
   pipewire
   rtkit
   systemd
+  systemd-libs
 )
 makedepends=(
   docbook-xsl
   flatpak
+  geoclue
   git
+  glib2-devel
+  gst-plugins-good
   libportal
   meson
-  python3-dbus
-  python3-dbusmock
-  python3-docutils
-  python3-gobject
+  python-dbus
+  python-dbusmock
+  python-docutils
+  python-gobject
   python-pytest
+  python-sphinx
+  python-sphinx-copybutton
+  python-sphinxext-opengraph
+  python-sphinx-furo
+  umockdev
   xmlto
 )
-optdepends=('xdg-desktop-portal-impl: Portal backends')
-
+checkdepends=(
+  python-pytest-xdist
+)
+optdepends=(
+  'geoclue: Geolocation portal'
+  'xdg-desktop-portal-impl: Portal backends'
+)
 source=("https://github.com/flatpak/xdg-desktop-portal/releases/download/$pkgver/$pkgname-$pkgver.tar.xz")
 
 prepare() {
@@ -44,13 +64,15 @@ prepare() {
 build() {
     # 'latin-1' codec can't encode character '\u201c' in position 15: ordinal not in range
     export LANG=en_GB.UTF-8
-    avouch-meson $pkgname-$pkgver build
+    avouch-meson $pkgname-$pkgver -D documentation=disabled build
     meson compile -C build
 }
 
-# check() {
-#   meson test -C build --print-errorlogs
-# }
+check() {
+  # https://github.com/flatpak/xdg-desktop-portal/issues/1589
+  XDP_VALIDATE_ICON_INSECURE=1 XDP_VALIDATE_SOUND_INSECURE=1 \
+    meson test -C build --print-errorlogs
+}
 
 package() {
   meson install -C build --destdir "$pkgdir"

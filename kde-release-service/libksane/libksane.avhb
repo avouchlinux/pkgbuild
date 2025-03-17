@@ -1,17 +1,16 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libksane
-pkgname=(libksane
-         libksane5)
-pkgver=24.08.2
+pkgname=libksane
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="An image scanning library"
 url='https://www.kde.org/'
 arch=(x86_64)
-groups=('kde-apps')
+groups=('kde-release-service')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc)
@@ -43,16 +42,9 @@ build() {
     -DBUILD_TESTING=OFF \
     -DQT_MAJOR_VERSION=6
   cmake --build build 
-
-  cmake -B build -S $pkgname-$pkgver -G Ninja \
-  	-DCMAKE_INSTALL_PREFIX=/usr \
-	  -DLIB_INSTALL_DIR=lib \
-    -DCMAKE_INSTALL_LIBEXECDIR=lib \
-    -DBUILD_TESTING=OFF
-  cmake --build build5
 }
 
-package_libksane() {
+package() {
   depends+=(ki18n
             ksanecore
             ktextwidgets
@@ -60,17 +52,4 @@ package_libksane() {
             kwidgetsaddons
             qt6-base)
   DESTDIR="$pkgdir" cmake --install build
-}
-
-package_libksane5() {
-  depends+=(ki18n5
-            ksanecore5
-            ktextwidgets5
-            kwallet5
-            kwidgetsaddons5
-            libksane
-            qt5-base)
-  conflicts=('libksane<24.02.0-2')
-  DESTDIR="$pkgdir" cmake --install build5
-  rm -r "$pkgdir"/usr/share # provided by libksane
 }

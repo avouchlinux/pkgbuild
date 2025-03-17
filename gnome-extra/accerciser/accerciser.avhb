@@ -4,30 +4,59 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=accerciser
-pkgver=3.38.0
+pkgver=3.46.2
 pkgrel=1
 pkgdesc="Interactive Python accessibility explorer for the GNOME desktop"
 arch=(any)
 groups=('gnome-extra')
 url="https://wiki.gnome.org/Apps/Accerciser"
-license=(BSD)
-depends=(python gtk3 python-atspi ipython libwnck3 python-cairo python-xlib)
-makedepends=(appstream-glib yelp-tools)
+license=(BSD-3-Clause)
+depends=(
+  at-spi2-core
+  dconf
+  gdk-pixbuf2
+  glib2
+  gobject-introspection-runtime
+  gtk3
+  hicolor-icon-theme
+  ipython
+  librsvg
+  libwnck3
+  pango
+  python
+  python-atspi
+  python-cairo
+  python-dbus
+  python-gobject
+  python-setuptools
+  python-traitlets
+  python-xdg
+)
+makedepends=(
+  appstream
+  git
+  meson
+  yelp-tools
+)
+groups=(gnome-extra)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('87cbc2086e9cb37f786d79abd7d95f80b5f8e27c2ccae93a2e58ab950fdcf41e9f936f9269825717cf78302dc1facab0a952017aa9c4067ef9c0e18456b0411d')
 
 prepare() {
-  cd $pkgname-$pkgver
-  #NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --sysconfdir=/etc --disable-schemas-compile
-  make ${MAKEFLAGS}
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
+  meson install -C build --destdir "$pkgdir"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver/COPYING
 }
+

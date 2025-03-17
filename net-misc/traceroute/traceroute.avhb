@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=traceroute
-pkgver=2.1.5
+pkgver=2.1.6
 pkgrel=1
 pkgdesc="Tracks the route taken by packets over an IP network"
 arch=('x86_64')
@@ -21,7 +21,7 @@ b2sums=('b2e99398b23d064f96319c9ca677589175f4bde64bce1f1d3236fc94f0ae3aa00499a2e
 
 prepare() {
   cd ${pkgname}-${pkgver}
-  patch -p1 < ../reproducible-build.patch
+  # patch -p1 < ../reproducible-build.patch
 }
 
 build() {

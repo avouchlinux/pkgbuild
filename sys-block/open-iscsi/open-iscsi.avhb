@@ -1,44 +1,42 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=open-iscsi
-pkgver=2.1.1
+pkgver=2.1.10
 pkgrel=1
 pkgdesc="userland tools"
 arch=('x86_64')
 groups=('sys-block')
 url='https://www.open-iscsi.com/'
 license=('GPL')
-depends=('systemd-libs' 'libutil-linux' 'kmod' 'openssl' 'open-isns')
+makedepends=('meson' 'systemd')
+depends=('systemd-libs' 'util-linux-libs' 'kmod' 'openssl' 'open-isns')
 install=$pkgname.install
 backup=('etc/iscsi/iscsid.conf'
 	'etc/iscsi/initiatorname.iscsi')
 options=('docs')
-source=("https://github.com/open-iscsi/open-iscsi/archive/$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/open-iscsi/open-iscsi/archive/$pkgver.tar.gz")
+sha256sums=('12c19f65f9136b87ac11bf5bbe5eb3e23de4e7f1ee07eecda830da53a2316113')
 
-prepare() {
-  cd  "$srcdir"/${pkgname}-${pkgver}
-  # from Gentoo
-  patch -p1 -i ../open-iscsi-2.1.1-Makefiles.patch
-}
 build() {
-  cd "$srcdir"/${pkgname}-${pkgver}
-  make user LIB_DIR=/usr/lib
+  local _meson_options=(
+    -Discsi_sbindir=/usr/bin/
+    -Drulesdir=/usr/lib/udev/rules.d/
+  )
+
+  avouch-meson "${pkgname}-${pkgver}" build "${_meson_options[@]}"
+
+  meson compile -C build
 }
 
 package() {
-  cd "$srcdir"/${pkgname}-${pkgver}
+  DESTDIR="${pkgdir}" meson install -C build
 
-  make DESTDIR="$pkgdir" LIB_DIR=/usr/lib install install_systemd
+  # no initiatorname in package, initialized in install script
+  echo -n > "${pkgdir}"/etc/iscsi/initiatorname.iscsi
 
-  install -D -m0644 "$srcdir"/${pkgname}-${pkgver}/etc/iscsid.conf "$pkgdir"/etc/iscsi
-  echo -n > "$pkgdir"/etc/iscsi/initiatorname.iscsi
-
-  # copy docs
-  mkdir -p "$pkgdir"/usr/share/doc/${pkgname}
-  install -m0644 Changelog "$pkgdir"/usr/share/doc/${pkgname}/
-  install -m0644 README "$pkgdir"/usr/share/doc/${pkgname}/
-
-  mv "$pkgdir"/sbin "$pkgdir"/usr/bin
+  # install docs
+  install -D -m0644 -t "${pkgdir}"/usr/share/doc/${pkgname}/ "${pkgname}-${pkgver}"/{Changelog,README}
 }

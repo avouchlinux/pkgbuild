@@ -25,7 +25,7 @@ harfbuzz-utils-10.0.1-1-avh040-x86_64.avh.tar.zst
 harfbuzz-docs-10.0.1-1-avh040-x86_64.avh.tar.zst
 iec16022-0.3.1-1-avh040-x86_64.avh.tar.zst
 ijs-0.35-1-avh040-x86_64.avh.tar.zst
-imagemagick-7.1.1.39-1-avh040-x86_64.avh.tar.zst
+imagemagick-7.1.1.44-1-avh040-x86_64.avh.tar.zst
 imath-3.1.12-1-avh040-x86_64.avh.tar.zst
 jbig2dec-0.20-1-avh040-x86_64.avh.tar.zst
 jbigkit-2.1-1-avh040-x86_64.avh.tar.zst
@@ -72,10 +72,10 @@ mdds-2.1.1-1-avh040-x86_64.avh.tar.zst
 mypaint-brushes-2.0.2-1-avh040-x86_64.avh.tar.zst
 # netpbm failed to build
 openexr-3.2.4-1-avh040-x86_64.avh.tar.zst
-poppler-24.09.0-1-avh040-x86_64.avh.tar.zst
-poppler-glib-24.09.0-1-avh040-x86_64.avh.tar.zst
-poppler-qt5-24.09.0-1-avh040-x86_64.avh.tar.zst
-poppler-qt6-24.09.0-1-avh040-x86_64.avh.tar.zst
+poppler-25.03.0-1-avh040-x86_64.avh.tar.zst
+poppler-glib-25.03.0-1-avh040-x86_64.avh.tar.zst
+poppler-qt5-25.03.0-1-avh040-x86_64.avh.tar.zst
+poppler-qt6-25.03.0-1-avh040-x86_64.avh.tar.zst
 poppler-data-0.4.12-1-avh040-x86_64.avh.tar.zst
 # poster failed to build
 proj-9.5.0-1-avh040-x86_64.avh.tar.zst

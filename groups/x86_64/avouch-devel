@@ -600,7 +600,6 @@ systemd_setup(){
 	acpid.service \
 	systemd-swap.service \
 	gdm.service \
-	acpid.service \
 	>/dev/null 2>&1 || :
 	
 	# Enable xdg-user-dirs-update by default

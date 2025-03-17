@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=wayland-protocols
-pkgver=1.37
+pkgver=1.40
 pkgrel=1
 pkgdesc='Specifications of extended Wayland protocols'
 arch=('any')

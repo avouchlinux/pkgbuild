@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kglobalaccel
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Add support for global workspace shortcuts'
 arch=('x86_64')

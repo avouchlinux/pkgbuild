@@ -4,11 +4,11 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=akonadi-notes
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Libraries and daemons to implement management of notes in Akonadi"
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-service')
 url='https://kontact.kde.org'
 license=(LGPL-2.0-or-later)
 depends=(gcc-libs

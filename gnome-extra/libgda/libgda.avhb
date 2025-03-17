@@ -6,7 +6,7 @@
 pkgbase=libgda
 pkgname=(libgda libgda-{firebird,postgres})
 # pkgname=(libgda libgda-{firebird,jdbc,mysql,postgres})
-pkgver=5.2.10
+pkgver=6.0.0
 pkgrel=1
 pkgdesc="Database access library"
 url="http://www.gnome-db.org/"
@@ -60,7 +60,7 @@ build() {
         #--enable-gtk-doc \
          # with mysql enabled build failed
     sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make ${MAKEFLAGS}
+    make
 }
 
 package_libgda() {

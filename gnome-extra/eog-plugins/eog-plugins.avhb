@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=eog-plugins
-pkgver=42.0
+pkgver=44.1
 pkgrel=1
 pkgdesc="Plugins for Eye of Gnome"
 arch=('x86_64')

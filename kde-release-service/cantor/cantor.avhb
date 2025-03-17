@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=cantor
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="KDE Frontend to Mathematical Software"
 url='https://apps.kde.org/cantor/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc
@@ -50,7 +50,7 @@ optdepends=('maxima: Maxima backend'
             'python: Python backend'
             'sagemath: SageMath backend'
             'julia: Julia backend')
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-education)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
         julia-1.11.patch)

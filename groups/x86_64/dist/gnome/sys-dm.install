@@ -1,10 +1,9 @@
-gdm-41.3-1-avh02-x86_64.avhp.tar.zstd
-libgdm-41.3-1-avh02-x86_64.avhp.tar.zstd
-# lightdm-1.30.0-1-avh02-x86_64.avhp.tar.zstd
-# liblightdm-qt5-1.30.0-1-avh02-x86_64.avhp.tar.zstd
-# lightdm-gtk-greeter-2.0.8-1-avh02-x86_64.avhp.tar.zstd
-# lxdm-0.5.3-1-avh02-x86_64.avhp.tar.zstd
-# lxdm-gtk3-0.5.3-1-avh02-x86_64.avhp.tar.zstd
-# sddm-0.19.0-1-avh02-x86_64.avhp.tar.zstd
-# sddm-config-editor
-# xdm-1.1.12-1-avh02-x86_64.avhp.tar.zstd
+gdm-47.0-1-avh040-x86_64.avh.tar.zst
+libgdm-47.0-1-avh040-x86_64.avh.tar.zst
+lightdm-1.32.0-1-avh040-x86_64.avh.tar.zst
+liblightdm-qt5-1.32.0-1-avh040-x86_64.avh.tar.zst
+lightdm-gtk-greeter-2.0.8-1-avh030-x86_64.avh.tar.zst
+# lxdm-0.5.3-1-avh040-x86_64.avh.tar.zst
+lxdm-gtk3-0.5.3-1-avh040-x86_64.avh.tar.zst
+sddm-0.21.0-1-avh040-x86_64.avh.tar.zst
+xdm-1.1.16-1-avh040-x86_64.avh.tar.zst

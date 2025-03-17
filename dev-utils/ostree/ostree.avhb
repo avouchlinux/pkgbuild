@@ -1,11 +1,11 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ostree
 _realname=libostree
-pkgver=2024.5
+pkgver=2024.10
 pkgrel=1
 pkgdesc="Operating system and container binary deployment and upgrades"
 arch=('x86_64')
@@ -65,9 +65,6 @@ prepare() {
 
   # use fusemount3 (fuse3)
   patch -Np1 -i ../$pkgname-2023.1-use_fuse3.patch
-  
-  # https://github.com/void-linux/void-packages/issues/52273
-  patch -Np1 -i ../fix-ostree-flatpak.patch
 
   NOCONFIGURE=1 ./autogen.sh
 }

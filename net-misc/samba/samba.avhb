@@ -1,11 +1,11 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=samba
 pkgname=('libwbclient' 'ldb' 'smbclient' 'samba')
-pkgver=4.21.2
+pkgver=4.21.3
 pkgrel=1
 arch=('x86_64')
 groups=('net-misc')

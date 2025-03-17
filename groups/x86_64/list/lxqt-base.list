@@ -1,4 +1,3 @@
-compton-conf
 lxqt-menu-data
 libdbusmenu-lxqt
 libfm-qt
@@ -12,9 +11,7 @@ lxqt-admin
 lxqt-archiver
 lxqt-build-tools
 lxqt-config
-#lxqt-connman-applet
 lxqt-globalkeys
-lxqt-kcm-integration
 lxqt-l10n
 lxqt-notificationd
 lxqt-openssh-askpass

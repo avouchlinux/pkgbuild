@@ -1,7 +1,9 @@
-# doxygen-1.8.20-1-avh02-x86_64.avhp.tar.zstd
-# doxygen-docs-1.8.20-1-avh02-x86_64.avhp.tar.zstd
-# gi-docgen-2022.1-1-avh02-x86_64.avhp.tar.zstd
-# go-md2man-2.0.1-1-avh02-x86_64.avhp.tar.zstd
-# hotdoc-0.12.2-1-avh02-x86_64.avhp.tar.zstd
-# mandown-0.1.2-1-avh02-x86_64.avhp.tar.zstd
-# po4a-0.63-1-avh02-x86_64.avhp.tar.zstd
+doxygen-1.12.0-1-avh040-x86_64.avh.tar.zst
+doxygen-docs-1.12.0-1-avh040-x86_64.avh.tar.zst
+gi-docgen-2024.1-1-avh040-x86_64.avh.tar.zst
+go-md2man-2.0.1-1-avh030-x86_64.avh.tar.zst
+hotdoc-0.17.1-1-avh040-x86_64.avh.tar.zst
+mandoc-1.14.6-1-avh040-x86_64.avh.tar.zst
+mandown-0.1.2-1-avh030-x86_64.avh.tar.zst
+po4a-0.63-1-avh030-x86_64.avh.tar.zst
+scdoc-1.11.3-1-avh040-x86_64.avh.tar.zst

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-thunderbolt
-pkgver=6.2.0
+pkgver=6.3.3
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='a Plasma Sytem Settings module and a KDED module to handle authorization of Thunderbolt devices connected to the computer'

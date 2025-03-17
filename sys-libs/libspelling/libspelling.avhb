@@ -1,0 +1,75 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libspelling
+pkgname=(
+  libspelling
+  libspelling-docs
+)
+pkgver=0.4.6
+pkgrel=1
+pkgdesc="Spellcheck library for GTK 4"
+url="https://gitlab.gnome.org/GNOME/libspelling"
+arch=(x86_64)
+groups=('sys-libs')
+license=(LGPL-2.1-or-later)
+depends=(
+  enchant
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  gtksourceview5
+  icu
+  pango
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  vala
+)
+checkdepends=(
+  aspell
+  aspell-en
+  enchant
+  hspell
+  hunspell
+  nuspell
+  libvoikko
+)
+source=(
+  # libspelling tags use SSH signatures that makepkg doesn't understand
+  "git+https://gitlab.gnome.org/GNOME/libspelling.git#tag=$pkgver"
+)
+b2sums=('13d8181b47cd416dd98223406a9f398b26a065a3ee5fb1f741886bc4adca701e4e6c031dff2cc1cb5b8841c568ea13c847cec229e3f22caf20c7a42db787af07')
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_libspelling() {
+  provides=(libspelling-1.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_libspelling-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+
+# vim:set sw=2 sts=-1 et:

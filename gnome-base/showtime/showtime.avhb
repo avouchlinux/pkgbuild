@@ -1,0 +1,79 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=showtime
+pkgver=48.0
+pkgrel=1
+pkgdesc='Video player for GNOME'
+arch=(any)
+groups=('gnome-base')
+url='https://apps.gnome.org/Showtime/'
+license=(GPL-3.0-or-later)
+depends=(
+  dconf
+  glib2
+  graphene
+  gst-plugins-bad-libs
+  gst-plugins-base
+  gst-plugins-base-libs
+  gst-plugins-good
+  gst-plugin-gtk4
+  gstreamer
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  python
+  python-gobject
+)
+makedepends=(
+  appstream
+  blueprint-compiler
+  git
+  meson
+)
+optdepends=(
+  'gst-libav: Extra media codecs'
+  'gst-plugins-bad: Extra media codecs'
+  'gst-plugins-ugly: Extra media codecs'
+)
+source=(
+  "https://gitlab.gnome.org/GNOME/Incubator/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2"
+  showtime-default-icon.patch
+  showtime-desktop-categories.patch
+)
+b2sums=(
+  a5f75910f833f6a959a6670a3524c2279622ac4bb19aeca41be4f9b4462259c9c7035c97fbb5b5525ce3c3c767765d18a912affbd469523d20011c94d151f93c
+  b6f73b4b50bfc9ef82dc83c6db7aeb04d998303748bc837601b988982c33e1c1a6be883aa7602664a6fac07523f8b7b04297535dd446c81929fe3848f8cee2a0
+  1cd9051d1a8a1f7253cdef35bad46d51bbaf7ab2b0c49f651149c0f3b0135a76717365185ad460be7c04b89cc5d793218a9a8df3b27034cc9b4f2e7f6d7a7168
+)
+validpgpkeys=(E7F8575DF41BB394502E2AB50EDDDE9A9B3384C3) # kramo <contact@kramo.page>
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  meson subprojects download
+
+  # https://gitlab.gnome.org/GNOME/Incubator/showtime/-/merge_requests/19
+  # git apply -3 ../showtime-default-icon.patch
+
+  # https://gitlab.gnome.org/GNOME/Incubator/showtime/-/merge_requests/20
+  # git apply -3 ../showtime-desktop-categories.patch
+}
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+
+  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
+  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
+}

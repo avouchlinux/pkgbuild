@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kcron
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Configure and schedule tasks'
 url='https://apps.kde.org/kcron/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(cron
          gcc-libs
@@ -24,7 +24,7 @@ depends=(cron
          qt6-base)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-system)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('865d46f1061c567a50f559ab7af1fafd2c3fedb3ac28929367035506ff0ae6d0'

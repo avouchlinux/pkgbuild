@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gegl
-pkgver=0.4.48
+pkgver=0.4.56
 pkgrel=1
 pkgdesc="Graph based image processing framework"
 arch=('x86_64')

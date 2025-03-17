@@ -1,28 +1,36 @@
-db-5.3.28-1-avh02-x86_64.avhp.tar.zstd
-freetds-1.1.26-1-avh02-x86_64.avhp.tar.zstd
-ldb-2.4.1-1-avh02-x86_64.avhp.tar.zstd
-leveldb-1.22-1-avh02-x86_64.avhp.tar.zstd
-libdbi-0.9.0-1-avh02-x86_64.avhp.tar.zstd
-libdbi-drivers-0.9.0-1-avh02-x86_64.avhp.tar.zstd
-libfbclient-3.0.5.33220-1-avh02-x86_64.avhp.tar.zstd
-libmaxminddb-1.4.2-1-avh02-x86_64.avhp.tar.zstd
-mmdblookup-1.4.2-1-avh02-x86_64.avhp.tar.zstd
-lmdb-0.9.24-1-avh02-x86_64.avhp.tar.zstd
-# mariadb-libs-10.7.3-1-avh02-x86_64.avhp.tar.zstd
-# mariadb-clients-10.7.3-1-avh02-x86_64.avhp.tar.zstd
-# mariadb-10.7.3-1-avh02-x86_64.avhp.tar.zstd
-# mytop-10.7.3-1-avh02-x86_64.avhp.tar.zstd
-mongo-c-driver-1.21.0-1-avh02-x86_64.avhp.tar.zstd
-osinfo-db-20200529-1-avh02-x86_64.avhp.tar.zstd
-# postgresql-libs-13.2-1-avh02-x86_64.avhp.tar.zstd
-# postgresql-docs-13.2-1-avh02-x86_64.avhp.tar.zstd
-# postgresql-13.2-1-avh02-x86_64.avhp.tar.zstd
-sqlcipher-4.3.0-1-avh02-x86_64.avhp.tar.zstd
-sqlite-3.31.1-1-avh02-x86_64.avhp.tar.zstd
-sqlite-tcl-3.31.1-1-avh02-x86_64.avhp.tar.zstd
-# sqlite-doc-3.31.1-1-avh02-x86_64.avhp.tar.zstd
-sqlite-analyzer-3.31.1-1-avh02-x86_64.avhp.tar.zstd
-# sqlitebrowser
-tdb-1.4.5-1-avh02-x86_64.avhp.tar.zstd
-tinycdb-0.78-1-avh02-x86_64.avhp.tar.zstd
-unixodbc-2.3.7-1-avh02-x86_64.avhp.tar.zstd
+cowsql-1.15.3-1-avh040-x86_64.avh.tar.zst
+db-6.2.32-1-avh040-x86_64.avh.tar.zst
+db5.3-5.3.28-1-avh040-x86_64.avh.tar.zst
+freetds-1.4.23-1-avh040-x86_64.avh.tar.zst
+kyotocabinet-1.2.79-1-avh040-x86_64.avh.tar.zst
+ldb-2.5.0-1-avh030-x86_64.avh.tar.zst
+leveldb-1.22-1-avh030-x86_64.avh.tar.zst
+libdbi-0.9.0-1-avh030-x86_64.avh.tar.zst
+libdbi-drivers-0.9.0-1-avh030-x86_64.avh.tar.zst
+libfbclient-4.0.4.3010-1-avh040-x86_64.avh.tar.zst
+libmaxminddb-1.4.2-1-avh030-x86_64.avh.tar.zst
+mmdblookup-1.4.2-1-avh030-x86_64.avh.tar.zst
+lmdb-0.9.33-1-avh040-x86_64.avh.tar.zst
+mariadb-libs-11.5.2-1-avh040-x86_64.avh.tar.zst
+mariadb-clients-11.5.2-1-avh040-x86_64.avh.tar.zst
+mariadb-11.5.2-1-avh040-x86_64.avh.tar.zst
+mytop-11.5.2-1-avh040-x86_64.avh.tar.zst
+mongo-c-driver-1.21.0-1-avh030-x86_64.avh.tar.zst
+osinfo-db-20200529-1-avh030-x86_64.avh.tar.zst
+postgresql-17.0-1-avh040-x86_64.avh.tar.zst
+postgresql-libs-17.0-1-avh040-x86_64.avh.tar.zst
+postgresql-docs-17.0-1-avh040-x86_64.avh.tar.zst
+redis-7.2.5-1-avh040-x86_64.avh.tar.zst
+solr-9.4.0-1-avh040-x86_64.avh.tar.zst
+sqlcipher-4.3.0-1-avh030-x86_64.avh.tar.zst
+sqlite-3.45.3-1-avh040-x86_64.avh.tar.zst
+sqlite-tcl-3.45.3-1-avh040-x86_64.avh.tar.zst
+sqlite-analyzer-3.45.3-1-avh040-x86_64.avh.tar.zst
+lemon-3.45.3-1-avh040-x86_64.avh.tar.zst
+sqlite-doc-3.45.3-1-avh040-x86_64.avh.tar.zst
+sqlitebrowser-3.12.2-1-avh030-x86_64.avh.tar.zst
+tdb-1.4.12-1-avh040-x86_64.avh.tar.zst
+tinycdb-0.78-1-avh030-x86_64.avh.tar.zst
+tinysparql-3.8.0-1-avh040-x86_64.avh.tar.zst
+tinysparql-docs-3.8.0-1-avh040-x86_64.avh.tar.zst
+unixodbc-2.3.12-1-avh040-x86_64.avh.tar.zst

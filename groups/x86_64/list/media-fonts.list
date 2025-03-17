@@ -1,5 +1,6 @@
 #adobe-source-han-sans
 adobe-source-sans-pro-fonts
+adwaita-fonts
 cantarell-fonts
 font-alias
 font-bh-ttf
@@ -9,6 +10,7 @@ font-misc-meltho
 gnu-free-fonts
 gsfonts
 noto-fonts
+tex-gyre-fonts
 ttf-bitstream-vera
 ttf-caladea
 ttf-carlito
@@ -21,6 +23,7 @@ ttf-liberation
 ttf-ubuntu-font-family
 ttf-urdufonts
 ttf-jameel-noori-nastaleeq
+ttf-vista-fonts
 unicode-character-database
 unicode-cldr
 unicode-emoji

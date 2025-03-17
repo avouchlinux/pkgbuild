@@ -1,52 +1,52 @@
-# acpi_call-dkms-1.1.0-1-avh02-x86_64.avhp
-# acpi_call-1.1.0-1-avh02-x86_64.avhp
+acpi_call-dkms-1.1.0-1-avh02-x86_64.avhp
+acpi_call-1.1.0-1-avh02-x86_64.avhp
 
-# b43-fwcutter-019-1-avh02-x86_64.avhp
-# broadcom-wl-6.30.223.271-1-avh02-x86_64.avhp
-# broadcom-wl-dkms-6.30.223.271-1-avh02-x86_64.avhp
+b43-fwcutter-019-1-avh02-x86_64.avhp
+broadcom-wl-6.30.223.271-1-avh02-x86_64.avhp
+broadcom-wl-dkms-6.30.223.271-1-avh02-x86_64.avhp
 
-# # nvidia 460
-# nvidia-settings-450xx-450.66-1-avh02-x86_64.avhp
-# libxnvctrl-450xx-450.66-1-avh02-x86_64.avhp
-# nvidia-utils-460xx-460.27.04-1-avh02-x86_64.avhp
-# opencl-nvidia-460xx-460.27.04-1-avh02-x86_64.avhp
-# nvidia-dkms-460xx-460.27.04-1-avh02-x86_64.avhp
-# nvidia-460.27.04-1-avh02-x86_64.avhp
-# nvidia-settings-460xx-460.27.04-1-avh02-x86_64.avhp
-# libxnvctrl-460xx-460.27.04-1-avh02-x86_64.avhp
+# nvidia 460
+nvidia-settings-450xx-450.66-1-avh02-x86_64.avhp
+libxnvctrl-450xx-450.66-1-avh02-x86_64.avhp
+nvidia-utils-460xx-460.27.04-1-avh02-x86_64.avhp
+opencl-nvidia-460xx-460.27.04-1-avh02-x86_64.avhp
+nvidia-dkms-460xx-460.27.04-1-avh02-x86_64.avhp
+nvidia-460.27.04-1-avh02-x86_64.avhp
+nvidia-settings-460xx-460.27.04-1-avh02-x86_64.avhp
+libxnvctrl-460xx-460.27.04-1-avh02-x86_64.avhp
 
-# # nvidia 450
-# nvidia-utils-450xx-450.66-1-avh02-x86_64.avhp
-# opencl-nvidia-450xx-450.66-1-avh02-x86_64.avhp
-# nvidia-dkms-450xx-450.66-1-avh02-x86_64.avhp
-# # This package failed to build
-# nvidia-settings-450xx-450.66-1-avh02-x86_64.avhp
-# libxnvctrl-450xx-450.66-1-avh02-x86_64.avhp
+# nvidia 450
+nvidia-utils-450xx-450.66-1-avh02-x86_64.avhp
+opencl-nvidia-450xx-450.66-1-avh02-x86_64.avhp
+nvidia-dkms-450xx-450.66-1-avh02-x86_64.avhp
+# This package failed to build
+nvidia-settings-450xx-450.66-1-avh02-x86_64.avhp
+libxnvctrl-450xx-450.66-1-avh02-x86_64.avhp
 
-# # nvidia 418
-# nvidia-418xx
-# nvidia-utils-418xx-418.113-1-avh02-x86_64.avhp
-# opencl-nvidia-418xx-418.113-1-avh02-x86_64.avhp
-# nvidia-dkms-418xx-418.113-1-avh02-x86_64.avhp
-# nvidia-settings-418xx-418.88-1-avh02-x86_64.avhp
+# nvidia 418
+nvidia-418xx
+nvidia-utils-418xx-418.113-1-avh02-x86_64.avhp
+opencl-nvidia-418xx-418.113-1-avh02-x86_64.avhp
+nvidia-dkms-418xx-418.113-1-avh02-x86_64.avhp
+nvidia-settings-418xx-418.88-1-avh02-x86_64.avhp
 
-# # nvidia 390
-# nvidia-utils-390xx-390.138-1-avh02-x86_64.avhp
-# opencl-nvidia-390xx-390.138-1-avh02-x86_64.avhp
-# nvidia-390xx-390.138-1-avh02-x86_64.avhp
-# nvidia-390xx-dkms-390.138-1-avh02-x86_64.avhp
-# nvidia-settings-390xx-390.138-1-avh02-x86_64.avhp
-# libxnvctrl-390xx-390.138-1-avh02-x86_64.avhp
+# nvidia 390
+nvidia-utils-390xx-390.138-1-avh02-x86_64.avhp
+opencl-nvidia-390xx-390.138-1-avh02-x86_64.avhp
+nvidia-390xx-390.138-1-avh02-x86_64.avhp
+nvidia-390xx-dkms-390.138-1-avh02-x86_64.avhp
+nvidia-settings-390xx-390.138-1-avh02-x86_64.avhp
+libxnvctrl-390xx-390.138-1-avh02-x86_64.avhp
 
-# # nvidia 340
-# nvidia-utils-340xx-340.108-1-avh02-x86_64.avhp
-# opencl-nvidia-340xx-340.108-1-avh02-x86_64.avhp
-# nvidia-340xx-340.108-1-avh02-x86_64.avhp
-# nvidia-340xx-dkms-340.108-1-avh02-x86_64.avhp
-# nvidia-settings-340xx-340.108-1-avh02-x86_64.avhp
-# libxnvctrl-340xx-340.108-1-avh02-x86_64.avhp
+# nvidia 340
+nvidia-utils-340xx-340.108-1-avh02-x86_64.avhp
+opencl-nvidia-340xx-340.108-1-avh02-x86_64.avhp
+nvidia-340xx-340.108-1-avh02-x86_64.avhp
+nvidia-340xx-dkms-340.108-1-avh02-x86_64.avhp
+nvidia-settings-340xx-340.108-1-avh02-x86_64.avhp
+libxnvctrl-340xx-340.108-1-avh02-x86_64.avhp
 
 
-# # rtl8188fu-4.3.23.6_20964.20170110-1-avh02-x86_64.avhp
+# rtl8188fu-4.3.23.6_20964.20170110-1-avh02-x86_64.avhp
 
-# tp_smapi-0.43-1-avh02-x86_64.avhp
+tp_smapi-0.43-1-avh02-x86_64.avhp

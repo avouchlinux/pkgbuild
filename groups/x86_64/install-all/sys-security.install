@@ -62,7 +62,7 @@ sudo-1.9.15.p5-1-avh040-x86_64.avh.tar.zst
 volume_key-0.3.12-1-avh040-x86_64.avh.tar.zst
 python-volume_key-0.3.12-1-avh040-x86_64.avh.tar.zst
 haveged-1.9.18-1-avh040-x86_64.avh.tar.zst
-libsodium-1.0.19-1-avh040-x86_64.avh.tar.zst
+libsodium-1.0.20-1-avh040-x86_64.avh.tar.zst
 selinux-refpolicy-2.20240226-1-avh040-x86_64.avh.tar.zst
 xmlsec-1.3.5-1-avh040-x86_64.avh.tar.zst
 mbedtls-3.6.1-1-avh040-x86_64.avh.tar.zst

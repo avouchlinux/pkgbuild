@@ -1,27 +1,40 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-screenshot
-pkgver=41.0+r25+g45f08f0
+pkgver=41.0+r39+ga362197
 pkgrel=1
 pkgdesc="Take pictures of your screen"
 url="https://gitlab.gnome.org/GNOME/gnome-screenshot"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL2)
-depends=(gtk3 libhandy)
-makedepends=(git meson appstream-glib)
-_commit=45f08f0b91a7b2aa589c9b3add671e144207e37a  # master
-source=("https://gitlab.gnome.org/GNOME/gnome-screenshot.git")
-sha256sums=('SKIP')
-
-getsrc() {
-    git clone ${source[0]}
-    cd $pkgname
-    git checkout $_commit
-}
+llicense=(GPL-2.0-or-later)
+depends=(
+  cairo
+  dconf
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gtk3
+  hicolor-icon-theme
+  libhandy
+  libx11
+  libxext
+)
+makedepends=(
+  git
+  meson
+)
+_commit=a36219781bd08201d0454bc6101ff9502430aea3  # master
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-screenshot.git#commit=$_commit"
+  0001-Fix-various-fallback-paths.patch
+)
+b2sums=('83f2327f72e839f1fa8c50787c1709407150bcceb67418ad719ba48fbf91a09dfb9040961fe10406459ab1138a28ea1a0f5f91523e029a0cd3e7b25f1c88ff78'
+        '543ba200a41eb5948c40dadf0ffa2c2c484f6e83f10ea0d9a4c3bb8c91a7b27e0ea14d9f4cee8c85355f981a7fa87b3ba04dad16251d396c65011967a53da9aa')
 
 pkgver() {
   cd $pkgname
@@ -30,6 +43,10 @@ pkgver() {
 
 prepare() {
   cd $pkgname
+
+  # Fix various fallback paths
+  # https://gitlab.gnome.org/GNOME/gnome-screenshot/-/merge_requests/72
+  patch -Np1 -i ../0001-Fix-various-fallback-paths.patch
 }
 
 build() {

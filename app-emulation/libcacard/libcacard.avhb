@@ -1,26 +1,43 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libcacard
-pkgver=2.5.3
+pkgver=2.8.1
 pkgrel=1
 pkgdesc='(Common Access Card) library thar provides emulation of smart cards to a virtual card reader running in a guest virtual machine'
 arch=(x86_64)
 groups=('app-emulation')
-license=(GPL2)
-url='http://www.spice-space.org/page/Libcacard'
-depends=(nss glib2)
-source=(http://www.spice-space.org/download/libcacard/libcacard-$pkgver.tar.xz)
+license=(LGPL-2.1-or-later)
+url='https://gitlab.freedesktop.org/spice/libcacard'
+depends=(
+  glib2
+  glibc
+  nspr
+  nss
+  pcsclite
+)
+makedepends=(meson)
+source=("https://www.spice-space.org/download/libcacard/$pkgname-$pkgver.tar.xz"{,.sig})
+validpgpkeys=(
+  F7DC50A57DFD52B94253295EF64907AC15B5C33D # Jakub Jelen <jjelen@redhat.com>
+  EFC9937E969FD53E718D0DD4CB6BE1D0D7D1594A # Jakub Jelen <jjelen@redhat.com>
+)
+b2sums=(
+  49b1c0c9184f0a926df85de6146dd31a7127ee5e40a172e3d9e47f33ef4cdef57ee85f34c9c53719b4a8c5a1de695b8936cfcfce141cd558e6d53d215421621b
+  SKIP
+)
 
-build () {
-	cd "$srcdir/libcacard-$pkgver"
-	./configure --prefix=/usr
-	make
+build() {
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	cd "$srcdir/libcacard-$pkgver"
-	make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }

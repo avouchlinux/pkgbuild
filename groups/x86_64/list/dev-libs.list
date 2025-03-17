@@ -2,6 +2,7 @@ abseil-cpp
 appstream
 appstream-glib
 boost
+capstone
 cloog
 cmark
 cppdap

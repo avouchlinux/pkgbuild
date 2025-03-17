@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orca
-pkgver=47.0
+pkgver=48.beta
 _srcname=${pkgname^^}_${pkgver/./_}
 pkgrel=1
 pkgdesc="Screen reader for individuals who are blind or visually impaired"
@@ -42,7 +42,7 @@ makedepends=(
   meson
   yelp-tools
 )
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$_srcname/$pkgname-$_srcname.tar.bz2")
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 b2sums=('SKIP')
 
 build() {
@@ -50,7 +50,7 @@ build() {
     -D spiel=false
   )
 
-  avouch-meson $pkgname-$_srcname build "${meson_options[@]}"
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 

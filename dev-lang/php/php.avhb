@@ -16,34 +16,36 @@ pkgname=('php'
          'php-sodium'
          'php-odbc'
          'php-pgsql'
-         'php-pspell'
          'php-snmp'
          'php-sqlite'
          'php-tidy'
          'php-xsl')
-pkgver=8.3.13
+pkgver=8.4.4
 pkgrel=1
 arch=('x86_64')
 groups=('dev-lang')
-icense=('PHP')
+license=('PHP-3.01')
 url='https://www.php.net/'
-makedepends=('apache' 'aspell' 'enchant' 'gd' 'gmp' 'icu' 'libsodium' 'libxslt' 'libzip' 'net-snmp'
+makedepends=('apache' 'enchant' 'gd' 'gmp' 'icu' 'libsodium' 'libxslt' 'libzip' 'net-snmp' 'argon2'
              'postgresql-libs' 'sqlite' 'systemd' 'tidy' 'unixodbc' 'curl' 'libtool' 'postfix' 'freetds' 'pcre2'
              'oniguruma')
 checkdepends=('procps-ng')
 source=("https://php.net/distributions/${pkgbase}-${pkgver}.tar.xz"{,.asc}
         'apache.patch' 'apache.conf' 'php-fpm.patch' 'php-fpm.tmpfiles' 'php.ini.patch')
-sha256sums=('56445b1771b2ba5b7573453f9e8a9451e2d810b1741a352fa05259733b1e9758'
+sha256sums=('05a6c9a2cc894dd8be719ecab221b311886d5e0c02cb6fac648dd9b3459681ac'
             'SKIP'
-            '702b163c66c65af92dcad8d79f41bda84bcd5d863235fcf1497c33a86db9e4ca'
+            '74d33ad3e9fa2f0aaf6ceeddd59ec78d35e66673db74b1053cc3e6105478ba8a'
             '4a2add00d93fa991ccdf6356090264c1059c79935642afff6e8d4a2107fa037e'
             '78b8074461cdfc5d4e0ba428a8387f308d60720c8ad35c6176801e5088f02090'
             '640dba0d960bfeaae9ad38d2826d3f6b5d6c175a4d3e16664eefff29141faad5'
-            'bf1de5ae6014f0593dacca2c046eb5a2d7c179733859854713b6813ebc629b08')
-validpgpkeys=('1198C0117593497A5EC5C199286AF1F9897469DC'
-              'AFD8691FDAEDF03BDF6E460563F15A9B715376CA'
-              'C28D937575603EB4ABB725861C0779DC5C0A9DE4')
+            '52a045005f8b241b54f447c22b5d573f3e994481cfc21c2fc111c4a38df55430')
+validpgpkeys=('AFD8691FDAEDF03BDF6E460563F15A9B715376CA'
+              '9D7F99A0CB8F05C8A6958D6256A97AF7600A39A6'
+              '0616E93D95AF471243E26761770426E17EBBB3DD')
 _interpreter=${pkgver%.*}
+# LTO is incompatible with global registers and results in reduced performance:
+# https://gitlab.archlinux.org/archlinux/packaging/packages/php/-/merge_requests/3
+options=('!lto')
 
 prepare() {
 	cd "${srcdir}/${pkgbase}-${pkgver}"
@@ -70,7 +72,6 @@ build() {
 		--with-config-file-scan-dir=/etc/php/conf.d \
 		--disable-rpath \
 		--mandir=/usr/share/man \
-		--disable-gcc-global-regs \
 		"
 
 	local _phpextensions="\
@@ -99,13 +100,13 @@ build() {
 		--with-gettext=shared \
 		--with-gmp=shared \
 		--with-iconv=shared \
-		--with-kerberos \
 		--with-ldap=shared \
 		--with-ldap-sasl \
 		--with-mhash \
 		--with-mysql-sock=/run/mysqld/mysqld.sock \
 		--with-mysqli=shared \
 		--with-openssl \
+		--with-openssl-argon2 \
 		--with-password-argon2 \
 		--with-pdo-dblib=shared,/usr \
 		--with-pdo-mysql=shared \
@@ -113,7 +114,6 @@ build() {
 		--with-pdo-pgsql=shared \
 		--with-pdo-sqlite=shared \
 		--with-pgsql=shared \
-		--with-pspell=shared \
 		--with-readline \
 		--with-snmp=shared \
 		--with-sodium=shared \
@@ -149,7 +149,7 @@ build() {
 	./configure ${_phpconfig} \
 		--with-apxs2 \
 		${_phpextensions}
-	make ${MAKEFLAGS}
+	make
 
 	# phpdbg
 	cp -a "${srcdir}/build" "${srcdir}/build-phpdbg"
@@ -157,24 +157,24 @@ build() {
 	./configure ${_phpconfig} \
 		--enable-phpdbg \
 		${_phpextensions}
-	make ${MAKEFLAGS}
+	make
 }
 
-# check() {
-# 	cd "${srcdir}/build"
+check() {
+	cd "${srcdir}/build"
 
-# 	# Check if sendmail was configured correctly (FS#47600)
-# 	sapi/cli/php -n -r 'echo ini_get("sendmail_path");' | grep -q '/usr/bin/sendmail'
+	# Check if sendmail was configured correctly (FS#47600)
+	sapi/cli/php -n -r 'echo ini_get("sendmail_path");' | grep -q '/usr/bin/sendmail'
 
-# 	export REPORT_EXIT_STATUS=1
-# 	export NO_INTERACTION=1
-# 	export SKIP_ONLINE_TESTS=1
-# 	export SKIP_SLOW_TESTS=1
-# 	export TEST_PHP_ARGS="-j$(nproc)"
-# 	export TESTS='tests Zend'
+	export REPORT_EXIT_STATUS=1
+	export NO_INTERACTION=1
+	export SKIP_ONLINE_TESTS=1
+	export SKIP_SLOW_TESTS=1
+	export TEST_PHP_ARGS="-j$(nproc)"
+	export TESTS='tests Zend'
 
-# 	make test
-# }
+	# make test
+}
 
 package_php() {
 	pkgdesc='A general-purpose scripting language that is especially suited to web development'
@@ -192,9 +192,7 @@ package_php() {
 	# remove static modules
 	rm -f "${pkgdir}/usr/lib/php/modules/"*.a
 	# remove modules provided by sub packages
-	rm -f "${pkgdir}/usr/lib/php/modules/"{enchant,gd,sodium,odbc,pdo_dblib,pdo_odbc,pgsql,pdo_pgsql,pspell,snmp,sqlite3,pdo_sqlite,tidy,xsl}.so
-	# remove empty directory
-	rmdir "${pkgdir}/usr/include/php/include"
+	rm -f "${pkgdir}/usr/lib/php/modules/"{enchant,gd,sodium,odbc,pdo_dblib,pdo_odbc,pgsql,pdo_pgsql,snmp,sqlite3,pdo_sqlite,tidy,xsl}.so
 }
 
 package_php-cgi() {
@@ -231,7 +229,7 @@ package_php-fpm() {
 
 package_php-embed() {
 	pkgdesc='Embedded PHP SAPI library'
-	depends=('php' 'systemd-libs')
+	depends=('php')
 	provides=("php-embed-interpreter=${_interpreter}")
 	options=('!emptydirs')
 
@@ -297,14 +295,6 @@ package_php-pgsql() {
 
 	install -D -m755 "${srcdir}/build/modules/pgsql.so" "${pkgdir}/usr/lib/php/modules/pgsql.so"
 	install -D -m755 "${srcdir}/build/modules/pdo_pgsql.so" "${pkgdir}/usr/lib/php/modules/pdo_pgsql.so"
-}
-
-package_php-pspell() {
-	pkgdesc='pspell module for PHP'
-	depends=('php' 'aspell')
-	provides=("php-pspell-interpreter=${_interpreter}")
-
-	install -D -m755 "${srcdir}/build/modules/pspell.so" "${pkgdir}/usr/lib/php/modules/pspell.so"
 }
 
 package_php-snmp() {

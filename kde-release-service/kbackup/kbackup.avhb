@@ -1,16 +1,16 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kbackup
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='A program that lets you back up any directories or files'
 arch=(x86_64)
 url='https://apps.kde.org/kbackup/'
 license=(GPL)
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/kbackup/'
 license=(GPL-2.0-or-later)
 depends=(gcc-libs

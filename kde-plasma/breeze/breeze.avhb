@@ -4,9 +4,8 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=breeze
-pkgname=(breeze
-         breeze5)
-pkgver=6.2.0
+pkgname=(breeze)
+pkgver=6.3.3
 pkgrel=1
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 arch=('x86_64')
@@ -55,39 +54,9 @@ build() {
     -DBUILD_TESTING=OFF \
     -DBUILD_QT5=OFF
   cmake --build build
-
-  cmake -B build5 -S $pkgname-$pkgver \
-  	-DCMAKE_INSTALL_PREFIX=/usr \
-	-DLIB_INSTALL_DIR=lib \
-    -DBUILD_TESTING=OFF \
-    -DBUILD_QT6=OFF
-  cmake --build build5
 }
 
-package_breeze() {
+package() {
   DESTDIR="$pkgdir" cmake --install build
 }
 
-package_breeze5() {
-  pkgdesc='Qt5 Breeze style'
-  depends=(breeze
-           breeze-icons
-           gcc-libs
-           glibc
-           frameworkintegration5
-           kconfig5
-           kconfigwidgets5
-           kguiaddons5
-           kiconthemes5
-           kirigami2
-           kwindowsystem5
-           qt5-base
-           qt5-declarative)
-  conflicts=('breeze<5.27.80')
-  replaces=('breeze<5.27.80')
-  optdepends=()
-  groups=()
-
-  DESTDIR="$pkgdir" cmake --install build5
-  rm -r "$pkgdir"/usr/share
-}

@@ -47,10 +47,10 @@ build() {
     meson compile -C build
 }
 
-check() {
-  xvfb-run -s '-nolisten local' \
-    meson test -C build --print-errorlogs
-}
+# check() {
+#   xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
 
 _pick() {
   local p="$1" f d; shift

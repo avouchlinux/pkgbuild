@@ -1,49 +1,60 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vde2
-pkgver=2.3.2
+_realname=vde
+pkgver=2.3.3
 pkgrel=1
 pkgdesc="Virtual Distributed Ethernet for emulators like qemu"
-url="https://sourceforge.net/projects/vde/"
-license=("GPL" "LGPL" "CUSTOM")
 arch=('x86_64')
 groups=('app-emulation')
-depends=('bash' 'libpcap' 'openssl')
-makedepends=('python')
-source=(https://downloads.sourceforge.net/vde/$pkgname-$pkgver.tar.bz2
-        dhcpd.conf.sample
-        iptables.rules.sample
-        vde-config.sample
-        vde-connection.sample)
-install=vde2.install
-options=(!makeflags)
+url="https://github.com/virtualsquare/vde-2"
+license=(
+  GPL-2.0-or-later
+  LGPL-2.1-or-later
+)
+depends=(glibc)
+makedepends=(
+  libpcap
+  wolfssl
+)
+provides=(
+  libvdehist.so
+  libvdemgmt.so
+  libvdeplug.so
+  libvdesnmp.so
+)
+source=($pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz)
+sha512sums=('d0495aa700984dcc82f85cf7c8125cc10505a8a077fceec45b7fd2bec9c389966381682842e886469fa49239badd9442403d091c2ae5282685085e8262396387')
+b2sums=('e3ed7423edc03a6af09967484613c0e2a701f74a4323eeab720cabe9a899120023425527054662ee1dbd207327b7e6dd375bceb4999fd708666df13c08acf348')
 
 prepare() {
-	cd $pkgname-$pkgver
-	patch -Np1 -i ../vde_cryptcab-compile-against-openssl-1.1.0.patch
+  cd $_realname-2-$pkgver
+  autoreconf -fiv
 }
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
-	./configure --prefix=/usr \
-		--sbindir=/usr/bin \
-		--sysconfdir=/etc \
-		--libexecdir=/usr/lib/vde2 \
-		--enable-experimental
-	# parallel build fails
-	make
+  local configure_options=(
+    --enable-experimental
+    --libexecdir=/usr/lib/$pkgname
+    --prefix=/usr
+    --sbindir=/usr/bin
+    --sysconfdir=/etc
+  )
+
+  cd $_realname-2-$pkgver
+  ./configure "${configure_options[@]}"
+  make V=1
 }
 
 package() {
-	cd $srcdir/$pkgname-$pkgver 
-	make prefix=$pkgdir/usr sysconfdir=$pkgdir/etc sbindir=$pkgdir/usr/bin libexecdir=$pkgdir/usr/lib/vde2 install
-	install -D -m 644 ../vde-config.sample $pkgdir/etc/vde/vde-config.sample
-	install -D -m 644 ../vde-connection.sample $pkgdir/etc/vde/vde-connection.sample
-	install -D -m 644 ../dhcpd.conf.sample $pkgdir/usr/share/vde2/dhcpd.conf.sample
-	install -D -m 644 ../iptables.rules.sample $pkgdir/usr/share/vde2/iptables.rules.sample
-	# install slirp license
-	install -D -m 644 COPYING.slirpvde $pkgdir/usr/share/licenses/vde2/COPYING.slirpvde
+  depends+=(
+    libpcap libpcap.so
+    wolfssl libwolfssl.so
+  )
+
+  make DESTDIR="$pkgdir" install -C $_realname-2-$pkgver
+  install -vDm 644 $_realname-2-$pkgver/{README,Changelog,doc/{README.*,*-HOWTO}} -t "$pkgdir/usr/share/doc/$pkgname/"
 }

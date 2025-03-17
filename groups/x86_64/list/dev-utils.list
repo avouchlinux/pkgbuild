@@ -9,6 +9,7 @@ autopep8
 babeltrace
 babeltrace2
 bazel
+benchmark
 bison
 catch2-v2
 catch2
@@ -29,6 +30,7 @@ desktop-file-utils
 diffstat
 diffutils
 dkms
+doctest
 dump_syms
 easy-rsa
 fakechroot
@@ -68,6 +70,7 @@ lsof
 m4
 mailcap
 make
+maturin
 meson
 meson-python
 minisign
@@ -90,7 +93,7 @@ rapidjson
 rdfind
 re2c
 remake
-reuse-tool
+reuse
 rinutils
 ripgrep
 rpcsvc-proto

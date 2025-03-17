@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-maps
-pkgver=47.1
+pkgver=48.0
 pkgrel=1
 pkgdesc="Find places around the world"
 url="https://wiki.gnome.org/Apps/Maps"
@@ -38,10 +38,10 @@ makedepends=(
   meson
   yelp-tools
 )
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/v$pkgver/$pkgname-v$pkgver.tar.bz2")
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {
-	avouch-meson ${pkgname}-v${pkgver} build
+	avouch-meson ${pkgname}-${pkgver} build
 	ninja -C build
 }
 

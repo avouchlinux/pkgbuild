@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=networkmanager-qt
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Qt wrapper for NetworkManager API'
 arch=('x86_64')

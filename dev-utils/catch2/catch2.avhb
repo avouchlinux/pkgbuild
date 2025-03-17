@@ -1,11 +1,11 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=catch2
 _realname=Catch2
-pkgver=3.6.0
+pkgver=3.8.0
 pkgrel=1
 pkgdesc="Modern, C++-native, header-only, test framework for unit-tests, TDD and BDD"
 arch=('any')
@@ -30,8 +30,8 @@ build() {
   # our recent default flags break test 1 (ApprovalTests)
   unset CXXFLAGS
 
-  cmake -B "${_realname}"/build \
-    -S "${_realname}" \
+  cmake -B "${pkgname}"/build \
+    -S "${pkgname}" \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DCATCH_BUILD_EXAMPLES=OFF \
@@ -45,7 +45,7 @@ build() {
 #    -DCATCH_DEVELOPMENT_BUILD=ON -Wno-dev \
 #    -DCATCH_BUILD_EXTRA_TESTS=ON 
 
-  cmake --build "${_realname}"/build
+  cmake --build "${pkgname}"/build
 }
 
 #check() {
@@ -55,6 +55,6 @@ build() {
 #}
 
 package() {
-  DESTDIR="${pkgdir}" cmake --install "${_realname}"/build
+  DESTDIR="${pkgdir}" cmake --install "${pkgname}"/build
 }
 

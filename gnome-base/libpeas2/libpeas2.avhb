@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,7 +10,7 @@ pkgname=(
   libpeas2-docs
 )
 _realname=libpeas
-pkgver=2.0.0
+pkgver=2.0.7
 pkgrel=1
 pkgdesc="A GObject plugins library"
 arch=('x86_64')

@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kpimtextedit
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="A textedit with PIM-specific features"
 arch=('x86_64')

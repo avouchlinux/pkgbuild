@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kteatime
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Tea Cooker'
 url='http://kde.org/applications/games/kteatime/'

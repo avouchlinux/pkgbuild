@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdebugsettings
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='An application to enable/disable qCDebug'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/kdebugsettings/'
 license=(GPL-2.0-or-later)
 depends=(gcc-libs
@@ -24,7 +24,7 @@ depends=(gcc-libs
          kxmlgui
          qt6-base)
 makedepends=(extra-cmake-modules)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-utilities)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('6eee40948a66c7dc6b4228b74dfad2eea7da3dfe36dfa2a3dc60b028035ec8e8'

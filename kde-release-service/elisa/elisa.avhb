@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=elisa
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='A simple music player aiming to provide a nice experience for its users'
 url='https://apps.kde.org/elisa/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc
@@ -34,7 +34,7 @@ depends=(gcc-libs
          vlc)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-multimedia)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('f9e4eeadd7fd9486e338f13c9f25c5d7d8fb4b9637b828d6fd5254816a07a7c9'

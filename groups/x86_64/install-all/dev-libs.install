@@ -5,6 +5,8 @@ appstream-qt-1.0.3-1-avh040-x86_64.avh.tar.zst
 appstream-glib-0.8.3-1-avh040-x86_64.avh.tar.zst
 boost-1.86.0-1-avh040-x86_64.avh.tar.zst
 boost-libs-1.86.0-1-avh040-x86_64.avh.tar.zst
+capstone-5.0.5-1-avh040-x86_64.avh.tar.zst
+python-capstone-5.0.5-1-avh040-x86_64.avh.tar.zst
 cloog-0.21.1-1-avh040-x86_64.avh.tar.zst
 cmark-0.31.1-1-avh040-x86_64.avh.tar.zst
 cppdap-1.58.0-1-avh040-x86_64.avh.tar.zst
@@ -65,7 +67,7 @@ qqwing-1.3.4-7-avh040-x86_64.avh.tar.zst
 quazip-qt5-1.4-1-avh040-x86_64.avh.tar.zst
 quazip-qt6-1.4-1-avh040-x86_64.avh.tar.zst
 range-v3-0.12.0-1-avh040-x86_64.avh.tar.zst
-re2-20200401-1-avh040-x86_64.avh.tar.zst
+re2-20240702-1-avh040-x86_64.avh.tar.zst
 shaderc-2024.2-1-avh040-x86_64.avh.tar.zst
 swi-prolog-9.2.7-1-avh040-x86_64.avh.tar.zst
 tre-0.9.0-1-avh040-x86_64.avh.tar.zst

@@ -2,15 +2,15 @@ cairo-1.18.2-1-avh040-x86_64.avh.tar.zst
 cairo-docs-1.18.2-1-avh040-x86_64.avh.tar.zst
 fltk-1.3.9-1-avh040-x86_64.avh.tar.zst
 fltk-docs-1.3.9-1-avh040-x86_64.avh.tar.zst
-gdk-pixbuf2-2.42.10-1-avh040-x86_64.avh.tar.zst
+gdk-pixbuf2-2.42.12-1-avh040-x86_64.avh.tar.zst
 gtk2-2.24.33-1-avh040-x86_64.avh.tar.zst
 gtk3-3.24.41-1-avh040-x86_64.avh.tar.zst
 gtk3-demos-3.24.41-1-avh040-x86_64.avh.tar.zst
 gtk3-docs-3.24.41-1-avh040-x86_64.avh.tar.zst
-gtk4-4.16.2-1-avh040-x86_64.avh.tar.zst
-gtk4-demos-4.16.2-1-avh040-x86_64.avh.tar.zst
-gtk4-docs-4.16.2-1-avh040-x86_64.avh.tar.zst
-gtk-update-icon-cache-4.16.2-1-avh040-x86_64.avh.tar.zst
+gtk4-4.18.1-1-avh040-x86_64.avh.tar.zst
+gtk4-demos-4.18.1-1-avh040-x86_64.avh.tar.zst
+gtk4-docs-4.18.1-1-avh040-x86_64.avh.tar.zst
+gtk-update-icon-cache-4.18.1-1-avh040-x86_64.avh.tar.zst
 gtkd-3.10.0-1-avh040-x86_64.avh.tar.zst
 # gtkglext failed to build
 gtk-layer-shell-0.9.0-1-avh040-x86_64.avh.tar.zst
@@ -21,10 +21,14 @@ libdbusmenu-glib-16.04.0-1-avh040-x86_64.avh.tar.zst
 libdbusmenu-gtk2-16.04.0-1-avh040-x86_64.avh.tar.zst
 libdbusmenu-gtk3-16.04.0-1-avh040-x86_64.avh.tar.zst
 libdecor-0.2.2-1-avh040-x86_64.avh.tar.zst
-libdisplay-info-0.1.1-1-avh040-x86_64.avh.tar.zst
+libdisplay-info-0.2.0-1-avh040-x86_64.avh.tar.zst
 libdmx-1.1.5-1-avh040-x86_64.avh.tar.zst
 libdrm-2.4.123-1-avh040-x86_64.avh.tar.zst
-# libfm failed to build
+libfakekey-0.3-1-avh040-x86_64.avh.tar.zst
+libfm-1.3.2-1-avh040-x86_64.avh.tar.zst
+libfm-extra-1.3.2-1-avh040-x86_64.avh.tar.zst
+libfm-gtk2-1.3.2-1-avh040-x86_64.avh.tar.zst
+libfm-gtk3-1.3.2-1-avh040-x86_64.avh.tar.zst
 libfontenc-1.1.8-1-avh040-x86_64.avh.tar.zst
 libfs-1.0.9-1-avh040-x86_64.avh.tar.zst
 libgedit-amtk-5.8.0-1-avh040-x86_64.avh.tar.zst
@@ -35,10 +39,12 @@ libindicator-gtk2-12.10.1-1-avh040-x86_64.avh.tar.zst
 libindicator-gtk3-12.10.1-1-avh040-x86_64.avh.tar.zst
 liblbxutil-1.1.0-1-avh040-x86_64.avh.tar.zst
 libpciaccess-0.18.1-1-avh040-x86_64.avh.tar.zst
-libportal-0.8.1-1-avh040-x86_64.avh.tar.zst
-libportal-gtk3-0.8.1-1-avh040-x86_64.avh.tar.zst
-libportal-gtk4-0.8.1-1-avh040-x86_64.avh.tar.zst
-libportal-docs-0.8.1-1-avh040-x86_64.avh.tar.zst
+libportal-0.9.0-1-avh040-x86_64.avh.tar.zst
+libportal-docs-0.9.0-1-avh040-x86_64.avh.tar.zst
+libportal-gtk3-0.9.0-1-avh040-x86_64.avh.tar.zst
+libportal-gtk4-0.9.0-1-avh040-x86_64.avh.tar.zst
+libportal-qt5-0.9.0-1-avh040-x86_64.avh.tar.zst
+libportal-qt6-0.9.0-1-avh040-x86_64.avh.tar.zst
 libsm-1.2.4-1-avh040-x86_64.avh.tar.zst
 libva-2.21.0-1-avh040-x86_64.avh.tar.zst
 libva-intel-driver-2.4.1-1-avh040-x86_64.avh.tar.zst
@@ -86,8 +92,8 @@ libxvmc-1.0.14-1-avh040-x86_64.avh.tar.zst
 libxxf86dga-1.1.6-1-avh040-x86_64.avh.tar.zst
 libxxf86misc-1.0.4-1-avh040-x86_64.avh.tar.zst
 libxxf86vm-1.1.5-1-avh040-x86_64.avh.tar.zst
-pango-1.54.0-1-avh040-x86_64.avh.tar.zst
-pango-docs-1.54.0-1-avh040-x86_64.avh.tar.zst
+pango-1.56.1-1-avh040-x86_64.avh.tar.zst
+pango-docs-1.56.1-1-avh040-x86_64.avh.tar.zst
 pangox-compat-0.0.2+2+gedb9e09-1-avh040-x86_64.avh.tar.zst
 pixman-0.43.4-1-avh040-x86_64.avh.tar.zst
 qcoro-0.11.0-1-avh040-x86_64.avh.tar.zst

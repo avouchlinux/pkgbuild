@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kcharselect
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Character Selector'
 url='https://apps.kde.org/kcharselect/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc
@@ -26,7 +26,7 @@ depends=(gcc-libs
          qt6-base)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-utilities)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('899e956feb3c1e62d35a2c4020433993416e28a71600e7c97ef627f48e6cb38a'

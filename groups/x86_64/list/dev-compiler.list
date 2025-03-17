@@ -3,6 +3,7 @@ clang
 compiler-rt
 dejagnu
 dev86
+dtc
 fpc
 fpc-src
 gcc

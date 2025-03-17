@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-desktop
-pkgver=6.2.0
+pkgver=6.3.3
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='KDE Plasma Desktop'
@@ -98,7 +98,7 @@ makedepends=(extra-cmake-modules
              xf86-input-libinput
              xorg-server-devel)
 source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('0ea38e20b9c4163857db920ea80c9740a29e561886b5feb9f20f938598692709'
+sha256sums=('0ea38e20b9c4163857db920ea80c9740a29e561886b5feb9f20f9385986.3.39'
             'SKIP')
 validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>

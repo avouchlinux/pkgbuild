@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 _name=skypeforlinux
 pkgname=${_name}-bin
-pkgver=8.133.0.202
+pkgver=8.138.0.203
 pkgrel=1
 pkgdesc="Skype for Linux - Insider/Preview Version"
 arch=("x86_64")
@@ -38,7 +38,7 @@ optdepends=(
 
 # curl -H 'Snap-Device-Series: 16' 'https://api.snapcraft.io/v2/snaps/info/skype'
 _snap_id='QRDEfjn4WJYnm0FzDKwqqRZZI77awQEV'
-_snap_rev_x86_64=375
+_snap_rev_x86_64=386
 
 _get_source() {
     local rname="_snap_rev_${1}"

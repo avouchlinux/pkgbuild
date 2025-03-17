@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,9 +9,9 @@ pkgname=(
   gobject-introspection-runtime
   libgirepository
 )
-pkgver=1.82.0
+pkgver=1.84.0
 pkgrel=1
-_glibver=2.82.0
+_glibver=2.84.0
 arch=('x86_64')
 groups=('sys-libs')
 pkgdesc="Introspection system for GObject-based libraries"

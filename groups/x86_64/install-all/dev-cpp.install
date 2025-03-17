@@ -13,8 +13,8 @@ fmt-8.1.1-1-avh040-x86_64.avh.tar.zst
 gflags-2.2.2-1-avh030-x86_64.avh.tar.zst
 glibmm-2.66.7-1-avh040-x86_64.avh.tar.zst
 glibmm-docs-2.66.7-1-avh040-x86_64.avh.tar.zst
-glibmm-2.68-2.82.0-1-avh040-x86_64.avh.tar.zst
-glibmm-2.68-docs-2.82.0-1-avh040-x86_64.avh.tar.zst
+glibmm-2.84.0-1-avh040-x86_64.avh.tar.zst
+glibmm-docs-2.84.0-1-avh040-x86_64.avh.tar.zst
 gtest-1.15.2-1-avh040-x86_64.avh.tar.zst
 gtkmm
 gtkmm-docs

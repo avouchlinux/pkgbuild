@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kwayland-integration
-pkgver=6.2.0
+pkgver=6.3.3
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Provides integration plugins for various KDE frameworks for the wayland windowing system'
@@ -33,8 +33,9 @@ validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
   	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
+		    -DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_WITH_QT6=ON \
         -DBUILD_TESTING=OFF
   cmake --build build
 }

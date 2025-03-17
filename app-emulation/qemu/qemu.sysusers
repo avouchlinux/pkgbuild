@@ -1,1 +1,2 @@
-g kvm 38 -
+u qemu - "QEMU user" - -
+m qemu kvm

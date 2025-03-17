@@ -25,6 +25,7 @@ enca
 enchant
 exempi
 exiv2
+fast_float
 ffcall
 fribidi
 glib2
@@ -64,6 +65,7 @@ libdatrie
 libedit
 libetebase
 libevdev
+libfprint
 libftdi
 libftdi-compat
 libgee

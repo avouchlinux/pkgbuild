@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=akonadi
 pkgname=(akonadi libakonadi)
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="PIM layer, which provides an asynchronous API to access all kind of PIM data"
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-service')
 url='https://kontact.kde.org'
 license=(LGPL-2.0-or-later)
 depends=(gcc-libs

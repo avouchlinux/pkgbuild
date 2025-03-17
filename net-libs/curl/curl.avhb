@@ -1,11 +1,11 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=8.11.0
+pkgver=8.12.0
 pkgrel=1
 pkgdesc="An URL retrieval utility and library"
 arch=('x86_64')
@@ -36,6 +36,7 @@ build() {
     --disable-manual
     --enable-ipv6
     --enable-threaded-resolver
+    --enable-websockets
     --with-gssapi
     --with-libssh2
     --with-random='/dev/urandom'
@@ -98,7 +99,7 @@ package_curl() {
   cd "${srcdir}/${pkgbase}-${pkgver}"
 
   # license
-  install -Dt "${pkgdir}/usr/share/licenses/${pkgbase}" -m0644 COPYING
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgbase}" -m0644 "${srcdir}/${pkgbase}-${pkgver}"/COPYING
 }
 
 package_libcurl-compat() {
@@ -116,8 +117,8 @@ package_libcurl-compat() {
     ln -s libcurl-compat.so.4.8.0 "${pkgdir}"/usr/lib/libcurl.so.${version}
   done
 
-  # install -dm 0755 "${pkgdir}"/usr/share/licenses
-  # ln -sf curl "${pkgdir}"/usr/share/licenses/libcurl-compat
+  # license
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgbase}" -m0644 "${srcdir}/${pkgbase}-${pkgver}"/COPYING
 }
 
 package_libcurl-gnutls() {
@@ -136,6 +137,6 @@ package_libcurl-gnutls() {
     ln -s libcurl-gnutls.so.4.8.0 "${pkgdir}"/usr/lib/libcurl-gnutls.so.${version}
   done
 
-  # install -dm 0755 "${pkgdir}"/usr/share/licenses
-  # ln -sf curl "${pkgdir}"/usr/share/licenses/libcurl-gnutls
+  # license
+  install -Dt "${pkgdir}/usr/share/licenses/${pkgbase}" -m0644 "${srcdir}/${pkgbase}-${pkgver}"/COPYING
 }

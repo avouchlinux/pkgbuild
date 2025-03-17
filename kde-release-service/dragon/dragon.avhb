@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dragon
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='A multimedia player where the focus is on simplicity, instead of features'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/dragonplayer/'
 license=(GPL-2.0-or-later)
 depends=(gcc-libs
@@ -30,7 +30,7 @@ depends=(gcc-libs
          solid)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-multimedia)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('de1f9f3ed334475dee889f2ac5a8889a53608d9aba9f2c090f88dd350af1e483'

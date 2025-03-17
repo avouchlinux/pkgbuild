@@ -1,8 +1,8 @@
-avahi-0.8-1-avh02-x86_64.avhp.tar.zstd
-bind-9.16.2-1-avh02-x86_64.avhp.tar.zstd
-bind-tools-9.16.2-1-avh02-x86_64.avhp.tar.zstd
-c-ares-1.21.0-1-avh040-x86_64.avh.tar.zst
-dnssec-anchors-20200418-1-avh02-x86_64.avhp.tar.zstd
-idnkit-1.0-1-avh02-x86_64.avhp.tar.zstd
-nsd-4.3.1-1-avh02-x86_64.avhp.tar.zstd
-nss-mdns-0.14.1-1-avh02-x86_64.avhp.tar.zstd
+avahi-0.8+r194+g3f79789-1-avh040-x86_64.avh.tar.zst
+bind-9.20.3-1-avh040-x86_64.avh.tar.zst
+c-ares-1.33.1-1-avh040-x86_64.avh.tar.zst
+dnssec-anchors-20190629-1-avh040-x86_64.avh.tar.zst
+fstrm-0.6.1-1-avh040-x86_64.avh.tar.zst
+idnkit-2.3-1-avh040-x86_64.avh.tar.zst
+nsd-4.10.1-1-avh040-x86_64.avh.tar.zst
+nss-mdns-0.15.1-1-avh040-x86_64.avh.tar.zst

@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=attica
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 arch=('x86_64')
 groups=('kde-frameworks')

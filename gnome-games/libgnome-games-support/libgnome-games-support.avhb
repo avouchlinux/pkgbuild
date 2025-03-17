@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgnome-games-support
-pkgver=2.0.0
+pkgver=2.0.1
 pkgrel=1
 pkgdesc="Code shared between GNOME games"
 url="https://gitlab.gnome.org/GNOME/libgnome-games-support"

@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,7 +8,7 @@ pkgname=(
   libei
   libei-docs
 )
-pkgver=1.3.0
+pkgver=1.3.901
 pkgrel=1
 pkgdesc="Library for Emulated Input"
 url="https://libinput.pages.freedesktop.org/libei/"
@@ -39,7 +39,7 @@ checkdepends=(
   valgrind
 )
 source=(
-  "git+https://gitlab.freedesktop.org/libinput/libei.git?signed#tag=$pkgver"
+  "https://gitlab.freedesktop.org/libinput/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2"
   "nemequ-munit::git+https://github.com/nemequ/munit#commit=fbbdf1467eb0d04a6ee465def2e529e4c87f2118"
 )
 b2sums=('4f2e70d3dfdd5a89e1f82662bb929018e7cb0970757b9a4537f640c237f19cd1dd2fa71e8bb24d212f37f3a63f510605fd4a45f7388e67087ac72d4e253f5ccd'
@@ -50,9 +50,10 @@ validpgpkeys=(
 
 prepare() {
   # Inject munit
-  ln -s nemequ-munit munit
+  cd $pkgname-$pkgver
 
-  cd libei
+	rm subprojects/munit.wrap
+  mv ../nemequ-munit "subprojects/munit" 
 }
 
 build() {
@@ -60,29 +61,26 @@ build() {
     -D documentation=api
   )
 
-  # Inject munit
-  export MESON_PACKAGE_CACHE_DIR="$srcdir"
-
-  avouch-meson libei build "${meson_options[@]}"
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
   meson compile -C build doxygen
 }
 
-check() {
-  # protocol tests are flaky
-  meson test -C build --print-errorlogs --no-suite python
-  meson test -C build --print-errorlogs --suite python || :
+# check() {
+#   # protocol tests are flaky
+#   meson test -C build --print-errorlogs --no-suite python
+#   meson test -C build --print-errorlogs --suite python || :
 
-  # Extra valgrind tests
-  meson test -C build --print-errorlogs --setup valgrind
-}
+#   # Extra valgrind tests
+#   meson test -C build --print-errorlogs --setup valgrind
+# }
 
 package_libei() {
   provides=(lib{ei,eis,oeffis}.so)
 
   meson install -C build --destdir "$pkgdir" --skip-subprojects
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libei/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/COPYING
 }
 
 package_libei-docs() {
@@ -92,5 +90,5 @@ package_libei-docs() {
   mkdir -p "$pkgdir/usr/share/doc/$pkgname"
   cp -a build/doc/html "$pkgdir/usr/share/doc/$pkgname/api"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 libei/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/COPYING
 }

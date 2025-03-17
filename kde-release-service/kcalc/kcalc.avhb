@@ -1,15 +1,15 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kcalc
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Scientific Calculator'
 url='https://apps.kde.org/kcalc/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc
@@ -28,7 +28,7 @@ depends=(gcc-libs
          qt6-base)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-utilities)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('0f20ffeb66f85f2a91bf745368efe943c5e32ac03c45e9b7e124afe0e494fd49'

@@ -1,17 +1,16 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libkdcraw
-pkgname=(libkdcraw
-         libkdcraw5)
-pkgver=24.08.2
+pkgname=libkdcraw
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="A C++ interface used to decode RAW picture"
 url='https://www.kde.org/'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
 depends=(gcc-libs
          glibc
@@ -34,23 +33,10 @@ build() {
     -DBUILD_TESTING=OFF \
     -DQT_MAJOR_VERSION=6
   cmake --build build
-
-  cmake -B build -S $pkgname-$pkgver -G Ninja \
-  	-DCMAKE_INSTALL_PREFIX=/usr \
-	  -DLIB_INSTALL_DIR=lib \
-    -DCMAKE_INSTALL_LIBEXECDIR=lib \
-    -DBUILD_TESTING=OFF
-  cmake --build build5
 }
 
-package_libkdcraw() {
+package() {
   depends+=(qt6-base)
 
   DESTDIR="$pkgdir" cmake --install build
-}
-
-package_libkdcraw5() {
-  depends+=(qt5-base)
-
-  DESTDIR="$pkgdir" cmake --install build5
 }

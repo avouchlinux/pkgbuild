@@ -1,245 +1,257 @@
-# lib32-acl-2.2.53-1-avh02-x86_64.avhp.tar.zstd
-# lib32-alsa-lib-1.2.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-alsa-oss-1.1.8-1-avh02-x86_64.avhp.tar.zstd
-# lib32-alsa-plugins
-# lib32-aom-1.0.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-atk-2.36.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-at-spi2-atk
-# lib32-at-spi2-core
-# lib32-attr-2.4.48-1-avh02-x86_64.avhp.tar.zstd
-# lib32-avahi
-# lib32-brotli-1.0.7-1-avh02-x86_64.avhp.tar.zstd
-# lib32-bzip2-1.0.8-1-avh02-x86_64.avhp.tar.zstd
-# lib32-cairo-1.17.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-cdparanoia
-# lib32-clang-13.0.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-celt-0.11.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-cmocka-1.1.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-colord
-# lib32-curl-7.72.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-db-6.2.38-1-avh02-x86_64.avhp.tar.zstd
-# lib32-e2fsprogs-1.45.6-1-avh02-x86_64.avhp.tar.zstd
-# lib32-elfutils
-# lib32-expat-2.2.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-ffmpeg
-# lib32-fftw-3.3.8-1-avh02-x86_64.avhp.tar.zstd
-# lib32-flac-1.3.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-flex-2.6.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-fontconfig-2.13.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-freeglut-3.2.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-freetype2-2.10.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-fribidi-1.0.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gc-8.0.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gdbm
-# lib32-gdk-pixbuf2
-# lib32-gettext
-# lib32-ghostscript-9.54.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-giflib-5.2.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-glew-2.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-glib2-2.66.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-glib-networking-2.66.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-glu-9.0.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gmp-6.2.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-glew
-# lib32-gnutls
-# lib32-graphene-1.10.6-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gsl
-# lib32-gsm-1.0.19-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gst-plugins-base
-# lib32-gstreamer-1.18.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-gstreamer0.10-0.10.36-1-avh02-x86_64.avhp.tar.zstd
-# # lib32-gstreamer0.10-base
-# # lib32-gstreamer0.10-base-plugins
-# lib32-gtk2
-# lib32-gtk3
-# lib32-guile-2.2.7-1-avh02-x86_64.avhp.tar.zstd
-# lib32-harfbuzz
-# lib32-icu-68.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-jack-0.125.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-jansson-2.12-1-avh02-x86_64.avhp.tar.zstd
-# lib32-jasper-2.0.16-1-avh02-x86_64.avhp.tar.zstd
-# lib32-json-c-0.13.1-20180305-1-avh02-x86_64.avhp.tar.zstd
-# lib32-json-glib-1.6.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-keyutils-1.6.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-krb5-1.19.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-lame-3.100-1-avh02-x86_64.avhp.tar.zstd
-# lib32-lcms2-2.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-ldb-2.1.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libaio-0.3.112-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libarchive-3.4.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libass-0.14.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libasyncns-0.8+3+g68cd5af-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libatomic_ops-7.6.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libbluray
-# lib32-libbsd-0.10.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libcanberra
-# lib32-libcanberra-pulse
-# lib32-libcap-2.33-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libcap-ng-0.7.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libcroco-0.6.13-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libcups-2.3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libdaemon-0.14-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libdatrie-0.2.12-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libdbus
-# lib32-libdmx-1.1.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libdrm
-# lib32-libedit-20191231_3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libelf-0.179-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libepoxy-1.5.7-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libevent
-# lib32-libffi-3.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libfontenc-1.1.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libgcrypt-1.8.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libglvnd-1.3.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libgpg-error-1.37-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libgudev-234-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libgusb
-# lib32-libice-1.0.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libidn-1.35-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libidn2-2.3.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libiec61883-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-opencore-amr-0.1.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libjpeg-turbo-2.0.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libldap
-# lib32-libltdl
-# lib32-libmicrohttpd-0.9.70-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libmng-2.0.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libmnl-1.0.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libmodplug-0.8.9.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libnetfilter_conntrack-1.0.8-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libnfnetlink-1.0.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libnftnl-1.1.6-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libnl-3.5.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libnsl-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libogg-1.3.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libomxil-bellagio
-# lib32-libpaper-1.1.28-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libpcap-1.9.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libpciaccess-0.16-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libpng-1.6.37-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libpsl-0.21.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libproxy-
-# lib32-libpulse-13.99.2+2+g410db7d21-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libraw1394-2.1.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-librsvg
-# lib32-libsamplerate-0.1.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libseccomp-2.4.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libsm-1.2.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libsndfile-1.0.28-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libsoup-2.99.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libspectre-0.2.8-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libssh2-1.9.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libtasn1-4.16.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libthai-0.1.28-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libtheora-1.1.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libtiff
-# lib32-libtiff-4.1.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libunistring-0.9.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libunwind-1.4.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libusb-1.0.23-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libva-2.6.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libvdpau-1.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libvisual-0.4.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libvorbis-1.3.6-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libvpx-1.8.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libwebp-1.1.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libx11
-# lib32-libxau-1.0.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxaw-1.0.13-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxcb-1.14-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxcomposite-0.4.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxcursor-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxdamage-1.1.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxdmcp-1.1.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxext-1.3.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxfixes-5.0.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxfont-1.5.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxft-2.3.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxi-1.7.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxinerama-1.1.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxkbcommon-1.0.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxkbcommon-x11-1.0.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxml2-2.9.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxmu-1.1.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxpm-3.5.13-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxrandr-1.5.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxrender-0.9.10-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxres-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxscrnsaver-1.2.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxshmfence-1.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxmu
-# lib32-libxt
-# lib32-libxtst-1.2.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxv-1.0.11-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxvmc-1.0.12-1-avh02-x86_64.avhp.tar.zstd
-# lib32-libxxf86vm-1.1.4-1-avh02-x86_64.avhp.tar.zstd
-# lib32-llvm-13.0.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-llvm-libs-13.0.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-lm_sensors-3.6.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-lz4-1.9.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-vulkan-intel
-# lib32-vulkan-radeon
-# lib32-libva-mesa-driver
-# lib32-mesa-vdpau
-# lib32-mesa
-# lib32-mpg123-1.25.13-1-avh02-x86_64.avhp.tar.zstd
-# lib32-ncurses-6.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-nettle-3.6-1-avh02-x86_64.avhp.tar.zstd
-# lib32-nspr-4.28-1-avh02-x86_64.avhp.tar.zstd
-# lib32-nss
-# lib32-numactl-2.0.13-1-avh02-x86_64.avhp.tar.zstd
-# lib32-ocl-icd-2.2.12-1-avh02-x86_64.avhp.tar.zstd
-# lib32-openal
-# lib32-openjpeg-1.5.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-openjpeg2-2.3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-openssl-1.1.1e-1-avh02-x86_64.avhp.tar.zstd
-# lib32-opus-1.3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-orc-0.4.31-1-avh02-x86_64.avhp.tar.zstd
-# lib32-p11-kit-0.23.21-1-avh02-x86_64.avhp.tar.zstd
-# lib32-pam
-# lib32-pango-1.48.11-1-avh02-x86_64.avhp.tar.zstd
-# lib32-pcre-8.44-1-avh02-x86_64.avhp.tar.zstd
-# lib32-pcre2-10.34-1-avh02-x86_64.avhp.tar.zstd
-# lib32-pixman
-# lib32-poppler-21.05.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-poppler-glib-21.05.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-popt-1.18-1-avh02-x86_64.avhp.tar.zstd
-# lib32-portaudio-190600_20161030-1-avh02-x86_64.avhp.tar.zstd
-# lib32-qrencode-4.0.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-readline-8.1.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-qt4
-# lib32-qt4-webkit
-# lib32-rest
-# lib32-rust
-# lib32-sdl-1.2.15-1-avh02-x86_64.avhp.tar.zstd
-# lib32-sdl2-2.0.12-1-avh02-x86_64.avhp.tar.zstd
-# lib32-sdl_sound-1.0.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-smbclient
-# lib32-speex-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-speexdsp-1.2.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-sqlite-3.31.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-systemd
-# lib32-talloc-2.3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-tdb-1.4.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-tevent-0.10.2-1-avh02-x86_64.avhp.tar.zstd
-# lib32-tslib
-# lib32-unixodbc-2.3.7-1-avh02-x86_64.avhp.tar.zstd
-# lib32-util-linux
-# lib32-v4l-utils-1.20.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-vkd3d
-# lib32-vulkan-icd-loader
-# lib32-wayland-1.18.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-webrtc-audio-processing-0.3.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-wxgtk2.8
-# lib32-x264-160.r33f9e147-1-avh02-x86_64.avhp.tar.zstd
-# lib32-x265
-# lib32-xcb-util-0.4.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xcb-util-cursor-0.1.3-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xcb-util-image-0.4.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xcb-util-keysyms-0.4.0-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xcb-util-renderutil-0.3.9-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xcb-util-wm-0.4.1-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xvidcore-1.3.7-1-avh02-x86_64.avhp.tar.zstd
-# lib32-xz-5.2.5-1-avh02-x86_64.avhp.tar.zstd
-# lib32-zlib-1.2.11-1-avh02-x86_64.avhp.tar.zstd
-# lib32-zstd
+lib32-acl-2.2.53-1-avh030-x86_64.avh.tar.zst
+lib32-alsa-lib-1.2.2-1-avh030-x86_64.avh.tar.zst
+lib32-alsa-oss-1.1.8-1-avh030-x86_64.avh.tar.zst
+lib32-alsa-plugins-1.2.2-1-avh030-x86_64.avh.tar.zst
+lib32-aom-1.0.0-1-avh030-x86_64.avh.tar.zst
+# lib32-atk failed to build
+# lib32-at-spi2-atk failed to build
+# lib32-at-spi2-core failed to build
+# lib32-attr failed to build
+lib32-avahi-0.8-1-avh030-x86_64.avh.tar.zst
+# lib32-brotli failed to build
+lib32-bzip2-1.0.8-1-avh030-x86_64.avh.tar.zst
+# lib32-cairo failed to build
+lib32-cdparanoia-10.2-1-avh030-x86_64.avh.tar.zst
+lib32-celt-0.11.3-1-avh030-x86_64.avh.tar.zst
+# lib32-clang failed to build
+lib32-cmocka-1.1.5-1-avh030-x86_64.avh.tar.zst
+# lib32-colord failed to build
+lib32-curl-7.72.0-1-avh030-x86_64.avh.tar.zst
+lib32-db-6.2.38-1-avh030-x86_64.avh.tar.zst
+lib32-e2fsprogs-1.45.6-1-avh030-x86_64.avh.tar.zst
+lib32-elfutils-0.183-1-avh030-x86_64.avh.tar.zst
+lib32-expat-2.2.9-1-avh030-x86_64.avh.tar.zst
+lib32-ffmpeg
+lib32-fftw-3.3.8-1-avh030-x86_64.avh.tar.zst
+lib32-flac-1.3.3-1-avh030-x86_64.avh.tar.zst
+lib32-flex-2.6.4-1-avh030-x86_64.avh.tar.zst
+lib32-fontconfig-2.13.1-1-avh030-x86_64.avh.tar.zst
+lib32-freeglut-3.2.1-1-avh030-x86_64.avh.tar.zst
+lib32-freetype2-2.10.1-1-avh030-x86_64.avh.tar.zst
+lib32-fribidi-1.0.9-1-avh030-x86_64.avh.tar.zst
+lib32-gc-8.0.4-1-avh030-x86_64.avh.tar.zst
+lib32-gdbm-1.19-1-avh030-x86_64.avh.tar.zst
+# lib32-gdk-pixbuf2 failed to build
+lib32-gettext-0.21-1-avh030-x86_64.avh.tar.zst
+lib32-ghostscript-9.54.0-1-avh030-x86_64.avh.tar.zst
+lib32-giflib-5.2.1-1-avh030-x86_64.avh.tar.zst
+lib32-glew-2.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-glib2-2.72.0-1-avh030-x86_64.avh.tar.zst
+# lib32-glib-networking failed to build
+lib32-glu-9.0.1-1-avh030-x86_64.avh.tar.zst
+lib32-gmp-6.2.1-1-avh030-x86_64.avh.tar.zst
+lib32-gnutls-3.7.2-1-avh030-x86_64.avh.tar.zst
+lib32-graphene-1.10.8-1-avh030-x86_64.avh.tar.zst
+lib32-gsl
+lib32-gsm-1.0.19-1-avh030-x86_64.avh.tar.zst
+# lib32-gst-plugins-base failed to build
+lib32-gstreamer-1.18.4-1-avh030-x86_64.avh.tar.zst
+lib32-gstreamer0.10-0.10.36-1-avh030-x86_64.avh.tar.zst
+# lib32-gstreamer0.10-base failed to build
+lib32-gtk2-2.24.32-1-avh030-x86_64.avh.tar.zst
+# lib32-gtk3 failed to build
+lib32-guile-2.2.7-1-avh030-x86_64.avh.tar.zst
+lib32-harfbuzz-2.6.4-1-avh030-x86_64.avh.tar.zst
+lib32-icu-68.2-1-avh030-x86_64.avh.tar.zst
+lib32-jack-0.125.0-1-avh030-x86_64.avh.tar.zst
+lib32-jansson-2.12-1-avh030-x86_64.avh.tar.zst
+# lib32-jasper failed to build
+lib32-json-c-0.13.1-20180305-1-avh030-x86_64.avh.tar.zst
+lib32-json-glib-1.6.6-1-avh030-x86_64.avh.tar.zst
+lib32-keyutils-1.6.1-1-avh030-x86_64.avh.tar.zst
+lib32-krb5-1.19.1-1-avh030-x86_64.avh.tar.zst
+lib32-lame-3.100-1-avh030-x86_64.avh.tar.zst
+lib32-lcms2-2.9-1-avh030-x86_64.avh.tar.zst
+lib32-ldb-2.5.0-1-avh030-x86_64.avh.tar.zst
+lib32-libaio-0.3.112-1-avh030-x86_64.avh.tar.zst
+lib32-libarchive-3.4.2-1-avh030-x86_64.avh.tar.zst
+lib32-libass-0.14.0-1-avh030-x86_64.avh.tar.zst
+lib32-libasyncns-0.8+3+g68cd5af-1-avh030-x86_64.avh.tar.zst
+lib32-libatomic_ops-7.6.10-1-avh030-x86_64.avh.tar.zst
+lib32-libbluray-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-libbsd-0.10.0-1-avh030-x86_64.avh.tar.zst
+lib32-libcanberra-0.30+2+gc0620e4-1-avh030-x86_64.avh.tar.zst
+lib32-libcanberra-pulse-0.30+2+gc0620e4-1-avh030-x86_64.avh.tar.zst
+lib32-libcap-2.33-1-avh030-x86_64.avh.tar.zst
+lib32-libcap-ng-0.7.10-1-avh030-x86_64.avh.tar.zst
+lib32-libcroco-0.6.13-1-avh030-x86_64.avh.tar.zst
+lib32-libcups-2.3.1-1-avh030-x86_64.avh.tar.zst
+lib32-libdaemon-0.14-1-avh030-x86_64.avh.tar.zst
+lib32-libdatrie-0.2.12-1-avh030-x86_64.avh.tar.zst
+lib32-libdbus-1.12.20-1-avh030-x86_64.avh.tar.zst
+lib32-libdmx-1.1.4-1-avh030-x86_64.avh.tar.zst
+lib32-libdrm-2.4.110-1-avh030-x86_64.avh.tar.zst
+lib32-libedit-20191231_3.1-1-avh030-x86_64.avh.tar.zst
+lib32-libelf-0.179-1-avh030-x86_64.avh.tar.zst
+lib32-libepoxy-1.5.10-1-avh030-x86_64.avh.tar.zst
+lib32-libevent
+lib32-libffi-3.3-1-avh030-x86_64.avh.tar.zst
+lib32-libfontenc-1.1.4-1-avh030-x86_64.avh.tar.zst
+lib32-libxcrypt-4.4.23-1-avh030-x86_64.avh.tar.zst
+lib32-libgcrypt-1.9.3-1-avh030-x86_64.avh.tar.zst
+lib32-libglvnd-1.3.2-1-avh030-x86_64.avh.tar.zst
+lib32-libgpg-error-1.42-1-avh030-x86_64.avh.tar.zst
+lib32-libgudev-234-1-avh030-x86_64.avh.tar.zst
+lib32-libgusb-0.3.4-1-avh030-x86_64.avh.tar.zst
+lib32-libice-1.0.10-1-avh030-x86_64.avh.tar.zst
+lib32-libidn-1.35-1-avh030-x86_64.avh.tar.zst
+lib32-libidn2-2.3.0-1-avh030-x86_64.avh.tar.zst
+lib32-libiec61883-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-opencore-amr-0.1.5-1-avh030-x86_64.avh.tar.zst
+lib32-libjpeg-turbo-2.0.4-1-avh030-x86_64.avh.tar.zst
+lib32-libldap-2.4.58-1-avh030-x86_64.avh.tar.zst
+lib32-libltdl-2.4.6-1-avh030-x86_64.avh.tar.zst
+lib32-libmicrohttpd-0.9.70-1-avh030-x86_64.avh.tar.zst
+lib32-libmng-2.0.3-1-avh030-x86_64.avh.tar.zst
+lib32-libmnl-1.0.4-1-avh030-x86_64.avh.tar.zst
+lib32-libmodplug-0.8.9.0-1-avh030-x86_64.avh.tar.zst
+lib32-libnetfilter_conntrack-1.0.8-1-avh030-x86_64.avh.tar.zst
+lib32-libnfnetlink-1.0.1-1-avh030-x86_64.avh.tar.zst
+lib32-libnftnl-1.1.6-1-avh030-x86_64.avh.tar.zst
+lib32-libnl-3.5.0-1-avh030-x86_64.avh.tar.zst
+lib32-libnsl-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-libogg-1.3.4-1-avh030-x86_64.avh.tar.zst
+lib32-libomxil-bellagio-0.9.3-1-avh030-x86_64.avh.tar.zst
+# lib32-libopts failed to build
+lib32-libpaper-1.1.28-1-avh030-x86_64.avh.tar.zst
+lib32-libpcap-1.9.1-1-avh030-x86_64.avh.tar.zst
+lib32-libpciaccess-0.16-1-avh030-x86_64.avh.tar.zst
+lib32-libpng-1.6.37-1-avh030-x86_64.avh.tar.zst
+lib32-libproxy-0.4.17-1-avh030-x86_64.avh.tar.zst
+lib32-libpsl-0.21.0-1-avh030-x86_64.avh.tar.zst
+# lib32-libpulse failed to build
+lib32-libraw1394-2.1.2-1-avh030-x86_64.avh.tar.zst
+# lib32-librsvg failed to build
+lib32-libsamplerate-0.1.9-1-avh030-x86_64.avh.tar.zst
+lib32-libseccomp-2.4.3-1-avh030-x86_64.avh.tar.zst
+lib32-libsm-1.2.3-1-avh030-x86_64.avh.tar.zst
+lib32-libsndfile-1.0.28-1-avh030-x86_64.avh.tar.zst
+lib32-libsoup
+lib32-libspectre-0.2.8-1-avh030-x86_64.avh.tar.zst
+lib32-libssh2-1.9.0-1-avh030-x86_64.avh.tar.zst
+lib32-libtasn1-4.16.0-1-avh030-x86_64.avh.tar.zst
+lib32-libthai-0.1.28-1-avh030-x86_64.avh.tar.zst
+lib32-libtheora-1.1.1-1-avh030-x86_64.avh.tar.zst
+lib32-libtirpc-1.2.6-1-avh030-x86_64.avh.tar.zst
+lib32-libtiff-4.1.0-1-avh030-x86_64.avh.tar.zst
+lib32-libunistring-0.9.10-1-avh030-x86_64.avh.tar.zst
+lib32-libunwind-1.6.2-1-avh030-x86_64.avh.tar.zst
+lib32-libusb-1.0.23-1-avh030-x86_64.avh.tar.zst
+# lib32-libva failed to build
+lib32-libvdpau-1.4-1-avh030-x86_64.avh.tar.zst
+lib32-libvisual-0.4.0-1-avh030-x86_64.avh.tar.zst
+lib32-libvorbis-1.3.6-1-avh030-x86_64.avh.tar.zst
+lib32-libvpx-1.8.2-1-avh030-x86_64.avh.tar.zst
+lib32-libwebp-1.1.0-1-avh030-x86_64.avh.tar.zst
+lib32-libx11-1.7.2-1-avh030-x86_64.avh.tar.zst
+lib32-libxau-1.0.9-1-avh030-x86_64.avh.tar.zst
+# lib32-libxaw failed to build
+lib32-libxcb-1.14-1-avh030-x86_64.avh.tar.zst
+lib32-libxcomposite-0.4.5-1-avh030-x86_64.avh.tar.zst
+lib32-libxcursor-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-libxdamage-1.1.5-1-avh030-x86_64.avh.tar.zst
+lib32-libxdmcp-1.1.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxext-1.3.4-1-avh030-x86_64.avh.tar.zst
+lib32-libxfixes-5.0.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxfont-1.5.4-1-avh030-x86_64.avh.tar.zst
+lib32-libxft-2.3.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxi-1.7.10-1-avh030-x86_64.avh.tar.zst
+lib32-libxinerama-1.1.4-1-avh030-x86_64.avh.tar.zst
+# lib32-libxkbcommon failed to build
+lib32-libxkbcommon-x11
+lib32-libxml2-2.9.13-1-avh030-x86_64.avh.tar.zst
+lib32-libxmu-1.1.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxpm-3.5.13-1-avh030-x86_64.avh.tar.zst
+lib32-libxrandr-1.5.2-1-avh030-x86_64.avh.tar.zst
+lib32-libxrender-0.9.10-1-avh030-x86_64.avh.tar.zst
+lib32-libxres-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-libxscrnsaver-1.2.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxshmfence-1.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxslt-1.1.35-1-avh030-x86_64.avh.tar.zst
+lib32-libxt-1.2.1-1-avh030-x86_64.avh.tar.zst
+lib32-libxtst-1.2.3-1-avh030-x86_64.avh.tar.zst
+lib32-libxv-1.0.11-1-avh030-x86_64.avh.tar.zst
+lib32-libxvmc-1.0.12-1-avh030-x86_64.avh.tar.zst
+lib32-libxxf86vm-1.1.4-1-avh030-x86_64.avh.tar.zst
+lib32-llvm-13.0.0-1-avh030-x86_64.avh.tar.zst
+lib32-llvm-libs-13.0.0-1-avh030-x86_64.avh.tar.zst
+lib32-lm_sensors-3.6.0-1-avh030-x86_64.avh.tar.zst
+lib32-lz4-1.9.2-1-avh030-x86_64.avh.tar.zst
+lib32-vulkan-mesa-layers
+lib32-opencl-mesa
+lib32-vulkan-intel
+lib32-vulkan-radeon
+lib32-libva-mesa-driver
+lib32-mesa-vdpau
+lib32-mesa
+lib32-mpg123-1.25.13-1-avh030-x86_64.avh.tar.zst
+lib32-ncurses-6.2-1-avh030-x86_64.avh.tar.zst
+lib32-nettle-3.6-1-avh030-x86_64.avh.tar.zst
+# lib32-nspr failed to build
+# lib32-nss failed to build
+lib32-numactl-2.0.13-1-avh030-x86_64.avh.tar.zst
+lib32-ocl-icd-2.2.12-1-avh030-x86_64.avh.tar.zst
+# lib32-openal failed to build
+lib32-openjpeg-1.5.2-1-avh030-x86_64.avh.tar.zst
+lib32-openjpeg2-2.3.1-1-avh030-x86_64.avh.tar.zst
+# lib32-openssl failed to build
+lib32-opus-1.3.1-1-avh030-x86_64.avh.tar.zst
+lib32-orc-0.4.31-1-avh030-x86_64.avh.tar.zst
+# lib32-p11-kit failed to build
+lib32-pam-1.4.0-1-avh030-x86_64.avh.tar.zst
+lib32-pango-1.50.6-1-avh030-x86_64.avh.tar.zst
+lib32-pcre-8.44-1-avh030-x86_64.avh.tar.zst
+lib32-pcre2-10.34-1-avh030-x86_64.avh.tar.zst
+lib32-pixman-0.40.0-1-avh030-x86_64.avh.tar.zst
+# lib32-poppler failed to build
+lib32-poppler-glib
+lib32-popt-1.18-1-avh030-x86_64.avh.tar.zst
+lib32-portaudio-190600_20161030-1-avh030-x86_64.avh.tar.zst
+lib32-qrencode-4.0.2-1-avh030-x86_64.avh.tar.zst
+# lib32-qt4 failed to build
+# lib32-qt4-webkit failed to build
+lib32-readline-8.1.0-1-avh030-x86_64.avh.tar.zst
+lib32-rest-0.8.1-1-avh030-x86_64.avh.tar.zst
+# lib32-rust failed to build
+lib32-sdl-1.2.15-1-avh030-x86_64.avh.tar.zst
+# lib32-sdl2 failed to build
+lib32-sdl_sound-1.0.3-1-avh030-x86_64.avh.tar.zst
+# lib32-smbclient failed to build
+lib32-speex-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-speexdsp-1.2.0-1-avh030-x86_64.avh.tar.zst
+lib32-sqlite-3.31.1-1-avh030-x86_64.avh.tar.zst
+# lib32-systemd failed to build
+lib32-talloc-2.3.3-1-avh030-x86_64.avh.tar.zst
+lib32-tdb-1.4.6-1-avh030-x86_64.avh.tar.zst
+lib32-tevent-0.11.0-1-avh030-x86_64.avh.tar.zst
+lib32-tslib
+lib32-unixodbc-2.3.7-1-avh030-x86_64.avh.tar.zst
+lib32-util-linux-2.36.1-1-avh030-x86_64.avh.tar.zst
+lib32-v4l-utils-1.20.0-1-avh030-x86_64.avh.tar.zst
+lib32-vkd3d-1.2-1-avh030-x86_64.avh.tar.zst
+lib32-vulkan-icd-loader-1.2.186-1-avh030-x86_64.avh.tar.zst
+# lib32-wayland failed to build
+lib32-webrtc-audio-processing-0.3.1-1-avh030-x86_64.avh.tar.zst
+# lib32-wxgtk2.8 failed to build
+lib32-x264-160.r33f9e147-1-avh030-x86_64.avh.tar.zst
+lib32-x265
+lib32-xcb-util-0.4.0-1-avh030-x86_64.avh.tar.zst
+lib32-xcb-util-cursor-0.1.3-1-avh030-x86_64.avh.tar.zst
+lib32-xcb-util-image-0.4.0-1-avh030-x86_64.avh.tar.zst
+lib32-xcb-util-keysyms-0.4.0-1-avh030-x86_64.avh.tar.zst
+lib32-xcb-util-renderutil-0.3.9-1-avh030-x86_64.avh.tar.zst
+lib32-xcb-util-wm-0.4.1-1-avh030-x86_64.avh.tar.zst
+lib32-xvidcore-1.3.7-1-avh030-x86_64.avh.tar.zst
+lib32-xz-5.2.5-1-avh030-x86_64.avh.tar.zst
+lib32-zlib-1.2.11-1-avh030-x86_64.avh.tar.zst
+lib32-zstd
+lib32-kmod-27-1-avh030-x86_64.avh.tar.zst
+lib32-libiptc-1.8.4-1-avh030-x86_64.avh.tar.zst
+lib32-libsepol-3.2-1-avh030-x86_64.avh.tar.zst
+lib32-libselinux-3.2-1-avh030-x86_64.avh.tar.zst
+lib32-lvm2-2.03.11-1-avh030-x86_64.avh.tar.zst
+# lib32-cryptsetup failed to build
+# lib32-autogen failed to build
+# lib32-audit failed to build
+lib32-polkit-0.119-1-avh030-x86_64.avh.tar.zst
+lib32-libavtp-0.1.0-1-avh030-x86_64.avh.tar.zst

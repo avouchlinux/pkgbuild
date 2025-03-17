@@ -1,11 +1,19 @@
-# anbox-r1324.165db5c-1-avh02-x86_64.avhp
-# anbox-modules-dkms-r1324.165db5c-1-avh02-x86_64.avhp
-# anbox-bridge-1-1-avh02-x86_64.avhp
-# anbox-image-2018.07.19-1-avh02-x86_64.avhp
-# anbox-modules-ashmem-r1213.c898810-1-avh02-x86_64.avhp
-# anbox-modules-binder-r1213.c898810-1-avh02-x86_64.avhp
-# android-tools-9.0.0_r35-1-al01-x86_64.avhp
-# android-studio-4.1.1-1-avh02-x86_64.avhp
-# android-udev-20200410-1-avh02-x86_64.avhp
-# heimdall-1.4.2-1-avh02-x86_64.avhp
-
+anbox
+anbox-modules-dkms
+anbox-bridge-1-1-avh030-x86_64.avh.tar.zst
+anbox-image-2018.07.19-1-avh030-x86_64.avh.tar.zst
+# anbox-modules failed to build
+# android-tools failed to build
+anbox-modules-binder
+android-studio-2023.3.1.19-1-avh040-x86_64.avh.tar.zst
+android-udev-20200410-1-avh030-x86_64.avh.tar.zst
+flutter-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-common-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-gradle-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-tool-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-devel-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-target-linux-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-target-android-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-target-web-3.22.0-1-avh040-x86_64.avh.tar.zst
+flutter-intellij-patch-3.22.0-1-avh040-x86_64.avh.tar.zst
+heimdall-1.4.2-1-avh030-x86_64.avh.tar.zst

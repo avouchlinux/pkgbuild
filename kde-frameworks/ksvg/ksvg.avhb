@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ksvg
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Components for handling SVGs'
 arch=(x86_64)

@@ -1,3 +1,4 @@
+gnome-app-list
 alacarte
 gnome-common
 yelp-xsl
@@ -91,6 +92,7 @@ glycin
 loupe
 gnome-weather
 evince
+papers
 gnome-calendar
 libshumate
 gnome-maps
@@ -100,6 +102,7 @@ simple-scan
 snapshot
 gnome-system-monitor
 totem
+showtime
 gnome-tour
 editorconfig-core-c
 gnome-text-editor

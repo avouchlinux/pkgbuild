@@ -1,7 +1,7 @@
 asio-1.30.2-1-avh040-x86_64.avh.tar.zst
-curl-8.11.0-1-avh040-x86_64.avh.tar.zst
-libcurl-compat-8.11.0-1-avh040-x86_64.avh.tar.zst
-libcurl-gnutls-8.11.0-1-avh040-x86_64.avh.tar.zst
+curl-8.12.0-1-avh040-x86_64.avh.tar.zst
+libcurl-compat-8.12.0-1-avh040-x86_64.avh.tar.zst
+libcurl-gnutls-8.12.0-1-avh040-x86_64.avh.tar.zst
 ktoblzcheck-1.53-1-avh040-x86_64.avh.tar.zst
 ldns-1.8.4-1-avh040-x86_64.avh.tar.zst
 libaccounts-glib-1.27-1-avh040-x86_64.avh.tar.zst
@@ -33,8 +33,8 @@ libnftnl-1.2.8-1-avh040-x86_64.avh.tar.zst
 libnghttp2-1.63.0-1-avh040-x86_64.avh.tar.zst
 libnghttp3-1.6.0-1-avh040-x86_64.avh.tar.zst
 libngtcp2-1.8.1-1-avh040-x86_64.avh.tar.zst
-libnl-3.10.0-1-avh040-x86_64.avh.tar.zst
 libnl1-1.1.4-1-avh040-x86_64.avh.tar.zst
+libnl-3.11.0-1-avh040-x86_64.avh.tar.zst
 libnma-common-1.10.6-1-avh040-x86_64.avh.tar.zst
 libnma-1.10.6-1-avh040-x86_64.avh.tar.zst
 libnma-gtk4-1.10.6-1-avh040-x86_64.avh.tar.zst

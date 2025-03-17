@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-remote-desktop
-pkgver=47.1
+pkgver=48.rc
 pkgrel=1
 pkgdesc="GNOME Remote Desktop server"
 url="https://gitlab.gnome.org/GNOME/gnome-remote-desktop"
@@ -43,7 +43,6 @@ makedepends=(
   glib2-devel
   meson
 )
-groups=(gnome)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 b2sums=('24796ff19165dd317046276c680d1860eba1f8e0604552610aabef0b51da9fb3b596063137c43a84fc30b8fb6bb521e26ca36fffcb1e367509319c9fa6e7a22c')
 validpgpkeys=(

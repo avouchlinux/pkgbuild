@@ -1,4 +1,4 @@
-From 8bbb2e4a5fd3ca20aac211c932130d6807b4ae18 Mon Sep 17 00:00:00 2001
+From 783d6bd6c7542de29dfc5cd1032c00b339329e3b Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
 Date: Wed, 31 Jan 2024 18:59:57 +0100
 Subject: [PATCH] layout: Add the ability to reset the panel

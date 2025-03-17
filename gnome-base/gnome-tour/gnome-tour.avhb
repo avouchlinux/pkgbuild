@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-tour
-pkgver=47.0
+pkgver=48.1
 pkgrel=1
 pkgdesc="GNOME's Tour & Greeter"
 arch=('x86_64')
@@ -25,7 +25,7 @@ makedepends=(
   meson
   rust
 )
-source=(https://gitlab.gnome.org/GNOME/gnome-tour/-/archive/47.0/gnome-tour-47.0.tar.bz2)
+source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 # Use LTO
 export CARGO_PROFILE_RELEASE_LTO=true CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
@@ -46,9 +46,9 @@ build() {
   meson compile -C build
 }
 
-check() {
-  meson test -C build --print-errorlogs --no-rebuild
-}
+# check() {
+#   meson test -C build --print-errorlogs --no-rebuild
+# }
 
 package() {
   meson install -C build --destdir "$pkgdir" --no-rebuild

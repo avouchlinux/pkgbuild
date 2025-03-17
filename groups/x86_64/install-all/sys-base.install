@@ -95,9 +95,9 @@ efivar-38-1-avh040-x86_64.avh.tar.zst
 efitools-1.9.2-1-avh040-x86_64.avh.tar.zst
 efibootmgr-18-1-avh040-x86_64.avh.tar.zst
 sbsigntools-0.9.5-1-avh040-x86_64.avh.tar.zst
-dbus-1.14.10-1-avh040-x86_64.avh.tar.zst
-dbus-daemon-units-1.14.10-1-avh040-x86_64.avh.tar.zst
-dbus-docs-1.14.10-1-avh040-x86_64.avh.tar.zst
+dbus-1.16.0-1-avh040-x86_64.avh.tar.zst
+dbus-daemon-units-1.16.0-1-avh040-x86_64.avh.tar.zst
+dbus-docs-1.16.0-1-avh040-x86_64.avh.tar.zst
 cryptsetup-2.7.5-1-avh040-x86_64.avh.tar.zst
 libbpf-1.2.2-1-avh040-x86_64.avh.tar.zst
 systemd-256.7-1-avh040-x86_64.avh.tar.zst

@@ -1,0 +1,29 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-sphinxcontrib-apidoc
+pkgver=0.5.0
+pkgrel=1
+pkgdesc='A Sphinx extension for running 'sphinx-apidoc' on each build'
+arch=(any)
+groups=('dev-python')
+url='https://github.com/sphinx-contrib/apidoc'
+license=(BSD)
+depends=(python-sphinx python-pbr)
+makedepends=(python-build python-installer python-setuptools python-wheel)
+source=("https://pypi.io/packages/source/s/sphinxcontrib-apidoc/sphinxcontrib-apidoc-$pkgver.tar.gz")
+sha256sums=('65efcd92212a5f823715fb95ee098b458a6bb09a5ee617d9ed3dead97177cd55')
+
+build() {
+  cd sphinxcontrib-apidoc-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+
+package() {
+  cd sphinxcontrib-apidoc-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

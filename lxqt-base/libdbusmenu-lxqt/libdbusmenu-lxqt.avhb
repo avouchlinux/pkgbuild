@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libdbusmenu-lxqt
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='A library that provides a Qt implementation of the DBusMenu spec'
 arch=(x86_64)

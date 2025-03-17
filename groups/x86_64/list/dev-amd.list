@@ -1,0 +1,7 @@
+rocm-core
+hsakmt-roct
+rocm-cmake
+rocm-llvm
+hsa-rocr
+rocm-smi-lib
+rocminfo

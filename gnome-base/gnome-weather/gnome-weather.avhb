@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-weather
-pkgver=47.0
+pkgver=48.0
 pkgrel=1
 pkgdesc="Access current weather conditions and forecasts"
 url="https://apps.gnome.org/Weather"

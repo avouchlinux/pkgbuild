@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-desktop-portal-gnome
-pkgver=47.1
+pkgver=48.beta.2
 pkgrel=1
 pkgdesc="A backend implementation for xdg-desktop-portal for the GNOME desktop environment"
 url="https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome"
@@ -26,7 +26,7 @@ depends=(
   libx11
   wayland
   xdg-desktop-portal
-  'xdg-desktop-portal-gtk>=1.10.0-2'
+  xdg-desktop-portal-gtk
 )
 makedepends=(
   git
@@ -35,9 +35,7 @@ makedepends=(
 )
 optdepends=('evince: Print previews')
 provides=(xdg-desktop-portal-impl)
-conflicts=('xdg-desktop-portal-gtk<1.10.0-2')
-replaces=('xdg-desktop-portal-gtk<1.10.0-2')
-source=("https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/archive/$pkgver/xdg-desktop-portal-gnome-$pkgver.tar.bz2")
+source=("https://download.gnome.org/sources/$pkgname/48/$pkgname-$pkgver.tar.xz")
 sha256sums=('SKIP')
 
 prepare() {

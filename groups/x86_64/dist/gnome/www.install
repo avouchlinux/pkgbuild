@@ -1,36 +1,44 @@
-# adminer-4.8.1-1-avh02-x86_64.avhp.tar.zstd
-# apache-2.4.51-1-avh02-x86_64.avhp.tar.zstd
+adminer-4.8.1-1-avh02-x86_64.avhp.tar.zstd
+apache-2.4.52-1-avh02-x86_64.avhp.tar.zstd
+bugzilla-5.1.2-1-avh02-x86_64.avhp.tar.zstd
 
-# cmsmadesimple-1.12-1-al01-x86_64.alp
-# cmsms-2.2.7-1-al01-x86_64.alp
-# dokuwiki-20170219_e-1-al01-x86_64.alp
-# drupal-8.5.1-1-al01-x86_64.alp
-# flyspray-1.0rc6-1-al01-x86_64.alp
-# froxlor-0.9.39.5-1-al01-x86_64.alp
-# gitea-1.4.1-1-al01-x86_64.alp
-# gitlist-1.0.0-1-al01-x86_64.alp
-# gitphp-2.9.1-1-al01-x86_64.alp
-# gogs-0.11.43-1-al01-x86_64.alp
-# haproxy
-# joomla-3.8.7-1-al01-x86_64.alp
+cmsmadesimple-1.12-1-al01-x86_64.alp
+cmsms-2.2.7-1-al01-x86_64.alp
 
-# lynx-2.8.9-1-avh02-x86_64.avhp
+dokuwiki-20170219_e-1-al01-x86_64.alp
+drupal-8.5.1-1-al01-x86_64.alp
 
-# mantisbt-2.12.0-1-al01-x86_64.alp
-# mediawiki-1.30.0-1-al01-x86_64.alp
-# mediawiki-math-1.30.0-1-al01-x86_64.alp
-# nginx-1.20.2-1-avh02-x86_64.avhp.tar.zstd
-# nginx-src-1.20.2-1-avh02-x86_64.avhp.tar.zstd
-# phpmyadmin-5.1.3-1-avh02-x86_64.avhp.tar.zstd
-# pound-2.7-1-al01-x86_64.alp
-# qupzilla
-# sentora-1.0.4-beta-1-al01-x86_64.alp
-# squid-3.5.27-1-al01-x86_64.alp
-# squirrelmail-1.5.2-1-al01-x86_64.alp
-# typo3-9.2.0-1-al01-x86_64.alp
-# varnish
-# w3m-0.5.3.git20180125-1-al01-x86_64.alp
-# wordpress-5.2.3-1-al01-x86_64.alp
-# flashplugin-32.0.0.344-1-avh02-x86_64.avhp
-# pepper-flash-32.0.0.344-1-avh02-x86_64.avhp
+flyspray-1.0rc6-1-al01-x86_64.alp
+froxlor-0.9.39.5-1-al01-x86_64.alp
+gitea-1.4.1-1-al01-x86_64.alp
+gitlist-1.0.0-1-al01-x86_64.alp
+gitphp-2.9.1-1-al01-x86_64.alp
+gogs-0.11.43-1-al01-x86_64.alp
+
+
+haproxy
+joomla-3.8.7-1-al01-x86_64.alp
+
+lynx-2.8.9-1-avh02-x86_64.avhp
+
+mantisbt-2.12.0-1-al01-x86_64.alp
+mediawiki-1.30.0-1-al01-x86_64.alp
+mediawiki-math-1.30.0-1-al01-x86_64.alp
+nginx-1.20.2-1-avh02-x86_64.avhp.tar.zstd
+nginx-src-1.20.2-1-avh02-x86_64.avhp.tar.zstd
+opera-84.0.4316.21-1-avh02-x86_64.avhp.tar.zstd
+opera-ffmpeg-codecs-80.0.3987.149-1-avh02-x86_64.avhp
+phpmyadmin-5.1.3-1-avh02-x86_64.avhp.tar.zstd
+pound-2.7-1-al01-x86_64.alp
+qupzilla
+sentora-1.0.4-beta-1-al01-x86_64.alp
+squid-3.5.27-1-al01-x86_64.alp
+squirrelmail-1.5.2-1-al01-x86_64.alp
+typo3-9.2.0-1-al01-x86_64.alp
+varnish
+w3m-0.5.3.git20180125-1-al01-x86_64.alp
+wordpress-5.2.3-1-al01-x86_64.alp
+
+flashplugin-32.0.0.344-1-avh02-x86_64.avhp
+pepper-flash-32.0.0.344-1-avh02-x86_64.avhp
 

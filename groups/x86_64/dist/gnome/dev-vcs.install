@@ -1,7 +1,8 @@
-# git-2.31.1-1-avh02-x86_64.avhp.tar.zstd
-# github-cli-2.5.0-1-avh02-x86_64avhp.tar.zstd
-# mercurial-5.6.1-1-avh02-x86_64.avhp.tar.zstd
-# rabbitvcs-0.18-1-avh02-x86_64.avhp.tar.zstd
-# rabbitvcs-nautilus-0.18-1-avh02-x86_64.avhp.tar.zstd
-# rabbitvcs-thunar-0.18-1-avh02-x86_64.avhp.tar.zstd
-# subversion-1.14.1-1-avh02-x86_64.avhp.tar.zstd
+forgejo-9.0.2-1-avh040-x86_64.avh.tar.zst
+git-2.47.0-1-avh040-x86_64.avh.tar.zst
+github-cli-2.5.0-1-avh030-x86_64.avh.tar.zst
+mercurial-6.8.1-1-avh040-x86_64.avh.tar.zst
+rabbitvcs-0.18-1-avh030-x86_64.avh.tar.zst
+rabbitvcs-nautilus-0.18-1-avh030-x86_64.avh.tar.zst
+rabbitvcs-thunar-0.18-1-avh030-x86_64.avh.tar.zst
+subversion-1.14.4-1-avh040-x86_64.avh.tar.zst

@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kscreenlocker
-pkgver=6.2.0
+pkgver=6.3.3
 _dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Library and components for secure lock screen architecture'
@@ -63,7 +63,7 @@ validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell
 build() {
   cmake -B build -S $pkgname-$pkgver -G Ninja \
   	    -DCMAKE_INSTALL_PREFIX=/usr \
-		-DLIB_INSTALL_DIR=lib \
+		    -DLIB_INSTALL_DIR=lib \
         -DCMAKE_INSTALL_LIBEXECDIR=lib \
         -DBUILD_TESTING=OFF
   cmake --build build
@@ -71,4 +71,9 @@ build() {
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
+
+
+  install -Dm644 "$srcdir"/kde.pam "$pkgdir"/etc/pam.d/kde
+  install -Dm644 "$srcdir"/kde-fingerprint.pam "$pkgdir"/etc/pam.d/kde-fingerprint
+  install -Dm644 "$srcdir"/kde-smartcard.pam "$pkgdir"/etc/pam.d/kde-smartcard
 }

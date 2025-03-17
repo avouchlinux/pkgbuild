@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-initial-setup
-pkgver=47.1
+pkgver=47.2
 pkgrel=1
 pkgdesc="Simple, easy, and safe way to prepare a new system"
 arch=('x86_64')

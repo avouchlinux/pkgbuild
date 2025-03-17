@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kwallet
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Secure and unified container for user passwords'
 arch=('x86_64')

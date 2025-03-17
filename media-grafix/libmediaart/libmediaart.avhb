@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmediaart
-pkgver=1.9.6
+pkgver=1.9.7
 pkgrel=1
 pkgdesc="Library tasked with managing, extracting and handling media art caches"
 url='https://gitlab.gnome.org/GNOME/libmediaart'

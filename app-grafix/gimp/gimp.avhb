@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gimp
-pkgver=2.10.36
+pkgver=2.10.38
 pkgrel=1
 pkgdesc="GNU Image Manipulation Program"
 arch=('x86_64')

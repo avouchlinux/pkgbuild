@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kamera
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="KDE integration for gphoto2 cameras"
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/kamera/'
 arch=(x86_64)
 license=(GPL-2.0-or-later LGPL-2.0-or-later)
@@ -25,7 +25,7 @@ depends=(gcc-libs
          qt6-base)
 makedepends=(extra-cmake-modules
              kdoctools)
-groups=(kde-applications
+groups=(kde-release-servicelications
         kde-graphics)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('e4e1cf06d0b28b2bd957514a457ae7ea489de99c13576d2405adf6a2e20712b5'

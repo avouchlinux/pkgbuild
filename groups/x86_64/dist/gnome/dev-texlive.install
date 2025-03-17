@@ -1,6 +1,7 @@
-# texlive-20200406-1-avh02-x86_64.avhp.tar.zstd
-libsynctex-20200406-1-avh02-x86_64.avhp.tar.zstd
-# texlive-extra-20200406-1-avh02-x86_64.avhp
-# texlive-doc-20200406-1-avh02-x86_64.avhp
-# texlive-fonts-20200406-1-avh02-x86_64.avhp
-# texlive-tlpdb-20200406-1-avh02-x86_64.avhp
+texlive-bin-20240312-1-avh040-x86_64.avh.tar.zst
+libsynctex-20240312-1-avh040-x86_64.avh.tar.zst
+texlive-extra-20240312-1-avh040-x86_64.avh.tar.zst
+
+texlive-doc-20200406-1-avh02-x86_64.avhp
+texlive-fonts-20200406-1-avh02-x86_64.avhp
+texlive-tlpdb-20200406-1-avh02-x86_64.avhp

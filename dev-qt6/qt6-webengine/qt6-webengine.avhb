@@ -1,10 +1,10 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-webengine
-pkgver=6.8.0
+pkgver=6.8.2
 pkgrel=1
 _realname="${pkgname/6-/}"
 _tarname="${pkgname/6-/}-everywhere-src-${pkgver}"

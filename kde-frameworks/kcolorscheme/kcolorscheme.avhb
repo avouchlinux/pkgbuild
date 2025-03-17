@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kcolorscheme
-pkgver=6.6.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Classes to read and interact with KColorScheme'
 arch=(x86_64)

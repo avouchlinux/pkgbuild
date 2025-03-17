@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxqt-config
-pkgver=2.0.0
+pkgver=2.1.1
 pkgrel=1
 pkgdesc="LXQt system configuration."
 arch=("x86_64")

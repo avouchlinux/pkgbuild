@@ -1,41 +1,49 @@
-# ant-1.10.10-1-avh02-x86_64.avhp.tar.zstd
-# ant-doc-1.10.10-1-avh02-x86_64.avhp.tar.zstd
-# beanshell-2.0b6-1-avh02-x86_64.avhp.tar.zstd
-# fastjar-0.98-1-avh02-x86_64.avhp.tar.zstd
-# fop-2.6-1-avh02-x86_64.avhp.tar.zstd
-# icedtea-sound
-# jre8-openjdk-headless
-# jre8-openjdk11
-# jdk8-openjdk
-# openjdk8-src
-# openjdk8-doc
-# jre11-openjdk-headless-11.0.12.u1-1-avh02-x86_64.avhp.tar.zstd
-# jre11-openjdk-11.0.12.u1-1-avh02-x86_64.avhp.tar.zstd
-# jdk11-openjdk-11.0.12.u1-1-avh02-x86_64.avhp.tar.zstd
-# openjdk11-src-11.0.12.u1-1-avh02-x86_64.avhp.tar.zstd
-# openjdk11-doc-11.0.12.u1-1-avh02-x86_64.avhp.tar.zstd
-# jre-openjdk-headless-15.0.3.u3-1-avh02-x86_64.avhp.tar.zstd
-# jre-openjdk-15.0.3.u3-1-avh02-x86_64.avhp.tar.zstd
-# jdk-openjdk-15.0.3.u3-1-avh02-x86_64.avhp.tar.zstd
-# openjdk-src-15.0.3.u3-1-avh02-x86_64.avhp.tar.zstd
-# openjdk-doc-15.0.3.u3-1-avh02-x86_64.avhp.tar.zstd
-# java-atk-wrapper-common-0.38.0-1-avh02-x86_64.avhp.tar.zstd
-# java-atk-wrapper-openjdk-0.38.0-1-avh02-x86_64.avhp.tar.zstd
-# java-atk-wrapper-openjdk8-0.38.0-1-avh02-x86_64.avhp.tar.zstd
-# java-avalon-framework-4.2.0-1-avh02-x86_64.avhp.tar.zstd
-# java-batik-1.12-1-avh02-x86_64.avhp.tar.zstd
-# java-runtime-common-1-1-avh02-x86_64.avhp.tar.zstd
-# java-environment-common-1-1-avh02-x86_64.avhp.tar.zstd
-# java-commons-io-2.6-1-avh02-x86_64.avhp.tar.zstd
-# java-commons-logging-1.2-1-avh02-x86_64.avhp.tar.zstd
-# java-hamcrest-1.3-1-avh02-x86_64.avhp.tar.zstd
-# java-jai-1.1.3-1-avh02-x86_64.avhp.tar.zstd
-# java-jline-1.0-1-avh02-x86_64.avhp.tar.zstd
-# java-xmlgraphics-commons-2.4-1-avh02-x86_64.avhp.tar.zstd
-# junit-4.12-1-avh02-x86_64.avhp.tar.zstd
-# maven-3.6.3-1-avh02-x86_64.avhp.tar.zstd
-# java-rhino-1.7.12-1-avh02-x86_64.avhp.tar.zstd
-# rhino-1.7.12-1-avh02-x86_64.avhp.tar.zstd
-# rhino-javadoc-1.7.12-1-avh02-x86_64.avhp.tar.zstd
-# saxon-he-10.0-1-avh02-x86_64.avhp.tar.zstd
-# svnkit-1.10.1-1-avh02-x86_64.avhp.tar.zstd
+ant-1.10.12-1-avh030-x86_64.avh.tar.zst
+ant-doc-1.10.12-1-avh030-x86_64.avh.tar.zst
+beanshell-2.0b6-1-avh030-x86_64.avh.tar.zst
+eclipse-ecj-4.23-1-avh030-x86_64.avh.tar.zst
+fastjar-0.98-1-avh030-x86_64.avh.tar.zst
+fop-2.6-1-avh030-x86_64.avh.tar.zst
+icedtea-sound
+java-runtime-common-3-1-avh040-x86_64.avh.tar.zst
+java-environment-common-3-1-avh040-x86_64.avh.tar.zst
+jre8-openjdk-headless-8.u302-1-avh030-x86_64.avh.tar.zst
+jre8-openjdk-8.u302-1-avh030-x86_64.avh.tar.zst
+jdk8-openjdk-8.u302-1-avh030-x86_64.avh.tar.zst
+openjdk8-src-8.u302-1-avh030-x86_64.avh.tar.zst
+openjdk8-doc-8.u302-1-avh030-x86_64.avh.tar.zst
+jre11-openjdk-headless-11.0.12.u1-1-avh030-x86_64.avh.tar.zst
+jre11-openjdk-11.0.12.u1-1-avh030-x86_64.avh.tar.zst
+jdk11-openjdk-11.0.12.u1-1-avh030-x86_64.avh.tar.zst
+openjdk11-src-11.0.12.u1-1-avh030-x86_64.avh.tar.zst
+openjdk11-doc-11.0.12.u1-1-avh030-x86_64.avh.tar.zst
+jre21-openjdk-headless-21.0.5.u11-1-avh040-x86_64.avh.tar.zst
+jre21-openjdk-21.0.5.u11-1-avh040-x86_64.avh.tar.zst
+jdk21-openjdk-21.0.5.u11-1-avh040-x86_64.avh.tar.zst
+openjdk21-src-21.0.5.u11-1-avh040-x86_64.avh.tar.zst
+openjdk21-doc-21.0.5.u11-1-avh040-x86_64.avh.tar.zst
+jre-openjdk-headless-23.0.1.u11-1-avh040-x86_64.avh.tar.zst
+jre-openjdk-23.0.1.u11-1-avh040-x86_64.avh.tar.zst
+jdk-openjdk-23.0.1.u11-1-avh040-x86_64.avh.tar.zst
+openjdk-src-23.0.1.u11-1-avh040-x86_64.avh.tar.zst
+openjdk-doc-23.0.1.u11-1-avh040-x86_64.avh.tar.zst
+java-atk-wrapper-common-0.40.0-1-avh030-x86_64.avh.tar.zst
+java-atk-wrapper-openjdk-0.40.0-1-avh030-x86_64.avh.tar.zst
+java-atk-wrapper-openjdk8-0.40.0-1-avh030-x86_64.avh.tar.zst
+java-avalon-framework-4.2.0-1-avh030-x86_64.avh.tar.zst
+java-batik-1.12-1-avh030-x86_64.avh.tar.zst
+java-runtime-common-1-1-avh030-x86_64.avh.tar.zst
+java-environment-common-1-1-avh030-x86_64.avh.tar.zst
+java-commons-io-2.6-1-avh030-x86_64.avh.tar.zst
+java-commons-logging-1.2-1-avh030-x86_64.avh.tar.zst
+java-hamcrest-1.3-1-avh030-x86_64.avh.tar.zst
+java-jai-1.1.3-1-avh030-x86_64.avh.tar.zst
+java-jline-1.0-1-avh030-x86_64.avh.tar.zst
+java-xmlgraphics-commons-2.4-1-avh030-x86_64.avh.tar.zst
+junit-4.13.2-1-avh030-x86_64.avh.tar.zst
+maven-3.6.3-1-avh030-x86_64.avh.tar.zst
+java-rhino-1.7.12-1-avh030-x86_64.avh.tar.zst
+rhino-1.7.12-1-avh030-x86_64.avh.tar.zst
+rhino-javadoc-1.7.12-1-avh030-x86_64.avh.tar.zst
+saxon-he-10.0-1-avh030-x86_64.avh.tar.zst
+svnkit-1.10.1-1-avh030-x86_64.avh.tar.zst

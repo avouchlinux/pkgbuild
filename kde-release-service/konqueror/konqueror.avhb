@@ -1,14 +1,14 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=konqueror
-pkgver=24.08.2
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='KDE File Manager and Web Browser'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://apps.kde.org/konqueror/'
 license=(LGPL-2.0-or-later)
 depends=(gcc-libs

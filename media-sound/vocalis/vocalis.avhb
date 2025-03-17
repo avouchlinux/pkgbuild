@@ -1,0 +1,29 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=vocalis
+pkgver=43.beta
+pkgrel=1
+pkgdesc="A simple, modern sound recorder for GNOME"
+url="https://gitlab.gnome.org/World/vocalis"
+arch=(any)
+groups=('gnome-base')
+license=(GPL2)
+depends=(gtk3 gjs gst-plugins-good gst-plugins-base)
+makedepends=(gobject-introspection git meson)
+source=(https://gitlab.gnome.org/World/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  avouch-meson $pkgname-$pkgver build
+  ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  DESTDIR="$pkgdir" meson install -C build
+}

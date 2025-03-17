@@ -1,4 +1,4 @@
-# Copyright 2010-2024 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -19,7 +19,7 @@ makedepends=(
   meson
   vala
 )
-source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+source=(https://download.gnome.org/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz)
 
 build() {
     avouch-meson ${pkgname}-${pkgver} build \
