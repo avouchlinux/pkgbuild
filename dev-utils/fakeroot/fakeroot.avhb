@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=fakeroot
-pkgver=1.26
+pkgver=1.36
 pkgrel=1
 pkgdesc='Tool for simulating superuser privileges'
 arch=(x86_64)
@@ -12,25 +12,26 @@ groups=("dev-utils")
 license=(GPL)
 url='https://tracker.debian.org/pkg/fakeroot'
 install=fakeroot.install
-depends=(glibc filesystem sed util-linux sh)
-makedepends=(po4a)
-checkdepends=(sharutils)
-source=("https://deb.debian.org/debian/pool/main/f/$pkgname/${pkgname}_${pkgver}.orig.tar.gz"
-        'silence-dlerror.patch')
+depends=('glibc' 'filesystem' 'sed' 'util-linux' 'sh')
+makedepends=('git' 'systemd' 'po4a')
+checkdepends=('sharutils')
+source=("git+https://salsa.debian.org/clint/fakeroot.git#tag=upstream/${pkgver}")
+sha256sums=('41895b87a7ae1625014fb7e4a6e43dccab7dcd5ce902b45455b679d17b3cd206')
 
 prepare() {
-  cd $pkgname-$pkgver
-  ./bootstrap
+  cd "${pkgname}"
+
+  autoreconf -fi
 }
 
 build() {
-  cd $pkgname-$pkgver
+  cd "${pkgname}"
 
-  ./configure --prefix=/usr \
+  ./configure \
+    --prefix=/usr \
     --libdir=/usr/lib/libfakeroot \
     --disable-static \
     --with-ipc=sysv
-
   make
 
   cd doc
@@ -38,17 +39,20 @@ build() {
 }
 
 check() {
-  cd $pkgname-$pkgver
+  cd "${pkgname}"
+
   make check
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
+  cd "${pkgname}"
 
-  install -dm755 "$pkgdir/etc/ld.so.conf.d/"
-  echo '/usr/lib/libfakeroot' > "$pkgdir/etc/ld.so.conf.d/fakeroot.conf"
+  make DESTDIR="${pkgdir}" install
+
+  install -dm0755 "${pkgdir}/usr/lib/ld.so.conf.d/"
+  echo '/usr/lib/libfakeroot' > "${pkgdir}/usr/lib/ld.so.conf.d/fakeroot.conf"
 
   # install README for sysv/tcp usage
-  install -Dm644 README "$pkgdir/usr/share/doc/$pkgname/README"
+  install -Dm0644 README "${pkgdir}/usr/share/doc/${pkgname}/README"
 }
+

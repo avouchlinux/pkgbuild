@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=multipath-tools
-pkgver=0.8.9
+pkgver=0.9.7
 pkgrel=1
 pkgdesc='Multipath tools for Linux (including kpartx)'
 arch=('x86_64')
@@ -16,29 +16,30 @@ makedepends=('git' 'systemd')
 source=("multipath-tools::git+https://github.com/opensvc/multipath-tools#tag=${_tag}")
 sha256sums=('SKIP')
 
-prepare() {
-  cd "${pkgname}-${pkgver}"
+_make_opts=(
+  prefix='/usr/'
+  bindir='/usr/bin'
+  etc_prefix=""
+  configfile='/etc/multipath.conf'
+  statedir='/etc/multipath'
+  LIB='lib'
+)
 
-  # Fix systemd version detection in Makefile
-  sed -i 's/sed -n .*$/head -n1 | cut -d" " -f2\)/g' Makefile.inc
-
-  # Fix bindir in Makefile
-  sed -i 's|$(exec_prefix)/sbin|$(exec_prefix)/bin|g' Makefile.inc
-}
 
 build() {
-  cd "${pkgname}-${pkgver}"
+  cd "${pkgname}"
 
-  make
+  make \
+    "${_make_opts[@]}" \
+    FORTIFY_OPT=''
 }
 
 package() {
-  cd "${pkgname}-${pkgver}"
+  cd "${pkgname}"
 
   make -j1 \
+    "${_make_opts[@]}" \
     DESTDIR="${pkgdir}" \
-    exec_prefix="/usr" \
-    LIB="/usr/lib" \
     install
 
   install -D -m0644 -t "${pkgdir}/usr/share/doc/${pkgname}" README*

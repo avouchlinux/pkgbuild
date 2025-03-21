@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gegl
-pkgver=0.4.36
+pkgver=0.4.56
 pkgrel=1
 pkgdesc="Graph based image processing framework"
 arch=('x86_64')
@@ -12,12 +12,16 @@ groups=('media-grafix')
 url="https://www.gegl.org/"
 license=('GPL3' 'LGPL3')
 depends=('babl' 'libspiro' 'json-glib' 'libgexiv2' 'libraw' 'openexr' 'librsvg' 'libtiff' 'luajit' 'jasper' 'lensfun' 'suitesparse' 'poppler-glib')
-makedepends=('intltool' 'ruby' 'mesa' 'glu' 'ffmpeg' 'exiv2' 'vala' 'gobject-introspection' 'git' 'meson' 'python3-gobject')
+makedepends=('intltool' 'ruby' 'mesa' 'glu' 'ffmpeg' 'exiv2' 'vala' 'gobject-introspection' 'git' 'meson' 'python-gobject')
 optdepends=('ffmpeg: ffmpeg plugin' 'graphviz: for gegl-introspect')
-source=("https://download.gimp.org/pub/gegl/0.4/gegl-$pkgver.tar.bz2")
+source=("https://download.gimp.org/gegl/0.4/$pkgname-$pkgver.tar.xz")
 
 build() {
-  avouch-meson $pkgname-$pkgver build -Dworkshop=true -Dmrg=disabled -Dmaxflow=disabled
+  avouch-meson $pkgname-$pkgver build \
+    -Dworkshop=true \
+    -Dmrg=disabled \
+    -Dmaxflow=disabled
+
   ninja -C build
 }
 

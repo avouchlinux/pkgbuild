@@ -1,11 +1,11 @@
-THIS_JRE='java-12-openjdk'
+THIS_JRE='java-23-openjdk'
 
 fix_default() {
   if [ ! -x /usr/bin/java ]; then
-    /usr/bin/archlinux-java unset
+    /usr/bin/avouch-java unset
     echo ""
   else
-    /usr/bin/archlinux-java get
+    /usr/bin/avouch-java get
   fi
 }
 
@@ -13,14 +13,14 @@ post_install() {
   default=$(fix_default)
   case ${default} in
     "")
-      /usr/bin/archlinux-java set ${THIS_JRE}
+      /usr/bin/avouch-java set ${THIS_JRE}
       ;;
     ${THIS_JRE})
       # Nothing
       ;;
     *)
       echo "Default Java environment is already set to '${default}'"
-      echo "See 'archlinux-java help' to change it"
+      echo "See 'avouch-java help' to change it"
       ;;
   esac
 
@@ -30,6 +30,6 @@ post_install() {
 
 post_upgrade() {
   if [ -z "$(fix_default)" ]; then
-    /usr/bin/archlinux-java set ${THIS_JRE}
+    /usr/bin/avouch-java set ${THIS_JRE}
   fi
 }

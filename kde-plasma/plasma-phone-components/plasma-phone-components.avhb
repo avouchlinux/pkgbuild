@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -16,14 +16,14 @@ makedepends=('extra-cmake-modules' 'kdoctools' 'mobile-broadband-provider-info')
 source=("http://download.kde.org/stable/plasma/${pkgver}/$pkgname-$pkgver.tar.xz")
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

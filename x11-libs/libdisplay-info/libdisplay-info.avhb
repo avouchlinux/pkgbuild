@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,7 +8,7 @@
 BUILDENV+=(!check)
 
 pkgname=libdisplay-info
-pkgver=0.1.1
+pkgver=0.2.0
 pkgrel=1
 pkgdesc='EDID and DisplayID library'
 url="https://gitlab.freedesktop.org/emersion/$pkgname"

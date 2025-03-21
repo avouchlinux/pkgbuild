@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmythes
 _realname=mythes
-pkgver=1.2.4
+pkgver=1.2.5
 pkgrel=1
 pkgdesc="a simple thesaurus"
 arch=('x86_64')
@@ -14,20 +15,27 @@ license=('custom')
 depends=('glibc' 'perl')
 makedepends=('hunspell')
 provides=('mythes')
-source=(http://downloads.sourceforge.net/hunspell/${pkgname/lib/}-${pkgver}.tar.gz)
+source=(https://github.com/hunspell/mythes/releases/download/v${pkgver}/mythes-${pkgver}.tar.xz)
+sha256sums=('19279f70707bbe5ffa619f2dc319f888cec0c4a8d339dc0a21330517bd6f521d')
+
 
 build() {
 	cd "${srcdir}/${_realname}-${pkgver}"
 	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
-
-	# run the example program:
-	./example th_en_US_new.idx th_en_US_new.dat checkme.lst
-
-	# run the example program with stemming and morphological generation:
-	# e.g. to check mouse, mice, rodents, eats, eaten, ate, eating etc. words
-	./example morph.idx morph.dat morph.lst morph.aff morph.dic
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make
 }
+
+check() {
+  cd "${pkgname/lib/}"-$pkgver
+  make check
+  # run the example program:
+  ./example th_en_US_new.idx th_en_US_new.dat checkme.lst
+  # run the example program with stemming and morphological generation:
+  # e.g. to check mouse, mice, rodents, eats, eaten, ate, eating etc. words
+  ./example morph.idx morph.dat morph.lst morph.aff morph.dic
+}
+
 
 package() {
 	cd "${srcdir}/${_realname}-${pkgver}"

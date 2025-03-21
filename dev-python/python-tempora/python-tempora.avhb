@@ -1,0 +1,39 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='python-tempora'
+_pkgbase="${pkgname//python-/}"
+pkgver=5.5.0
+pkgrel=1
+pkgdesc="Objects and routines pertaining to date and time (tempora)."
+arch=('any')
+groups=('dev-python')
+url="https://github.com/jaraco/tempora"
+license=('MIT')
+depends=('python' 'python-pytz' 'python-jaraco.functools')
+makedepends=('python-setuptools' 'python-setuptools-scm' 'python-build' 'python-installer' 'python-wheel')
+checkdepends=('python-pytest' 'python-freezegun' 'python-pytest-freezegun')
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz")
+sha512sums=('b3490d03a01f103dd1702a4b20504affeda6f31ba2badf3b2dc9e4fbf6a482c06c63d19603ecf21e6aaf36c5fbbfad23d8b608b1774afd82648dcfd833a9787c')
+
+# setuptools won't find version from git tag
+export SETUPTOOLS_SCM_PRETEND_VERSION="${pkgver}"
+
+build() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    python -m build --wheel --no-isolation
+}
+
+check() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    # pytest
+}
+
+package() {
+    cd "${srcdir}/${_pkgbase}-${pkgver}"
+    python -m installer --destdir="$pkgdir" dist/*.whl
+
+    install -D -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

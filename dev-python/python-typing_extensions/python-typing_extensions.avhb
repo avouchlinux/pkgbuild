@@ -1,0 +1,50 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-typing_extensions
+_name=${pkgname#python-}
+pkgver=4.12.2
+pkgrel=1
+pkgdesc='Backported and Experimental Type Hints for Python 3.8+'
+arch=(any)
+groups=('dev-python')
+url=https://github.com/python/typing_extensions
+license=(Python-2.0.1)
+depends=(python)
+makedepends=(
+  git
+  python-build
+  python-flit-core
+  python-installer
+)
+checkdepends=(python-tests)
+source=("git+${url}.git#tag=${pkgver}")
+b2sums=('30c551e10925ab05ace7a8b7465e34a07d8a698abc7d00e1e3fbc2ba968afc6873ca90aa4a981f78fd584db1cacf4d19a689e4140a661b64cff46eb16cedf7cc')
+
+build() {
+  cd "${_name}"
+
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd "${_name}"
+
+  PYTHONPATH="${PWD}/src" python -m unittest discover src
+}
+
+package() {
+  cd "${_name}"
+
+  python -m installer --destdir="${pkgdir}" dist/*.whl
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "${pkgdir}"/usr/share/licenses/${pkgname}
+  ln -s "${site_packages}"/"${_name}"-${pkgver}.dist-info/LICENSE \
+    "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+
+# vim: ts=2 sw=2 et:

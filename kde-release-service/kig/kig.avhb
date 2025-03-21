@@ -1,39 +1,55 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kig
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Interactive Geometry"
-url="http://kde.org/applications/education/kig/"
+url='https://apps.kde.org/kig/'
 arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('ktexteditor' 'boost-libs' 'python2' 'hicolor-icon-theme') # kemoticons, kitemmodels are only required for tests
-makedepends=('extra-cmake-modules' 'kdoctools' 'boost' 'qt5-xmlpatterns')
-optdepends=('qt5-xmlpatterns: support for GeoGebra files')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/kig-${pkgver}.tar.xz")
-sha1sums=('6fd704567b5cddb3909a3f3dc297df7c61583cb7')
-
-prepare() {
-  mkdir -p build
-}
+groups=('kde-release-services')
+arch=(x86_64)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(boost-libs
+         gcc-libs
+         glibc
+         karchive5
+         kcompletion5
+         kconfig5
+         kconfigwidgets5
+         kcoreaddons5
+         kcrash5
+         ki18n5
+         kiconthemes5
+         kparts5
+         ktexteditor5
+         kwidgetsaddons5
+         kxmlgui5
+         python
+         qt5-base
+         qt5-svg
+         qt5-xmlpatterns)
+makedepends=(boost
+             extra-cmake-modules
+             kdoctools5)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('a0da625ad48af22a717c475740f44213c9822cc24928f51643b1af2ca75b3aa9'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="${pkgdir}" install
-
-  # Use the python2 executable
-  sed -i 's|#!/usr/bin/env python|#!/usr/bin/env python2|' "${pkgdir}"/usr/bin/pykig.py
+  DESTDIR="$pkgdir" cmake --install build
 }

@@ -1,0 +1,42 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-sphinx-basic-ng
+_name=${pkgname#python-}
+pkgver=1.0.0b2 # Release version
+_ver=1.0.0.beta2 # Git tag
+pkgrel=1
+pkgdesc='Modernised skeleton for Sphinx themes'
+arch=('any')
+groups=('dev-python')
+url=https://github.com/pradyunsg/sphinx-basic-ng
+license=('MIT')
+depends=('python-sphinx')
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+)
+source=("git+$url.git#tag=$_ver?signed")
+b2sums=('101c466f65be993a22970e6ce7fb99667becff4e3e49e547532cbffc66bfe9271b8f53cfbd0d17d025a4a62629cd770f1c12a786287f695e165f7d4f688cc75d')
+validpgpkeys=('E2FEFA4CA4BDD28171DB00F3FF99710C4332258E') # Pradyun Gedam (GitHub July 2020 Key) <pradyunsg@users.noreply.github.com>
+
+build() {
+  cd "$_name"
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+package() {
+  cd "$_name"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/"$_name"-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

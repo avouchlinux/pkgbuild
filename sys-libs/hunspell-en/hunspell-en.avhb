@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=hunspell-en
 pkgname=('hunspell-en_US' 'hunspell-en_AU' 'hunspell-en_CA' 'hunspell-en_GB')
-pkgver=2019.10.06
+pkgver=2020.12.07
 pkgrel=1
 pkgdesc="English hunspell dictionaries"
 arch=(any)
@@ -20,10 +20,10 @@ source=(http://downloads.sourceforge.net/project/wordlist/speller/$pkgver/hunspe
 
 prepare() {
 	cd ${srcdir}
-	bsdtar -xf ${srcarchivedir}/hunspell-en_US-large-$pkgver.zip
-	bsdtar -xf ${srcarchivedir}/hunspell-en_CA-large-$pkgver.zip
-	bsdtar -xf ${srcarchivedir}//hunspell-en_GB-large-$pkgver.zip
-	bsdtar -xf ${srcarchivedir}//hunspell-en_US-large-$pkgver.zip
+	# bsdtar -xf ${srcarchivedir}/hunspell-en_US-large-$pkgver.zip
+	# bsdtar -xf ${srcarchivedir}/hunspell-en_CA-large-$pkgver.zip
+	# bsdtar -xf ${srcarchivedir}//hunspell-en_GB-large-$pkgver.zip
+	# bsdtar -xf ${srcarchivedir}//hunspell-en_US-large-$pkgver.zip
 
 	sed -i "s:SET UTF8:SET UTF-8:g" *.aff
 }

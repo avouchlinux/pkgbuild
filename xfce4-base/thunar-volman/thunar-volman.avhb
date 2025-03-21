@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=thunar-volman
-pkgver=4.16.0
+pkgver=4.18.0
 pkgrel=1
 pkgdesc="Automatic management of removeable devices in Thunar"
 arch=('x86_64')
@@ -13,7 +13,9 @@ url="http://goodies.xfce.org/projects/thunar-plugins/thunar-volman"
 license=('GPL2')
 depends=('thunar' 'libxfce4ui' 'hicolor-icon-theme')
 makedepends=('intltool')
-source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+sha256sums=('93b75c7ffbe246a21f4190295acc148e184be8df397e431b258d0d676e87fc65')
+
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
@@ -23,7 +25,7 @@ build() {
 		--localstatedir=/var \
 		--disable-static \
 		--disable-debug
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

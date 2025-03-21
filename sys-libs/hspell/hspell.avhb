@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -10,7 +11,7 @@ arch=('x86_64')
 groups=('sys-libs')
 license=('GPL')
 url="http://www.ivrix.org.il/projects/spell-checker/"
-makedepends=('glibc' 'zlib' 'perl' 'hunspell' 'gawk')
+makedepends=('glibc' 'zlib' 'perl' 'hunspell' 'gawk' 'qt6-webengine')
 options=('!makeflags')
 source=(http://hspell.ivrix.org.il/${pkgname}-${pkgver}.tar.gz{,.sig})
 validpgpkeys=('996512CD85DC510BD45EAD46415E26D84D4E37DB')
@@ -21,7 +22,7 @@ build() {
 	export PERLLIB="$PWD"
 	./configure --prefix=/usr --mandir=/usr/share/man \
 	--enable-linginfo --enable-fatverb --enable-shared
-	make ${MAKEFLAGS}
+	make -j1
 	make hunspell
 }
 
@@ -38,17 +39,29 @@ package_hspell() {
 package_hunspell-he() {
 	pkgdesc="Hebrew hunspell dictionary"
   
-	cd "${srcdir}/${pkgbase}-${pkgver}"
+  pkgdesc="Hebrew hunspell dictionary"
+  provides=('hunspell-dictionary')
 
-	install -dm755 ${pkgdir}/usr/share/hunspell
-	install -m644 he.dic ${pkgdir}/usr/share/hunspell/he_IL.dic
-	install -m644 he.aff ${pkgdir}/usr/share/hunspell/he_IL.aff
+  cd ${pkgbase}-${pkgver}
 
-	# the symlinks
-	install -dm755 ${pkgdir}/usr/share/myspell/dicts
-	pushd $pkgdir/usr/share/myspell/dicts
-		for file in $pkgdir/usr/share/hunspell/*; do
-		  ln -sv /usr/share/hunspell/$(basename $file) .
-		done
-	popd
+  install -dm755 "$pkgdir"/usr/share/hunspell
+  install -m644 he.dic "$pkgdir"/usr/share/hunspell/he_IL.dic
+  install -m644 he.aff "$pkgdir"/usr/share/hunspell/he_IL.aff
+
+  # the symlinks
+  install -dm755 "$pkgdir"/usr/share/myspell/dicts
+  pushd "$pkgdir"/usr/share/myspell/dicts
+    for file in "$pkgdir"/usr/share/hunspell/*; do
+      ln -sv /usr/share/hunspell/$(basename $file) .
+    done
+  popd
+
+# Install webengine dictionaries   
+  install -d "$pkgdir"/usr/share/qt{,6}/qtwebengine_dictionaries/
+  for _file in "$pkgdir"/usr/share/hunspell/*.dic; do
+  _filename=$(basename $_file)
+    /usr/lib/qt6/qwebengine_convert_dict $_file "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic}
+  ln -rs "$pkgdir"/usr/share/qt6/qtwebengine_dictionaries/${_filename/\.dic/\.bdic} "$pkgdir"/usr/share/qt/qtwebengine_dictionaries/
+  done
+
 }

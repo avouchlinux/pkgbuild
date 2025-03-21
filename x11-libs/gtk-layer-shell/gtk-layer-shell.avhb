@@ -1,0 +1,46 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gtk-layer-shell
+pkgver=0.9.0
+pkgrel=1
+arch=(x86_64)
+groups=('x11-libs')
+pkgdesc='Library to create Wayland desktop components using the Layer Shell protocol'
+license=(LGPL3)
+url="https://github.com/wmww/gtk-layer-shell"
+depends=(
+    "gtk3"
+    "wayland"
+)
+makedepends=(
+    "gtk-doc"
+    "gobject-introspection"
+    "meson"
+    "ninja"
+    "valabind"
+)
+source=("$pkgname-$pkgver.tar.gz::https://github.com/wmww/gtk-layer-shell/archive/v$pkgver.tar.gz")
+sha512sums=('38179dd83a0828740ca8e2cc27fe3708f61107e88246644745da6c300da03ce04b17dd7117087946a68401a43176a599bdb98ed50936602d2b2540449c0e9066')
+
+build() {
+    meson --prefix=/usr \
+          --wrap-mode=nofallback \
+          --buildtype=plain \
+          -Dtests=true \
+          -Ddocs=true \
+          -Dintrospection=true \
+          "$pkgname-$pkgver" \
+          build
+    ninja -C build
+}
+
+check() {
+    ninja -C build test
+}
+
+package() {
+    DESTDIR="$pkgdir" ninja -C build install
+}

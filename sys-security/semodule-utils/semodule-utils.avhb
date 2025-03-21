@@ -1,19 +1,25 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=semodule-utils
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="SELinux module tools"
 arch=('x86_64')
 groups=('sys-security')
 url='https://github.com/SELinuxProject/selinux/wiki'
 license=('GPL2')
-depends=('libsepol')
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('8083679ee634570f6e9a18632f2c2862b9134fa308b689b2e1952a369ae5d907')
+depends=('libsepol>=2.7')
+conflicts=('policycoreutils<2.7')
+validpgpkeys=(
+  '63191CE94183098689CAB8DB7EF137EC935B0EAF'  # Jason Zaman <perfinion@gentoo.org>
+  'B8682847764DF60DF52D992CBC3905F235179CF1'  # Petr Lautrbach <plautrba@redhat.com>
+)
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc})
+sha256sums=('eedb88f2b2124e538f2d614be063c0d9ac3eacc0c51a4da44500ca1ed1ba16f4'
+            'SKIP')
 
 build() {
   cd "${pkgname}-${pkgver}"

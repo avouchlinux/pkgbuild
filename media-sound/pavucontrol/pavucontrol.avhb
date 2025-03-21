@@ -1,32 +1,55 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pavucontrol
-pkgver=4.0
+pkgver=6.1
 pkgrel=1
 pkgdesc="PulseAudio Volume Control"
 arch=(x86_64)
 groups=(media-sound)
 url="http://freedesktop.org/software/pulseaudio/pavucontrol/"
-license=(GPL)
-depends=(libcanberra-pulse gtkmm3 libsigc++)
-makedepends=(intltool lynx git)
-optdepends=("pulseaudio: Audio backend")
-source=("http://freedesktop.org/software/pulseaudio/$pkgname/$pkgname-$pkgver.tar.gz")
+license=(GPL-2.0-or-later)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  glibmm-2.68
+  gtk4
+  gtkmm-4.0
+  json-glib
+  libcanberra
+  libpulse
+  libsigc++-3.0
+)
+makedepends=(
+  git
+  lynx
+  meson
+)
+checkdepends=(tidy)
+source=("git+https://gitlab.freedesktop.org/pulseaudio/pavucontrol.git?signed#tag=v$pkgver")
+b2sums=('74910adb80e25787b8b22a857dfe6f9ea748376485a8559b0748c1a81e3bae146a33c2a66409aaa8fd33bad2799b1c1fb4507348c2e9411ce3939987c6277f74')
+validpgpkeys=(
+  52DFA7B8BAC74687C8A88EF48165E3D1987E2132 # Arun Raghavan <arun@asymptotic.io>
+)
 
 prepare() {
-    cd $pkgname-$pkgver
-    NOCONFIGURE=1 ./bootstrap.sh
+  cd pavucontrol
 }
 
 build() {
-    cd $pkgname-$pkgver
-    ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+  avouch-meson pavucontrol build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    cd $pkgname-$pkgver
-    make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }
+
+

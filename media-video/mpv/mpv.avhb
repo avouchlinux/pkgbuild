@@ -1,70 +1,82 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mpv
 epoch=1
-pkgver=0.34.1
+pkgver=0.39.0
 pkgrel=1
 pkgdesc='a free, open source, and cross-platform media player'
 arch=('x86_64')
 groups=('media-video')
-# We link against libraries that are licensed GPLv3 explicitly, libsmbclient
-# being one of these. So our package is GPLv3 only as well.
-license=('GPL3')
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
 url='https://mpv.io/'
-depends=('alsa-lib' 'desktop-file-utils' 'ffmpeg' 
-         'glibc' 'hicolor-icon-theme' 'jack' 'lcms2' 'libarchive'
-         'libass' 'libbluray' 'libcdio' 'libcdio-paranoia' 'libdrm' 
-         'libdvdnav' 'libdvdread' 'libglvnd'
-         'libjpeg' 'libplacebo' 'libpulse' 'libva' 'libvdpau' 'libx11'
-         'libxext' 'libxinerama' 'libxkbcommon' 'libxrandr' 'libxss'
-         'libxv' 'lua52' 'mesa' 'mujs' 'rubberband' 'shaderc'
-         'uchardet' 'vulkan-icd-loader' 'wayland' 'xdg-utils'
-         'zlib')
-makedepends=('git' 'python-docutils' 'ladspa' 'wayland-protocols'
-             'ffnvcodec-headers' 'vulkan-headers' 'waf')
-optdepends=('youtube-dl: for video-sharing websites playback')
+depends=('alsa-lib' 'desktop-file-utils' 'ffmpeg' 'glibc' 'hicolor-icon-theme'
+         'jack' 'lcms2' 'libarchive' 'libass' 'libbluray' 'libcdio'
+         'libcdio-paranoia' 'libdrm' 'libdvdnav' 'libdvdread' 'libegl' 'libgl'
+         'libglvnd' 'libjpeg-turbo' 'libplacebo' 'libpulse' 'libsixel' 'libva'
+         'libvdpau' 'libx11' 'libxext' 'libxkbcommon' 'libxpresent' 'libxrandr'
+         'libxss' 'libxv' 'luajit' 'mesa' 'mujs' 'libpipewire' 'rubberband'
+         'openal' 'uchardet' 'vapoursynth' 'vulkan-icd-loader' 'wayland' 'zlib')
+makedepends=('git' 'meson' 'python-docutils' 'ladspa' 'wayland-protocols'
+             'ffnvcodec-headers' 'vulkan-headers')
+optdepends=('yt-dlp: for video-sharing websites playback')
+provides=('libmpv.so')
 options=('!emptydirs')
-source=("https://github.com/mpv-player/$pkgname/archive/v$pkgver.tar.gz")
-
-# getsrc(){
-#   # git clone https://github.com/mpv-player/$pkgname --tag $pkgver
-#   git clone https://github.com/mpv-player/mpv
-# }
+validpgpkeys=('145077D82501AA20152CACCE8D769208D5E31419') # sfan5 <sfan5@live.de>
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/refs/tags/v$pkgver.tar.gz"
+        "dynamically_generate_desktop_file_protocols.patch")
+sha256sums=('51e787dbff240d69227f306685fc962daae215c755689b9de4ef0432ddf4443b'
+            '88acf97cbc8e0fe745f09bd0bd7f65e0437adcb549dadf3588fd0724d01298e9')
 
 prepare() {
-  cd ${pkgname}-${pkgver}
-
-  # vo_gpu: placebo: update for upstream API changes
-  # git cherry-pick -n 7c4465cefb27d4e0d07535d368febdf77b579566
+  cd "${pkgname}-${pkgver}"
+  # Backported patch to don't load client-rt.conf properties
+  # which was deprecated in https://gitlab.freedesktop.org/pipewire/pipewire/-/commit/24bcacc6195ffbf8e40c9ea1374eb6666252eadc
+  # See https://github.com/mpv-player/mpv/issues/15914
+  patch -Np1 -i "${srcdir}/do_not_load_client-rt.conf_properties.patch"
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
+  local _meson_options=(
+    --auto-features auto
 
-  waf configure --prefix=/usr \
-    --confdir=/etc/mpv \
-    --enable-cdda \
-    --enable-dvb \
-    --enable-dvdnav \
-    --enable-libarchive \
-    --enable-libmpv-shared \
-    --disable-build-date \
-    --disable-caca
+    -Dlibmpv=true
+    -Dgl-x11=enabled
+    -Dcaca=disabled
+    -Dcdda=enabled
+    -Ddvbin=enabled
+    -Ddvdnav=enabled
+    -Dlibarchive=enabled
+    -Dopenal=enabled
+  )
 
-  waf build
+  avouch-meson "${pkgname}-${pkgver}" build "${_meson_options[@]}"
+
+  meson compile -C build
+}
+
+check() {
+  meson test -C build
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
+  depends+=('libasound.so' 'libavcodec.so' 'libavdevice.so' 'libavfilter.so'
+            'libavformat.so' 'libavutil.so' 'libswresample.so' 'libswscale.so'
+            'libjack.so' 'liblcms2.so' 'libarchive.so' 'libass.so' 'libbluray.so'
+            'libjpeg.so' 'libplacebo.so' 'libpulse.so' 'libva.so' 'libva-drm.so'
+            'libva-wayland.so' 'libva-x11.so' 'libxkbcommon.so' 'librubberband.so')
 
-  waf install --destdir="$pkgdir"
+  meson install -C build --destdir "${pkgdir}"
 
-  install -m0644 DOCS/{encoding.rst,tech-overview.txt} \
-    "$pkgdir"/usr/share/doc/mpv
+  # delete private entries only required for static linking 
+  sed -i -e '/Requires.private/d' -e '/Libs.private/d' "${pkgdir}"/usr/lib/pkgconfig/mpv.pc
 
-  install -m0644 TOOLS/lua/* \
-    -D -t "$pkgdir"/usr/share/mpv/scripts
+  install -m0644 "${pkgname}-${pkgver}"/DOCS/{encoding.rst,tech-overview.txt} \
+    "${pkgdir}"/usr/share/doc/mpv
+
+  install -m0644 "${pkgname}-${pkgver}"/TOOLS/{umpv,mpv_identify.sh,stats-conv.py,idet.sh,lua/*} \
+    -D -t "${pkgdir}"/usr/share/mpv/scripts
 }
+

@@ -1,0 +1,62 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=simple-scan
+pkgver=46.0
+pkgrel=1
+pkgdesc="Simple scanning utility"
+url="https://gitlab.gnome.org/GNOME/simple-scan"
+arch=('x86_64')
+groups=('gnome-base')
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  colord-sane
+  dconf
+  gdk-pixbuf2
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libcolord
+  libgusb
+  libwebp
+  sane
+  zlib
+)
+makedepends=(
+  git
+  meson
+  vala
+  yelp-tools
+)
+groups=(gnome)
+source=("git+https://gitlab.gnome.org/GNOME/simple-scan.git?signed#tag=${pkgver/[a-z]/.&}")
+b2sums=('1d600197fb1b858759063bd1897f9d3fe0d6a5c7ab2088cba64154ef0f1e9d1b09269f9fbb09b776a08147c0ad932a9dbd9a75ec03167650cadbc95fe666fe34')
+validpgpkeys=(
+  4D0BE12F0E4776D8AACE9696E66C775AEBFE6C7D # Jeremy Bicha <jeremy.bicha@canonical.com>
+)
+
+prepare() {
+  cd $pkgname
+
+  # Fix icons
+  # https://gitlab.archlinux.org/archlinux/packaging/packages/simple-scan/-/issues/1
+  git cherry-pick -n c09a6def153e52494072a36233c7e7b3307b67bf
+}
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

@@ -1,0 +1,61 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_devendored=1  # set to 0 to use vendored sources
+_pkgname=poetry-core
+pkgname=python-poetry-core
+pkgver=1.9.0
+pkgrel=1
+pkgdesc='Poetry PEP 517 Build Backend & Core Utilities'
+arch=(any)
+groups=('dev-python')
+url="https://github.com/python-poetry/${_pkgname}"
+license=(MIT)
+groups=(python-build-backend)
+_pydeps=(fastjsonschema
+         lark-parser
+         packaging)
+depends=(python)
+if (( _devendored == 1 )); then
+	depends+=("${_pydeps[@]/#/python-}")
+fi
+makedepends=(python-{build,installer})
+checkdepends=(git
+              python-pytest
+              python-pytest-mock
+              python-setuptools
+              python-tomli-w
+              python-virtualenv)
+_archive="$_pkgname-$pkgver"
+source=("$url/archive/$pkgver/$_archive.tar.gz"
+        "$pkgname-1.9.0-devendor.patch")
+sha256sums=('642f63ec06ba4e581b720def3a162bc23d11588fef9e9c5c57ab8a1e4f36e721'
+            'a2e826597d7f4763ba3b5ed4935d3cf8870a7173d76fb66b6a853cf1e4180b5a')
+
+prepare() {
+	if (( _devendored == 1 )); then
+		patch -Np1 -d "$_archive" -i "../$pkgname-1.9.0-devendor.patch"
+		rm -rv "$_archive/src/poetry/core/_vendor"
+	fi
+}
+
+build() {
+	cd "$_archive"
+	python -m build -wn
+}
+
+check() {
+	cd "$_archive"
+	export PYTHONPATH="$PWD/src"
+	# only works inside git repositories
+	pytest \
+		-k 'not test_default_with_excluded_data and not test_default_src_with_excluded_data'
+}
+
+package() {
+	cd "$_archive"
+	python -m installer -d "$pkgdir" dist/*.whl
+	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" LICENSE
+}

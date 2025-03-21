@@ -1,10 +1,14 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libhandy
-pkgver=1.6.1
+pkgbase=libhandy
+pkgname=(
+  libhandy
+  libhandy-docs
+)
+pkgver=1.8.3
 pkgrel=1
 pkgdesc="Library full of GTK+ widgets for mobile phones"
 arch=('x86_64')
@@ -12,19 +16,43 @@ groups=('sys-libs')
 url="https://gitlab.gnome.org/GNOME/libhandy"
 arch=(x86_64)
 license=(LGPL)
-depends=(glib2 gtk3)
-makedepends=(git gobject-introspection meson vala glade)
+depends=(
+  glib2
+  gtk3
+)
+makedepends=(
+  gi-docgen
+  git
+  glade
+  gobject-introspection
+  meson
+  vala
+)
 checkdepends=(xorg-server-xvfb)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    -D gtk_doc=false \
-    -D examples=false \
-    -D glade_catalog=disabled
+  avouch-meson $pkgname-$pkgver build
   ninja -C build
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+# check() {
+#   dbus-run-session xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
+
+package_libhandy() {
+  provides=(libhandy-1.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  # mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_libhandy-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

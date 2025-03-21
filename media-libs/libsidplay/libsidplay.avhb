@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -8,24 +9,29 @@ pkgrel=1
 pkgdesc="A library for playing SID music files."
 arch=('x86_64')
 groups=('media-libs')
-url="http://critical.ch/distfiles/"
+url="https://critical.ch/distfiles/"
 license=('GPL')
-source=(http://critical.ch/distfiles/${pkgname}-${pkgver}.tgz libsidplay-1.36.59-gcc43.patch)
+depends=('gcc-libs')
+source=(https://critical.ch/distfiles/${pkgname}-${pkgver}.tgz
+        libsidplay-1.36.59-gcc43.patch
+        g++-6_build.patch)
+sha256sums=('3da9b38d4eb5bf9e936b9604ba92da0594ef38047d50cf806a8e11c400008024'
+            '68476bfee9a378b045c81eb0f6d9aee7341610fe6b22047d67ce859a7a3b5053'
+            '6612b8c684bfd80d88431d3aa7f5a3fc911528f25f67ab530f78a7592cc11e23')
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-
-	patch -Np1 -i $srcdir/libsidplay-1.36.59-gcc43.patch
-	patch -Np1 -i ../g++-6_build.patch
+  cd ${pkgname}-${pkgver}
+  patch -Np1 -i ../libsidplay-1.36.59-gcc43.patch
+  patch -Np1 -i ../g++-6_build.patch
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

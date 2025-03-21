@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,7 +10,7 @@ pkgname=(
   elfutils
   libelf
 )
-pkgver=0.190
+pkgver=0.192
 pkgrel=1
 pkgdesc="Utilities to handle ELF object files and DWARF debugging information"
 arch=('x86_64')

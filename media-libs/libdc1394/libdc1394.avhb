@@ -1,27 +1,51 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-
 pkgname=libdc1394
-pkgver=2.2.6
+pkgver=2.2.7
 pkgrel=1
 pkgdesc="High level programming interface to control IEEE 1394 based cameras"
 arch=('x86_64')
 groups=('media-libs')
 license=('LGPL')
-url="https://sourceforge.net/projects/libdc1394/"
-depends=('libraw1394' 'libusb')
-options=('!emptydirs')
-source=(https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+url='https://damien.douxchamps.net/ieee1394/libdc1394/'
+license=(LGPL-2.1-or-later)
+depends=(
+  glibc
+  libraw1394
+  libusb
+)
+makedepends=(
+  doxygen
+  git
+  libxv
+  sdl
+)
+source=("$pkgname::git+https://git.code.sf.net/p/libdc1394/code#tag=V_${pkgver//./_}")
+b2sums=(2e4c03c6f7c96734230e452e9088abcc54907eabd81eebb0862f192e2d1c3c6d3f65d92a75cc95323f9bf4d1490b52043bbb0c1776619cac8cace44306e354d2)
+
+prepare() {
+  cd $pkgname
+  autoreconf -fi
+}
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --disable-static
-  make ${MAKEFLAGS}
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-doxygen-html
+  make
+  make doc
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+
+  install -dm755 "$pkgdir/usr/share/doc/$pkgname"
+  cp -r doc/html "$pkgdir/usr/share/doc/$pkgname/"
 }

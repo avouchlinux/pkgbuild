@@ -1,20 +1,38 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-photos
-pkgver=43.1
+pkgver=44.0
 pkgrel=1
 pkgdesc="Access, organize, and share your photos on GNOME"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://wiki.gnome.org/Apps/Photos"
 license=(GPL)
-depends=(exempi gtk3 libexif librsvg babl gegl gsettings-desktop-schemas grilo-plugins lcms2
-         tracker-miners geocode-glib grilo gfbgraph libgdata libgexiv2 libraw gnome-online-accounts
-         gnome-online-miners dleyna-server dleyna-renderer libdazzle)
-makedepends=(python yelp-tools git meson)
+depends=(
+  babl
+  dleyna
+  gegl
+  geocode-glib-2
+  gnome-online-accounts
+  gsettings-desktop-schemas
+  gtk3
+  libdazzle
+  libgexiv2
+  libhandy
+  libportal-gtk3
+  librsvg
+  tracker3-miners
+)
+makedepends=(
+  docbook-xsl
+  git
+  meson
+  python
+  yelp-tools
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {

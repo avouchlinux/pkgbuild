@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -7,120 +8,99 @@
 
 pkgname=libsasl
 _realname=cyrus-sasl
-pkgver=2.1.27
+pkgver=2.1.28
 pkgrel=1
 pkgdesc="Cyrus Simple Authentication Service Layer (SASL) library"
 arch=('x86_64')
 groups=('sys-security')
 url="https://www.cyrusimap.org/sasl/"
-license=('custom')
-options=('!makeflags')
-makedepends=('postgresql-libs' 'mariadb-libs' 'libldap' 'krb5' 'openssl' 'sqlite')
-source=(https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-$pkgver/cyrus-sasl-$pkgver.tar.gz
-        0003-Update-saslauthd.conf-location-in-documentation.patch
-	0006-Enable-autoconf-maintainer-mode.patch
-        0010-Update-required-libraries-when-ld-as-needed-is-used.patch
-        0013-Don-t-use-la-files-for-opening-plugins.patch
-        0020-Restore-LIBS-after-checking-gss_inquire_sec_context_.patch
-        0022-Fix-keytab-option-for-MIT-Kerberos.patch
-        0032-Add-with_pgsql-include-postgresql-to-include-path.patch
-        gdbm-errno.patch
-        saslauthd.service
-        saslauthd.conf.d
-        tmpfiles.conf)
-sha256sums=('26866b1549b00ffd020f188a43c258017fa1c382b3ddadd8201536f72efb05d5'
-            '9919c81196701d11a3a77e2573a541489ad9ab42a4c50eb7d19edfb37713c604'
-            '7bd2b2af36c061e92f69944a18e2c122aea0d2b21773f5ea47bb6209f13d0812'
-            '8e22cb6ac58208f191b1eb19aac602c1bf49708f2a3b2e3de5f5b2c1e2467906'
-            'bbee401c01dc6942710e0c1285091fcd98588bf636b52f24ed0e3b04039b748b'
-            'a953c79c585d579f25135de0fe807d6da1fddccbd5b66a9606fb6390c12c7e31'
-            '1a0ae7bd722d57feb6fab12c05eb1922982c68bd9be1c165d405954012e6634f'
-            '3c375f8755fdbd98a21c4ee195bebbd2a146901fee327e4dd6cfde7a4dcba7c3'
-            '03a57cbcec85602fb8e39b7c8a3ff1a22d2c20a28e771b8b326a570d733bf432'
-            '5c6453050a5f594ca1d53baf3a6188d8f3cdc7a28467ad7c844ad51f663dae9a'
-            'fa57b4f374ae633633091b1c8b44e1e0be814e4fddbfa75f16eb3dd1f16b8640'
-            '16ca1a4185847b0c6c70ef6c7c314cb466f698d3ed02185a5f50e8179822f024')
+license=(custom)
+depends=(gdbm libgdbm.so glibc openssl)
+makedepends=(krb5 libldap mariadb-libs postgresql-libs sqlite)
+provides=(libsasl2.so)
+source=(https://github.com/cyrusimap/$_realname/releases/download/$_realname-$pkgver/$_realname-$pkgver.tar.gz{,.sig}
+        openssl3.patch::https://patch-diff.githubusercontent.com/raw/cyrusimap/cyrus-sasl/pull/653.patch
+        openssl3-legacy-provider.patch::https://github.com/cyrusimap/cyrus-sasl/pull/668/commits/54f69880fa92bb0d0cf4d55bab0914822a873d8d.patch
+        openssl3-remove-rc4-custom-code.patch::https://github.com/cyrusimap/cyrus-sasl/pull/668/commits/725df6cdadc11cf1bbbfa3a57982ec19624c6fbe.patch)
+sha512sums=('db15af9079758a9f385457a79390c8a7cd7ea666573dace8bf4fb01bb4b49037538d67285727d6a70ad799d2e2318f265c9372e2427de9371d626a1959dd6f78'
+            'SKIP'
+            '5c573e9a6e39a6012b1ef93a37b0083b3936a9955e9403810697fd6bf553adcbd30ec3d610f21488165ed8c6556030ac17558afcb3705979bb9f7710031caa28'
+            'c124e407fe5eeace728b22fe107daba7581005312a6ddeeaa5f869d6f1b1ff8b5ba0ff7b1862a5238b7100ffc53ed6b7bb57f21b4e68b5433396f3cf914598d4'
+            '83b8795ade33399dded6d4dbcf1a7b5bc91145f1ffbe6ab2b7cf86f375a4729b7fa5c7ad7af5e60e4ff88067393d08c5e76c81f7c59ba3f13c6e8fc1fe7b6a7d')
+b2sums=('6cca8c26cebb9c2ee5d539c43797d30b6309a476ec4233225789978e1d7315c4ea5d2abbc7f5464be0f3c0de5fd9212706b43fbc92f40b76cd0b1013cc00f823'
+        'SKIP'
+        'ceaf3e4cbddfd9d1e7512ed24123d40f69f9d8a831c758f36d0eabb1734c41c37afcad8ef9749f39984c0e79e8e586f54c0c86d45c68b50689474e52a5df1779'
+        '145c83ece1f6bd3691cb3a58d1f6398092ad57cd2bc8c5abf44127cf5593bf5029ace442edb64b5eedf93c3d42c4caf243b89dce549b14cb9d5563710e397623'
+        '940e26037575f03d62267662c3961bc9caf8639c2bfa8d19a00e2ada606ea7f9020a6de2b2557b432a1534764447f0ebf4c77a9a42b329bdb81159b336b0780f')
+validpgpkeys=(
+  '829F339F8C296FE80F409D93E3D7C118C7B9F46A'  # Partha Susarla <mail@spartha.org>
+  'DEA1999F0CDB1AAEBA001E0DBEE3E3B4D2F06546'  # Quanah Gibson-Mount <quanah@fast-mail.org>
+)
 
 prepare() {
-  cd cyrus-sasl-$pkgver
-  patch -Np1 -i ../0003-Update-saslauthd.conf-location-in-documentation.patch
-  patch -Np1 -i ../0006-Enable-autoconf-maintainer-mode.patch
-  patch -Np1 -i ../0010-Update-required-libraries-when-ld-as-needed-is-used.patch
-  patch -Np1 -i ../0013-Don-t-use-la-files-for-opening-plugins.patch
-  patch -Np1 -i ../0020-Restore-LIBS-after-checking-gss_inquire_sec_context_.patch
-  patch -Np1 -i ../0022-Fix-keytab-option-for-MIT-Kerberos.patch
-  patch -Np1 -i ../0032-Add-with_pgsql-include-postgresql-to-include-path.patch
-  patch -Np1 -i ../gdbm-errno.patch
-  cp -a saslauthd/saslauthd.mdoc saslauthd/saslauthd.8
+  cd $_realname-$pkgver
+  patch -Np1 < ../openssl3.patch
+  patch -Np1 < ../openssl3-legacy-provider.patch
+  patch -Np1 < ../openssl3-remove-rc4-custom-code.patch
+  autoreconf -fiv
 }
 
 build() {
-  export CFLAGS="$CFLAGS -fPIC"
-  cd cyrus-sasl-$pkgver
+  cd $_realname-$pkgver
 
-  rm -f config/config.guess config/config.sub 
-  rm -f config/ltconfig config/ltmain.sh config/libtool.m4
-  rm -fr autom4te.cache
-  libtoolize -c
-  aclocal -I config
-  automake -a -c
-  autoheader
-  autoconf
-
+  # gcc-14
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
   ./configure --prefix=/usr \
-      --sbin=/usr/bin \
-      --mandir=/usr/share/man \
-      --infodir=/usr/share/info \
+      --disable-krb4 \
+      --disable-macos-framework \
+      --disable-otp \
+      --disable-passdss \
+      --disable-srp \
+      --disable-srp-setpass \
       --disable-static \
-      --enable-shared \
       --enable-alwaystrue \
+      --enable-anon \
+      --enable-auth-sasldb \
       --enable-checkapop \
       --enable-cram \
       --enable-digest \
-      --disable-otp \
-      --disable-srp \
-      --disable-srp-setpass \
-      --disable-krb4 \
       --enable-gssapi \
-      --enable-auth-sasldb \
-      --enable-plain \
-      --enable-anon \
+      --enable-ldapdb \
       --enable-login \
       --enable-ntlm \
-      --disable-passdss \
+      --enable-plain \
+      --enable-shared \
       --enable-sql \
-      --with-mysql=/usr \
-      --with-pgsql=/usr/lib \
-      --with-sqlite3=/usr/lib \
-      --enable-ldapdb \
-      --disable-macos-framework \
-      --with-pam \
-      --with-saslauthd=/var/run/saslauthd \
-      --with-ldap \
-      --with-dblib=gdbm \
-      --with-configdir=/etc/sasl2:/etc/sasl:/usr/lib/sasl2 \
+      --infodir=/usr/share/info \
+      --mandir=/usr/share/man \
+      --sbin=/usr/bin \
       --sysconfdir=/etc \
-      --with-devrandom=/dev/urandom
+      --with-dblib=gdbm \
+      --with-devrandom=/dev/urandom \
+      --with-configdir=/etc/sasl2:/etc/sasl:/usr/lib/sasl2 \
+      --with-ldap \
+      --with-mysql=/usr \
+      --with-pam \
+      --with-pgsql=/usr/lib \
+      --with-saslauthd=/var/run/saslauthd \
+      --with-sqlite3=/usr/lib
+
+  # prevent excessive overlinking by libtool
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make
 }
 
-package() {
-  pkgdesc="Cyrus Simple Authentication Service Layer (SASL) Library"
-  depends=('openssl')
-  conflicts=('cyrus-sasl-plugins')
+check() {
+  make -k check -C $_realname-$pkgver
+}
 
-  cd cyrus-sasl-$pkgver
-  make DESTDIR="$pkgdir" install-pkgconfigDATA
-  for dir in include lib sasldb plugins utils; do
-    pushd ${dir}
-    make DESTDIR="${pkgdir}" install
-    popd
+package() {
+  local _target
+  make DESTDIR="$pkgdir" install-pkgconfigDATA -C $_realname-$pkgver
+  for _target in include lib sasldb plugins utils; do
+    make DESTDIR="$pkgdir" install -C $_realname-$pkgver/$_target
   done
-  rm -f "${pkgdir}"/usr/lib/sasl2/libsql.so*
-  rm -f "${pkgdir}"/usr/lib/sasl2/libgssapiv2.so*
-  rm -f "${pkgdir}"/usr/lib/sasl2/libldapdb.so*
-  rm -f "${pkgdir}"/usr/lib/sasl2/libgs2.so*
-  install -m755 -d "${pkgdir}/usr/share/licenses/libsasl"
-  install -m644 COPYING "${pkgdir}/usr/share/licenses/libsasl/"
+  install -vDm 644 $_realname-$pkgver/COPYING -t "$pkgdir/usr/share/licenses/$pkgname/"
+  # remove files provided by extra/cyrus-sasl
+  rm -fv "$pkgdir"/usr/lib/sasl2/lib{gs2,gssapiv2,ldapdb,sql}.so*
 }

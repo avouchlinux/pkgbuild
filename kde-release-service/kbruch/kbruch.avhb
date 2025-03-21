@@ -1,35 +1,45 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kbruch
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Exercise Fractions"
-url="http://kde.org/applications/education/kbruch/"
+url='https://apps.kde.org/kbruch/'
 arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('kxmlgui' 'hicolor-icon-theme')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/kbruch-${pkgver}.tar.xz")
-sha1sums=('07d7bdf373d34b2480487bd394ed1336836788c5')
-
-prepare() {
-  mkdir -p build
-}
+groups=('kde-release-services')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         ki18n
+         kwidgetsaddons
+         kxmlgui
+         qt6-base)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('23d287fdaccfeffa9fe3b19498c4db851c9977caaac15239aa8610440d40165c'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd "${srcdir}"/build
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }
+

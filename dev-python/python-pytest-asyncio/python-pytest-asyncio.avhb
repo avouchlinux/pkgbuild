@@ -1,0 +1,34 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pytest-asyncio
+pkgver=0.24.0
+pkgrel=1
+pkgdesc="Pytest support for asyncio."
+arch=('any')
+groups=('dev-python')
+url="https://github.com/pytest-dev/pytest-asyncio"
+license=('Apache-2.0')
+depends=('python' 'python-pluggy' 'python-pytest')
+makedepends=('git' 'python-build' 'python-installer' 'python-setuptools-scm' 'python-wheel')
+checkdepends=('python-hypothesis')
+source=("git+https://github.com/pytest-dev/pytest-asyncio.git#tag=v$pkgver?signed")
+b2sums=('23eff3ed41940671d4df7e98430d9d77485a55555c15749a199851addb35e770440a4fb79e305ed827e1e07387979dce487fac90d6a997ae892d246b6feb48ac')
+validpgpkeys=('856F4E797CAB2AA5A0A967E1F0827C47163A10D6') # Michael Seifert <m.seifert@digitalernachschub.de>
+
+build() {
+  cd pytest-asyncio
+  python -m build -wn
+}
+
+check() {
+  cd pytest-asyncio
+  PYTHONPATH="$PWD:$PYTHONPATH" pytest
+}
+
+package() {
+  cd pytest-asyncio
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

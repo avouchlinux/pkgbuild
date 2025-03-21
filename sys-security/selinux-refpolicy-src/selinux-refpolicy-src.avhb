@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=selinux-refpolicy-src
 _realname=refpolicy
-pkgver=2.20210203
+pkgver=2.20240226
 pkgrel=1
 pkgdesc="SELinux reference policy sources"
 arch=('any')
@@ -17,7 +17,7 @@ optdepends=('linux-hardened: Linux kernel with SELinux support'
             'linux-selinux: Linux kernel with SELinux support')
 makedepends=('python' 'checkpolicy>=2.8' 'policycoreutils>=2.8'
              'libsepol>=2.8' 'libsemanage>=2.8')
-source=("https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_2_${pkgver}/${_origname}-2.${pkgver}.tar.bz2")
+source=("https://github.com/SELinuxProject/refpolicy/releases/download/RELEASE_${pkgver/./_}/$_realname-$pkgver.tar.bz2"
 sha256sums=('67bd1213e9d014ada15512028bb7f35ef6610c2d209cc5117b8577474aa6147f')
 
 package() {

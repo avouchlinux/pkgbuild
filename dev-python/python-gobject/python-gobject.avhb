@@ -1,0 +1,91 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=pygobject
+pkgname=(
+  python-gobject
+  python-gobject-docs
+)
+_realname=pygobject
+pkgver=3.50.0
+pkgrel=1
+arch=('x86_64')
+groups=('dev-python')
+url="https://live.gnome.org/PyGObject"
+license=(LGPL)
+depends=(
+  glib2
+  glibc
+  gobject-introspection-runtime
+  libffi
+  libgirepository
+  python
+)
+makedepends=(
+  git
+  gobject-introspection
+  meson
+  python-cairo
+  python-setuptools
+  python-sphinx
+  python-sphinx-copybutton
+  python-sphinx-furo
+)
+checkdepends=(
+  gtk3
+  python-pytest
+  xorg-server-xvfb
+)
+optdepends=('cairo: Cairo bindings')
+_commit=b5b3fb1fcdbf539dd0cc04120ee4a8e81bce403c  # tags/3.46.0^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/pygobject.git#commit=$_commit"
+)
+b2sums=('SKIP')
+
+pkgver() {
+  cd pygobject
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd pygobject
+}
+
+build() {
+  local meson_options=(
+    -D tests=false
+  )
+
+  avouch-meson $pkgbase build "${meson_options[@]}"
+  meson compile -C build
+}
+
+# check() {
+#   PYTEST_ADDOPTS="-v" PYGI_TEST_VERBOSE=1 \
+#     xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
+
+package_python-gobject() {
+  provides=("pygobject-devel=$pkgver")
+  conflicts=(pygobject-devel)
+  replaces=('pygobject-devel<=3.36.1-1')
+
+  meson install -C build --destdir "$pkgdir"
+  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
+  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
+}
+
+package_python-gobject-docs() {
+  pkgdesc="Developer documentation for PyGObject"
+  depends=()
+  optdepends=()
+
+  python -m sphinx -b html pygobject/docs "$pkgdir/usr/share/doc/pygobject/html"
+  rm -r "$pkgdir/usr/share/doc/pygobject/html/.doctrees"
+}
+
+

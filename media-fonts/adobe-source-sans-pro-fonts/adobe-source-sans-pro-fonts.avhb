@@ -1,23 +1,35 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=adobe-source-sans-pro-fonts
 _realnam=source-sans-pro
-pkgver=3.006
+pkgver=3.028
 pkgrel=1
 pkgdesc="Sans serif font family for user interface environments"
 url="https://adobe-fonts.github.io/source-sans-pro/"
 arch=(any)
 groups=('media-fonts')
 license=(custom)
-_tarname=source-sans-pro-${_relver//\//-}
-source=("https://github.com/adobe-fonts/source-sans-pro/archive/$_relver.tar.gz")
+_relver=${pkgver}R
+_tarname=source-sans-$_relver
+_oldver=3.006R
+_oldname=source-sans-$_oldver
+source=("$_tarname.tar.gz::https://github.com/adobe-fonts/source-sans-pro/archive/$_relver.tar.gz"
+        "$_oldname.tar.gz::https://github.com/adobe-fonts/source-sans-pro/archive/$_oldver.tar.gz")
+sha256sums=('12faf267e40f1be46daf44afce47facd6efb996e2f2f5abe0a3dde161d54e251'
+            'a384e8c3246490bb5eaf79eb9eb9e41d7f2d167bb7d36280156ec77ae8ddfda1')
 
 package() {
-    cd ${_realnam}-${pkgver}R
-    install -d "$pkgdir/usr/share/fonts/${pkgname%-fonts}"
-    install -t "$pkgdir/usr/share/fonts/${pkgname%-fonts}" -m644 OTF/*.otf
-    install -Dm644 LICENSE.md "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  # "Source Sans Pro"
+  cd $_oldname
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname%-fonts}" -m644 OTF/*.otf VAR/*.otf
+  cd ..
+
+  # "Source Sans 3"
+  cd $_tarname
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname%-fonts}" -m644 OTF/*.otf VAR/*.otf
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE.md
 }
+

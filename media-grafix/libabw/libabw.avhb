@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,24 +10,26 @@ pkgdesc="a library that parses the file format of AbiWord documents"
 arch=('x86_64')
 groups=('media-grafix')
 url="https://wiki.documentfoundation.org/DLP/Libraries/libabw"
-license=('MPL')
-depends=('librevenge' 'libxml2' )
+license=('MPL-2.0')
+depends=('librevenge' 'libxml2' 'zlib' 'gcc-libs' 'glibc')
 makedepends=('doxygen' 'gperf' 'boost')
 source=(https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz)
+sha256sums=('e763a9dc21c3d2667402d66e202e3f8ef4db51b34b79ef41f56cacb86dcd6eed')
 
 build() {
   cd $pkgname-$pkgver
-  export CFLAGS="${CFLAGS} -std=c++14"
-  ./configure --prefix=/usr --disable-silent-rules --disable-static --disable-werror
-  make ${MAKEFLAGS}
+  ./configure --prefix=/usr
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS} -k check
+  make -k check
 }
 
 package() {
   cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

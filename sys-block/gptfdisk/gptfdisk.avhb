@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gptfdisk
-pkgver=1.0.4
+pkgver=1.0.10
 pkgrel=1
 pkgdesc="A text-mode partitioning tool that works on GUID GPT disks"
 arch=('x86_64')
@@ -15,16 +16,24 @@ provides=("gdisk=$pkgver")
 conflicts=('gdisk')
 replaces=('gdisk')
 source=(https://downloads.sourceforge.net/project/$pkgname/$pkgname/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('2abed61bc6d2b9ec498973c0440b8b804b7a72d7144069b5a9209b2ad693a282')
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+
+  # https://sourceforge.net/p/gptfdisk/discussion/939590/thread/bc29ca06f8/
+  sed -i '/^#include /s:ncursesw/::' gptcurses.cc
+}
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
-  make ${MAKEFLAGS}
+  make
 }
 
-# check() {
-#   cd "$srcdir/$pkgname-$pkgver"
-#   make test
-# }
+check() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make test
+}
 
 package () {
   cd "$srcdir/$pkgname-$pkgver"

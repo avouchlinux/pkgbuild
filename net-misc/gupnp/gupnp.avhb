@@ -1,30 +1,85 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gupnp
-pkgver=1.4.3
+pkgbase=gupnp
+pkgname=(
+  gupnp
+  gupnp-docs
+)
+pkgver=1.6.7
 pkgrel=1
 pkgdesc="An object-oriented UPNP framework"
 url="https://wiki.gnome.org/Projects/GUPnP"
 arch=('x86_64')
 groups=('net-misc')
 license=(LGPL)
-depends=(gssdp util-linux)
-makedepends=(gobject-introspection gtk-doc vala meson git)
-optdepends=('python: gupnp-binding-tool')
-source=("https://gitlab.gnome.org/GNOME/gupnp/-/archive/gupnp-$pkgver/gupnp-gupnp-$pkgver.tar.bz2")
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  gssdp
+  libxml2
+)
+makedepends=(
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+  vala
+)
+source=("git+https://gitlab.gnome.org/GNOME/gupnp.git?signed#tag=gupnp-$pkgver")
+b2sums=('ed3d89e16ccf3be185407b4f4efe283c7b80b42a400803c2598770f4270337f092ebc6b0376b70f1c8f4ad31d87c6354fa0aea232eb08d96da100f736257c463')
+validpgpkeys=(
+  AC9CD4E32D7C7F6357BA8ADD10F6E970175D29E1 # Jens Georg <mail@jensge.org>
+)
+
+prepare() {
+  cd gupnp
+}
 
 build() {
-  avouch-meson $pkgname-$pkgname-$pkgver build -D gtk_doc=true
-  ninja -C build
+  local meson_options=(
+    -D gtk_doc=true
+  )
+
+  avouch-meson gupnp build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
   meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_gupnp() {
+  depends+=(
+    libg{lib,object,io,module}-2.0.so
+    libgssdp-1.6.so
+    libsoup-3.0.so
+  )
+  optdepends=('python: gupnp-binding-tool')
+  provides=(libgupnp-1.6.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+  _pick docs usr/share/doc
+}
+
+package_gupnp-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  mv docs/* "$pkgdir"
 }

@@ -1,0 +1,15 @@
+# b43-firmware
+# b43-firmware-classic
+# edk2-shell-202102-1-avh02-x86_64.avhp.tar.zstd
+# edk2-ovmf-202102-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-whence-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-20220209-1-avh02-x86_64.avhp.tar.zstd
+amd-ucode-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-nfp-20220209-1-avh02-x86_64.avhp.tar.zstd
+# linux-firmware-mellanox-20220209-1-avh02-x86_64.avhp.tar.zstd
+# linux-firmware-marvell-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-qcom-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-liquidio-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-qlogic-20220209-1-avh02-x86_64.avhp.tar.zstd
+linux-firmware-bnx2x-20220209-1-avh02-x86_64.avhp.tar.zstd
+# seabios-1.14.0-1-avh02-x86_64.avhp.tar.zstd

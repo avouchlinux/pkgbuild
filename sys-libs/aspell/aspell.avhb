@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=aspell
-pkgver=0.60.8
+pkgver=0.60.8.1
 _pkgmajorver=0.60
 pkgrel=1
 pkgdesc="A spell checker designed to eventually replace Ispell"
@@ -14,16 +14,31 @@ url="http://aspell.net/"
 license=('LGPL')
 depends=('gcc-libs' 'ncurses')
 optdepends=('perl: to import old dictionaries')
-source=("https://github.com/GNUAspell/aspell/archive/rel-$_pkgver.tar.gz")
+provides=(libaspell.so libpspell.so)
+source=(
+  "https://github.com/GNUAspell/aspell/archive/rel-$pkgver.tar.gz"
+)
+sha512sums=('a0bd7e9ce828a58c484443c6fe028edfcf8f27e64c65b3d1ebca6a704bdd0541891427bed668a430de113bfe0518b76e6a06a274702530578312f84326d3ee35')
+b2sums=('c82af8c6cd4ef4032a74f759cfdd90d06270dac332be020eeb4c0411aa89711ddcdc0cddf6425ccee3a42bcd95b8cbd7f5fa5c12dc2cc48feae7d4f075f7f062')
+
+prepare() {
+  cd $pkgname-rel-$pkgver
+  PERL_USE_UNSAFE_INC=1 ./autogen
+}
 
 build() {
-	cd $pkgname-$pkgver
-	./configure --prefix=/usr --sysconfdir=/etc
-	make ${MAKEFLAGS}
+  cd $pkgname-rel-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc
+
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd $pkgname-$pkgver
-	make DESTDIR="${pkgdir}" install
-	ln -s ${pkgname}-${_pkgmajorver} "${pkgdir}/usr/lib/${pkgname}"
+  depends+=(libncursesw.so)
+
+  cd $pkgname-rel-$pkgver
+  make DESTDIR="$pkgdir" install
+  ln -s $pkgname-$_pkgmajorver "$pkgdir"/usr/lib/$pkgname
 }

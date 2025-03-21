@@ -1,0 +1,13 @@
+imake
+nautilus-ext-git
+shared-mime-info
+slock
+vdpauinfo
+xbindkeys
+xbitmaps
+xdg-user-dirs
+xdg-user-dirs-gtk
+xdg-utils
+xkeyboard-config
+xorg-util-macros
+xscreensaver

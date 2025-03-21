@@ -1,0 +1,77 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libsigc++2
+pkgname=(
+  libsigc++2
+  libsigc++2-docs
+)
+_realname=libsigc++
+pkgver=2.12.1
+pkgrel=1
+pkgdesc="Libsigc++ implements a full callback system for use in widget libraries - V2"
+arch=('x86_64')
+groups=('sys-libs')
+license=(LGPL)
+depends=(gcc-libs)
+makedepends=(
+  git
+  meson
+  mm-common
+)
+options=(!emptydirs)
+_commit=6bef4e0005f00f0844d917866aec7e3b2d829fdf  # tags/2.12.1^0
+source=("git+https://github.com/libsigcplusplus/libsigcplusplus#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd libsigcplusplus
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd libsigcplusplus
+}
+
+build() {
+  local meson_options=(
+    -D maintainer-mode=true
+  )
+
+  avouch-meson libsigcplusplus build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+# Do not remove the space before the () or commitpkg will
+# accidentally to run this function on the system (!!!) 
+package_libsigc++2 () {
+  provides=(
+    "libsigc++2.0=$pkgver"
+    libsigc-2.0.so
+  )
+  conflicts=(libsigc++2.0)
+  replaces=(libsigc++2.0)
+
+  meson install -C build --destdir "$pkgdir"
+
+  # Split -docs
+  mkdir -p docs/usr/share
+  mv -t docs/usr/share "$pkgdir"/usr/share/{devhelp,doc}
+}
+
+package_libsigc++2-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  provides=("libsigc++2.0-docs=$pkgver")
+  conflicts=(libsigc++2.0-docs)
+  replaces=(libsigc++2.0-docs)
+  options=(!strip)
+
+  mv -t "$pkgdir" docs/*
+}

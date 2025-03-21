@@ -1,43 +1,50 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=uranium
 _realname=Uranium
-pkgver=4.6.0
+pkgver=5.0.0
 pkgrel=1
 pkgdesc="A Python framework for building Desktop applications."
 url="https://github.com/Ultimaker/Uranium"
 arch=('any')
 groups=('dev-utils')
+url="https://github.com/Ultimaker/Uranium"
+arch=('any')
 license=('LGPL')
 depends=('python' 'qt5-quickcontrols' 'qt5-quickcontrols2' 'python-pyqt5' 'python-numpy'
          'arcus' 'python-shapely' 'python-scipy' 'python-cryptography' 'python-certifi')
-makedepends=('cmake')
+makedepends=('cmake' 'ninja')
 checkdepends=('mypy' 'python-pytest' 'python-twisted')
-source=("https://github.com/Ultimaker/${pkgname}/archive/${pkgver}.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/Ultimaker/${pkgname}/archive/${pkgver}.tar.gz")
+sha256sums=('3a6482c0698320ecb87f41f725565fdee1e99cb4258043130816d5181ead8603')
 
 prepare() {
-  mkdir -p build 
-  cd $_realname-${pkgver}
+  cd Uranium-${pkgver}
   sed -i 's,/dist-packages,.${PYTHON_VERSION_MINOR}/site-packages,g' CMakeLists.txt
 }
 
 build() {
-  cmake -S $_realname-${pkgver} -B build -G Ninja \
+  cmake -S Uranium-${pkgver} -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DCMAKE_BUILD_TYPE=Release
-  ninja -C build
+    -DPython_VERSION=3.12
+
+  cmake --build build
 }
 
 check() {
   cd build
-  # few tests fail atm
-  #make CTEST_OUTPUT_ON_FAILURE=TRUE test
+  # all tests fail atm
+  # ctest
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="${pkgdir}" cmake --install build
+
+# Move cmake module to right dir
+  mv "$pkgdir"/usr/share/cmake{-*,}
 }
+

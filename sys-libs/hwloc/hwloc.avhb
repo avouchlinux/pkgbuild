@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hwloc
-pkgver=2.2.0
+pkgver=2.10.0
 pkgrel=1
 pkgdesc='Portable Hardware Locality is a portable abstraction of hierarchical architectures'
 arch=('x86_64')
@@ -11,31 +12,31 @@ groups=('sys-libs')
 url='https://www.open-mpi.org/projects/hwloc/'
 arch=('x86_64')
 license=('BSD')
-depends=('libtool' 'systemd-libs' 'libpciaccess')
-makedepends=('cairo' 'libxml2' 'pciutils' 'systemd')
-optdepends=('cairo' 'libxml2' 'pciutils')
+depends=('glibc' 'libtool' 'systemd-libs' 'libpciaccess')
+makedepends=('cairo' 'libxml2' 'pciutils' 'systemd' 'libx11')
+optdepends=('cairo' 'libxml2' 'pciutils' 'libx11')
 options=('!docs')
 source=(https://www.open-mpi.org/software/hwloc/v${pkgver%.*}/downloads/${pkgname}-${pkgver}.tar.bz2)
-
-prepare() {
-	cd hwloc-${pkgver}
-	autoreconf -fiv
-}
+sha512sums=('8fcf448ef16874862e5cf5a814ecc4885d53817369640bb8a0079b0c7d9294b3933a6a8cf2472e8e104a5c346e09e1fffab401a1976d7b2da0457f0c5271a18a')
+b2sums=('ecb0e6158992a94e1c8b1555584803c576ab3dc09eb33c30033b986a4ec9586d5376d837629419d7b0787217d8692a22834133ccb0be2c5c38d46ef3b47ea129')
 
 build() {
-	cd hwloc-$pkgver
-	./configure --prefix=/usr --sbindir=/usr/bin --enable-plugins --sysconfdir=/etc
-	make ${MAKEFLAGS}
+  cd hwloc-${pkgver}
+  ./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --enable-plugins \
+    --sysconfdir=/etc
+  make
 }
 
 check() {
-	cd hwloc-$pkgver
-	make ${MAKEFLAGS} check
+  cd hwloc-${pkgver}
+  make check
 }
 
 package() {
-	cd hwloc-$pkgver
-	make DESTDIR="$pkgdir" install
-
-	install -Dm644 COPYING "$pkgdir"/usr/share/licenses/hwloc/LICENSE
+  cd hwloc-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm 644 COPYING -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }

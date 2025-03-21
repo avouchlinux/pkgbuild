@@ -26,6 +26,7 @@ sed -i "s:;extension=curl:extension=curl:g" /etc/php/php.ini
 sed -i "s:;extension=iconv:extension=iconv:g" /etc/php/php.ini
 sed -i "s:;extension=bz2:extension=bz2:g" /etc/php/php.ini
 sed -i "s:;extension=sqlite3:extension=sqlite3:g" /etc/php/php.ini
+sed -i "s:;extension=imagick:extension=imagick:g" /etc/php/php.ini
 
 
 

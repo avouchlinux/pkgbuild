@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=nilfs-utils
-pkgver=2.2.8
+pkgver=2.2.11
 pkgrel=1
 pkgdesc="A log-structured file system supporting continuous snapshotting (userspace utils)"
 arch=('x86_64')
@@ -13,15 +14,16 @@ license=('GPL2' 'LGPL2.1')
 backup=('etc/nilfs_cleanerd.conf')
 depends=('util-linux')
 source=(http://nilfs.sourceforge.net/download/$pkgname-$pkgver.tar.bz2)
+sha256sums=('8602897ff0d2c49be9bc76311f0b102088e58b6de4f749009403de06ff2c34cd')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	sed -i -e 's#root_sbindir=/sbin#root_sbindir=/usr/bin#' configure
-	./configure --sbindir=/usr/bin --with-libmount
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  sed -i -e 's#root_sbindir=/sbin#root_sbindir=/usr/bin#' configure
+  ./configure --sbindir=/usr/bin --with-libmount
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"  
-	make DESTDIR="$pkgdir" sbindir=/usr/bin install LDCONFIG=/bin/true
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" sbindir=/usr/bin install LDCONFIG=/bin/true
 }

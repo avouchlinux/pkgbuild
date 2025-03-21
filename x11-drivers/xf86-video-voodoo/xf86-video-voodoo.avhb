@@ -1,54 +1,44 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-video-voodoo
-pkgver=1.2.5.r10.g6375a58
+pkgver=1.2.6
 pkgrel=1
 pkgdesc="X.org 3dfx Voodoo1/Voodoo2 2D video driver"
 arch=('x86_64')
 groups=('x11-drivers')
-url="http://xorg.freedesktop.org/"
-license=('custom')
+url="https://xorg.freedesktop.org/"
+license=('MIT')
 depends=('glibc')
-makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=24.0' 'xf86dgaproto')
-source=(https://gitlab.freedesktop.org/xorg/driver/xf86-video-voodoo.git)
-
-getsrc() {
-	git clone https://gitlab.freedesktop.org/xorg/driver/xf86-video-voodoo.git
-}
-
-pkgver() {
-  cd ${pkgname}
-  git describe --long | sed 's/^xf86-video-voodoo-//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
-
-
-prepare() {
-  cd ${pkgname}
-  NOCONFIGURE=1 ./autogen.sh
-}
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.2' 'xorgproto')
+conflicts=('xorg-server<21.1.1' 'X-ABI-VIDEODRV_VERSION<25' 'X-ABI-VIDEODRV_VERSION>=26')
+groups=('xorg-drivers')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('c889d79044438d6b15efceda07f63874063a2faa24a86d048e62c8ad1364efdfec04ff7ec662ad0749d2a7263abb14edb74e7d5ebf9a1aa880edb2b341a80a31'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-  cd ${pkgname}
+  cd ${pkgname}-${pkgver}
+
+  # We are using hardened flags
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
   export CFLAGS=${CFLAGS/-fno-plt}
   export CXXFLAGS=${CXXFLAGS/-fno-plt}
   export LDFLAGS=${LDFLAGS/-z now}
+  
 
   ./configure --prefix=/usr
   make
 }
 
-check() {
-  cd ${pkgname}
-  make check
-}
-
 package() {
-  cd ${pkgname}
-
-  make "DESTDIR=${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
   install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

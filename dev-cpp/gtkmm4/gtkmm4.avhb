@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -6,16 +6,35 @@
 pkgbase=gtkmm4
 pkgname=(gtkmm4 gtkmm4-docs)
 _realname=gtkmm
-pkgver=4.6.1
+pkgver=4.16.0
 pkgrel=1
 pkgdesc="C++ bindings for GTK+ 3"
 url="http://www.gtkmm.org/"
 arch=('x86_64')
 groups=('dev-cpp')
-license=(LGPL)
-depends=(gtk3 pangomm atkmm)
-makedepends=(git mm-common glibmm-docs cairomm-docs pangomm-docs atkmm-docs)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+license=(LGPL-2.1-or-later)
+depends=(
+  cairo
+  cairomm-1.16
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  glibmm-2.68
+  graphene
+  gtk4
+  pangomm-2.48
+  vulkan-icd-loader
+)
+makedepends=(
+  cairomm-1.16-docs
+  git
+  glibmm-2.68-docs
+  meson
+  mm-common
+  pangomm-2.48-docs
+)
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
 sha256sums=('SKIP')
 
 build() {

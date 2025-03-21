@@ -1,0 +1,74 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=djvulibre
+pkgver=3.5.28
+pkgrel=1
+pkgdesc="Suite to create, manipulate and view DjVu ('déjà vu') documents"
+arch=('x86_64')
+groups=('media-grafix')
+url='https://djvu.sourceforge.net/'
+license=(GPL-2.0-or-later)
+depends=(
+  bash
+  gcc-libs
+  glibc
+  hicolor-icon-theme
+  libjpeg-turbo
+  libtiff
+)
+makedepends=(git)
+source=(
+  "$pkgname::git+https://git.code.sf.net/p/djvu/djvulibre-git#tag=release.$pkgver"
+  djvulibre-check-image-size.patch
+  djvulibre-integer-overflow.patch
+  djvulibre-check-input-pool.patch
+  djvulibre-djvuport-stack-overflow.patch
+  djvulibre-unsigned-short-overflow.patch
+  djvulibre-out-of-bound-write-2.patch
+  djvulibre-CVE-2021-46310.patch
+  djvulibre-CVE-2021-46312.patch
+)
+b2sums=(
+  a9e6b9e0effb2252732bfa5dc50cd3172569dcdc0b6d48422f5547af87904470b35b9189fecb47c3b94cede8c416fb300a9cd123b017c117b599042c624fc5ee
+  633a814a4c23718be93a4e8f18d67dde1f8800143113090e857c0cd8429458ff17c8040ad3092fee30621bd4093bb96947f1571d7c2309062f81eb2682533e0c
+  2bfad00bc3c5054055476eca18aecf1978cfa1f1ca101e122c013977af9725fd9cf5069e9deb1f9eeb6852b8f6f7d41aa73791a810bf68538045df90b615d14d
+  81d2b459a558768105f99e7446a40b4b56bf4c10ea408e8f58caaecb7c3e0e9ccf7c6d0db620f98b3dca235b16402903a7fbbb8a8992c89356bd09aba03f3b72
+  fd23d7aa448e631ff53da01a74cae4f49cc389c908f249e35f881142daf4303b49cfbe20a34521b1d4ea8733ca4136537dd128f59f5dd224313d9b71130c0057
+  d4fc2c25e113a4f41931a02cc1ed669bcbfa2d7af475463ce63f931a93665aa582c2d6f51ae9c74e1ffdf067325f03a0b1b4c989b5b24a4c1bd422f5bf2dbada
+  cc1b5fbef66b3b72f774bfa783e8ee62245eb07bb32f46fd623049e6565878de7d6fae9eea13718954fa1101d93e728613d0029df845b25bd54b3e15e5c3cbdf
+  c824679d275662ca27a35bf61bba316cbf960ec9790b5d0ea93f416bcedc88dad38ec5c7d7b2cb73d4e9964715cc08a1c66d59faabbb825911b4a567fcfb864f
+  1ddabef166b96009de832de4e791a0d7a35c5b337bba579fd76f2f0aed60995028f123d4d4388f1440a26bc39739f5dc824b641d7508e8f09d8028d5e01bd2b7
+)
+
+prepare() {
+  cd $pkgname
+  # Security fixes from Fedora and openSUSE
+  patch -Np1 -i ../djvulibre-check-image-size.patch
+  patch -Np1 -i ../djvulibre-integer-overflow.patch
+  patch -Np1 -i ../djvulibre-check-input-pool.patch
+  patch -Np1 -i ../djvulibre-djvuport-stack-overflow.patch
+  patch -Np1 -i ../djvulibre-unsigned-short-overflow.patch
+  patch -Np1 -i ../djvulibre-out-of-bound-write-2.patch
+  patch -Np1 -i ../djvulibre-CVE-2021-46310.patch
+  patch -Np1 -i ../djvulibre-CVE-2021-46312.patch
+
+  autoreconf -fi
+}
+
+build() {
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}
+

@@ -1,23 +1,42 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=at-spi2-core
-pkgver=2.50.0
+pkgver=2.56.0
 pkgrel=1
 pkgdesc="Protocol definitions and daemon for D-Bus at-spi"
 arch=('x86_64')
 groups=('sys-libs')
 url="http://www.gnome.org"
 license=('GPL2')
-depends=('dbus' 'glib2' 'libxtst')
-makedepends=(gobject-introspection gtk-doc meson)
+depends=(
+  dbus
+  glib2
+  gsettings-desktop-schemas
+  libx11
+  libxml2
+  libxtst
+  systemd
+  xorg-xprop
+)
+makedepends=(
+  dbus-broker
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  python-sphinx
+)
+checkdepends=(
+  at-spi2-core
+)
 source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 
 build() {
     avouch-meson ${pkgname}-${pkgver} build -D docs=true
-    ninja -C build
+    meson compile -C build
 }
 
 # check() {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>atkmm</Name>
+	 <Name>cairomm</Name>
+	 <Name>clutter-gtkmm</Name>
+	 <Name>cluttermm</Name>
+	 <Name>dbus-cpp</Name>
+	 <Name>gflags</Name>
+	 <Name>glibmm</Name>
+	 <Name>gtest</Name>
+	 <Name>gtkmm</Name>
+	 <Name>gtkmm3</Name>
+	 <Name>pangomm</Name>
+</Packages>

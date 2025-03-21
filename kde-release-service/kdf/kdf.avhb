@@ -1,34 +1,49 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdf
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='View Disk Usage'
-url="http://kde.org/applications/system/kdiskfree/"
+url='https://apps.kde.org/kdf/'
 arch=('x86_64')
-groups=('kde-apps')
-license=(GPL LGPL FDL)
-depends=(kio hicolor-icon-theme)
-makedepends=(extra-cmake-modules kdoctools python kcmutils)
-source=("http://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz")
-sha1sums=('5f89f732c09489e84f6358f0da68f1f1de911e57')
+groups=('kde-release-services')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcmutils
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         ki18n
+         kiconthemes
+         kio
+         kjobwidgets
+         kstatusnotifieritem
+         kwidgetsaddons
+         kxmlgui
+         qt6-base)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('fc7e52169c628ebbbe71db6ed0f3395a66cba0f2903b8638224587f48a0861e7'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
-prepare() {
-  mkdir -p build
-}
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

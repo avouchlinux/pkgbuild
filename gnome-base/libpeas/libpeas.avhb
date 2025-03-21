@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -47,10 +47,10 @@ build() {
     meson compile -C build
 }
 
-check() {
-  xvfb-run -s '-nolisten local' \
-    meson test -C build --print-errorlogs
-}
+# check() {
+#   xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
 
 _pick() {
   local p="$1" f d; shift

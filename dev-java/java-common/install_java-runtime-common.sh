@@ -12,5 +12,5 @@ post_install() {
 }
 
 post_upgrade() {
-  archlinux-java fix
+  avouch-java fix
 }

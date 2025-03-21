@@ -1,18 +1,28 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=gmic
-pkgname=(gmic zart gimp-plugin-gmic krita-plugin-gmic)
-pkgver=2.9.7
+pkgname=(gmic
+         gimp-plugin-gmic)
+pkgver=3.4.3
 pkgrel=1
-url="https://gmic.eu/"
 arch=('x86_64')
 groups=('media-grafix')
-license=(custom:CeCILL)
-makedepends=(cmake gimp qt5-base fftw openexr opencv eigen graphicsmagick qt5-tools)
+url='https://gmic.eu/'
+license=(CECILL-C)
+makedepends=(cmake
+             eigen
+             fftw
+             gimp
+             graphicsmagick
+             opencv
+             openexr
+             qt5-base
+             qt5-tools)
 source=(https://gmic.eu/files/source/gmic_$pkgver.tar.gz)
+sha256sums=('79951d06db2928c68bad1d352e536af3f454e9a3c09beefc2c1049d8b4084507')
 
 build() {
   cmake -B build -S gmic-$pkgver \
@@ -21,12 +31,15 @@ build() {
     -DBUILD_LIB_STATIC=OFF \
     -DENABLE_OPENCV=ON
   cmake --build build
+# Temp install to link gmic-qt
+  DESTDIR="tmp-install" cmake --install build
 
   export LDFLAGS="$LDFLAGS -L../build"
   cmake -B build-qt -S gmic-$pkgver/gmic-qt \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DENABLE_DYNAMIC_LINKING=ON \
     -DGMIC_PATH="$srcdir"/gmic-$pkgver/src \
+    -DCMAKE_PREFIX_PATH="$srcdir"/tmp-install/usr \
     -DGMIC_QT_HOST=none
   cmake --build build-qt
 
@@ -34,49 +47,52 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DENABLE_DYNAMIC_LINKING=ON \
     -DGMIC_PATH="$srcdir"/gmic-$pkgver/src \
+    -DCMAKE_PREFIX_PATH="$srcdir"/tmp-install/usr \
     -DGMIC_QT_HOST=gimp
   cmake --build build-gimp
-
-  cmake -B build-krita -S gmic-$pkgver/gmic-qt \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DENABLE_DYNAMIC_LINKING=ON \
-    -DGMIC_PATH="$srcdir"/gmic-$pkgver/src \
-    -DGMIC_QT_HOST=krita
-  cmake --build build-krita
-
-  mkdir -p build-zart
-  cd build-zart
-  unset CXXFLAGS # https://github.com/c-koi/zart/issues/14
-  qmake ../gmic-$pkgver/zart \
-    GMIC_PATH="$srcdir"/gmic-$pkgver/src GMIC_DYNAMIC_LINKING=on QMAKE_CXXFLAGS+=" -DOPENCV2_HEADERS"
-  make
 }
 
 package_gmic() {
   pkgdesc="GREYC's Magic Image Converter: image processing framework"
-  depends=(graphicsmagick opencv fftw)
+  depends=(curl
+           fftw
+           gcc-libs
+           glibc
+           graphicsmagick
+           imath
+           libjpeg-turbo
+           libpng
+           libtiff
+           libx11
+           opencv
+           openexr
+           zlib)
   optdepends=('qt5-base: for the Qt UI')
+  conflicts=(cimg)
 
   DESTDIR="$pkgdir" cmake --install build
   install -Dm644 gmic-$pkgver/COPYING "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+# .cpp is included by .h
+  install -Dm644 gmic-$pkgver/src/gmic.cpp -t "$pkgdir"/usr/include
 
   DESTDIR="$pkgdir" cmake --install build-qt
 
   install -Dm644 gmic-$pkgver/resources/gmic_cluts.gmz -t "$pkgdir"/usr/share/gmic
 }
 
-package_zart() {
-  pkgdesc="A GUI for G'MIC real-time manipulations on the output of a webcam"
-  depends=(gmic qt5-base)
-
-  cd build-zart
-  install -Dm755 zart -t "$pkgdir"/usr/bin
-  install -Dm644 ../gmic-$pkgver/zart/Licence_CeCILL_V2-en.html -t "$pkgdir"/usr/share/licenses/$pkgname
-}
-
 package_gimp-plugin-gmic() {
   pkgdesc="Gimp plugin for the G'MIC image processing framework"
-  depends=(gimp gmic qt5-base)
+  depends=(babl
+           fftw
+           gcc-libs
+           gegl
+           gimp
+           glib2
+           glibc
+           gmic
+           libx11
+           qt5-base
+           zlib)
 
   DESTDIR="$pkgdir" cmake --install build-gimp
   install -Dm644 gmic-$pkgver/COPYING "$pkgdir"/usr/share/licenses/$pkgname/LICENSE

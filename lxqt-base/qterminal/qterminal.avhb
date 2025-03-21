@@ -1,30 +1,37 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qterminal
-pkgver=1.1.0
+pkgver=2.1.0
 pkgrel=1
 pkgdesc="A lightweight Qt-based terminal emulator"
 arch=("x86_64")
 groups=('lxqt-base')
-url="https://lxqt.org"
-license=("GPL2")
-depends=("hicolor-icon-theme" "qtermwidget" "qt5-x11extras")
-makedepends=("cmake" "lxqt-build-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+url="https://github.com/lxqt/qterminal"
+# https://github.com/lxqt/qterminal/blob/2.0.0/qterminal.metainfo.xml#L10
+license=('GPL-2.0-or-later' 'BSD-3-Clause')
+depends=("hicolor-icon-theme" "qtermwidget" "libcanberra" "layer-shell-qt")
+makedepends=("git" "cmake" "lxqt-build-tools")
+source=(
+  "git+https://github.com/lxqt/qterminal.git?signed#tag=$pkgver"
+)
+sha256sums=('f8523a955dcc9df8c51457fcc545e255c70f45fce55ba85036de0003aa857255')
 validpgpkeys=(
-	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
-	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+  "19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # https://github.com/tsujan.gpg
 )
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+  awk '/\/\*\*/{flag=1} /\*\*\// {print; flag=0} flag' qterminal/src/third-party/qxtglobal.h > LICENSE-LibQxt
+
+  cmake -B build -S qterminal \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+  make -C build DESTDIR="$pkgdir" install
+
+  install -Dm644 LICENSE-LibQxt -t "$pkgdir"/usr/share/licenses/$pkgname
 }

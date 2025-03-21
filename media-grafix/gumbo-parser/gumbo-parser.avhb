@@ -1,0 +1,38 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gumbo-parser
+pkgver=0.12.1
+pkgrel=1
+pkgdesc="HTML5 parsing library in pure C99"
+arch=(x86_64)
+groups=('media-grafix')
+url="https://codeberg.org/grisha/gumbo-parser/"
+license=(Apache)
+depends=(glibc)
+checkdepends=(gtest)
+source=("$pkgname-$pkgver.tar.gz::https://codeberg.org/grisha/gumbo-parser/archive/$pkgver.tar.gz")
+sha256sums=('c0bb5354e46539680724d638dbea07296b797229a7e965b13305c930ddc10d82')
+
+prepare() {
+  cd $pkgname
+  ./autogen.sh
+}
+
+build() {
+  cd $pkgname
+  ./configure --prefix=/usr
+  make
+}
+
+check() {
+  cd $pkgname
+  make -k check
+}
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}

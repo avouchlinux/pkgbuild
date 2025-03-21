@@ -1,0 +1,82 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_gemname='minitest'
+pkgname="ruby-${_gemname}"
+pkgver=5.22.3
+pkgrel=2
+pkgdesc='Complete suite of testing facilities supporting TDD, BDD, mocking, and benchmarking'
+url="https://github.com/minitest/${_gemname}"
+arch=('any')
+groups=('dev-ruby')
+license=('MIT')
+depends=('ruby')
+makedepends=('ruby-hoe' 'ruby-rake' 'ruby-rdoc')
+options=('!emptydirs')
+source=("${url}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('122f69ad7de9c6b93d20cbf7e1301c8acbf1d184fa337412c01ee6b3f9e5d9b3dceb6658dfb00475f1fa5d6058ac666f4e1fbbebe365f3729c1aa73654ef70e4')
+b2sums=('e4327e0fed9ec65c736b03eee8b01c537992ee4635ba2da010a354b66554656ad1c5eb194d09d49e09c54ae44d584841ce17ce6d428dd20b4d07c932d631cdc6')
+
+build() {
+  cd "${_gemname}-${pkgver}"
+
+  local _gemdir="$(gem env gemdir)"
+
+  rake gem
+
+  gem install \
+    --local \
+    --verbose \
+    --ignore-dependencies \
+    --no-user-install \
+    --install-dir "tmp_install${_gemdir}" \
+    --bindir "tmp_install/usr/bin" \
+    "pkg/${_gemname}-${pkgver}.gem"
+
+  # remove unrepreducible files
+  rm --force --recursive --verbose \
+    "tmp_install${_gemdir}/cache/" \
+    "tmp_install${_gemdir}/gems/${_gemname}-${pkgver}/vendor/" \
+    "tmp_install${_gemdir}/doc/${_gemname}-${pkgver}/ri/ext/"
+
+  find "tmp_install${_gemdir}/gems/" \
+    -type f \
+    \( \
+      -iname "*.o" -o \
+      -iname "*.c" -o \
+      -iname "*.so" -o \
+      -iname "*.time" -o \
+      -iname "gem.build_complete" -o \
+      -iname "Makefile" \
+    \) \
+    -delete
+
+  find "tmp_install${_gemdir}/extensions/" \
+    -type f \
+    \( \
+      -iname "mkmf.log" -o \
+      -iname "gem_make.out" \
+    \) \
+    -delete
+}
+
+check() {
+  cd "${_gemname}-${pkgver}"
+
+  local _gemdir="$(gem env gemdir)"
+
+  GEM_HOME="tmp_install${_gemdir}" rake test
+}
+
+package() {
+  cd "${_gemname}-${pkgver}"
+
+  cp --archive --verbose tmp_install/* "${pkgdir}"
+
+  install --verbose -D --mode=0644 README.rdoc --target-directory "${pkgdir}/usr/share/licenses/${pkgname}"
+  install --verbose -D --mode=0644 *.rdoc --target-directory "${pkgdir}/usr/share/doc/${pkgname}"
+}
+
+# vim: tabstop=2 shiftwidth=2 expandtab:

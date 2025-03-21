@@ -1,31 +1,31 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=graphviz
-pkgver=3.0.0
+pkgver=12.1.2
 pkgrel=1
 pkgdesc='Graph visualization software'
 arch=('x86_64')
 groups=('media-grafix')
 url='https://www.graphviz.org/'
 license=('EPL')
-depends=('libltdl' 'gd' 'librsvg' 'libxaw' 'ghostscript' 'pango' 'gts' 'gsfonts' 'libnsl' 'libpng')
-makedepends=('swig' 'mono' 'guile' 'lua' 'ocaml' 'perl' 'python3' 'r' 'tk' 'qt5-base' 'gtk2')
+depends=('libltdl' 'gd' 'librsvg' 'ghostscript' 'pango' 'gts' 'gsfonts')
+makedepends=('swig' 'mono' 'guile' 'lua' 'perl' 'python' 'r' 'tk' 'qt6-base')
 optdepends=('mono: sharp bindings'
             'guile: guile bindings'
             'lua: lua bindings'
-            'ocaml: ocaml bindings'
             'perl: perl bindings'
             'python: python bindings'
             'r: r bindings'
             'tcl: tcl bindings'
-            'qt5-base: gvedit'
-            'gtk2: gtk output plugin'
+            'qt6-base: gvedit'
             'xterm: vimdot')
 source=("https://gitlab.com/graphviz/graphviz/-/archive/$pkgver/$pkgname-$pkgver.tar.gz"
         'ghostscript918.patch')
+sha256sums=('29ea6216aad2bc0bbc00e2274f24b7bf5a6ea0443c1533abf1b14d370542f186'
+            '0083d126e27f2223ec4226fc1d71c9c84106968a0fdf65de838aee1e4882bfdb')
 install=install
 
 prepare() {
@@ -37,16 +37,13 @@ prepare() {
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	export LIBPOSTFIX=/
-    export CXXFLAGS+=' -fPIC -fpermissive'
+	export CXXFLAGS+=' -fPIC -fpermissive'
+	export CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
 
 	./configure --prefix=/usr \
-           --enable-python3=yes \
-		   --disable-python \
-		   --enable-lefty \
-		   --enable-php=no
-		   # requires php7 our default is php8
+           --enable-python3=yes --disable-python --disable-php --disable-ruby --enable-lefty
         sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool # Fix overlinking
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {
@@ -61,9 +58,5 @@ package() {
 	cd "${pkgdir}/usr/lib/tcl8.6"
 	rm -fr graphviz
 	ln -s ../graphviz/tcl graphviz
-
-	# note
-	# fix an isuue with the installer
-	# must run this command
-	# /usr/bin/dot -c
 }
+

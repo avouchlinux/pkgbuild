@@ -1,24 +1,28 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xload
 _pkgname=xload
-pkgver=1.1.3
+pkgver=1.2.0
 pkgrel=1
 pkgdesc="System load average display for X"
 arch=('x86_64')
 groups=('x11-apps')
 url="https://xorg.freedesktop.org/"
-license=('custom')
-depends=('libxaw' 'libxmu' 'libxt' 'libx11')
+license=('X11')
+depends=('libxaw' 'libxmu' 'libxt' 'libx11' 'glibc')
 makedepends=('xorg-util-macros')
-source=(https://xorg.freedesktop.org/archive/individual/app/xload-${pkgver}.tar.bz2{,.sig})
+source=(https://xorg.freedesktop.org/archive/individual/app/xload-${pkgver}.tar.xz{,.sig})
+sha512sums=('b6143f796f7d24bb204e29f341f59c27a0eba00ae58e42bde0d1471e3e9357a0ce5e9e23de119d2540c9f5c71d28eb1e85dd766b6b28a7f066805b5f386aa716'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
   cd xload-${pkgver}
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
@@ -26,3 +30,4 @@ package() {
   make DESTDIR="${pkgdir}" install
   install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

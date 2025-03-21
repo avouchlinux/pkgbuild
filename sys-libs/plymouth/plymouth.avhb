@@ -1,76 +1,65 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plymouth
-pkgver=0.9.5
+pkgver=24.004.60
 pkgrel=1
 pkgdesc="A graphical boot splash screen with kernel mode-setting support"
 url="http://www.freedesktop.org/wiki/Software/Plymouth/"
 arch=('x86_64')
 groups=('sys-libs')
-license=('GPL')
-depends=('libdrm' 'pango' 'systemd')
-makedepends=('docbook-xsl')
-optdepends=('ttf-dejavu: For true type font support'
-	    'xf86-video-fbdev: Support special graphic cards on early startup')
-provides=('plymouth')
-conflicts=('plymouth-git' 'plymouth-legacy' 'plymouth-nosystemd')
+license=('GPL2')
+depends=('bash' 'cairo' 'cantarell-fonts' 'filesystem' 'fontconfig' 'freetype2' 'glib2' 'glibc'
+         'libdrm' 'libevdev' 'libpng' 'libx11' 'libxkbcommon' 'pango' 'systemd-libs'
+         'xkeyboard-config')
+makedepends=('gtk3' 'docbook-xsl' 'meson')
+optdepends=('gtk3: x11 renderer')
 backup=('etc/plymouth/plymouthd.conf')
-source=('https://gitlab.freedesktop.org/plymouth/plymouth/-/archive/0.9.4/plymouth-0.9.4.tar.bz2'
-        'arch-logo.png'
-        'plymouth-quit.service.in.patch')        
-
-# getsrc(){
-#     git clone https://gitlab.freedesktop.org/plymouth/plymouth.git
-# }
+install='plymouth.install'
+source=("https://www.freedesktop.org/software/$pkgname/releases/$pkgname-$pkgver.tar.xz"
+        'plymouth.initcpio_hook'
+        'plymouth.initcpio_install'
+        'plymouth-shutdown.initcpio_install'
+        'mkinitcpio-generate-shutdown-ramfs-plymouth.conf')
+sha256sums=('f3f7841358c98f5e7b06a9eedbdd5e6882fd9f38bbd14a767fb083e3b55b1c34'
+            'de852646e615e06d4125eb2e646d0528d1e349bd9e9877c08c5d32c43d288b6f'
+            'e7563fc8e25c3cbc869d3ecc2acee28e225855723c90c569310e308aab86a8a7'
+            '2e63bd2460ce4ca56b9a407802c35ce69072cda40679b42889d692adf2fc656c'
+            '04af86a0ec83fc92d7339e1a7fcc0d55b86b95797a1a5f1a3b8d850996a3926c')
 
 prepare() {
-	cd "$srcdir"/${pkgname}-${pkgver}
-	# patch -p1 -i $srcdir/plymouth-quit.service.in.patch
-    # Unit configured to use KillMode=none. 
-    # This is unsafe, as it disables systemd's process lifecycle management for the service
-    # Support for KillMode=none is deprecated and will eventually be removed
+  cd $pkgname-$pkgver
+  # Use mkinitcpio to update initrd
+#   sed -i 's/^dracut -f$/mkinitcpio -P/' scripts/plymouth-update-initrd
 
-    sed -i 's/KillMode=none/KillMode=mixed/' systemd-units/plymouth-start.service.in
-    NOCONFIGURE=1 ./autogen.sh
+  # Change default theme
+  sed -i 's/^Theme=spinner$/Theme=bgrt/' src/plymouthd.defaults
 }
 
 build() {
-	cd "$srcdir"/${pkgname}-${pkgver}
-    ./configure --prefix=/usr \
-        --exec-prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --libdir=/usr/lib \
-        --libexecdir=/usr/lib \
-        --sbindir=/usr/bin \
-        --enable-systemd-integration \
-        --enable-drm \
-        --enable-tracing \
-        --enable-pango \
-        --enable-gtk=no \
-        --with-runtimedir=/run \
-        --with-release-file=/etc/os-release \
-        --with-logo=/usr/share/plymouth/avouch-logo.png \
-        --with-background-color=0x000000 \
-        --with-background-start-color-stop=0x000000 \
-        --with-background-end-color-stop=0x4D4D4D \
-        --without-rhgb-compat-link \
-        --without-system-root-install
-    make ${MAKEFLAGS}
+  avouch-meson build $pkgname-$pkgver \
+    -D logo=/usr/share/pixmaps/avouch.png
+  meson compile -C build
+
+  # Convert logo for the spinner theme
+#   rsvg-convert '/usr/share/pixmaps/archlinux-logo-text-dark.svg' -o archlinux-logo-text-dark.png
 }
 
 package() {
-	cd "$srcdir"/${pkgname}-${pkgver}
-    make DESTDIR="$pkgdir" install
-    install -Dm644 "$srcdir/avouch-logo.png"  "$pkgdir/usr/share/plymouth/avouch-logo.png"
+  meson install -C build --destdir "$pkgdir"
+  rm -r "$pkgdir/run"
 
-    #mkdir -p $pkgdir/var/lib/plymouth
-    #cp $srcdir/boot-duration $pkgdir/usr/share/plymouth/default-boot-duration
-    #cp $srcdir/boot-duration $pkgdir/var/lib/plymouth
+  # Install mkinitcpio hook
+#   install -Dm644 plymouth.initcpio_hook "$pkgdir/usr/lib/initcpio/hooks/$pkgname"
+#   install -Dm644 plymouth.initcpio_install "$pkgdir/usr/lib/initcpio/install/$pkgname"
 
-    cp "$pkgdir/usr/share/plymouth/plymouthd.defaults" "$pkgdir/etc/plymouth/plymouthd.conf"
-
-    rm -r "$pkgdir"/var/run
+  # Install mkinitcpio shutdown hook and systemd drop-in snippet
+#   install -Dm644 plymouth-shutdown.initcpio_install "$pkgdir/usr/lib/initcpio/install/$pkgname-shutdown"
+#   install -Dm644 mkinitcpio-generate-shutdown-ramfs-plymouth.conf "$pkgdir/usr/lib/systemd/system/mkinitcpio-generate-shutdown-ramfs.service.d/plymouth.conf"
+  
+  # Install logo for the spinner theme
+  install -Dm644 avouch.png "$pkgdir/usr/share/$pkgname/themes/spinner/watermark.png"
+#   install -Dm644 archlinux-logo-text-dark.png "$pkgdir/usr/share/$pkgname/themes/spinner/watermark.png"
 }

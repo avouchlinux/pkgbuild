@@ -1,0 +1,62 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libdovi
+pkgver=3.3.1
+pkgrel=1
+pkgdesc='Library to read and write Dolby Vision metadata'
+arch=(x86_64)
+groups=('media-libs')
+url=https://github.com/quietvoid/dovi_tool/tree/main/dolby_vision
+license=(MIT)
+depends=(
+  gcc-libs
+  glibc
+)
+makedepends=(
+  cargo-c
+  git
+  rust
+)
+provides=(libdovi.so)
+_tag=83e1fdad6dcd5995556235946e7c5c0f9010d5a1
+source=(git+https://github.com/quietvoid/dovi_tool.git#tag=${_tag})
+b2sums=('4a62ce9a675aaba115a90637b0daa05ae1f6d5861f66c311839fc942e55f69a6621d0412f105e64f3476a6fe3bfdb1be87d0052924b1263d8a3d9f0a6068aeb9')
+
+prepare() {
+  cargo fetch \
+    --manifest-path dovi_tool/dolby_vision/Cargo.toml
+}
+
+#pkgver() {
+#  cd dovi_tool
+#  git describe --tags | sed 's/^libdovi-//'
+#}
+
+build() {
+  cargo cbuild \
+    --release \
+    --frozen \
+    --prefix=/usr \
+    --manifest-path dovi_tool/dolby_vision/Cargo.toml
+}
+
+check() {
+  cargo test \
+    --release \
+    --frozen \
+    --all-features \
+    --manifest-path dovi_tool/dolby_vision/Cargo.toml
+}
+
+package() {
+  cd dovi_tool/dolby_vision
+  cargo cinstall \
+    --release \
+    --frozen \
+    --prefix /usr \
+    --destdir "${pkgdir}"
+  install -Dm 644 LICENSE -t "${pkgdir}"/usr/share/licenses/libdovi/
+}

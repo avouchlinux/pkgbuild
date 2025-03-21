@@ -1,29 +1,34 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xkbutils
 _realname=xkbutils
-pkgver=1.0.4
+pkgver=1.0.6
 pkgrel=1
 pkgdesc="XKB utility demos"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
-license=('custom')
-depends=('libxaw' 'libxt' 'libx11')
-makedepends=('xorg-util-macros' 'xproto' 'inputproto')
-source=(http://xorg.freedesktop.org/archive/individual/app/xkbutils-${pkgver}.tar.bz2)
+url="https://gitlab.freedesktop.org/xorg/app/xkbutils"
+license=('LicenseRef-xkbutils')
+depends=('libxaw' 'libxt' 'libx11' 'glibc')
+makedepends=('xorg-util-macros' 'xorgproto')
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/app/xkbutils-${pkgver}.tar.xz{,.sig})
+sha512sums=('78fb7ab4ef6642040992529444944080aca7a2ec4118f9a64c45dacc37e4041181df7bcd1f4270e11b9fbc8bd60a131b4702d2aa95741d89c54582ff8a8f896e'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xkbutils-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xkbutils-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,34 +9,27 @@ pkgrel=1
 pkgdesc="The GNU macro processor"
 arch=('x86_64')
 groups=('dev-utils')
-url="http://www.gnu.org/software/m4"
+url="https://www.gnu.org/software/m4"
 license=('GPL3')
 depends=('glibc' 'bash')
-source=(https://ftp.gnu.org/gnu/m4/$pkgname-$pkgver.tar.xz{,.sig}
-        m4-1.4.18-glibc-change-work-around.patch)
-md5sums=('730bb15d96fffe47e148d1e09235af82'
-         'SKIP'
-         '01968e8f3a5be62de1c849668db8042b')
+source=("https://ftp.gnu.org/gnu/m4/$pkgname-$pkgver.tar.xz"{,.sig})
+sha256sums=('63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96'
+            'SKIP')
 validpgpkeys=('71C2CC22B1C4602927D2F3AAA7A16B4A2527436A')   # Eric Blake
 
-prepare() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    autoreconf -ivf
-}
-
-
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"  
-    ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+	cd "$pkgname-$pkgver"
+	./configure --prefix=/usr
+	make
 }
 
 check() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make ${MAKEFLAGS} check
+	cd "$pkgname-$pkgver"
+	make check
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+	cd "$pkgname-$pkgver"
+	make prefix="${pkgdir}"/usr install
 }
+

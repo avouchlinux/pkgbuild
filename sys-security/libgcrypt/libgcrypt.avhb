@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgcrypt
-pkgver=1.9.3
+pkgver=1.10.3
 pkgrel=1
 pkgdesc="General purpose cryptographic library based on the code from GnuPG"
 arch=('x86_64')
@@ -15,12 +15,14 @@ depends=('libgpg-error')
 options=('!emptydirs')
 # https://www.gnupg.org/download/integrity_check.html
 source=(https://gnupg.org/ftp/gcrypt/${pkgname}/${pkgname}-${pkgver}.tar.bz2{,.sig})
-validpgpkeys=('031EC2536E580D8EA286A9F22071B08A33BD3F06' # "NIIBE Yutaka (GnuPG Release Key) <gniibe@fsij.org>"
-              'D8692123C4065DEA5E0F3AB5249B39D24F25E3B6') # Werner Koch
-options=(!makeflags)
+sha256sums=('8b0870897ac5ac67ded568dcfadf45969cfa8a6beb0fd60af2a9eadc2a3272aa'
+            'SKIP')
+#validpgpkeys=('6DAA6E64A76D2840571B4902528897B826403ADA') # "Werner Koch (dist signing 2020)"
+validpgpkeys=('AC8E115BF73E2D8D47FA9908E98E9B2D19C6C8BD') # Niibe Yutaka (GnuPG Release Key)
 
 prepare() {
   cd "${pkgname}"-${pkgver}
+
   # tests fail due to systemd+libseccomp preventing memory syscalls when building in chroots
   #  t-secmem: line 176: gcry_control (GCRYCTL_INIT_SECMEM, pool_size, 0) failed: General error
   #  FAIL: t-secmem
@@ -31,21 +33,20 @@ prepare() {
   autoreconf -vfi
 }
 
-
 build() {
-    cd ${pkgname}-${pkgver}
-    ./configure --prefix=/usr \
-        --disable-static \
-        --disable-padlock-support
-    make ${MAKEFLAGS}
+  cd "${pkgname}"-${pkgver}
+  ./configure --prefix=/usr \
+	--disable-static \
+	--disable-padlock-support
+  make
 }
 
 check() {
-    cd ${pkgname}-${pkgver}
-    make check
+  cd "${pkgname}"-${pkgver}
+  make check
 }
 
 package() {
-    cd ${pkgname}-${pkgver}
-    make DESTDIR=${pkgdir} install
+  cd "${pkgname}"-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

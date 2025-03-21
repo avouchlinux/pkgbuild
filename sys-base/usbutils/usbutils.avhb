@@ -1,32 +1,54 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=usbutils
-pkgver=012
+pkgver=017
 pkgrel=1
 pkgdesc="USB Device Utilities"
 arch=('x86_64')
 groups=('sys-base')
-license=('GPL')
-depends=('libusb' 'hwids')
-optdepends=('python2: for lsusb.py usage'
-            'coreutils: for lsusb.py usage')
-url="http://linux-usb.sourceforge.net/"
-source=("http://www.kernel.org/pub/linux/utils/usb/usbutils/${pkgname}-${pkgver}.tar.xz")
-md5sums=('c9df5107ae9d26b10a1736a261250139'
-         '45766196895b4cc50b53cd56e1bbf3d1')
+url="https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usbutils.git/"
+license=(
+  GPL-2.0-only
+  GPL-2.0-or-later
+  GPL-3.0-only
+)
+depends=(
+  glibc
+  hwdata
+)
+makedepends=(
+  libusb
+  systemd
+)
+optdepends=(
+  'coreutils: for lsusb.py usage'
+  'python: for lsusb.py usage'
+  'sh: for usb-devices'
+)
+source=(https://www.kernel.org/pub/linux/utils/usb/usbutils/$pkgname-$pkgver.tar{.xz,.sign})
+sha512sums=('eaebbc82eee4d940898f7a8de95ca49846c7c964e65c3d866b38735f8f3c8ccfed2b3a536bf2ef39a835a40a34c2273ac4d82b1012d0c693d4863cff14870d95'
+            'SKIP')
+b2sums=('868c646ed6d38a38b9bd3ab85ba3a5e9362a97e476aeed6576c1b175caaf4ee688cb2c33756f02c9bf0aef9e7d58657331fc1c3b3314d86145b3d4f37124537e'
+        'SKIP')
+validpgpkeys=('647F28654894E3BD457199BE38DBBDC86092693E')  # Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
-	./autogen.sh
+	autoreconf -fiv
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --datadir=/usr/share/hwdata --disable-zlib
-	make
+  cd $pkgname-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --datadir=/usr/share/hwdata
+  make
 }
+
 
 package() {
 	cd "${srcdir}/${pkgname}-${pkgver}"

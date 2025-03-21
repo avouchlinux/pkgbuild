@@ -1,0 +1,185 @@
+From: Jochen Sprickerhof <git@jochen.sprickerhof.de>
+Date: Fri, 29 Jan 2021 12:00:31 +0100
+Subject: Use one object for shqueue.h test
+
+shqueue.h uses pointer arithmetic to store the relative offsets of the
+elements. This is only allowed in an array object.
+---
+ test/c/suites/TestQueue.c | 38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
+
+diff --git a/test/c/suites/TestQueue.c b/test/c/suites/TestQueue.c
+index b5bc1ab..89c3dc9 100644
+--- a/test/c/suites/TestQueue.c
++++ b/test/c/suites/TestQueue.c
+@@ -44,6 +44,9 @@ const char *failure_reason_names[] = {
+ 	"expected to be at the head of the list"
+ };
+ 
++// longest ops[i].final
++#define TEST_QUEUE_LEN 5
++
+ SH_LIST_HEAD(sh_lq);
+ struct sh_le {
+ 	char content;
+@@ -79,14 +82,15 @@ sh_l_init(items)
+ {
+ 	const char *c = items;
+ 	struct sh_le *ele = NULL, *last_ele = (struct sh_le*)-1;
+-	struct sh_lq *l = calloc(1, sizeof(struct sh_lq));
++	struct sh_lq *l = calloc(1, sizeof(struct sh_lq) + TEST_QUEUE_LEN * sizeof(struct sh_le));
++	size_t i = 0;
+ 
+ 	SH_LIST_INIT(l);
+ 
+ 	while (*c != '\0') {
+ 		if (c[0] != ' ') {
+ 			last_ele = ele;
+-			ele = calloc(1, sizeof(struct sh_le));
++			ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + i++ * sizeof(struct sh_le)];
+ 			ele->content = c[0];
+ 			if (SH_LIST_EMPTY(l))
+ 				SH_LIST_INSERT_HEAD(l, ele, sh_les, sh_le);
+@@ -106,8 +110,6 @@ sh_l_remove_head(l)
+ 	struct sh_le *ele = SH_LIST_FIRST(l, sh_le);
+ 
+ 	SH_LIST_REMOVE_HEAD(l, sh_les, sh_le);
+-	if (ele != NULL)
+-		free(ele);
+ 
+ 	return (l);
+ }
+@@ -126,7 +128,6 @@ sh_l_remove_tail(l)
+ 
+ 	if (ele) {
+ 		SH_LIST_REMOVE(ele, sh_les, sh_le);
+-		free(ele);
+ 	}
+ 	return (l);
+ }
+@@ -153,7 +154,7 @@ sh_l_insert_head(l, item)
+ 	struct sh_lq *l;
+ 	const char *item;
+ {
+-	struct sh_le *ele = calloc(1, sizeof(struct sh_le));
++	struct sh_le *ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_le)];
+ 
+ 	ele->content = item[0];
+ 	SH_LIST_INSERT_HEAD(l, ele, sh_les, sh_le);
+@@ -174,11 +175,11 @@ sh_l_insert_tail(l, item)
+ 			last_ele = SH_LIST_NEXT(last_ele, sh_les, sh_le);
+ 
+ 	if (last_ele == NULL) {
+-		ele = calloc(1, sizeof(struct sh_le));
++		ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_le)];
+ 		ele->content = item[0];
+ 		SH_LIST_INSERT_HEAD(l, ele, sh_les, sh_le);
+ 	} else {
+-		ele = calloc(1, sizeof(struct sh_le));
++		ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_le)];
+ 		ele->content = item[0];
+ 		SH_LIST_INSERT_AFTER(last_ele, ele, sh_les, sh_le);
+ 	}
+@@ -201,7 +202,7 @@ sh_l_insert_before(l, item, before_item)
+ 		before_ele = SH_LIST_NEXT(before_ele, sh_les, sh_le);
+ 	}
+ 	if (before_ele != NULL) {
+-		ele = calloc(1, sizeof(struct sh_le));
++		ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_le)];
+ 		ele->content = item[0];
+ 		SH_LIST_INSERT_BEFORE(l, before_ele, ele, sh_les, sh_le);
+ 	}
+@@ -223,7 +224,7 @@ sh_l_insert_after(l, item, after_item)
+ 		after_ele = SH_LIST_NEXT(after_ele, sh_les, sh_le);
+ 	}
+ 	if (after_ele != NULL) {
+-		ele = calloc(1, sizeof(struct sh_le));
++		ele = (struct sh_le*)&((char*)l)[sizeof(struct sh_lq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_le)];
+ 		ele->content = item[0];
+ 		SH_LIST_INSERT_AFTER(after_ele, ele, sh_les, sh_le);
+ 	}
+@@ -238,7 +239,6 @@ sh_l_discard(l)
+ 
+ 	while ((ele = SH_LIST_FIRST(l, sh_le)) != NULL) {
+ 		SH_LIST_REMOVE(ele, sh_les, sh_le);
+-		free(ele);
+ 	}
+ 
+ 	free(l);
+@@ -361,13 +361,14 @@ sh_t_init(items)
+ {
+ 	const char *c = items;
+ 	struct sh_te *ele = NULL, *last_ele = (struct sh_te*)-1;
+-	struct sh_tq *l = calloc(1, sizeof(struct sh_tq));
++	struct sh_tq *l = calloc(1, sizeof(struct sh_tq) + TEST_QUEUE_LEN * sizeof(struct sh_te));
++	size_t i = 0;
+ 
+ 	SH_TAILQ_INIT(l);
+ 
+ 	while (*c != '\0') {
+ 		if (c[0] != ' ') {
+-			ele = calloc(1, sizeof(struct sh_te));
++			ele = (struct sh_te*)&((char*)l)[sizeof(struct sh_tq) + i++ * sizeof(struct sh_te)];
+ 			ele->content = c[0];
+ 
+ 			if (SH_TAILQ_EMPTY(l))
+@@ -391,7 +392,6 @@ sh_t_remove_head(l)
+ 	if (ele != NULL)
+ 		SH_TAILQ_REMOVE(l, ele, sh_tes, sh_te);
+ 
+-	free(ele);
+ 
+ 	return (l);
+ }
+@@ -410,7 +410,6 @@ sh_t_remove_tail(l)
+ 
+ 	if (ele != NULL) {
+ 		SH_TAILQ_REMOVE(l, ele, sh_tes, sh_te);
+-		free(ele);
+ 	}
+ 
+ 	return (l);
+@@ -439,7 +438,7 @@ sh_t_insert_head(l, item)
+ 	struct sh_tq *l;
+ 	const char *item;
+ {
+-	struct sh_te *ele = calloc(1, sizeof(struct sh_te));
++	struct sh_te *ele = (struct sh_te*)&((char*)l)[sizeof(struct sh_tq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_te)];
+ 
+ 	ele->content = item[0];
+ 	SH_TAILQ_INSERT_HEAD(l, ele, sh_tes, sh_te);
+@@ -453,7 +452,7 @@ sh_t_insert_tail(l, item)
+ 	const char *item;
+ {
+ 	struct sh_te *ele = 0;
+-	ele = calloc(1, sizeof(struct sh_te));
++	ele = (struct sh_te*)&((char*)l)[sizeof(struct sh_tq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_te)];
+ 	ele->content = item[0];
+ 	SH_TAILQ_INSERT_TAIL(l, ele, sh_tes);
+ 	return l;
+@@ -475,7 +474,7 @@ sh_t_insert_before(l, item, before_item)
+ 	}
+ 
+ 	if (before_ele != NULL) {
+-		ele = calloc(1, sizeof(struct sh_te));
++		ele = (struct sh_te*)&((char*)l)[sizeof(struct sh_tq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_te)];
+ 		ele->content = item[0];
+ 		SH_TAILQ_INSERT_BEFORE(l, before_ele, ele, sh_tes, sh_te);
+ 	}
+@@ -499,7 +498,7 @@ sh_t_insert_after(l, item, after_item)
+ 	}
+ 
+ 	if (after_ele != NULL) {
+-		ele = calloc(1, sizeof(struct sh_te));
++		ele = (struct sh_te*)&((char*)l)[sizeof(struct sh_tq) + (TEST_QUEUE_LEN-1) * sizeof(struct sh_te)];
+ 		ele->content = item[0];
+ 		SH_TAILQ_INSERT_AFTER(l, after_ele, ele, sh_tes, sh_te);
+ 	}
+@@ -515,7 +514,6 @@ sh_t_discard(l)
+ 
+ 	while ((ele = SH_TAILQ_FIRST(l, sh_te)) != NULL) {
+ 		SH_TAILQ_REMOVE(l, ele, sh_tes, sh_te);
+-		free(ele);
+ 	}
+ 	free(l);
+ }

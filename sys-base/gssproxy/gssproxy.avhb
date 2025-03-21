@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gssproxy
-pkgver=0.8.2
+pkgver=0.9.2
 pkgrel=1
 pkgdesc="GSSAPI Proxy"
 arch=('x86_64')
@@ -43,7 +44,6 @@ build() {
     --with-pubconf-path=/etc/gssproxy \
     --sbindir=/usr/bin \
     --localstatedir=/var \
-    --without-selinux \
     --with-initscript=systemd \
     --with-gpp-default-behavior=REMOTE_FIRST
 
@@ -51,6 +51,7 @@ build() {
 #                          Which default behavior the gssproxy interposer
 #                          plugin should use [LOCAL_FIRST]
 #--help
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make ${MAKFLAGS}
 }
 

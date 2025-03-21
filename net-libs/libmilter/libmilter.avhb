@@ -1,104 +1,57 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmilter
 _realname=sendmail
-pkgver=8.15.2
+pkgver=8.18.1
 pkgrel=1
 pkgdesc='Implementation of the sendmail Mail Filter API'
 arch=('x86_64')
 groups=('net-libs')
 url='https://www.proofpoint.com/us/sendmail-open-source'
+arch=('x86_64')
 options=('staticlibs')
-license=('custom:Sendmail open source license')
-source=("https://ftp.sendmail.org/${_pkgname}.${pkgver}.tar.gz"
-        'fd-passing-libmilter.patch')
-validpgpkeys=('30BCA74705FA415455731D7BAAF5B5DE05BDCC53')
+license=('Sendmail')
+# Signing keys sourced from upstream. Current version is signed with the 2024 keys.
+# https://www.proofpoint.com/us/products/email-protection/open-source-email-solution
+validpgpkeys=('8AB063D7A4C5939DA9C01E38C4065A87C71F6844')
+source=(
+  "https://ftp.sendmail.org/$_realname.$pkgver.tar.gz"{,.sig}
+  'fd-passing-libmilter.patch'
+  'site.config.m4'
+)
+sha512sums=('9ce713b44439d4de6faa9e3cdfa2226b44b4fbeb352a5f81584c062570e9472da244158287e489aabe258d28fe54ca4964565c7b0adc7e1763d212be42f98061'
+            'SKIP'
+            '438dfb94d4b884a08abbb20849a8b309b251b9d48c098575e67603d9d4d23d8ac799287cedd975b8aae61c550b987a9bf8dd7c9343ed289185b7e2ca72cbc82a'
+            '01c8f7f9f7a20888604fdbf5696c563dc42e75642f9857cb3cfd3593c058a3a6c84f86250c8459b6dcc1d2b71cfcc5c84e717f8d86df5f9f468086d4d94810bd')
+b2sums=('3afa36073fd611c7fdb43ef0ab9f02d5fb8ae388e9471bdc7275c6c9dcee0a654f46ddef505b70e978cb1b818b0da375250678e501676d8bace534d59ee40d90'
+        'SKIP'
+        'ea2f1811666ce1b2c7532794845de9ec1f1e72d6c58a02c4c5800e93359c1c1cd4a0353fee572c258c378b0fea776d03ba19d794da7ed3295d9432b47ceb2481'
+        '4173a1abd272908faeef7f44b5d033f639101f0494be0bcb7e43e29b087f436f082e05a3065fc89f428b91e94cfa0c4b4abf92be77bd722a646012a1f428300a')
 
 prepare() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	patch -p1 -i ../fd-passing-libmilter.patch
-
-	# glibc-2.30 build fixes 
-	patch -p1 -i ../sendmail-8.15.2-glibc-2.30.patch
-
-	# rhbz#1736650
-	# patch -p1 -i ../sendmail-8.15.2-gethostbyname2.patch
-
-
-	# fix man path and makemap man page
-	patch -p1 -i ../sendmail-8.14.4-makemapman.patch
-# fix smrsh paths
-	patch -p1 -i ../sendmail-8.14.3-smrsh_paths.patch
-# fix sm-client.pid path
-	patch -p1 -i ../sendmail-8.14.9-pid.patch
-# fix sendmail man page
-	patch -p1 -i ../sendmail-8.15.1-manpage.patch
-# compile with -fpie
-	patch -p1 -i ../sendmail-8.15.1-dynamic.patch
-# fix cyrus path
-	patch -p1 -i ../sendmail-8.13.0-cyrus.patch
-# fix aliases.db path
-	patch -p1 -i ../sendmail-8.15.1-aliases_dir.patch
-# fix vacation Makefile
-	patch -p1 -i ../sendmail-8.14.9-vacation.patch
-# remove version information from sendmail helpfile
-	patch -p1 -i ../sendmail-8.14.9-noversion.patch
-# do not accept localhost.localdomain as valid address from SMTP
-	patch -p1 -i ../sendmail-8.15.2-localdomain.patch
-# build libmilter as DSO
-cp devtools/M4/UNIX/{,shared}library.m4
-	patch -p1 -i ../sendmail-8.14.3-sharedmilter.patch
-# skip colon separator when parsing service name in ServiceSwitchFile
-	patch -p1 -i ../sendmail-8.15.2-switchfile.patch
-# silence warning about missing sasl2 config in /usr/lib*, now in /etc/sasl2
-	patch -p1 -i ../sendmail-8.14.8-sasl2-in-etc.patch
-# add QoS support, patch from Philip Prindeville <philipp@fedoraproject.org>
-# upstream reserved option ID 0xe7 for testing of this new feature, #576643
-	patch -p1 -i ../sendmail-8.15.2-qos.patch
-	#patch -p1 -i ../sendmail-8.15.2-libmilter-socket-activation.patch
-# patch provided by upstream
-	patch -p1 -i ../sendmail-8.15.2-smtp-session-reuse-fix.patch
-	patch -p1 -i ../sendmail-8.15.2-openssl-1.1.0-fix.patch
-# patch taken from Debian
-# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=807258
-	patch -p1 -i ../sendmail-8.15.2-format-security.patch
-# rhbz#1473971
-	patch -p1 -i ../sendmail-8.15.2-openssl-1.1.0-ecdhe-fix.patch
-
-# upstream patch:
-	patch -p1 -i ../sendmail-8.15.2-fix-covscan-issues.patch
-# sent upstream
-	patch -p1 -i ../sendmail-8.15.2-gcc-10-fix.patch
-
-	
-
-	# From http://www.j-chkmail.org/wiki/doku.php/doc/installation/start#libmilter
-	cat >> devtools/Site/site.config.m4 <<EOF
-dnl Include our flags
-APPENDDEF(\`conf_libmilter_ENVDEF',\`${CPPFLAGS} ${CFLAGS}')
-dnl Enable libmilter with a pool of workers
-APPENDDEF(\`conf_libmilter_ENVDEF',\`-D_FFR_WORKERS_POOL=1 -DMIN_WORKERS=4')
-dnl Use poll instead of select
-APPENDDEF(\`conf_libmilter_ENVDEF',\`-DSM_CONF_POLL=1')
-dnl Enable IPv6
-APPENDDEF(\`conf_libmilter_ENVDEF',\`-DNETINET6=1')
-dnl Add -fPIC
-APPENDDEF(\`conf_libmilter_ENVDEF',\`-fPIC')
-EOF
+  cd "$_realname-$pkgver"
+  patch -p1 -i ../fd-passing-libmilter.patch # FS#49421
+  cp ../site.config.m4 devtools/Site
 }
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}/${pkgname}"
-	./Build
+  cd "$_realname-$pkgver/$pkgname"
+  ./Build
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}/${pkgname}"
-	install -d "${pkgdir}/usr/lib"
-	./Build DESTDIR="${pkgdir}" install
-	install -Dm644 ../LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
-	chown -R root:root "${pkgdir}"
+  cd "$_realname-$pkgver/$pkgname"
+
+  # create install directory
+  install -vd "$pkgdir/usr/lib"
+  ./Build DESTDIR="$pkgdir" install
+
+  # license
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" ../LICENSE
+
+  # correct permissions
+  chown -R root:root "$pkgdir"
 }

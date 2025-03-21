@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -28,6 +28,7 @@ prepare() {
   patch -Np1 -i ../man-pages.patch
   patch -Np1 -i ../add-string-formatting-to-build-with-gcc7.patch
   patch -Np1 -i ../remove-define-hacks.patch
+  patch -Np1 -i ../linux-atm-use_socklen_t.patch
   # patch -Np1 -i ../siocgstamp.patch # Gentoo patch is better
 
   # from Gentoo

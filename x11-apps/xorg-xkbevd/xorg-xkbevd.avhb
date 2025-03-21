@@ -1,29 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xkbevd
 _realname=xkbevd
-pkgver=1.1.4
+pkgver=1.1.5
 pkgrel=1
 pkgdesc="XKB event daemon"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 license=('custom')
 depends=('libxkbfile')
 makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/app/xkbevd-${pkgver}.tar.bz2")
+groups=('xorg-apps' 'xorg')
+source=(${url}/releases/individual/app/xkbevd-${pkgver}.tar.xz{,.sig})
+sha512sums=('9e4a56484771e5eb5444fbd11e7d0bb952a2746eea79b84298e2000ada96896d501b886727c4ef08c120b5dcce550fca2d3e3dd762f4ca0327c38d9609961c5b'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xkbevd-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xkbevd-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

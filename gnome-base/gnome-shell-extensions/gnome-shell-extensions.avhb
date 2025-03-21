@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-shell-extensions
-pkgver=45.0
+pkgver=48.0
 pkgrel=1
 pkgdesc="Extensions for GNOME shell, including classic mode"
 url="https://wiki.gnome.org/Projects/GnomeShell/Extensions"
@@ -16,8 +16,14 @@ optdepends=('gnome-menus: applications menu extension')
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build -D extension_set=all -D classic_mode=true
-    meson compile -C build
+  local meson_options=(
+    -D extension_set=all
+    -D classic_mode=true
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+
 }
 
 check() {

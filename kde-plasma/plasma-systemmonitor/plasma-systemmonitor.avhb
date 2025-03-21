@@ -1,29 +1,59 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-systemmonitor
-pkgver=5.27.8
+pkgver=6.3.3
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc="An interface for monitoring system sensors, process information and other system resources"
 arch=(x86_64)
 groups=('kde-apps')
 url='https://kde.org/plasma-desktop/'
-license=(GPL LGPL)
-depends=(libksysguard kirigami2)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+depends=(gcc-libs
+         glibc
+         kconfig
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kdeclarative
+         kglobalaccel
+         ki18n
+         kiconthemes
+         kio
+         kirigami
+         kirigami-addons
+         kitemmodels
+         knewstuff
+         kquickcharts
+         kservice
+         ksystemstats
+         kwindowsystem
+         libksysguard
+         qt6-base
+         qt6-declarative)
 makedepends=(extra-cmake-modules)
-source=("https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz"{,.sig})
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell <jr@jriddell.org>
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('95983dc41a7f25f7c0bfe81852c7b808f217d6d8bebb5d140bd4205859685a17'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
               '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
               'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
               '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
 }
+

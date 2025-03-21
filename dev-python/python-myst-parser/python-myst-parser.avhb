@@ -1,0 +1,42 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=MyST-Parser
+pkgname=python-myst-parser
+pkgver=4.0.0
+pkgrel=1
+pkgdesc='An extended commonmark compliant parser, with bridges to docutils/sphinx'
+arch=('any')
+groups=('dev-python')
+url='https://github.com/executablebooks/MyST-Parser'
+license=('MIT')
+depends=('python' 'python-docutils' 'python-jinja' 'python-markdown-it-py' 'python-mdit_py_plugins' 'python-pygments' 'python-sphinx' 'python-yaml')
+optdepends=('python-linkify-it-py: linkify support')
+makedepends=('python-build' 'python-installer' 'python-flit-core' 'python-wheel')
+checkdepends=('python-beautifulsoup4' 'python-linkify-it-py' 'python-pytest' 'python-pytest-param-files' 'python-pytest-regressions' 'python-sphinx-pytest')
+source=("$url/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('82a8c642d839133413577fd85b5668a6b4d3869f60b7c7c64f98ec6cf52f33b28abd33ee7ddbbf8e286a3f233a152878802e6a8091c88f63844ac774c88ebd62')
+
+build() {
+  cd $_pkgname-$pkgver
+
+  python -m build -wn
+}
+
+check() {
+  cd $_pkgname-$pkgver
+
+  python -m pytest \
+    -k 'not test_sphinx_builds and not fixtures and not test_myst_config and not test_myst_refs' \
+    --disable-warnings
+}
+
+package() {
+  cd $_pkgname-$pkgver
+
+  python -m installer -d "$pkgdir" dist/*.whl
+
+  install -Dm 644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

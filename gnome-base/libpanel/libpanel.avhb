@@ -1,0 +1,64 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=libpanel
+pkgname=(
+  libpanel
+  libpanel-docs
+)
+pkgver=1.10.0
+pkgrel=1
+pkgdesc="Dock/panel library for GTK 4"
+url="https://gitlab.gnome.org/GNOME/libpanel"
+arch=(x86_64)
+license=(LGPL-3.0-or-later)
+depends=(
+  cairo
+  glib2
+  glibc
+  graphene
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+)
+makedepends=(
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+  vala
+)
+source=("git+$url.git#tag=$pkgver")
+b2sums=('d8945535cf3bcc74b0530eacf891cead760930f4b3df9d0c28e812c0b18389e8b87adac698d63350b44ceb94e536bcec8b164f29ac6dbc4291195faa024d967b')
+
+build() {
+  local meson_options=(
+    -D install-examples=true
+  )
+
+  avouch-meson $pkgbase build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package_libpanel() {
+  provides=(libpanel-1.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_libpanel-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}

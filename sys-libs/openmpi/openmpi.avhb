@@ -1,65 +1,146 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=openmpi
-pkgver=4.0.3
+pkgbase=openmpi
+pkgname=(
+  openmpi
+  openmpi-docs
+)
+pkgver=5.0.2
 pkgrel=1
 pkgdesc='High performance message passing library (MPI)'
 arch=('x86_64')
 groups=('sys-libs')
 url='https://www.open-mpi.org'
-license=('custom:OpenMPI')
-depends=('glibc' 'libltdl' 'hwloc' 'openssh' 'zlib' 'libnl' 'perl' 'libevent')
-makedepends=('inetutils' 'valgrind' 'gcc-fortran' 'cuda')
-optdepends=(
-  'gcc-fortran: fortran support'
-  'cuda: cuda support'
+license=('BSD-3-Clause AND LicenseRef-MPICH')
+makedepends=(
+  cuda
+  gcc-fortran
+  gcc-libs
+  glibc
+  hip-runtime-amd
+  hwloc
+  libevent
+  libfabric
+  libnl
+  openpmix
+  openucc
+  openucx
+  prrte
+  valgrind
+  zlib
 )
-options=('staticlibs')
-source=(https://www.open-mpi.org/software/ompi/v${pkgver%.*}/downloads/${pkgname}-${pkgver}.tar.bz2)
-sha256sums=('9b78c7cf7fc32131c5cf43dd2ab9740149d9d87cadb2e2189f02685749a6b527')
-b2sums=('2e6fc12b4564a302d2c364528d0f6bea8b23f9b1cd6059763b8d5de583d86aae2812c239b1d0bb40c83f3c7682c8e666ce1de3112e95de54848169cb5e2805e8')
+source=(
+  https://www.open-mpi.org/software/ompi/v${pkgver%.*}/downloads/$pkgbase-$pkgver.tar.bz2)
+sha256sums=('ee46ad8eeee2c3ff70772160bff877cbf38c330a0bc3b3ddc811648b3396698f')
+b2sums=('ea7a584ab945c8b2fcdd8a3c2510205582606442efaad2058b321ad4c787b2f66f79e86aa4b8b094eba9508fa208f40a4a843b9938d93899eee1948d0299b7b8')
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+prepare() {
+  cd $pkgbase-$pkgver
+  # workaround for https://github.com/open-mpi/ompi/issues/12257
+  sed -i 's|WRAPPER__FCFLAGS|WRAPPER_FCFLAGS|g' configure
+  sed -i 's|WRAPPER_EXTRA_FCFLAGS|WRAPPER_FCFLAGS|g' configure
+  sed -i 's|"-I/usr/include",||' opal/tools/wrappers/opal_wrapper.c
+}
 
 build() {
-  cd ${pkgname}-${pkgver}
-  ./configure \
-    --prefix=/usr \
-    --sysconfdir=/etc/${pkgname} \
-    --enable-mpi-fortran=all \
-    --libdir=/usr/lib/${pkgname} \
-    --enable-builtin-atomics \
-    --enable-mpi-cxx \
-    --with-valgrind \
-    --enable-memchecker \
-    --enable-pretty-print-stacktrace \
-    --without-slurm \
-    --with-hwloc=/usr \
-    --with-libltdl=/usr  \
-    --with-libevent=/usr  \
-    --with-cuda=/opt/cuda \
-    FC=/usr/bin/gfortran \
-    LDFLAGS="${LDFLAGS} -Wl,-z,noexecstack"
-  make
+  local configure_options=(
+    --prefix=/usr
+    --enable-builtin-atomics
+    --enable-memchecker
+    --enable-mpi-fortran=all
+    --enable-pretty-print-stacktrace
+    --libdir=/usr/lib
+    --sysconfdir=/etc/$pkgbase
+    --with-hwloc=external
+    --with-libevent=external
+    --with-pmix=external
+    --with-prrte=external
+    --with-valgrind
+    # --with-ucc=/usr
+    --with-ucx=/usr
+    --with-cuda=/opt/cuda
+    # this tricks the configure script to look for /usr/lib/pkgconfig/cuda.pc
+    # instead of /opt/cuda/lib/pkgconfig/cuda.pc
+    --with-cuda-libdir=/usr/lib
+    # --with-rocm=/opt/rocm
+    # all components that link to libraries provided by optdepends must be run-time loadable
+    --enable-mca-dso=accelerator_cuda,accelerator_rocm,btl_smcuda,rcache_gpusm,rcache_rgpusm,coll_ucc,scoll_ucc
+    # mpirun should not warn on MCA component load failures by default - usually caused by missing optdepends, which is ok
+    # https://docs.open-mpi.org/en/main/installing-open-mpi/configure-cli-options/installation.html
+    --with-show-load-errors='^accelerator,rcache,coll/ucc'
+  )
+  cd $pkgbase-$pkgver
+
+  # set environment variables for reproducible build
+  # see https://github.com/open-mpi/ompi/blob/main/docs/release-notes/general.rst
+  export HOSTNAME=buildhost
+  export USER=builduser
+
+  # TODO: remove ac_cv_func_sem_open=no when there is a glibc release fixing https://sourceware.org/bugzilla/show_bug.cgi?id=30789
+  ac_cv_func_sem_open=no ./configure "${configure_options[@]}"
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make V=1
 }
 
 check() {
-  cd ${pkgname}-${pkgver}
-  make check
+  make check -C $pkgbase-$pkgver
 }
 
-package() {
-  cd ${pkgname}-${pkgver}
-  make DESTDIR="${pkgdir}" install
+package_openmpi() {
+  depends=(
+    gcc-libs
+    glibc
+    hwloc
+    libevent libevent_{core,pthreads}-2.1.so
+    libfabric
+    libnl
+    openpmix libpmix.so
+    openucx
+    prrte libprrte.so
+    zlib
+  )
+  optdepends=(
+    'cuda: cuda support'
+    'hip-runtime-amd: ROCm support'
+    'gcc-fortran: fortran support'
+    'openssh: for execution on remote hosts via plm_ssh_agent'
+    'openucc: for UCC accelerated collectives'
+  )
+  provides=(
+    libmpi.so
+    libmpi_mpifh.so
+    libmpi_usempi_ignore_tkr.so
+    libmpi_usempif08.so
+    libopen-pal.so
+    liboshmem.so
+  )
+  backup=(etc/$pkgname/$pkgname-mca-params.conf)
 
-  # FS#28583
-  install -dm 755 "${pkgdir}/usr/lib/pkgconfig"
-  for i in "${pkgdir}/usr/lib/openmpi/pkgconfig/"*.pc; do
-    ln -sf "/usr/lib/openmpi/pkgconfig/$(basename ${i})" "${pkgdir}/usr/lib/pkgconfig/"
-  done
+  make DESTDIR="$pkgdir" install -C $pkgbase-$pkgver
+  (
+    cd "$pkgdir"
+    _pick $pkgbase-docs usr/share/doc
+  )
+  install -Dm 644 $pkgbase-$pkgver/LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+}
 
-  install -dm 755 "${pkgdir}/etc/ld.so.conf.d"
-  echo "/usr/lib/${pkgname}" > "${pkgdir}"/etc/ld.so.conf.d/${pkgname}.conf
-  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+package_openmpi-docs() {
+  pkgdesc+=" - documentation"
+
+  mv -v $pkgname/* "$pkgdir"
+  install -vDm 644 $pkgbase-$pkgver/LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

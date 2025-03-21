@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase='ocaml'
 pkgname=('ocaml' 'ocaml-compiler-libs')
-pkgver=4.14.0
+pkgver=5.2.0
 pkgrel=1
 pkgdesc="A functional language with OO extensions"
 arch=('x86_64')
@@ -15,14 +15,15 @@ url="https://caml.inria.fr/"
 makedepends=('ncurses>=5.6-7')
 optdepends=('ncurses: advanced ncurses features' 'tk: advanced tk features')
 source=(https://caml.inria.fr/distrib/ocaml-${pkgver%.*}/${pkgname}-${pkgver}.tar.xz)
+sha512sums=('6c2376777f0ec567fc414d534cba65e5f2120f7c766de25f36bbf80260e882f5d1c94c2ce8e12f2b2982097089c6e8f928f26dbc0b559a0463e7dcdd8baf20fe')
 options=('!makeflags' '!emptydirs' 'staticlibs')
 
 build() {
-	cd "${srcdir}/${pkgbase}-${pkgver}"
-  export CFLAGS+=' -ffat-lto-objects'
-  export CXXFLAGS+=' -ffat-lto-objects'
-	./configure --prefix /usr --mandir /usr/share/man --disable-force-safe-string
-	make ${MAKEFLAGS} --debug=v world.opt
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  CFLAGS+=' -ffat-lto-objects'
+  CXXFLAGS+=' -ffat-lto-objects'
+  ./configure --prefix /usr --mandir /usr/share/man -enable-frame-pointers
+  make --debug=v world.opt
 }
 
 package_ocaml() {
@@ -49,11 +50,8 @@ optdepends=()
   cd "${srcdir}/${pkgbase}-${pkgver}"
   make DESTDIR="${pkgdir}" install
   # Remove non-compiler-libs
-  rm -rf   "${pkgdir}/usr/bin"  "${pkgdir}/usr/lib/ocaml/caml" \
-     "${pkgdir}/usr/lib/ocaml/ocamldoc" "${pkgdir}/usr/lib/ocaml/stublibs" \
-     "${pkgdir}/usr/lib/ocaml/threads" "${pkgdir}/usr/share"
-  find "${pkgdir}/usr/lib/ocaml/" -maxdepth 1 -type f -delete
-
+  find "${pkgdir}/usr/lib/ocaml/" -mindepth 1 -maxdepth 1 -not -name "compiler-libs" -execdir rm -rf "{}" "+"
+  rm -rf   "${pkgdir}/usr/bin" "${pkgdir}/usr/share"
   install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -m644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

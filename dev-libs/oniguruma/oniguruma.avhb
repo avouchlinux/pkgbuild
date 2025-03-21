@@ -1,28 +1,28 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=oniguruma
 _realname=onig
-pkgver=6.9.5
+pkgver=6.9.9
 pkgrel=1
 pkgdesc="a regular expressions library"
 arch=('x86_64')
 groups=('dev-libs')
 url="https://github.com/kkos/oniguruma"
 license=('BSD')
-options=(!libtool)
-source=("https://github.com/kkos/oniguruma/releases/download/v$pkgver/onig-$pkgver.tar.gz")
+source=("https://github.com/kkos/oniguruma/releases/download/v$pkgver/onig-${pkgver/_/-}.tar.gz")
+sha256sums=('60162bd3b9fc6f4886d4c7a07925ffd374167732f55dce8c491bfd9cd818a6cf')
 
 build() {
-	cd "$srcdir"/onig-$pkgver
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+	cd "$srcdir"/onig-${pkgver%.1}
+	./configure --prefix=/usr --enable-posix-api
+	make
 }
 
 package() {
-	cd "$srcdir"/onig-$pkgver
+	cd "$srcdir"/onig-${pkgver%.1}
 	make DESTDIR="$pkgdir" install
 	install -dm755 "$pkgdir"/usr/share/doc
 	cp -r doc "$pkgdir"/usr/share/doc/$pkgname
@@ -30,3 +30,4 @@ package() {
 		install -Dm644 $licfile "$pkgdir"/usr/share/licenses/$pkgname/$licfile
 	done
 }
+

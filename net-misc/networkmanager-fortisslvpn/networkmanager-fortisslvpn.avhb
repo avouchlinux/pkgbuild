@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,8 +12,24 @@ arch=('x86_64')
 groups=('net-misc')
 url='https://git.gnome.org/browse/network-manager-fortisslvpn'
 license=('GPL')
-depends=('networkmanager' 'nm-connection-editor' 'openfortivpn' 'libsecret')
-makedepends=('git' 'intltool' 'python' 'xorgproto' 'pkg-config' 'appstream-glib')
+_pppver=2.5.0
+depends=(
+  libnm
+  libsecret
+  openfortivpn
+  "ppp=$_pppver"
+)
+makedepends=(
+  git
+  libnma
+  libnma-gtk4
+  python
+)
+optdepends=(
+  'libnma-gtk4: GUI support (GTK 4)'
+  'libnma: GUI support (GTK 3)'
+)
+
 install=$pkgname.install
 source=(https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2)
 
@@ -23,14 +39,15 @@ prepare(){
 
 build() {
 	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr \
+    export CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
+	./autogen.sh --prefix=/usr \
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--libexecdir=/usr/lib/NetworkManager \
 		--sharedstatedir=/usr/share \
 		--enable-more-warnings=yes \
 		--disable-static
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

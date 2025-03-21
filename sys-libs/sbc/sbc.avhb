@@ -1,26 +1,46 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sbc
-pkgver=1.4
+pkgver=2.0
 pkgrel=1
 pkgdesc="Bluetooth Subband Codec (SBC) library"
 arch=('x86_64')
 groups=('sys-libs')
-url="http://www.bluez.org/"
-license=('GPL' 'LGPL')
-depends=('glibc')
-source=(http://www.kernel.org/pub/linux/bluetooth/$pkgname-$pkgver.tar.xz)
-md5sums=('ecadadbfd4b1dfe7b98f446c69126b23')
+url="https://git.kernel.org/pub/scm/bluetooth/sbc.git"
+arch=(x86_64)
+license=(GPL LGPL)
+depends=(glibc)
+makedepends=(git)
+provides=(libsbc.so)
+_commit=8dc5d5ba381512ad5b1afa45c63ec6b0a3833244  # tags/2.0^0
+source=("git+$url#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd sbc
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd sbc
+  autoreconf -fvi
+}
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --disable-static --disable-tester
-	make ${MAKEFLAGS}
+  cd sbc
+  ./configure --prefix=/usr --disable-static --disable-tester
+  make
+}
+
+check() {
+  cd sbc
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
+  cd sbc
+  make DESTDIR="$pkgdir" install
 }

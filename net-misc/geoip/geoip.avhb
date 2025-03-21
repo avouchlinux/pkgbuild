@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,13 +10,14 @@ pkgrel=1
 pkgdesc="Non-DNS IP-to-country resolver C library and utils"
 arch=('x86_64')
 groups=('net-misc')
-url="http://www.maxmind.com/app/c"
+url="https://www.maxmind.com/app/c"
 license=('GPL')
 depends=('zlib' 'geoip-database')
 optdepends=('geoip-database-extra: city/ASN databases (not needed for country lookups)')
 makedepends=('autoconf' 'libtool')
 options=('!emptydirs')
-source=(https://github.com/maxmind/${pkgname}-api-c/archive/v${pkgver}.tar.gz)
+source=($pkgname-$pkgver.tar.gz::https://github.com/maxmind/${pkgname}-api-c/archive/v${pkgver}.tar.gz)
+sha256sums=('99b119f8e21e94f1dfd6d49fbeed29a70df1544896e76cd456f25e397b07d476')
 
 prepare() {
   cd geoip-api-c-$pkgver
@@ -30,7 +31,7 @@ build() {
     --prefix=/usr \
     --mandir=/usr/share/man \
     --sysconfdir=/etc/geoip
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

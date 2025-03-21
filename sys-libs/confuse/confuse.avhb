@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=confuse
-pkgver=3.2.2
+pkgver=3.3
 pkgrel=1
 pkgdesc='C-library for parsing configuration files'
 arch=('x86_64')
@@ -17,7 +18,7 @@ options=('!emptydirs')
 build() {
   cd "${srcdir}/${pkgname}-${pkgver}"
   ./configure --prefix=/usr --enable-shared
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {

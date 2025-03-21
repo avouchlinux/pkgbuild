@@ -2,7 +2,7 @@
 # See crypttab(5) for details.
 
 # NOTE: Do not list your root (/) partition here, it must be set up
-#       beforehand by the dracut.
+#       beforehand by the initramfs (/etc/mkinitcpio.conf).
 
 # <name>       <device>                                     <password>              <options>
 # home         UUID=b8ad5c18-f445-495d-9095-c9ec4f9d2f37    /etc/mypassword1

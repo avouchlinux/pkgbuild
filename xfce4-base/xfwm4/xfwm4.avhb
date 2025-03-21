@@ -1,19 +1,21 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfwm4
-pkgver=4.16.1
+pkgver=4.18.0
 pkgrel=1
 pkgdesc="Xfce window manager"
 arch=('x86_64')
 groups=('xfce4-base')
 url="http://www.xfce.org/"
 license=('GPL2')
-depends=('libxfce4ui' 'libwnck' 'libdrm' 'hicolor-icon-theme')
+depends=('libxfce4ui' 'xfconf' 'libwnck3' 'libepoxy' 'libxpresent'
+         'hicolor-icon-theme')
 makedepends=('intltool')
 source=(https://archive.xfce.org/src/xfce/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
+sha256sums=('92cd1b889bb25cb4bc06c1c6736c238d96e79c1e706b9f77fad0a89d6e5fc13f')
 
 build() {
     cd ${srcdir}/${pkgname}-${pkgver}
@@ -27,7 +29,7 @@ build() {
         --enable-compositor \
         --enable-xsync \
         --disable-debug
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

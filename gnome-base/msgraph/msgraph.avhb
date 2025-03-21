@@ -1,0 +1,60 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=msgraph
+pkgname=(
+  msgraph
+  msgraph-docs
+)
+pkgver=0.3.3
+pkgrel=1
+pkgdesc="A shared library for accessing MS Graph API"
+url="https://gitlab.gnome.org/jbrummer/msgraph"
+arch=(x86_64)
+groups=('gnome-base')
+license=(LGPL-3.0-or-later)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  gobject-introspection-runtime
+  json-glib
+  libgoa
+  librest
+  libsoup3
+  uhttpmock
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+)
+source=("https://gitlab.gnome.org/GNOME/msgraph/-/archive/$pkgver/msgraph-$pkgver.tar.bz2")
+b2sums=('SKIP')
+
+
+build() {
+  avouch-meson msgraph-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -vC build --print-errorlogs
+}
+
+package_msgraph() {
+  meson install -C build --destdir "$pkgdir"
+  
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_msgraph-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}

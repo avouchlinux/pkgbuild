@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,20 +10,20 @@ pkgdesc="A full-featured mastering suite for authoring disassembling and analyzi
 arch=('x86_64')
 groups=('media-libs')
 url="http://www.vcdimager.org/"
-license=('GPL')
-depends=('libcdio' 'libxml2' 'popt')
-install=vcdimager.install
-source=(ftp://ftp.gnu.org/gnu/vcdimager/${pkgname}-${pkgver}.tar.gz)
+license=(GPL)
+depends=(libcdio libxml2 popt)
+source=(https://ftp.gnu.org/gnu/vcdimager/$pkgname-$pkgver.tar.gz{,.sig})
+sha256sums=('67515fefb9829d054beae40f3e840309be60cda7d68753cafdd526727758f67a'
+            'SKIP')
+validpgpkeys=(DAA63BC2582034A02B923D521A8DE5008275EC21) # R. Bernstein <rocky@panix.com>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm0644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }

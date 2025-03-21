@@ -1,33 +1,64 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tinycompress
-pkgver=1.2.2
+pkgver=1.2.11
 pkgrel=1
 pkgdesc="tinycompress is a userspace library to use the ALSA compressed APIs introduced in Linux 3.3"
 arch=('x86_64')
 groups=('media-libs')
 url="https://github.com/alsa-project/tinycompress"
-depends=('glibc')
-optdepends=('python2: for python smixer plugin')
-makedepends=('python2')
-license=('GPL')
-source=(https://github.com/alsa-project/tinycompress/archive/v$pkgver.tar.gz)
+license=("BSD-3-Clause OR LGPL-2.1-only")
+depends=(glibc)
+makedepends=(
+  ffmpeg
+  git
+)
+optdepends=("ffmpeg: fcplay utility")
+provides=(libtinycompress.so)
+options=(debug)
+_commit=e98e500873c9c4fdd752d1c85b6116da426a8a70  # tags/v1.2.11^0
+source=(
+  "git+$url#commit=$_commit"
+  0001-Fix-build-with-FFmpeg-7.patch
+)
+b2sums=('e23df6e28228fc059613f182bf6d5c5edbd95932ccc6d36e7aefadaa7474f59a55dccb841d24c25453d416cbd31ffb3a1d651061b3441c21d813e7127fd451db'
+        '29ccd63a6c70397239ac7f9661c3b27256ae044b2de6458e55595886867300cd3c004bb9ba827a1304ba410dd3f5a869e8045755f7e9a04eebd34034bee2cd9a')
+
+pkgver() {
+  cd tinycompress
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    ./autogen.sh
+  mkdir -p build
+
+  cd tinycompress
+  git apply -3 ../0001-Fix-build-with-FFmpeg-7.patch
+  ./autogen.sh
 }
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    ./configure --prefix=/usr
-    make ${MAKEFLAGS}
+  local configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --localstatedir=/var
+    --enable-fcplay
+  )
+
+  cd build
+  ../tinycompress/configure "${configure_options[@]}"
+  make
+}
+
+check() {
+  make -C build check
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  make -C build install DESTDIR="$pkgdir"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 tinycompress/COPYING
 }
 

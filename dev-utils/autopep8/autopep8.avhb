@@ -1,33 +1,52 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=autopep8
-pkgver=1.6.0
+pkgver=2.3.1
 pkgrel=2
 epoch=1
 pkgdesc="A tool that automatically formats Python code to conform to the PEP 8 style guide"
 arch=('any')
 groups=('dev-utils')
-url="https://github.com/hhatto/autopep8"
+url='https://github.com/hhatto/autopep8'
 license=('MIT')
-depends=('python-pycodestyle' 'python-toml')
-source=("https://github.com/hhatto/autopep8/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
-sha512sums=('4e95c46ed8542de7dfdfb1d5e73e8551df2fce8f5371e34580359285441288abdaefde1edc4f2c9701c2883fd189a8448f761b3db0a23ea425db71f8af0ded53')
+depends=(
+  'python'
+  'python-pycodestyle'
+)
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-wheel'
+  'python-setuptools'
+)
+checkdepends=('python-pytest')
+source=("$pkgname::git+$url#tag=v$pkgver")
+sha512sums=('e609dfcaeb38b2510caecf9ab8fe618dc0998518ee6cc74840ee82e503823bc79e0ae549a9f2f81af36524f52fde22bd02f4d6bf7c7f70e4a0873a26fb3de0e1')
+b2sums=('d4f7e2b5ec0ccdc64830c67208ff1c7d13f68218fa14508574acd164c2b0ebcb3e88ebe23388e31cfe884986188e6f99797227ef91fabc4ffcb53bbb14cccb6d')
 
 build() {
-  cd autopep8-$pkgver
-  python setup.py build
+  cd "$pkgname"
+
+  python -m build --wheel --no-isolation
 }
 
 check() {
-  cd autopep8-$pkgver
-  # python setup.py test
+  cd "$pkgname"
+
+  # pytest -v -k 'not test_e204'
 }
 
 package() {
-  cd autopep8-$pkgver
-  python3 setup.py install -O1 --prefix=/usr --root="$pkgdir"
-  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  cd "$pkgname"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # license
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
 }
+
+

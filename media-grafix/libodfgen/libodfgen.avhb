@@ -1,31 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libodfgen
-pkgver=0.1.7
+pkgver=0.1.8
 pkgrel=1
 pkgdesc='Library for generating documents in Open Document Format'
 arch=('x86_64')
 groups=('media-grafix')
 url='https://sourceforge.net/p/libwpd/wiki/libodfgen/'
-license=('MPL')
-depends=('libwpd' 'zlib' 'librevenge')
-makedepends=('boost' 'libwpg' 'libetonyek' 'doxygen')
+license=('LGPL-2.1-or-later OR MPL-2.0')
+depends=('zlib' 'librevenge' 'libxml2' 'gcc-libs' 'glibc')
+makedepends=('libwpg' 'libetonyek' 'doxygen')
 source=(https://sourceforge.net/projects/libwpd/files/libodfgen/libodfgen-$pkgver/$pkgname-$pkgver.tar.xz)
+sha1sums=('9b36d313e64c6ce1026485d521fbdeff7f47594c')
+sha256sums=('55200027fd46623b9bdddd38d275e7452d1b0ff8aeddcad6f9ae6dc25f610625')
 
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr --disable-werror
-  make ${MAKEFLAGS}
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {
   cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

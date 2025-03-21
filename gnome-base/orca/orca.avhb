@@ -1,31 +1,63 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orca
-pkgver=45.0
+pkgver=48.beta
+_srcname=${pkgname^^}_${pkgver/./_}
 pkgrel=1
 pkgdesc="Screen reader for individuals who are blind or visually impaired"
-url="https://wiki.gnome.org/Projects/Orca"
 arch=(any)
 groups=('gnome-base')
-license=(LGPL)
-depends=(gtk3 at-spi2-atk python-atspi python-dbus python-xdg speech-dispatcher liblouis brltty
-         xorg-xmodmap gsettings-desktop-schemas
-         gst-plugins-base # playbin, audiotestsrc, basic decoders
-         gst-plugins-good # pulsesink, more decoders
+url="https://wiki.gnome.org/Projects/Orca"
+arch=(any)
+license=(LGPL-2.1-or-later)
+depends=(
+  at-spi2-core
+  brltty
+  glib2
+  gobject-introspection-runtime
+  gsettings-desktop-schemas
+  gstreamer
+  gst-plugins-base # playbin, audiotestsrc, basic decoders
+  gst-plugins-good # pulsesink, more decoders
+  gtk3
+  hicolor-icon-theme
+  liblouis
+  libwnck3
+  pango
+  python
+  python-cairo
+  python-gobject
+  python-psutil
+  python-setproctitle
+  speech-dispatcher
+  xorg-xkbcomp
+  xorg-xmodmap
 )
-makedepends=(itstool intltool git yelp-tools)
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+makedepends=(
+  git
+  itstool
+  meson
+  yelp-tools
+)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('SKIP')
 
 build() {
-    cd ${srcdir}/${pkgname}-${pkgver}
-    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
-    make ${MAKEFLAGS}
+  local meson_options=(
+    -D spiel=false
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
+  meson install -C build --destdir "$pkgdir"
 }

@@ -1,0 +1,83 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=pygobject
+pkgname=(
+  python-gobject
+  python-gobject-docs
+)
+_realname=pygobject
+pkgver=3.52.1
+pkgrel=1
+pkgdesc="Python bindings for GLib/GObject/GIO/GTK"
+arch=('x86_64')
+groups=('dev-python3')
+url="https://live.gnome.org/PyGObject"
+license=(LGPL-2.1-or-later)
+depends=(
+  glib2
+  glibc
+  gobject-introspection-runtime
+  libffi
+  libgirepository
+  python
+)
+makedepends=(
+  git
+  gobject-introspection
+  meson
+  python-cairo
+  python-setuptools
+  python-sphinx
+  python-sphinx-copybutton
+  python-sphinx-furo
+)
+checkdepends=(
+  gtk3
+  python-pytest
+  xorg-server-xvfb
+)
+optdepends=('python-cairo: Cairo bindings')
+source=("https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2")
+b2sums=('d13a6751ec75606e9adf04c85bad53e329cbab6c7534dd81bcb64ded2f40b40371ec47ac6affa89dd075fbd423f9573ecccc3c9dbe01bf9d8b8e028fa93ddcd2')
+validpgpkeys=(
+  0EBF782C5D53F7E5FB02A66746BD761F7A49B0EC # Christoph Reiter <reiter.christoph@gmail.com>
+)
+
+prepare() {
+  cd $pkgbase-$pkgver
+  meson subprojects download
+}
+
+build() {
+  avouch-meson $pkgbase-$pkgver build
+  meson compile -C build
+}
+
+# check() {
+#   PYTEST_ADDOPTS="-v" PYGI_TEST_VERBOSE=1 \
+#     xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
+
+package_python-gobject() {
+  provides=("pygobject-devel=$pkgver")
+  conflicts=(pygobject-devel)
+  replaces=('pygobject-devel<=3.36.1-1')
+
+  meson install -C build --destdir "$pkgdir"
+  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
+  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
+}
+
+package_python-gobject-docs() {
+  pkgdesc="Developer documentation for PyGObject"
+  depends=()
+  optdepends=()
+
+  python -m sphinx -b html $pkgbase-$pkgver/docs "$pkgdir/usr/share/doc/pygobject/html"
+  rm -r "$pkgdir/usr/share/doc/pygobject/html/.doctrees"
+}
+

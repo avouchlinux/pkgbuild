@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=intel-tbb
 _realname=oneTBB
-pkgver=2020.2
+pkgver=2021.13.0
 _tagname=${pkgver/./_U}
 pkgrel=1
 pkgdesc='High level abstract threading library'
@@ -13,17 +14,15 @@ groups=('dev-libs')
 url='https://www.threadingbuildingblocks.org/'
 license=(GPL)
 depends=(gcc-libs)
-source=(https://github.com/01org/tbb/archive/$_tagname.tar.gz)
+source=($_realname-$pkgver.tar.gz::https://github.com/oneapi-src/oneTBB/archive/refs/tags/v$pkgver.tar.gz)
 
 build() {
-  cd $_realname-$_tagname
-  make ${MAKEFLAGS}
+  cmake -B build -S $_realname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib
+  cmake --build build
 }
 
 package() {
-  cd $_realname-$_tagname
-  install -d "$pkgdir"/usr/lib
-  install -m755 build/linux_*/*.so* "$pkgdir"/usr/lib
-  install -d "$pkgdir"/usr/include
-  cp -a include/tbb "$pkgdir"/usr/include
+  DESTDIR="$pkgdir" cmake --install build
 }

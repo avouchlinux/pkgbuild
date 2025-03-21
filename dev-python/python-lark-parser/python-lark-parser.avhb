@@ -1,0 +1,85 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-lark-parser
+pkgver=1.1.9
+pkgrel=1
+pkgdesc='A modern parsing library'
+arch=('any')
+groups=('dev-python')
+url='https://github.com/lark-parser/lark'
+license=('MIT')
+depends=(
+  'python'
+  'python-typing_extensions'
+)
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+)
+checkdepends=(
+  'python-js2py'
+  'python-tzlocal'
+  'python-atomicwrites'
+  'python-regex'
+)
+optdepends=(
+  'python-atomicwrites: for atomic_cache'
+  # 'python-interegular: for interegular support'  # TODO: package
+  'python-regex: for regex support'
+  'python-js2py: for nearley support'
+)
+provides=('python-lark')
+_commit='262ab71d497a8814f0ca42ca468b923fdb47a3c7'
+source=(
+  "$pkgname::git+$url#commit=$_commit"
+  'github.com-Hardmath123-nearley::git+https://github.com/Hardmath123/nearley'
+)
+b2sums=('SKIP' 'SKIP')
+
+pkgver() {
+  cd "$pkgname"
+
+  git describe --tags | sed 's/^v//'
+}
+
+prepare() {
+  cd "$pkgname"
+
+  # setup git submodules
+  git submodule init
+  git config submodule.tests/test_nearley/nearley.url "$srcdir/github.com-Hardmath123-nearley"
+  git -c protocol.file.allow=always submodule update
+
+  # include *.lark files
+  git cherry-pick --no-commit 656334cb8793fd4e08a12843eaced5a7bb518be3
+}
+
+build() {
+  cd "$pkgname"
+
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$pkgname"
+
+  python -m tests
+}
+
+package() {
+  cd "$pkgname"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir/usr/share/licenses/$pkgname"
+  ln -s "$site_packages/lark-$pkgver.dist-info/LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

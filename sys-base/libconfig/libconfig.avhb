@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libconfig
-pkgver=1.7.2
+pkgver=1.7.3
 pkgrel=1
 pkgdesc="C/C++ Configuration File Library"
 arch=('x86_64')
@@ -23,14 +24,14 @@ prepare() {
 
 build() {
   cd $pkgname-$pkgver
-
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
-
-  make DESTDIR="$pkgdir" install
+  make DESTDIR="$pkgdir" install -C $pkgname-$pkgver
   rm "$pkgdir/usr/share/info/dir"
+  install -vDm 644 $pkgname-$pkgver/{AUTHORS,ChangeLog,NEWS,README,TODO} -t "$pkgdir/usr/share/doc/$pkgname/"
 }

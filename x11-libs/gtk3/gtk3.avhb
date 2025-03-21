@@ -1,53 +1,147 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=gtk3
-pkgname=(gtk3 gtk-update-icon-cache)
+pkgname=(
+  gtk3
+  gtk3-demos
+  gtk3-docs
+)
 _realname=gtk
-pkgver=3.24.38
+pkgver=3.24.41
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit (v3)"
 arch=('x86_64')
 groups=('x11-libs')
 url="https://www.gtk.org/"
-depends=(atk cairo libxcursor libxinerama libxrandr libxi libepoxy gdk-pixbuf2 dconf
-         libxcomposite libxdamage pango shared-mime-info at-spi2-atk wayland libxkbcommon
-         adwaita-icon-theme json-glib librsvg wayland-protocols desktop-file-utils mesa
-         cantarell-fonts colord rest libcups libcanberra fribidi iso-codes)
-makedepends=(gobject-introspection gtk-doc git glib2-docs sassc meson)
-license=(LGPL)
+license=(LGPL-2.0-only)
+depends=(
+  adwaita-icon-theme
+  atk
+  cairo
+  cantarell-fonts
+  dconf
+  desktop-file-utils
+  fontconfig
+  fribidi
+  gdk-pixbuf2
+  glib2
+  harfbuzz
+  iso-codes
+  libcloudproviders
+  libcolord
+  libcups
+  libegl
+  libepoxy
+  libgl
+  librsvg
+  libxcomposite
+  libx11
+  libxcursor
+  libxdamage
+  libxext
+  libxfixes
+  libxi
+  libxinerama
+  libxkbcommon
+  libxrandr
+  libxrender
+  pango
+  shared-mime-info
+  tracker3
+  wayland
+)
+makedepends=(
+  git
+  glib2-docs
+  gobject-introspection
+  gtk-doc
+  meson
+  sassc
+  wayland-protocols
+)
 source=("https://gitlab.gnome.org/GNOME/gtk/-/archive/$pkgver/gtk-$pkgver.tar.bz2"
         settings.ini
         gtk-update-icon-cache.script)
 
 build() {
   CFLAGS+=" -DG_ENABLE_DEBUG -DG_DISABLE_CAST_CHECKS" # https://gitlab.gnome.org/GNOME/gtk/-/issues/2020#note_552880
-  avouch-meson gtk-$pkgver build \
-    -D broadway_backend=true \
-    -D colord=yes \
-    -D gtk_doc=true \
+ local meson_options=(
+    -D broadway_backend=true
+    -D cloudproviders=true
+    -D colord=yes
+    -D gtk_doc=true
+    -D introspection=true
     -D man=true
-  ninja -C build
+    -D tracker3=true
+  )
+
+  export CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
+  avouch-meson gtk-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
 package_gtk3() {
   depends+=(gtk-update-icon-cache)
-  provides=(gtk3-print-backends)
+  optdepends=('evince: Default print preview command')
+  provides=(
+    gtk3-print-backends
+    libgailutil-3.so
+    libgdk-3.so
+    libgtk-3.so
+  )
+  conflicts=(gtk3-print-backends)
+  replaces=("gtk3-print-backends<=3.22.26-1")
   install=gtk3.install
 
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/gtk-3.0" -m644 settings.ini
+  install -Dm644 /dev/stdin "$pkgdir/usr/share/gtk-3.0/settings.ini" <<END
+[Settings]
+gtk-icon-theme-name = Adwaita
+gtk-theme-name = Adwaita
+gtk-font-name = Cantarell 11
+END
 
-  # split this out to use with gtk2 too
-  mv "$pkgdir/usr/bin/gtk-update-icon-cache" "$srcdir"
+  install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-query-immodules-3.0.hook
+
+  cd "$pkgdir"
+
+  _pick demo usr/bin/gtk3-{demo,demo-application,icon-browser,widget-factory}
+  _pick demo usr/share/applications/gtk3-{demo,icon-browser,widget-factory}.desktop
+  _pick demo usr/share/glib-2.0/schemas/org.gtk.{Demo,exampleapp}.gschema.xml
+  _pick demo usr/share/icons/hicolor/*/apps/gtk3-{demo,widget-factory}[-.]*
+  _pick demo usr/share/man/man1/gtk3-{demo,demo-application,icon-browser,widget-factory}.1
+
+  _pick docs usr/share/gtk-doc
+
+  # Built by GTK 4, shared with GTK 3
+  rm usr/bin/gtk-update-icon-cache
+  rm usr/share/man/man1/gtk-update-icon-cache.1
 }
 
-package_gtk-update-icon-cache() {
-  pkgdesc="GTK+ icon cache updater"
-  depends=(gdk-pixbuf2 librsvg hicolor-icon-theme)
-
-  install -Dt "$pkgdir/usr/bin" gtk-update-icon-cache
+package_gtk3-demos() {
+  pkgdesc+=" (demo applications)"
+  depends=(gtk3)
+  mv demo/* "$pkgdir"
 }
+
+package_gtk3-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  mv docs/* "$pkgdir"
+}
+

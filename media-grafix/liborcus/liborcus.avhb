@@ -1,41 +1,38 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=liborcus
 _realname=orcus
-pkgver=0.16.1
+pkgver=0.19.2
 pkgrel=1
 pkgdesc="File import filter library for spreadsheet documents."
 arch=('x86_64')
 groups=('media-grafix')
 url="https://gitlab.com/orcus/orcus/blob/master/README.md"
-license=('MPL')
-depends=('libixion')
+license=('MPL-2.0')
+depends=('libixion' 'glibc' 'boost-libs' 'gcc-libs' 'zlib' 'python')
 makedepends=('boost' 'mdds')
-source=(https://gitlab.com/orcus/orcus/-/archive/$pkgver/orcus-$pkgver.tar.bz2)
-
-prepare() {
-  cd ${_realname}-${pkgver}
-  # from Gentoo
-  patch -Np1 -i ../liborcus-0.15.4-gcc11.patch
-  ./autogen.sh
-}
+optdepends=('python-requests: in tool bugzilla')
+source=(https://kohei.us/files/orcus/src/${pkgname}-${pkgver}.tar.xz)
+# https://gitlab.com/orcus/orcus/-/releases
+sha256sums=('69ed26a00d4aaa7688e62a6e003cbc81928521a45e96605e53365aa499719e39')
 
 build() {
-  cd ${_realname}-${pkgver}
-  ./configure --prefix=/usr --disable-static
-  make ${MAKEFLAGS}
+    cd "${pkgname}"-${pkgver}
+    ./configure --prefix=/usr
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make
 }
 
 check() {
-  cd ${_realname}-${pkgver}
-  make ${MAKEFLAGS} -k check
+    cd "${pkgname}"-${pkgver}
+    make check
 }
 
 package() {
-  cd ${_realname}-${pkgver}
-  make DESTDIR="${pkgdir}" install
+    cd "${pkgname}"-${pkgver}
+    make DESTDIR="$pkgdir" install
 }
 

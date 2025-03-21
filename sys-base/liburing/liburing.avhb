@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=liburing
-pkgver=2.1
+pkgver=2.5
 pkgrel=1
 pkgdesc="Linux-native io_uring I/O access library"
 arch=('x86_64')
@@ -22,7 +22,7 @@ build() {
   cd "$pkgname-$pkgver"
   ./configure --prefix='/usr' \
               --mandir='/usr/share/man'
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

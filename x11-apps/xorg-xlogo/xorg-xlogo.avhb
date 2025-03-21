@@ -1,29 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xlogo
 _realname=xlogo
-pkgver=1.0.5
+pkgver=1.0.6
 pkgrel=1
 pkgdesc='Simply displays the X Window System logo'
-url='http://xorg.freedesktop.org/'
 arch=('x86_64')
 groups=('x11-apps')
+url="https://xorg.freedesktop.org/"
 license=('custom')
-depends=('libx11' 'libxrandr')
-makedepends=('xorg-util-macros' 'xproto')
-source=("http://xorg.freedesktop.org/archive/individual/app/xev-${pkgver}.tar.bz2")
+depends=('libsm' 'libxaw' 'libxmu' 'libxt' 'libxext' 'libx11' 'libxrender' 'libxft')
+makedepends=('xorg-util-macros')
+source=(https://xorg.freedesktop.org/archive/individual/app/xlogo-${pkgver}.tar.xz{,.sig})
+sha512sums=('f0c921e0e34d2c0959d95ca0fcb7488395043280b8b35bcad4e8a528224f2b38581fbf60e82239d06760ecd637692cb29c3b1c0c46ac7f269f692a139d954ea0'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') #Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xlogo-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xlogo-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

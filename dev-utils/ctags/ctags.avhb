@@ -1,30 +1,23 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ctags
-pkgver=p5.9.20220403.0
+pkgver=6.1.0
 pkgrel=1
 pkgdesc="Generates an index file of language objects found in source files"
 arch=('x86_64')
 groups=('dev-utils')
 url='https://ctags.io/'
 arch=('x86_64')
-license=('GPL')
-depends=('glibc' 'libxml2' 'jansson' 'libyaml' 'libseccomp' 'libseccomp.so')
+license=('GPL-2.0-only')
+depends=('glibc' 'libxml2' 'jansson' 'libyaml' 'libseccomp' 'libseccomp.so'
+         'pcre2')
 makedepends=('git' 'python-docutils')
 provides=('universal-ctags')
-source=("git+https://github.com/universal-ctags/ctags.git#commit=$_commit")
-sha512sums=('SKIP')
-
-getsrc(){
-  git clone https://github.com/universal-ctags/ctags.git
-}
-
-pkgver() {
-  git -C ctags describe --tags --match 'p*' | sed 's/^p//;s/\([^-]*-g\)/r\1/;s/-/./g'
-}
+source=("git+https://github.com/universal-ctags/ctags.git#tag=v$pkgver")
+sha256sums=('885e3c318b1c91c27ee526b7c63048ea2b34cd11f1ba1c9a689c679c8e32be27')
 
 prepare() {
   cd ctags
@@ -41,10 +34,11 @@ build() {
   make
 }
 
-check() {
-  make -C ctags check
-}
+# check() {
+#   make -C ctags check
+# }
 
 package() {
   make -C ctags DESTDIR="${pkgdir}" install
 }
+

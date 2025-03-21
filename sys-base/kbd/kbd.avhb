@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kbd
-pkgver=2.6.3
+pkgver=2.6.4
 pkgrel=1
 pkgdesc="Keytable files and keyboard utilities"
 arch=('x86_64')
@@ -23,7 +23,7 @@ validpgpkeys=(
              )
 
 prepare() {
-  cd ${pkgname}-${pkgver}
+  cd ${pkgname}
   # rename keymap files with the same names
   # this is needed because when only name of keymap is specified
   # loadkeys loads the first keymap it can find, which is bad (see FS#13837)
@@ -39,13 +39,13 @@ prepare() {
 }
 
 build() {
-  cd ${pkgname}-${pkgver}
+  cd ${pkgname}
   ./configure --prefix=/usr --sysconfdir=/etc --datadir=/usr/share/kbd --mandir=/usr/share/man --enable-optional-progs
   make KEYCODES_PROGS=yes RESIZECONS_PROGS=yes
 }
 
 check() {
-  cd ${pkgname}-${pkgver}
+  cd ${pkgname}
 
 # This test is expected to fail since kbd-fix-loadkmap-compat.patch modifies the binary format
   sed -e 's|dumpkeys-bkeymap ||' -i tests/Makefile
@@ -54,7 +54,7 @@ check() {
 }
 
 package() {
-  cd ${pkgname}-${pkgver}
+  cd ${pkgname}
   make KEYCODES_PROGS=yes RESIZECONS_PROGS=yes DESTDIR="${pkgdir}" install
   install -Dm644 ../vlock.pam "${pkgdir}"/etc/pam.d/vlock
 }

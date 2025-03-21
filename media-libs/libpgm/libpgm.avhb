@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -6,36 +6,39 @@
 pkgname=libpgm
 _realname=openpgm-release
 pkgver=5.3.128
-_pkgver="${pkgver//./-}"
 pkgrel=1
 pkgdesc="OpenPGM: implementation of the Pragmatic General Multicast (PGM, RFC3208)"
 arch=('x86_64')
 groups=('media-libs')
-url='https://www.freshports.org/net/openpgm/'
-license=('LGPL2.1')
-depends=('glibc')
-makedepends=('python')
-options=(!strip)
-#source=("http://openpgm.googlecode.com/files/$pkgname-$pkgver.tar.gz")
-#source=("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/openpgm/libpgm-$pkgver.tar.gz")
-source=("libpgm-$pkgver.tgz::https://github.com/steve-o/openpgm/archive/release-${_pkgver}.tar.gz")
-sha256sums=('8d707ef8dda45f4a7bc91016d7f2fed6a418637185d76c7ab30b306499c6d393')
+url='https://github.com/steve-o/openpgm'
+license=(LGPL-2.1-or-later)
+depends=(glibc)
+makedepends=(
+  git
+  python
+)
+source=("git+https://github.com/steve-o/openpgm.git#tag=release-${pkgver//./-}")
+b2sums=(3718430386e4ca8b9e51dbd69a17d4bb71ef0169b8f78f66865aae3d5cca09f4bd63d18bac714b4e5a89ad09ecdb73a3fd8f7163c1806c0c1ff2f109a8898dcd)
 
 prepare() {
-  cd "$srcdir/openpgm-release-$_pkgver/openpgm/pgm"
-  2to3 -wn version_generator.py
-  # 5.3.128 is a little broken
-  cp openpgm-5.2.pc.in openpgm-5.3.pc.in
+  cd openpgm/openpgm/pgm
+
+  # https://github.com/steve-o/openpgm/pull/66
+  git cherry-pick -n 240634b1afb968a051f8c68696eae2a582a02450
+
+  autoreconf -fi
 }
 
 build() {
-  cd "$srcdir/openpgm-release-$_pkgver/openpgm/pgm"
-  ./bootstrap.sh
-  ./configure --prefix=/usr
+  cd openpgm/openpgm/pgm
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
   make
 }
 
 package() {
-  cd "$srcdir/openpgm-release-$_pkgver/openpgm/pgm"
-  make prefix="$pkgdir/usr" install
+  cd openpgm/openpgm/pgm
+  make DESTDIR="$pkgdir" install
 }

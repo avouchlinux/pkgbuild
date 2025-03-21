@@ -1,49 +1,62 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=snowball
 pkgname=(snowball libstemmer)
-pkgver=2.0.0
+pkgver=2.2.0
 pkgrel=1
 pkgdesc="String processing language for creating stemming algorithms"
 arch=('x86_64')
 groups=('sys-libs')
 url="http://snowballstem.org/"
 license=(BSD)
-depends=(glibc)
 makedepends=(git)
-source=("https://github.com/snowballstem/snowball/archive/v$pkgver.tar.gz")
+_commit=48a67a2831005f49c48ec29a5837640e23e54e6b  # tags/v2.2.0^0
+source=("git+https://github.com/snowballstem/snowball#commit=$_commit"
+        dynamiclib.diff)
+sha256sums=('SKIP'
+            'c031da5a11bafa079df6c33b38b8795b65cf2c91cc6b452dcf2b10612288a3e6')
+
+pkgver() {
+  cd snowball
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  cd $pkgbase-$pkgver
-  patch -Np1 -i ../dynamiclib.patch
+  cd snowball
+  git apply -3 ../dynamiclib.diff
 }
 
 build() {
-  cd $pkgbase-$pkgver
+  cd snowball
   make
 }
 
-check() {
-  cd $pkgbase-$pkgver
-  # Disabled - needs external test data
-  #make check
-}
+# No check - needs external test data
 
 package_snowball() {
-  cd $pkgbase-$pkgver
-  install -d "$pkgdir/usr/bin"
-  install -t "$pkgdir/usr/bin" snowball stemwords
-  install -Dm644 COPYING "$pkgdir/usr/share/licenses/snowball/LICENSE"
+  depends=(libstemmer)
+
+  cd snowball
+
+  install -Dt "$pkgdir/usr/bin" snowball stemwords
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
 }
 
 package_libstemmer() {
   pkgdesc="Stemming library supporting several languages"
-  cd $pkgbase-$pkgver
-  install -Dm644 {.,"$pkgdir"/usr}/include/libstemmer.h
-  install -D {.,"$pkgdir"/usr/lib}/libstemmer.so.0.0.0
+  depends=(glibc)
+  provides=(libstemmer.so)
+
+  cd snowball
+
+  install -Dt "$pkgdir/usr/include" -m644 include/libstemmer.h
+  install -Dm644 libstemmer.so.0 "$pkgdir/usr/lib/libstemmer.so.0.0.0"
   ln -s libstemmer.so.0.0.0 "$pkgdir/usr/lib/libstemmer.so.0"
   ln -s libstemmer.so.0 "$pkgdir/usr/lib/libstemmer.so"
-  install -Dm644 COPYING "$pkgdir/usr/share/licenses/libstemmer/LICENSE"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
 }

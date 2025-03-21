@@ -1,27 +1,34 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=botan
 _realname=Botan
-pkgver=2.19.1
+pkgver=3.6.1
 pkgrel=1
 pkgdesc='Crypto library written in C++'
 arch=(x86_64)
 groups=("app-crypt")
 url='https://botan.randombit.net/'
-license=(BSD)
-depends=(xz sqlite)
-makedepends=(python boost openssl)
-optdepends=('python: for using botan2.py' 'boost-libs: for the botan executable')
-source=("https://botan.randombit.net/releases/Botan-${pkgver}.tar.xz"{,.asc})
-sha256sums=('79123b654445a4abba486e09a431788545c708237382a3e765664c9f55b03b88'
+license=(BSD-2-Clause)
+depends=(bzip2
+         gcc-libs
+         glibc
+         sqlite
+         xz
+         zlib)
+makedepends=(boost
+             python)
+optdepends=('boost-libs: for the botan executable'
+            'python: for using botan2.py')
+source=(https://botan.randombit.net/releases/Botan-${pkgver}.tar.xz{,.asc})
+sha256sums=('7cb8575d88d232c77174769d7f9e24bb44444160585986eebd66e749cb9a9089'
             'SKIP')
 validpgpkeys=('621DAF6411E1851C4CF9A2E16211EBF1EFBADFBC') # Botan Distribution Key
 
 build() {
-  cd "${pkgname^}-$pkgver"
+  cd ${pkgname^}-$pkgver
 
   ./configure.py \
     --prefix=/usr \
@@ -29,20 +36,18 @@ build() {
     --with-lzma \
     --with-zlib \
     --with-boost \
-    --with-openssl \
     --with-sqlite3 \
     --with-os-feature=getrandom
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
-  cd "${pkgname^}-$pkgver"
+  cd ${pkgname^}-$pkgver
 
-  LD_LIBRARY_PATH="$PWD" ./botan-test
+  LD_LIBRARY_PATH="$PWD" ./botan-test --test-threads=1
 }
 
 package() {
-  DESTDIR="$pkgdir" make -C "${pkgname^}-$pkgver" install
-  install -Dm644 "${pkgname^}-$pkgver/license.txt" \
-    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  DESTDIR="$pkgdir" make -C ${pkgname^}-$pkgver install
+  install -Dm644 ${pkgname^}-$pkgver/license.txt "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }

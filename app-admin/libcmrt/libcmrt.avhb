@@ -1,0 +1,39 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname="libcmrt"
+pkgver=1.0.6
+pkgrel=1
+pkgdesc="Intel C for Media RunTime GPU kernel manager"
+url="https://github.com/01org/cmrt"
+license=('MIT')
+arch=('x86_64')
+groups=('app-admin')
+depends=('libva>=2.0.0')
+
+_pkgsrc="cmrt-$pkgver"
+_pkgext="tar.gz"
+source=("$_pkgsrc.$_pkgext"::"https://github.com/01org/cmrt/archive/$pkgver.$_pkgext")
+sha256sums=("ca22e905a2717fc740e703e65a0061a0e11f4ea513ba970bbc10b3bd6d28e6e0")
+
+prepare() {
+  cd "$_pkgsrc"
+  autoreconf -v --install
+}
+
+build() {
+  cd "$_pkgsrc"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$_pkgsrc"
+  DESTDIR="$pkgdir" make install
+  mv "$pkgdir/usr/etc" "$pkgdir"
+
+  install -Dm644 "LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+  chmod -R u+rwX,go+rX,go-w "$pkgdir/"
+}

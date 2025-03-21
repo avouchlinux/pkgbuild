@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=thunar-archive-plugin
-pkgver=0.4.0
+pkgver=0.5.2
 pkgrel=1
 pkgdesc="Create and extract archives in Thunar"
 arch=('x86_64')
@@ -25,7 +25,7 @@ build() {
 		--libexecdir=/usr/lib/xfce4 \
 		--localstatedir=/var \
 		--disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

@@ -1,21 +1,21 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ristretto
-pkgver=0.10.0
+pkgver=0.13.2
 pkgrel=1
 pkgdesc='Fast and lightweight picture-viewer for Xfce4'
 arch=('x86_64')
 groups=('xfce4-apps')
 url='https://docs.xfce.org/apps/ristretto/start'
 license=('GPL')
-depends=('libxfce4ui' 'libexif' 'file')
-makedepends=('intltool')
-optdepends=('librsvg: SVG support'
-            'tumbler: thumbnailing support')
+groups=('xfce4-goodies')
+depends=('libxfce4ui' 'xfconf' 'tumbler' 'libexif' 'file')
+makedepends=('python')
 source=("https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2")
+sha256sums=('779f5ede3016019eec01d64a025583078d3936e35d4288ec2e8433494d757dd9')
 
 build() {
   cd "$pkgname-$pkgver"
@@ -25,7 +25,7 @@ build() {
     --sysconfdir=/etc \
     --localstatedir=/var \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

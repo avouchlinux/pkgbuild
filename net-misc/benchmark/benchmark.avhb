@@ -1,0 +1,44 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=benchmark
+pkgver=1.9.1
+pkgrel=1
+pkgdesc="A microbenchmark support library"
+arch=('x86_64')
+groups=('dev-utils')
+url="https://github.com/google/benchmark"
+license=('Apache-2.0')
+depends=('gcc-libs')
+makedepends=('cmake')
+
+source=("https://github.com/google/$pkgname/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('35a77f46cc782b16fac8d3b107fbfbb37dcd645f7c28eee19f3b8e0758b48994')
+
+prepare() {
+  cd "$srcdir/$pkgname-$pkgver"
+  mkdir -p build
+}
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver/build"
+
+  cmake \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_CXX_FLAGS="${CXXFLAGS} -DNDEBUG" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBENCHMARK_ENABLE_LTO=ON \
+    -DBENCHMARK_ENABLE_GTEST_TESTS=OFF \
+    ..
+
+  make VERBOSE=1
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver/build"
+  make DESTDIR="$pkgdir/" install
+}

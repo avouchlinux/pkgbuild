@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,19 +9,51 @@ pkgrel=1
 pkgdesc="A thin layer of graphic data types"
 arch=('x86_64')
 groups=('sys-libs')
-url="https://github.com/ebassi/graphene"
+url="https://ebassi.github.io/graphene/"
+arch=(x86_64)
 license=(MIT)
-depends=(glib2)
-makedepends=(git gtk-doc gobject-introspection meson)
-source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver::4}/$pkgname-$pkgver.tar.xz)
+makedepends=(git gtk-doc gobject-introspection meson glib2)
+checkdepends=(python-gobject python-tappy)
+_commit=4e2578450809c2099400cf85caf18eafcd7100aa  # tags/1.10.8^0
+source=("git+https://github.com/ebassi/graphene#commit=$_commit"
+        "git+https://github.com/ebassi/mutest"
+        no-installed-tests.diff)
+sha256sums=('SKIP'
+            'SKIP'
+            'fd7c41b25920077158d7de77f5d073e3a5a215c4d96c3b9bd016ffda615be4c4')
+
+pkgver() {
+  cd graphene
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd graphene
+
+  # Don't install tests
+  git apply -3 ../no-installed-tests.diff
+
+  git submodule init
+  git submodule set-url subprojects/mutest "$srcdir/mutest"
+  git submodule update
+}
 
 build() {
-    avouch-meson ${pkgname}-${pkgver} build \
-        -D gtk_doc=true
-    meson compile -C build
+  avouch-meson graphene build \
+    -D gtk_doc=true \
+    -D installed_tests=false
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    DESTDIR="$pkgdir" meson install -C build
-    rm -r "$pkgdir"/usr/{lib,share}/installed-tests
+  depends=(libg{lib,object}-2.0.so)
+  provides=(libgraphene-1.0.so)
+
+  meson install -C build --destdir "$pkgdir"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 graphene/LICENSE.txt
 }
+

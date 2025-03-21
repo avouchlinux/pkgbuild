@@ -1,33 +1,36 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=yapf
-pkgver=0.32.0
+pkgver=0.40.2
 pkgrel=1
 pkgdesc="Python style guide checker"
 arch=('any')
 groups=('dev-utils')
 url="https://github.com/google/yapf"
 license=('Apache')
-depends=('python3')
-makedepends=('python3-setuptools')
-checkdepends=('python3-nose')
-source=("https://github.com/google/yapf/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
-sha512sums=('c1a05a04f7558a5b51899c29010bedc105c4a4bad4b5358a903a22a39f451e03369d2b4e670ecb44a857a8fef2bf438d9da0afcbdd3a336cf037bbf480d19878')
+depends=('python' 'python-importlib-metadata' 'python-platformdirs')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+checkdepends=('python-nose')
+source=("https://github.com/google/yapf/archive/v$pkgver/$pkgname-$pkgver.tar.gz"
+        $pkgname-tomllib.patch::https://github.com/google/yapf/pull/1152.patch)
+sha512sums=('be71b622efde162d64e5143c2a27de254a3791c229046309a083fa0df00afb4170cf0427c4402d3c621ca2120210ba15aa6d124ef7b8790c4b72705f5c5342e3'
+            '4cf96842f113b58ed3263573865bc1c00fd48c7db0a346de1a20d51114a839138c0f3cdd03ce0c9227026c3d3887f7eef53d3632aad0afe85d52d189c7757ff2')
+
+prepare() {
+  cd yapf-$pkgver
+  patch -p1 -i ../$pkgname-tomllib.patch
+}
 
 build() {
   cd yapf-$pkgver
-  python setup.py build
-}
-
-check() {
-  cd yapf-$pkgver
-  # nosetests3
+  python -m build -nw
 }
 
 package() {
   cd yapf-$pkgver
-  python setup.py install -O1 --root="$pkgdir"
+  python -m installer -d "$pkgdir" dist/*.whl
 }
+

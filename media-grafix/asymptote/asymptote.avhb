@@ -1,69 +1,71 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=asymptote
-pkgver=2.65
+pkgver=2.92
 pkgrel=1
 pkgdesc="A vector graphics language (like metapost)"
 arch=('x86_64')
 groups=('media-grafix')
-url="http://asymptote.sourceforge.net/"
-license=("GPL3")
-depends=('texlive-core' 'gc' 'freeglut' 'gsl' 'fftw' 'libsigsegv')
-makedepends=('ghostscript' 'imagemagick'
-             'mesa'               # For OpenGL headers
-             'texlive-plainextra' # For texinfo
-             'python-pyqt5'       # For xasy GUI generation
-             'glm'
-             'glu')
+url='http://asymptote.sourceforge.net/'
+license=(GPL-3.0-only)
+depends=(boost-libs
+         curl
+         fftw
+         freeglut
+         gc
+         gcc-libs
+         glibc
+         gsl
+         libsigsegv
+         libtirpc
+         texlive-basic
+         zlib)
+makedepends=(boost
+             cmake
+             doxygen
+             ghostscript
+             glm
+             glu
+             imagemagick
+             python-pyqt5
+             texlive-binextra texlive-meta
+             texlive-fontutils
+             texlive-latexextra
+             texlive-plaingeneric)
 optdepends=('python-pyqt5: for the xasy GUI'
-            'python-cson:  for the xasy GUI')
-source=("git+https://github.com/vectorgraphics/asymptote#commit=$_commit")
+            'python-cson: for the xasy GUI'
+            'ghostscript: PDF output')
+source=(https://github.com/vectorgraphics/asymptote/archive/$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('41124c7d71b1d0457776be729ba6917690c808656defd75cae8b3bed5dccd769')
 
 prepare() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  patch -p1 -i ../asymptote-2.65-info.patch
-  patch -p1 -i ../asymptote-2.65-xdg-utils.patch
-
- # hack to disable doc building, as build failed
-  sed -i 's|doc/Makefile| |g' configure
-  sed -i 's|doc/png/Makefile| |g' configure
-  sed -i 's|cd doc && $(MAKE) asy-latex.pdf| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) dvi| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) doc| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) man| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) faq| |g' Makefile.in
-
-  sed -i 's|cd doc && $(MAKE) install-all| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) install| |g' Makefile.in
-  sed -i 's|cd doc && $(MAKE) install-prebuilt| |g' Makefile.in
-  #./autogen.sh
+  cd $pkgname-$pkgver
+  ./autogen.sh
 }
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  export CXXFLAGS+=" -I${srcdir}/${pkgname}-${pkgver}"
+  cd $pkgname-$pkgver
+  CXXFLAGS+=" -I$srcdir/$pkgname-$pkgver" \
   ./configure --enable-gc=/usr \
               --prefix=/usr \
               --with-latex=/usr/share/texmf/tex/latex \
-              --with-context=/usr/share/texmf/tex/context \
-              --enable-offscreen
-
-  # doc build failed review it later
-  make ${MAKEFLAGS} all
+              --with-context=/usr/share/texmf/tex/context
+  make asy asy-keywords.el
 }
 
 check() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  make check-all
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install-asy
   # this dir contains png files that are already embedded in the pdf documentation:
-  rm -rf ${pkgdir}/usr/share/info/asymptote
+  rm -rf "$pkgdir"/usr/share/info/asymptote
 
   # copy some data files to their correct location
   mkdir -p "$pkgdir"/usr/share/emacs/site-lisp
@@ -75,3 +77,4 @@ package() {
   sh asy-kate.sh
   mv asymptote.xml "$pkgdir"/usr/share/org.kde.syntax-highlighting/syntax
 }
+

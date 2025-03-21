@@ -1,36 +1,58 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-declarative
-_qtver=6.0.2
-pkgver=${_qtver/-/}
+pkgver=6.8.2
 pkgrel=1
-_realname="${pkgname/6-/}-everywhere-src-${_qtver}"
+_realname="${pkgname/6-/}-everywhere-src-${pkgver}"
+_tarname="${pkgname/6-/}-everywhere-src-${pkgver}"
 arch=('x86_64')
 groups=('dev-qt6')
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
 pkgdesc='Classes for QML and JavaScript languages'
-depends=(qt6-base)
-makedepends=(cmake python vulkan-headers at-spi2-core)
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$_qtver/submodules/$_pkgfn.tar.xz")
+depends=(gcc-libs
+         glibc
+         qt6-base)
+makedepends=(cmake
+             git
+             ninja
+             python
+             qt6-languageserver
+             qt6-shadertools)
+optdepends=('qt6-languageserver: for qmlls')
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
 sha256sums=('13d6b12d1c1eabdc6e6775e344e3479bf42ffabeadb20bee94882dc3eb003820')
 
+prepare()
+{
+  cd $_tarname 
+}
+
 build() {
-  cmake -B build -S $_realname -G Ninja
-  ninja -C build
+  # The -flto flag seems to be used only when compiling and not linking,
+	# which breaks the NDK clang fallback to emulated TLS - see
+	# https://github.com/termux/termux-packages/issues/21733:
+	export LDFLAGS=" -flto"
+
+  cmake -B build -S $_tarname  -G Ninja \
+    -DINSTALL_PUBLICBINDIR=usr/bin \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
+    -DCMAKE_CXX_FLAGS="$CXXFLAGS -ffat-lto-objects"
+  cmake --build build
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 
-# Symlinks for backwards compatibility
-  mkdir "$pkgdir"/usr/bin
-  for b in "${pkgdir}"/usr/lib/qt6/bin/*; do
-    ln -rs "$pkgdir"/usr/lib/qt6/bin/$(basename $b) "$pkgdir"/usr/bin/$(basename $b)-qt6
-  done
+# Install symlinks for user-facing tools
+  cd "$pkgdir"
+  mkdir usr/bin
+  while read _line; do
+    ln -s $_line
+  done < "$srcdir"/build/user_facing_tool_links.txt
 
   install -d "$pkgdir"/usr/share/licenses
   ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname

@@ -1,35 +1,30 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libtiger
-_realname=tiger
 pkgver=0.3.4
 pkgrel=1
 pkgdesc="A rendering library for Kate streams using Pango and Cairo"
 arch=('x86_64')
 groups=('media-libs')
-url="https://git.xiph.org/?p=users/oggk/tiger.git;a=summary"
+url="https://code.google.com/archive/p/libtiger/"
 license=('LGPL')
 depends=('pango' 'libkate')
-makedepends=('pkg-config' 'git')
-source=("$pkgname::git+git://git.xiph.org/users/oggk/tiger.git#tag=tiger-${pkgver}"
-        "0001-Fix-automake.patch")
-
-prepare() {
-  cd "${srcdir}/${_realname}"
-  patch -Np1 -i "${srcdir}/0001-Fix-automake.patch"
-  ./autogen.sh
-}
+makedepends=('pkg-config')
+source=(https://download.videolan.org/contrib/tiger/$pkgname-$pkgver.tar.gz
+0001-Fix-automake.patch)
+sha256sums=('7342b255fb476d75b08dd4c56d5ce580f39b1c71c42e99fb7af9d999725d4166')
 
 build() {
-  cd "${srcdir}/${_realname}"
+  cd $pkgname-$pkgver
   ./configure --prefix=/usr --enable-static=no --disable-doc
   make
 }
 
 package() {
-  cd "${srcdir}/${_realname}"
+  cd $pkgname-$pkgver
 
   make DESTDIR="${pkgdir}" install
 }

@@ -1,11 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=apache
 _realname=httpd
-pkgver=2.4.58
+pkgver=2.4.62
 pkgrel=1
 pkgdesc='A high performance Unix-based HTTP server'
 arch=('x86_64')
@@ -22,8 +22,10 @@ backup=(
     etc/logrotate.d/httpd
 )
 provides=('mod_proxy_uwsgi')
-depends=('zlib' 'apr-util' 'pcre' 'libnghttp2' 'openssl' 'libxcrypt')
-makedepends=('libxml2' 'lua' 'curl' 'brotli' 'jansson')
+conflicts=('mod_proxy_uwsgi')
+replaces=('mod_proxy_uwsgi')
+depends=('zlib' 'apr-util' 'pcre2' 'libnghttp2' 'openssl' 'libxcrypt')
+makedepends=('libxml2' 'lua' 'curl' 'brotli' 'jansson' 'db' 'systemd')
 optdepends=(
     'lua: for mod_lua module'
     'libxml2: for mod_proxy_html, mod_xml2enc modules'
@@ -33,15 +35,29 @@ optdepends=(
     'uwsgi: for mod_proxy_uwsgi module'
     'lynx: apachectl status'
     'perl: for apxs and dbmmanage'
+    'systemd-libs: for mod_systemd module'
+    'logrotate: for rotating logs'
 )
 source=(
     https://www.apache.org/dist/httpd/httpd-${pkgver}.tar.bz2{,.asc}
-    openssl-malloc-init.patch
     apache.tmpfiles.conf
     httpd.logrotate
     httpd.service
-    avouch.layout
+    arch.layout
 )
+sha256sums=('674188e7bf44ced82da8db522da946849e22080d73d16c93f7f4df89e25729ec'
+            'SKIP'
+            '63da1a420f4714a3e7af2672d28384419cc7eedbe7bf35baebd02938fabc15bf'
+            '0bbbfae23a917b2fce0bf8f900f60319b50769224a96314e9301a75ccd078e16'
+            'f574bac6d5f398e7a649fc0e1ca66ff01ad4ef34dac71258e93d8a9d9a2b3960'
+            'dda05c6e76f12624e418ca18a36f2e90ec1c5b1cc52fed7142fce6076ec413f3')
+# following keys are coming from https://downloads.apache.org/httpd/KEYS
+validpgpkeys=('A93D62ECC3C8EA12DB220EC934EA76E6791485A8' # Jim Jagielski
+              'B9E8213AEFB861AF35A41F2C995E35221AD84DFF'
+              'C55AB7B9139EB2263CD1AABC19B033D1760C227B' # christophe.jaillet@wanadoo.fr
+	      '26F51EF9A82F4ACB43F1903ED377C9E7D1944C66' # Stefan Eissing (icing) <stefan@eissing.org>
+              'E3480043595621FE56105F112AB12A7ADC55C003' # Daniel Ruggeri
+	      '65B2D44FE74BD5E3DE3AC3F082781DE46D5954FA')  # Eric Covener <covener@apache.org>
 
 prepare() {
   cd httpd-${pkgver}
@@ -52,9 +68,6 @@ prepare() {
       -i docs/conf/httpd.conf.in
 
   cat "${srcdir}/avouch.layout" >> config.layout
-
-  # https://github.com/openssl/openssl/issues/2865
-  patch -Np1 -i ../openssl-malloc-init.patch
 }
 
 build() {
@@ -80,10 +93,10 @@ build() {
       --enable-proxy-http --enable-proxy-ftp \
       --enable-dbd --enable-imagemap --enable-ident --enable-cern-meta \
       --enable-lua --enable-xml2enc --enable-http2 \
-      --enable-proxy-http2 --enable-md --enable-brotli \
+      --enable-proxy-http2 --enable-md --enable-brotli --enable-systemd \
       --with-apr=/usr/bin/apr-1-config \
       --with-apr-util=/usr/bin/apu-1-config \
-      --with-pcre=/usr
+      --with-pcre2
 
   make
 }

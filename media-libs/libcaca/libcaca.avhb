@@ -1,29 +1,73 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libcaca
-pkgver=0.99.beta19
+pkgver=0.99.beta20
 pkgrel=1
 pkgdesc="Color AsCii Art library"
 arch=('x86_64')
 groups=('media-libs')
-url="http://caca.zoy.org/wiki/libcaca"
-license=('custom:WTFPL')
-depends=('imlib2' 'ncurses')
-options=(!emptydirs)
-source=(http://libcaca.zoy.org/files/libcaca/${pkgname}-${pkgver}.tar.gz)
+url='http://caca.zoy.org/wiki/libcaca'
+license=(WTFPL)
+depends=(
+  freeglut
+  gcc-libs
+  glibc
+  glu
+  imlib2
+  libglvnd
+  libx11
+  ncurses
+  slang
+  zlib
+)
+makedepends=(
+  doxygen
+  git
+  pango
+  python
+)
+optdepends=('python: Python bindings')
+source=(
+  "git+https://github.com/cacalabs/libcaca.git#tag=v$pkgver"
+  libcaca-0.99.beta20-CVE-2022-0856.patch
+)
+b2sums=(
+  2965c38a6ecb8f9384741ac707f60ba7c6b7e290303f0f2c5f5b9dd28ce89580012c7db647dff15f9dc012fe3e47caa713162d40ffb29f428739db3a66a94e6b
+  82bc7243844238089c5f513738bd9e95ac6cb88b16202db0655592e4037732a8353b72e5bd26ad73cdb32ad2da5d864bbb9ee5196bc0c3d2805c397e7686f728
+)
+
+prepare() {
+  cd $pkgname
+
+  # Prevent a divide-by-zero by checking for a zero width or height
+  # https://github.com/cacalabs/libcaca/pull/66
+  git apply -3 ../libcaca-0.99.beta20-CVE-2022-0856.patch
+
+  autoreconf -fi
+}
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --mandir=/usr/share/man \
-    --enable-shared --disable-doc \
-    --disable-cxx --disable-gl --disable-csharp --disable-static
-  make ${MAKEFLAGS}
+  cd $pkgname
+  # GCC-14 fixes
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration"
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
+
+check() {
+  cd $pkgname
+  # make check
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
-  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/libcaca/COPYING"
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname/" COPYING
 }

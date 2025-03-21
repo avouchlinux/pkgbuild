@@ -1,36 +1,51 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=exiv2
-pkgver=0.27.2
+pkgver=0.28.1
 pkgrel=1
 pkgdesc="Exif, Iptc and XMP metadata manipulation library and tools"
 arch=('x86_64')
 groups=('sys-libs')
-url="http://exiv2.org"
+url="https://exiv2.org"
+arch=('x86_64')
 license=('GPL2')
-depends=('gcc-libs' 'zlib' 'expat')
-makedepends=('cmake')
-source=("https://github.com/Exiv2/exiv2/archive/$pkgver.tar.gz")
-
-prepare() {
-  cd $pkgname-$pkgver
-
-}
+depends=('gcc-libs' 'zlib' 'expat' 'libexpat.so' 'gettext' 'curl' 'libcurl.so' 'libinih')
+makedepends=('cmake' 'gtest' 'ninja')
+checkdepends=('python')
+provides=('libexiv2.so')
+source=(https://github.com/Exiv2/exiv2/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('7b872a3c0cbe343014b1ca4618cecaf6ee8d78dec7ef83accfce95cb8eadc6b52116977a41e1f1be5c6149a47bdd9457fadc08d73708aa2a6ab69795fd3de23b')
+b2sums=('a26f8e54cf6284c56ff429c13d5a8985dc6181a36b4c13ea6f2e59bc00016a2a8d915ddbc0cedb441b8283e30f18312a500900ffd89ca984006ac84807a03852')
 
 build() {
-  cd $pkgname-$pkgver
-cmake . \
+  cd ${pkgname}-${pkgver}
+  cmake -B build \
+    -GNinja \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DEXIV2_BUILD_SAMPLES=ON \
+    -DEXIV2_BUILD_UNIT_TESTS=ON \
     -DEXIV2_ENABLE_VIDEO=ON \
-    -DEXIV2_ENABLE_BUILD_PO=ON \
-    -DEXIV2_ENABLE_BUILD_SAMPLES=OFF \
-    -DCMAKE_INSTALL_LIBDIR=lib
-  make ${MAKEFLAGS}
+    -DEXIV2_ENABLE_NLS=ON \
+    -DEXIV2_ENABLE_XMP=ON \
+    -DEXIV2_ENABLE_CURL=ON \
+    -DEXIV2_ENABLE_WEBREADY=ON \
+    -DEXIV2_ENABLE_BMFF=ON
+  ninja -C build
 }
 
+# check() {
+#   cd ${pkgname}-${pkgver}
+#   LD_LIBRARY_PATH="$PWD"/build/lib \
+#   ninja -C build test
+# }
+
 package() {
-  cd $pkgname-$pkgver
-    make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  # remove samples install which are only needed for unit tests
+  sed '/samples\/cmake_install.cmake/d' -i build/cmake_install.cmake
+  DESTDIR="${pkgdir}" ninja -C build install
 }

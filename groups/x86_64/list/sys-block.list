@@ -1,0 +1,12 @@
+gpart
+gparted
+gptfdisk
+libblockdev
+libstoragemgmt
+libnvme
+libnbd
+open-iscsi
+open-isns
+parted
+thin-provisioning-tools
+udisks2

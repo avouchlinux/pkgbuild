@@ -1,35 +1,72 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=akonadi
-pkgver=23.08.1
+pkgbase=akonadi
+pkgname=(akonadi libakonadi)
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="PIM layer, which provides an asynchronous API to access all kind of PIM data"
 arch=('x86_64')
-groups=('kde-apps')
-url='http://community.kde.org/KDE_PIM/Akonadi'
-license=('LGPL')
-depends=('kio' 'kitemmodels' 'mariadb')
-makedepends=('extra-cmake-modules' 'postgresql' 'qt5-tools' 'boost' 'python' 'kdesignerplugin')
-optdepends=('postgresql: PostgreSQL backend')
-source=("https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-
-prepare() {
-  mkdir -p build
-}
+groups=('kde-release-service')
+url='https://kontact.kde.org'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kcoreaddons
+         ki18n
+         libaccounts-qt
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             postgresql
+             qt6-doc
+             qt6-tools
+             kaccounts-integration
+             kconfigwidgets
+             kiconthemes
+             kitemmodels
+             kxmlgui)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('8b2f113ebc590020bc14d362bb8c64b1b8bbabe5e73ca0ba3b63640999c1f7d3'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
-package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+package_libakonadi() {
+  pkgdesc='Libraries used by applications based on Akonadi'
+  depends+=(kaccounts-integration
+            kcolorscheme
+            kconfigwidgets
+            kiconthemes
+            kitemmodels
+            kwidgetsaddons
+            kxmlgui
+            libxml2
+            xz)
+
+  DESTDIR="$pkgdir" cmake --install build
+  rm -r "$pkgdir"/usr/bin # Provided by akonadi
+}
+
+package_akonadi() {
+  depends+=(kcrash
+            libakonadi
+            mariadb)
+  optdepends=('postgresql: PostgreSQL backend')
+
+  DESTDIR="$pkgdir" cmake --install build
+  rm -r "$pkgdir"/{etc,usr/{include,lib,share}} # Provided by libakonadi
 }

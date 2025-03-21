@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libical
-pkgver=3.0.8
+pkgver=3.0.17
 pkgrel=1
 pkgdesc="An open source reference implementation of the icalendar data type and serialization format"
 arch=('x86_64')
@@ -17,18 +18,17 @@ source=("https://github.com/${pkgname}/${pkgname}/archive/v${pkgver}.tar.gz")
 
 prepare() {
   cd "${pkgname}-${pkgver}"
-  patch -Np1 -i ../libical-glib-python-tests.patch
-  patch -Np0 -i ../icu68.patch
 }
 
 build() {
   cmake -H"${pkgname}-${pkgver}" -Bbuild \
-    -DCMAKE_BUILD_TYPE=Plain \
+    -DCMAKE_BUILD_TYPE=None \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DGOBJECT_INTROSPECTION=true \
     -DICAL_GLIB_VAPI=true \
-    -DSHARED_ONLY=true
+    -DSHARED_ONLY=true \
+    -DCMAKE_DISABLE_FIND_PACKAGE_BerkeleyDB=true
   cmake --build build
 }
 

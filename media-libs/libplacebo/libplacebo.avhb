@@ -1,37 +1,59 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libplacebo
-pkgver=3.120.3
+pkgver=7.349.0
 pkgrel=1
 pkgdesc='Reusable library for GPU-accelerated video/image rendering primitives'
 url='https://github.com/haasn/libplacebo'
 arch=('x86_64')
 groups=('media-libs')
-depends=('vulkan-icd-loader' 'libvulkan.so' 'glslang' 'lcms2' 'liblcms2.so' 'shaderc' 'libshaderc_shared.so'
-         'libepoxy' 'libglvnd' 'glibc' 'gcc-libs')
-makedepends=('meson' 'ninja' 'vulkan-headers' 'python' 'python-mako')
+license=('LGPL-2.1-or-later')
+depends=('vulkan-icd-loader' 'glslang' 'lcms2' 'shaderc'
+         'glibc' 'gcc-libs' 'libunwind' 'libdovi' 'xxhash')
+makedepends=(
+  'meson' 'ninja' 'vulkan-headers' 'glad' 'nuklear'
+  'python' 'python-setuptools' 'python-mako' 'python-markupsafe' 'python-jinja'
+  'libglvnd'
+)
 provides=('libplacebo.so')
 source=(https://code.videolan.org/videolan/libplacebo/-/archive/v${pkgver}/libplacebo-v${pkgver}.tar.gz)
+sha512sums=('94fb0ad4f6cdafc81a43f06a73e49ef8ed7f81e751ad2a028f6f91295a06d8c12f2959e2595bd654db946fc5aa89758ab9d37f985ebb82badbd517ed02f3ddca')
+b2sums=('4a1a667e608e559f2ac163d25183ce9cd2a3ddfa05d88219e5597db08478c883f12efb2e66fe54d9aab65f2863efbe60f0448e241a69109ea423af8222008493')
 
 build() {
-  CXXFLAGS+=" -I/usr/include/glslang"
-  avouch-meson ${pkgname}-v${pkgver} build \
-    -D tests=false \
+  cd ${pkgname}-v${pkgver}
+  export CXXFLAGS+=" -I/usr/include/glslang"
+  avouch-meson build \
+    -D tests=true \
     -D vulkan=enabled \
     -D glslang=enabled \
     -D shaderc=enabled \
-    -D lcms=enabled
-  ninja -C build
+    -D lcms=enabled \
+    -D d3d11=disabled \
+    -D libdovi=enabled \
+    -D demos=false
+  meson compile -C build
+
 }
 
 # check() {
-#   ninja -C build test
+#   cd ${pkgname}-v${pkgver}
+#   meson test -C build --print-errorlogs
 # }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
-  install -Dm 644 ${pkgname}-v${pkgver}/README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  depends+=(
+    'libdovi.so'
+    'liblcms2.so'
+    'libshaderc_shared.so'
+    'libvulkan.so'
+  )
+
+  cd ${pkgname}-v${pkgver}
+  meson install -C build --destdir "${pkgdir}"
+  install -Dm 644 README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
 }
+

@@ -1,32 +1,40 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorgproto
-pkgver=2021.5
+pkgver=2024.1
 pkgrel=1
 pkgdesc="combined X.Org X11 Protocol headers"
 arch=('any')
 groups=("x11-base")
 url="https://xorg.freedesktop.org/"
-license=('custom')
-makedepends=('xorg-util-macros' 'meson') # 'xmlto' 'libxslt' 'linuxdoc-tools' 'docbook-sgml' 'fop')
-provides=('bigreqsproto' 'compositeproto' 'damageproto' 'dmxproto' 'dri2proto' 'dri3proto' 'fixesproto' 'fontsproto' 'glproto' 'inputproto' 'kbproto' 'presentproto' 'printproto' 'randrproto' 'recordproto' 'renderproto' 'resourceproto' 'scrnsaverproto' 'videoproto' 'xcmiscproto' 'xextproto' 'xf86dgaproto' 'xf86driproto' 'xf86miscproto' 'xf86vidmodeproto' 'xineramaproto' 'xproto')
-conflicts=('bigreqsproto' 'compositeproto' 'damageproto' 'dmxproto' 'dri2proto' 'dri3proto' 'fixesproto' 'fontsproto' 'glproto' 'inputproto' 'kbproto' 'presentproto' 'printproto' 'randrproto' 'recordproto' 'renderproto' 'resourceproto' 'scrnsaverproto' 'videoproto' 'xcmiscproto' 'xextproto' 'xf86dgaproto' 'xf86driproto' 'xf86miscproto' 'xf86vidmodeproto' 'xineramaproto' 'xproto')
-replaces=('bigreqsproto' 'compositeproto' 'damageproto' 'dmxproto' 'dri2proto' 'dri3proto' 'fixesproto' 'fontsproto' 'glproto' 'inputproto' 'kbproto' 'presentproto' 'printproto' 'randrproto' 'recordproto' 'renderproto' 'resourceproto' 'scrnsaverproto' 'videoproto' 'xcmiscproto' 'xextproto' 'xf86dgaproto' 'xf86driproto' 'xf86miscproto' 'xf86vidmodeproto' 'xineramaproto' 'xproto')
-source=(https://xorg.freedesktop.org/archive/individual/proto/$pkgname-$pkgver.tar.bz2{,.sig})
-validpgpkeys=('995ED5C8A6138EB0961F18474C09DD83CAAA50B2') #  "Adam Jackson <ajax@nwnk.net>"
-validpgpkeys+=('DD38563A8A8224537D1F90E45B8A2D50A0ECD0D3') # "Adam Jackson <ajax@benzedrine.nwnk.net>"
-validpgpkeys+=('C383B778255613DFDB409D91DB221A6900000011') #  "Keith Packard <keithp@keithp.com>"
+license=(BSD-2-Clause
+         HPND
+         HPND-sell-variant
+         ICU
+         MIT
+         MIT-open-group
+         SGI-B-2.0
+         SMLNJ
+         X11
+         X11-distribute-modifications-variant)
+makedepends=('xorg-util-macros' 'meson')
+checkdepends=('python-libevdev')
+source=(https://xorg.freedesktop.org/archive/individual/proto/$pkgname-$pkgver.tar.xz{,.sig})
+sha512sums=('63955cb604ff831575af2193548857c1b99e52d00206ea9421ce99e145094bcd907388c4574bc32174a01cbe2c940b0377bf75ae7d2c0f953157dc9c32e5a07f'
+            'SKIP')
+#validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # "Peter Hutterer (Who-T) <office@who-t.net>"
+#validpgpkeys=('FD0004A26EADFE43A4C3F249C6F7AE200374452D') # "Povilas Kanapickas <povilas@radix.lt>"
+validpgpkeys=('67DC86F2623FC5FD4BB5225D14706DBE1E4B4540') # "Olivier Fourdan <fourdan@xfce.org>"
 
 prepare() {
   mkdir build
 }
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    -Dlegacy=true
-
+  avouch-meson "$pkgname"-$pkgver build
   ninja -C build
 }
 
@@ -39,16 +47,16 @@ package() {
 
   # missing docs
   install -m755 -d "${pkgdir}/usr/share/doc/${pkgname}"
-  install -m644 $pkgname-$pkgver/*.txt "${pkgdir}/usr/share/doc/${pkgname}/"
-  install -m644 $pkgname-$pkgver/PM_spec "${pkgdir}/usr/share/doc/${pkgname}/"
-  rm ${pkgdir}/usr/share/doc/${pkgname}/meson_options.txt
+  install -m644 "$pkgname"-$pkgver/PM_spec "${pkgdir}/usr/share/doc/${pkgname}/"
 
   # licenses
   install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
-  install -m644 $pkgname-$pkgver/COPYING* "${pkgdir}/usr/share/licenses/${pkgname}/"
+  install -m644 "$pkgname"-$pkgver/COPYING* "${pkgdir}/usr/share/licenses/${pkgname}/"
+  # remove licences of legacy stuff we don't ship anymore
+  rm -f "${pkgdir}"/usr/share/licenses/${pkgname}/COPYING-{evieproto,fontcacheproto,lg3dproto,printproto,xcalibrateproto,xf86rushproto}
 
   # cleanup
-  rm -f ${pkgdir}/usr/include/X11/extensions/{apple,windows}*
-  rm -f ${pkgdir}/usr/share/licenses/${pkgname}/COPYING-{apple,windows}wmproto
-  rm -f ${pkgdir}/usr/share/pkgconfig/{apple,windows}wmproto.pc
+  rm -f "${pkgdir}"/usr/include/X11/extensions/apple*
+  rm -f "${pkgdir}"/usr/share/licenses/${pkgname}/COPYING-{apple,windows}wmproto
+  rm -f "${pkgdir}"/usr/share/pkgconfig/applewmproto.pc
 }

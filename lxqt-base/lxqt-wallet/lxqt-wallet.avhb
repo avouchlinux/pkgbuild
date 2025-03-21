@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lxqt-wallet
-pkgver=3.2.2
+pkgver=4.0.2
 pkgrel=1
 pkgdesc="Secure storage of information for lxqt"
 arch=('x86_64')
@@ -15,8 +15,8 @@ depends=('libgcrypt')
 makedepends=('cmake' 'qt5-base' 'kwallet' 'libsecret' 'qt5-tools')
 optdepends=('libsecret: support for Gnome libsecret password storage (must recompile)'
             'kwallet: support for KDE wallet storage (must recompile)')
-source=("https://github.com/mhogomchungu/lxqt_wallet/releases/download/${pkgver}/${_pkgname}-${pkgver}.tar.xz"
-        "https://github.com/mhogomchungu/lxqt_wallet/releases/download/${pkgver}/${_pkgname}-${pkgver}.tar.xz.asc")
+source=("https://github.com/mhogomchungu/lxqt_wallet/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+        "https://github.com/mhogomchungu/lxqt_wallet/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.xz.asc")
 validpgpkeys=('6855E493B5B2DF96E319BB6D16E2E1ACC6F51242')
 
 build() {

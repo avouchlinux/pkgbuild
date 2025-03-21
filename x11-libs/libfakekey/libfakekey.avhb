@@ -1,0 +1,29 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libfakekey
+pkgver=0.3
+pkgrel=1
+pkgdesc='X virtual keyboard library.'
+arch=('x86_64')
+groups=('x11-libs')
+url='https://www.yoctoproject.org/tools-resources/projects/matchbox'
+license=('GPL')
+depends=('libxtst')
+source=("https://git.yoctoproject.org/cgit/cgit.cgi/$pkgname/snapshot/$pkgname-$pkgver.tar.gz")
+sha256sums=('d282fa6481a5b85f71e36e8bad4cfa938cc8eaac4c42ffa27f9203ac634813f4')
+
+build() {
+  cd "${pkgname}-${pkgver}"
+
+  ./autogen.sh
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static
+  make AM_LDFLAGS=-lX11
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

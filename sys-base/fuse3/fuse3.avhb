@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -14,7 +14,7 @@ url='https://github.com/libfuse/libfuse'
 license=('GPL2')
 makedepends=('pkg-config' 'meson' 'udev')
 options=(!emptydirs)
-source=(https://github.com/libfuse/libfuse/releases/download/fuse-$pkgver/fuse-$pkgver.tar.xz{,.asc})
+source=(https://github.com/libfuse/libfuse/releases/download/$_realname-$pkgver/$_realname-$pkgver.tar.gz{,.asc})
 validpgpkeys=(ED31791B2C5C1613AF388B8AD113FCAC3C4E599F) # Nikolaus Rath <Nikolaus@rath.org>
 
 build() {
@@ -41,9 +41,9 @@ package_fuse3() {
 
   DESTDIR=${pkgdir} ninja install
 
-  rm -r ${pkgdir}/etc/init.d
-  rm -r ${pkgdir}/etc/fuse.conf
+  # rm -r ${pkgdir}/etc/init.d
+  # rm -r ${pkgdir}/etc/fuse.conf
   
   # static device nodes are handled by udev
-  rm -r ${pkgdir}/dev
+  # rm -r ${pkgdir}/dev
 }

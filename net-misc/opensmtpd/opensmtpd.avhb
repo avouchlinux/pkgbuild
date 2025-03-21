@@ -1,39 +1,55 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=opensmtpd
-pkgver=6.6.4p1
+pkgver=7.5.0p0
 pkgrel=1
 pkgdesc='Free implementation of the server-side SMTP protocol'
 arch=('x86_64')
 groups=('net-misc')
-url="https://www.opensmtpd.org/"
+url="https://www.opensmtpd.org"
 license=(custom)
-depends=(libasr libevent libressl pam)
+depends=(libevent libxcrypt openssl pam systemd zlib)
 optdepends=('opensmtpd-filter-rspamd: rspamd integration')
+makedepends=(signify)
 provides=(smtp-server smtp-forwarder)
 conflicts=(smtp-server smtp-forwarder)
 backup=(etc/smtpd/smtpd.conf etc/smtpd/aliases)
 options=(emptydirs)
 source=("https://www.opensmtpd.org/archives/${pkgname}-${pkgver}.tar.gz"
+        ${pkgname}-${pkgver}.signify::"${url}/archives/${pkgname}-${pkgver}.sum.sig"
+        opensmtpd-20181026.pub
         opensmtpd.sysusers
         smtpd.service
         smtpd.socket)
+sha256sums=('84f5c1393c0c1becc72ceea971e0abd7075b2ca7e4e1f8909b83edfd8de0c39c'
+            '1a9d6d52aa31e8c89cb37877c83f386a96a9e1a225d1c74e3294c55863f58e1f'
+            'b74dca53567cd5070905a0a1acd77041805b6c0c4a0e1285830ea13654e1dcd5'
+            '5a6e0e2f1ceb4f6fe69aaa7871291af3b4ee1c55a96a667e72a309f961c8bd2d'
+            'abf5baeb2a87c60d668ad18ea41cc08cab7a4f76339dd6df05de15cdaadaf922'
+            '32d46de5562d01de445d04c93bcc9f94bf103539b676e449c32e3603a3866cf8')
 
 prepare() {
-  sed -ri 's,/etc/mail,/etc/smtpd,g' "$pkgname-$pkgver/smtpd/smtpd.conf"
+  signify -Cp ${pkgname}-20181026.pub \
+           -x ${pkgname}-${pkgver}.signify \
+              ${pkgname}-${pkgver}.tar.gz
+
+  cd ${pkgname}-${pkgver}
+  sed -ri 's,/etc/mail,/etc/smtpd,g' usr.sbin/smtpd/smtpd.conf
+  autoreconf -vfi
 }
 
 build() {
-  cd "$pkgname-$pkgver"
-  # GCC 10 fix
-  export CFLAGS+=' -fcommon'
+  cd ${pkgname}-${pkgver}
+
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc/smtpd \
     --sbindir=/usr/bin \
     --libexecdir=/usr/lib/smtpd \
+    --without-libbsd \
     --with-path-mbox=/var/spool/mail \
     --with-path-empty=/var/empty \
     --with-path-socket=/run \
@@ -41,28 +57,26 @@ build() {
     --with-user-smtpd=smtpd \
     --with-user-queue=smtpq \
     --with-group-queue=smtpq \
-    --with-auth-pam \
-    --with-cflags='-I/usr/include/libressl -L/usr/lib/libressl -Wl,-rpath=/usr/lib/libressl'
+    --with-auth-pam
 
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
   cd ${pkgname}-${pkgver}
 
-  make DESTDIR="${pkgdir}" install
+  make DESTDIR="${pkgdir}" install SMTPD_QUEUE_USER=92
 
   ln -s /usr/bin/smtpctl "${pkgdir}"/usr/bin/sendmail
   ln -s /usr/bin/smtpctl "${pkgdir}"/usr/bin/mailq
   ln -s /usr/bin/smtpctl "${pkgdir}"/usr/bin/newaliases
   ln -s /usr/bin/smtpctl "${pkgdir}"/usr/bin/makemap
 
-  install -Dm644 etc/aliases -t  "${pkgdir}"/etc/smtpd/
+  install -Dm644 etc/aliases -t "${pkgdir}"/etc/smtpd/
 
   install -Dm644 LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 
-  cd ..
-  install -Dm644 smtpd.service -t "${pkgdir}"/usr/lib/systemd/system/
-  install -Dm644 smtpd.socket -t "${pkgdir}"/usr/lib/systemd/system/
-  install -Dm644 opensmtpd.sysusers "${pkgdir}"/usr/lib/sysusers.d/opensmtpd.conf
+  install -Dm644 ../smtpd.service -t "${pkgdir}"/usr/lib/systemd/system/
+  install -Dm644 ../smtpd.socket -t "${pkgdir}"/usr/lib/systemd/system/
+  install -Dm644 ../opensmtpd.sysusers "${pkgdir}"/usr/lib/sysusers.d/opensmtpd.conf
 }

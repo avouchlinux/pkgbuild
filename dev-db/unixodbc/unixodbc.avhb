@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=unixodbc
 _realname=unixODBC
-pkgver=2.3.9
+pkgver=2.3.12
 pkgrel=1
 pkgdesc="ODBC is an open specification for providing application developers with a predictable API with which to access Data Sources"
 arch=('x86_64')
@@ -13,22 +13,24 @@ groups=('dev-db')
 license=('GPL2' 'LGPL2.1')
 url="http://www.unixodbc.org/"
 backup=('etc/odbc.ini' 'etc/odbcinst.ini')
-depends=('readline' 'libltdl')
-source=("http://www.unixodbc.org/unixODBC-$pkgver.tar.gz")
+depends=('readline' 'libltdl' 'glibc')
+source=(https://www.unixodbc.org/unixODBC-$pkgver.tar.gz)
+sha256sums=('f210501445ce21bf607ba51ef8c125e10e22dffdffec377646462df5f01915ec')
 
 build() {
-	cd "$srcdir/$_realname-$pkgver"
-	./configure --prefix=/usr --sysconfdir=/etc
-	make
+    cd unixODBC-${pkgver}
+    ./configure --prefix=/usr --sysconfdir=/etc
+    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+    make
 }
 
 check() {
-	cd "$srcdir/$_realname-$pkgver"
-	make -k check
+    cd unixODBC-${pkgver}
+    make -k check
 }
 
 package() {
-	cd "$srcdir/$_realname-$pkgver"
-	make DESTDIR="$pkgdir" install
+    cd unixODBC-${pkgver}
+    make DESTDIR="${pkgdir}" install
+    touch "$pkgdir"/etc/{odbc,odbcinst}.ini
 }
-

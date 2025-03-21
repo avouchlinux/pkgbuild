@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>nvidia</Name>
+	 <Name>nvidia-390xx</Name>
+	 <Name>nvidia-390xx-settings</Name>
+	 <Name>nvidia-390xx-utils</Name>
+	 <Name>nvidia-settings</Name>
+	 <Name>nvidia-utils</Name>
+	 <Name>v4l-dvb-git</Name>
+	 <Name>v4l-dvb-saa716x</Name>
+</Packages>

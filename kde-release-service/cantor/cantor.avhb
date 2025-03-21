@@ -1,33 +1,76 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=cantor
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="KDE Frontend to Mathematical Software"
-url="http://kde.org/applications/education/cantor/"
+url='https://apps.kde.org/cantor/'
 arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('analitza' 'libspectre' 'kpty' 'ktexteditor' 'knewstuff' 'libqalculate' 'hicolor-icon-theme')
-makedepends=('extra-cmake-modules' 'python' 'python2' 'kdoctools' 'luajit' 'r')
+groups=('kde-release-services')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         karchive5
+         kcompletion5
+         kconfig5
+         kconfigwidgets5
+         kcoreaddons5
+         kcrash5
+         ki18n5
+         kiconthemes5
+         kio5
+         knewstuff5
+         kparts5
+         ktexteditor5
+         ktextwidgets5
+         kwidgetsaddons5
+         kxmlgui5
+         libqalculate
+         libspectre
+         poppler-qt5
+         qt5-base
+         qt5-svg
+         qt5-tools
+         qt5-webengine
+         qt5-xmlpatterns
+         syntax-highlighting5)
+makedepends=(extra-cmake-modules
+             julia
+             kdoctools5
+             luajit
+             python
+             r)
 optdepends=('maxima: Maxima backend'
             'octave: Octave backend'
             'r: R backend'
             'luajit: LUA backend'
-            'python: Python 3 backend'
-	    'python2: Python 2 backend'
-            'sagemath: SageMath backend')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/cantor-${pkgver}.tar.xz")
-sha1sums=('019e74937580350b3da470aa7b635b52065533e9')
+            'python: Python backend'
+            'sagemath: SageMath backend'
+            'julia: Julia backend')
+groups=(kde-release-servicelications
+        kde-education)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
+        julia-1.11.patch)
+sha256sums=('080c73b405ca2d854972d08c1cdbc7554e99f3d314e37ae6f9ef3249a802bc78'
+            'SKIP'
+            'd291557fe2fd6ec7872c1145f48132e017d408c28eb45b62ee4be0329c854a86')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+
+prepare() {
+  patch -d $pkgname-$pkgver -p1 < julia-1.11.patch # Fix build with julia 1.11
+}
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
-    -DBUILD_TESTING=OFF
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 

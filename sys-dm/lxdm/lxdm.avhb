@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,27 +11,34 @@ pkgrel=1
 pkgdesc='Lightweight X11 Display Manager'
 arch=('x86_64')
 groups=('sys-dm')
-url="https://sourceforge.net/projects/lxdm/"
+url="https://lxde.org/"
 license=('GPL')
-depends=('gtk2' 'xorg-server')
+depends=('gtk2' 'gtk3' 'xorg-server')
 makedepends=('intltool' 'iso-codes')
-optdepends=('gtk-engines: default GTK+ theme'
-            'librsvg: display the default background')
-install=$pkgname.install
+optdepends=('iso-codes: show language names in language chooser')
 backup=('etc/lxdm/lxdm.conf' 'etc/pam.d/lxdm' 'etc/lxdm/Xsession'
         'etc/lxdm/PreLogin' 'etc/lxdm/LoginReady' 'etc/lxdm/PostLogin'
         'etc/lxdm/PostLogout' 'etc/lxdm/PreReboot' 'etc/lxdm/PreShutdown')
-source=(http://downloads.sourceforge.net/lxdm/$pkgname-$pkgver.tar.xz
+source=(https://downloads.sourceforge.net/lxde/$pkgbase-$pkgver.tar.xz
+        set-path.patch
+        git-fixes.patch
         default-config.patch
         lxdm.pam
         Xsession)
+sha256sums=('4891efee81c72a400cc6703e40aa76f3f3853833d048b72ec805da0f93567f2f'
+            '328f766c4d2ee899fc37a26f6e8666d40ebeaa3bd4c7d5a474ebb5415351a440'
+            'ca3b225fb85a4e87ebb48e2b1a20f4bab86bf619a9ad927f08fdc819bc435bb4'
+            'ea5fbe021b98ec58de8f2ba9a3575f748024bad2a9b911179a44bf94577f869b'
+            'e8c4c5fd3b801a390d201166fd1fb9730e78a5c62928768103b870b6bd980ea0'
+            'a02f547e1c36f1c7dd2a1f942b620fe76445d561f7835e7fef434aa4c12c6967')
+
 
 prepare() {
 	cd ${srcdir}/${pkgbase}-${pkgver}
 
-  # Don't overwrite PATH if already defined
-  # https://sourceforge.net/p/lxde/bugs/907/
-  patch -Np0 -i ../set-path.patch
+    # Don't overwrite PATH if already defined
+    # https://sourceforge.net/p/lxde/bugs/907/
+    patch -Np0 -i ../set-path.patch
 
 	# Apply fixes from git
 	patch -Np1 -i ../git-fixes.patch

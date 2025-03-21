@@ -28,13 +28,16 @@ pkgver() {
 prepare() {
 	cd "${pkgname}"
 	patch -Np1 -i "../${pkgname}-1.9.2-console_warning_typo.patch"
+    # from Fedora
+    patch -Np1 -i "../efitools-c99-1.patch"
+    patch -Np1 -i "../efitools-c99-2.patch"
+
 }
 
 build() {
   # fix PreLoader.efi building on x86_64 #49314
   export ARCH="${CARCH}"
   # build with one job because the Makefile does not support parallel jobs ;_;
-  # https://bugs.archlinux.org/task/73600
   make -j1 -C "${pkgname}"
 }
 

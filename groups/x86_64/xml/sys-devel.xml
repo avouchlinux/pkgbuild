@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>autoconf</Name>
+	 <Name>autoconf213</Name>
+	 <Name>autoconf-archive</Name>
+	 <Name>autogen</Name>
+	 <Name>automake</Name>
+	 <Name>bc</Name>
+	 <Name>bin86</Name>
+	 <Name>bison</Name>
+	 <Name>boost</Name>
+	 <Name>check</Name>
+	 <Name>cppunit</Name>
+	 <Name>dejagnu</Name>
+	 <Name>dev86</Name>
+	 <Name>diffutils</Name>
+	 <Name>ebook-tools</Name>
+	 <Name>flex</Name>
+	 <Name>gc</Name>
+	 <Name>gcc</Name>
+	 <Name>gdb</Name>
+	 <Name>guile</Name>
+	 <Name>libclc</Name>
+	 <Name>libedit</Name>
+	 <Name>libevdev</Name>
+	 <Name>libtool</Name>
+	 <Name>libyaml</Name>
+	 <Name>llvm</Name>
+	 <Name>clang</Name>
+	 <Name>m4</Name>
+	 <Name>make</Name>
+	 <Name>orc</Name>
+	 <Name>patch</Name>
+	 <Name>pkg-config</Name>
+	 <Name>slang</Name>
+	 <Name>vala</Name>
+	 <Name>valgrind</Name>
+</Packages>

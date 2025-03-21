@@ -1,25 +1,27 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=tslib
-pkgver=1.21
+pkgver=1.23
 pkgrel=1
 pkgdesc="Touchscreen Access Library"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://github.com/kergoth/tslib"
-license=(GPL2)
+license=(LGPL-2.1-only)
 depends=(glibc)
 makedepends=()
-source=("https://github.com/kergoth/tslib/releases/download/$pkgver/$pkgname-$pkgver.tar.xz")
+source=("https://github.com/kergoth/tslib/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"{,.asc})
+sha256sums=('9b489a54d48006201f2fe955a88c3f857535ac93b6cf8e5a16c7b166c8991dac'
+            'SKIP')
 validpgpkeys=(F2082B880F9E423934686E3F500398DF5AB387D3) # Martin Kepplinger <martink@posteo.de>
 
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr --sysconfdir=/etc
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ttf-font-awesome
 _realname=Font-Awesome
-pkgver=5.13.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc="Iconic font designed for Bootstrap"
 url="http://fortawesome.github.io/Font-Awesome/"
@@ -12,7 +13,7 @@ license=('CCPL')
 depends=()
 arch=('any')
 groups=('media-fonts')
-source=("https://github.com/FortAwesome/Font-Awesome/archive/v$pkgver.tar.gz")
+source=("$_realname-$pkgver.tar.gz::https://github.com/FortAwesome/Font-Awesome/archive/$pkgver.tar.gz")
 
 package() {
   cd Font-Awesome-$pkgver/webfonts

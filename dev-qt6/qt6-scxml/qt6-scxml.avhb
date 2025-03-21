@@ -1,0 +1,40 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qt6-scxml
+pkgver=6.8.2
+pkgrel=1
+_realname="${pkgname/6-/}-everywhere-src-${pkgver}"
+arch=('x86_64')
+groups=('dev-qt')
+url='http://qt-project.org/'
+license=('GPL3' 'LGPL' 'FDL' 'custom')
+pkgdesc='Qt Scxml module'
+depends=(gcc-libs
+         glibc
+         qt6-base)
+makedepends=(cmake
+             git
+             ninja
+             qt6-declarative)
+source=("http://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver}/submodules/${_realname}.tar.xz")
+
+prepare() {
+    mkdir -p "${srcdir}/build"
+}
+
+build() {
+  cmake -B build -S $_realname -G Ninja \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+
+  cmake --build build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+
+    install -d "$pkgdir"/usr/share/licenses
+    ln -s /usr/share/licenses/qt5-base "$pkgdir"/usr/share/licenses/${pkgname}
+}

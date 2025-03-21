@@ -1,18 +1,47 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gtk-vnc
-pkgver=1.3.0
+pkgbase=gtk-vnc
+pkgname=(
+  gtk-vnc
+  gtk-vnc-docs
+)
+pkgver=1.5.0
 pkgrel=1
 pkgdesc="A VNC viewer widget for GTK+"
 url="https://wiki.gnome.org/Projects/gtk-vnc"
 arch=('x86_64')
-groups=('gnome-extra')
-license=(LGPL)
-depends=(libgcrypt gtk3 gnutls libpulse)
-makedepends=(meson vala gobject-introspection gnome-common git perl-text-csv)
+groups=('gnome-base')
+url="https://wiki.gnome.org/Projects/gtk-vnc"
+arch=(x86_64)
+license=(LGPL-2.1-or-later)
+depends=(
+  cairo
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnutls
+  gtk3
+  libgcrypt
+  libpulse
+  libsasl
+  libx11
+  zlib
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+  perl-text-csv
+  vala
+)
+provides=(
+  libgtk-vnc-2.0.so
+  libgvnc{,pulse}-1.0.so
+)
 source=(https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
 sha256sums=('SKIP'
             'SKIP')
@@ -23,9 +52,26 @@ build() {
 }
 
 check() {
-    meson test -C build
+  meson test -C build --print-errorlogs
 }
 
-package() {
-    DESTDIR="$pkgdir" ninja -C build install
+package_gtk-vnc() {
+  provides=(
+    libgtk-vnc-2.0.so
+    libgvnc{,pulse}-1.0.so
+  )
+
+  meson install -C build --destdir "$pkgdir"
+  install -Dt "$pkgdir/usr/bin" build/examples/gvncviewer
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
 }
+
+package_gtk-vnc-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+

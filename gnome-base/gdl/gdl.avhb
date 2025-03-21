@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -17,9 +17,10 @@ source=(http://ftp.gnome.org/pub/GNOME/sources/$pkgname/${pkgver:0:4}/$pkgname-$
 
 build() {
 	cd ${srcdir}/${pkgname}-${pkgver}
+	  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-implicit-function-declaration"
 	./configure --prefix=/usr --sysconfdir=/etc \
 	--localstatedir=/var --disable-static --enable-gtk-doc
-	make ${MAKEFLAGS}
+	make -j1
 }
 
 package() {

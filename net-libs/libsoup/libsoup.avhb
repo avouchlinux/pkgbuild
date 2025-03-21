@@ -1,21 +1,43 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libsoup
-pkgver=3.0.6
+pkgbase=libsoup
+pkgname=(
+  libsoup
+  libsoup-docs
+)
+pkgver=3.6.0
 pkgrel=1
 pkgdesc="HTTP client/server library for GNOME"
 arch=('x86_64')
 groups=('net-libs')
 url="https://wiki.gnome.org/Projects/libsoup"
 license=(LGPL)
-depends=(glib2 glib-networking sqlite krb5 libpsl brotli libnghttp2
-         libsysprof-capture)
-makedepends=(gobject-introspection python vala git gtk-doc meson samba
-             python-quart)
-checkdepends=(apache php-apache)
+depends=(
+  brotli
+  glib-networking
+  glib2
+  krb5
+  libnghttp2
+  libpsl
+  libsysprof-capture
+  sqlite
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  python-quart
+  samba
+  vala
+)
+checkdepends=(
+  apache
+  php-apache
+)
 source=("https://gitlab.gnome.org/GNOME/libsoup/-/archive/$pkgver/libsoup-$pkgver.tar.bz2")
 
 prepare() {
@@ -23,11 +45,36 @@ prepare() {
 }
 
 build() {
-    # python3-quart is required for http2 tests
-    avouch-meson $pkgname-$pkgver build -D gtk_doc=true -D autobahn=disabled -D http2_tests=disabled
-     meson compile -C build
+    avouch-meson $pkgname-$pkgver build -D autobahn=disabled
+    meson compile -C build
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+check() {
+  # Python's output buffering messes with the tests reading stdout lines from
+  # http2-server.py through a pipe
+  PYTHONUNBUFFERED=1 meson test -C build --print-errorlogs
 }
+
+package_libsoup() {
+  depends+=(
+    libbrotlidec.so
+    libgssapi_krb5.so
+    libg{lib,object,io}-2.0.so
+    libpsl.so
+  )
+  optdepends=('samba: Windows Domain SSO')
+  provides+=(libsoup-3.0.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_libsoup-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+

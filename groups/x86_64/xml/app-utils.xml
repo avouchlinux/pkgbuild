@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>diskscan</Name>
+	 <Name>gaa</Name>
+	 <Name>grub-customizer</Name>
+	 <Name>jq</Name>
+	 <Name>mediawriter</Name>
+	 <Name>menulibre</Name>
+	 <Name>mesa-xdemos</Name>
+	 <Name>mkosi</Name>
+	 <Name>parallel</Name>
+	 <Name>qlipper</Name>
+	 <Name>testdisk</Name>
+</Packages>

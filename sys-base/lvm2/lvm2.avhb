@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -6,26 +6,38 @@
 pkgbase=lvm2
 pkgname=('lvm2' 'device-mapper')
 _realname=LVM2
-pkgver=2.03.11
+pkgver=2.03.27
+_tag=${pkgver//./_}
 pkgrel=1
 arch=('x86_64')
 groups=('sys-base')
-url='https://sourceware.org/lvm2/'
+url='https://github.com/lvmteam/lvm2'
 license=('GPL2' 'LGPL2.1')
-makedepends=('git' 'systemd' 'thin-provisioning-tools')
+makedepends=('git' 'systemd' 'libaio' 'thin-provisioning-tools')
 validpgpkeys=('88437EF5C077BD113D3B7224228191C1567E2C17'  # Alasdair G Kergon <agk@redhat.com>
               'D501A478440AE2FD130A1BE8B9112431E509039F') # Marian Csontos <marian.csontos@gmail.com>
-source=("git+https://sourceware.org/git/lvm2.git#tag=v${pkgver//./_}?signed"
-        'lvm2_install'
-        'lvm2_hook'
-        'sd-lvm2_install'
+source=("$pkgbase-$_tag.tar.gz::https://github.com/lvmteam/lvm2/archive/refs/tags/v2_03_27.tar.gz"
+        '0001-udev-initcpio.patch'
         '11-dm-initramfs.rules')
+sha256sums=('6fddb739b8471d97d362360385b304f63ede8dbe430953c100f330d18dd093d0'
+            '2b3a16ec05e2bc6678e9ebd5ffa8319ebfde29aa260ce004f79f9b8df57d73c9'
+            'e10f24b57582d6e2da71f7c80732a62e0ee2e3b867fe84591ccdb53e80fa92e0')
+
+_backports=(
+)
+
 
 prepare() {
+  cd $pkgbase-$_tag
 
-	cd "${srcdir}/${_realname}.${pkgver}"
+  local _c
+  for _c in "${_backports[@]}"; do
+    git log --oneline -1 "${_c}"
+    git show "${_c}" -- ':(exclude)WHATS_NEW' | git apply
+  done
 
-	# patch -Np1 < ../0001-fix-ordering-in-initramfs.patch
+  # prepare for non-systemd initcpio
+  # patch -Np1 --output='udev/69-dm-lvm-initcpio.rules.in' < ../0001-udev-initcpio.patch
 
   # remove install section from systemd units that are enabled by default
   sed -i -e '/^\[Install\]$/,$d' \
@@ -35,51 +47,39 @@ prepare() {
 }
 
 build() {
-  local _CONFIGUREOPTS=(
-    CONFIG_SHELL=/bin/bash
-    --prefix=/usr
-    --sbindir=/usr/bin
-    --sysconfdir=/etc
-    --localstatedir=/var
-    --enable-fsadm
-    --enable-cmdlib
-    --enable-dmeventd
-    --enable-lvmpolld
-    --enable-pkgconfig
-    --enable-readline
-    --enable-udev_rules
-    --enable-udev_sync
-    --with-cache=internal
-    --with-default-dm-run-dir=/run
-    --with-default-locking-dir=/run/lock/lvm
-    --with-default-pid-dir=/run
-    --with-default-run-dir=/run/lvm
-    --with-systemdsystemunitdir=/usr/lib/systemd/system
-    --with-thin=internal
-    --with-udev-prefix=/usr
-  )
-
   # build system requires bash:
   # https://www.redhat.com/archives/linux-lvm/2020-January/msg00004.html
   # https://www.gnu.org/software/autoconf/manual/autoconf-2.69/html_node/Defining-Variables.html
   export CONFIG_SHELL=/bin/bash
 
-  cp -af ${_realname}.${pkgver} lvm2-initramfs/
-
-  cd ${_realname}.${pkgver}
+  cd $pkgbase-$_tag
 
   ./configure \
-    "${_CONFIGUREOPTS[@]}" \
-    --enable-udev-systemd-background-jobs
-  make ${MAKEFLAGS}
+    CONFIG_SHELL=/bin/bash \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-cmdlib \
+    --enable-dmeventd \
+    --enable-lvmpolld \
+    --enable-pkgconfig \
+    --enable-readline \
+    --enable-udev_rules \
+    --enable-udev_sync \
+    --enable-write_install \
+    --with-cache=internal \
+    --with-default-dm-run-dir=/run \
+    --with-default-locking-dir=/run/lock/lvm \
+    --with-default-pid-dir=/run \
+    --with-default-run-dir=/run/lvm \
+    --with-libexecdir=/usr/lib/lvm2 \
+    --with-systemdsystemunitdir=/usr/lib/systemd/system \
+    --with-thin=internal \
+    --with-udev-prefix=/usr
+  make
 
-  # Build legacy udev rule for initramfs
-  cd ../lvm2-initramfs
-  ./configure \
-    "${_CONFIGUREOPTS[@]}" \
-    --enable-udev-systemd-background-jobs=no
-  cd udev
-  make 69-dm-lvm-metad.rules
+  # make -C udev/ 69-dm-lvm-initcpio.rules
 }
 
 package_device-mapper() {
@@ -89,9 +89,11 @@ package_device-mapper() {
   provides=('libdevmapper.so'
     'libdevmapper-event.so')
 
-  cd ${_realname}.${pkgver}
+  cd $pkgbase-$_tag
 
   make DESTDIR="${pkgdir}" install_device-mapper
+  # extra udev rule for device-mapper in initramfs
+  # install -D -m0644 "${srcdir}/11-dm-initramfs.rules" "${pkgdir}/usr/lib/initcpio/udev/11-dm-initramfs.rules"
   # Install dmeventd socket and service
   make DESTDIR="${pkgdir}" install_systemd_units
   rm -f "${pkgdir}/usr/lib/systemd/system/"{blk-availability.service,lvm2-*}
@@ -101,27 +103,26 @@ package_device-mapper() {
 
 package_lvm2() {
   pkgdesc="Logical Volume Manager 2 utilities"
-  depends=('bash' "device-mapper>=${pkgver}" 'libdevmapper.so' 'systemd-libs'
+  depends=('bash' "device-mapper>=${pkgver}" 'systemd-libs'
     'libudev.so' 'util-linux-libs' 'libblkid.so' 'readline' 'libreadline.so'
-    'thin-provisioning-tools')
+    'thin-provisioning-tools' 'libaio' 'libaio.so')
   conflicts=('lvm')
   backup=('etc/lvm/lvm.conf'
     'etc/lvm/lvmlocal.conf')
-  options=('!makeflags')
 
-  cd ${_realname}.${pkgver}
+  cd $pkgbase-$_tag
 
   make DESTDIR="${pkgdir}" install_lvm2
   # /etc directories
   install -d "${pkgdir}"/etc/lvm/{archive,backup}
 
-  # extra udev rule for lvmetad in non-systemd initramfs
-  install -D -m0644 "${srcdir}/lvm2-initramfs/udev/69-dm-lvm-metad.rules" "${pkgdir}/usr/lib/initcpio/udev/69-dm-lvm-metad.rules"
+  # extra udev rule for non-systemd initramfs
+  # install -D -m0644 udev/69-dm-lvm-initcpio.rules "${pkgdir}/usr/lib/initcpio/udev/69-dm-lvm.rules"
   # systemd support
+
   make DESTDIR="${pkgdir}" install_systemd_units
   rm -f "${pkgdir}/usr/lib/systemd/system/"dm-*
   install -d -m0755 "${pkgdir}/usr/lib/systemd/system/sysinit.target.wants"
-  ln -sf ../lvm2-lvmetad.socket "${pkgdir}/usr/lib/systemd/system/sysinit.target.wants/lvm2-lvmetad.socket"
   ln -sf ../lvm2-lvmpolld.socket "${pkgdir}/usr/lib/systemd/system/sysinit.target.wants/lvm2-lvmpolld.socket"
   ln -sf ../lvm2-monitor.service "${pkgdir}/usr/lib/systemd/system/sysinit.target.wants/lvm2-monitor.service"
   make DESTDIR="${pkgdir}" install_systemd_generators

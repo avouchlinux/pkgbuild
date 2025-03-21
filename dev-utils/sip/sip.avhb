@@ -1,63 +1,35 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgbase=sip
-pkgname=('sip' 'python3-sip' 'python2-sip-pyqt5')
-pkgver=4.19.24
+pkgname=sip
+pkgver=6.8.6
 pkgrel=1
+pkgdesc="A tool that makes it easy to create Python bindings for C and C++ libraries"
 arch=('x86_64')
 groups=('dev-utils')
-url='https://www.riverbankcomputing.com/software/sip/intro'
-license=('custom:"sip"')
-makedepends=('python' 'python2')
-source=("https://www.riverbankcomputing.com/static/Downloads/sip/$pkgver/sip-$pkgver.tar.gz")
-
-prepare() {
-  mkdir -p build{,-pyqt5-py2}
-}
+url='https://www.riverbankcomputing.com/'
+license=(BSD-2-Clause)
+depends=(python
+         python-packaging
+         python-setuptools)
+makedepends=(git
+             python-build
+             python-installer
+             python-setuptools-scm
+             python-wheel)
+source=($pkgname-$pkgver.tar.gz::https://github.com/Python-SIP/sip/archive/refs/tags/$pkgver.tar.gz)
+sha256sums=('2489fc17c34b30451564c296fa5460b90beca6c831e25dd3ed43f96a4832b48f')
 
 build() {
-  cd "$srcdir"/build
-  python3 ../sip-$pkgver/configure.py CFLAGS="$CFLAGS" LFLAGS="$LDFLAGS"
-  make
-
-  # cd "$srcdir"/build-pyqt5-py2
-  # python2 ../sip-$pkgver/configure.py CFLAGS="$CFLAGS" LFLAGS="$LDFLAGS" --sip-module PyQt5.sip --no-tools
-  # make
+  cd $pkgname-$pkgver
+  python -m build --wheel --no-isolation
 }
 
-package_sip() {
-  pkgdesc="A tool that makes it easy to create Python bindings for C and C++ libraries"
-  depends=('glibc')
-
-  cd build
-  make DESTDIR="$pkgdir" install -C sipgen
-# move sip.h to /usr/include
-  mv "$pkgdir"/usr/include/{python*/sip.h,}
-  rm -r "$pkgdir"/usr/include/python*
-
-  install -Dm644 ../sip-$pkgver/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+package() {
+  cd $pkgname-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }
 
-package_python3-sip() {
-  pkgdesc="Python SIP4 bindings for C and C++ libraries"
-  depends=('python')
-
-  cd build
-  make DESTDIR="$pkgdir" install
-  rm -r "$pkgdir"/usr/{bin,include} # conflicts with sip
-
-  install -Dm644 ../sip-$pkgver/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
-}
-
-package_python2-sip-pyqt5() {
-  pkgdesc="Python 2.x SIP bindings for C and C++ libraries (PyQt5 version)"
-  depends=('python2')
-
-  cd build-pyqt5-py2
-  # make DESTDIR="$pkgdir" install
-
-  install -Dm644 ../sip-$pkgver/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
-}

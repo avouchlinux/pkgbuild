@@ -1,26 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=wildmidi
-pkgver=0.4.3
+pkgver=0.4.6
 pkgrel=1
 pkgdesc='Open Source MIDI Synthesizer'
 arch=('x86_64')
 groups=('media-sound')
-url="http://www.mindwerks.net/projects/wildmidi/"
-license=('LGPL3')
-depends=('alsa-lib')
-makedepends=('cmake')
-source=(https://github.com/psi29a/wildmidi/archive/wildmidi-${pkgver}.tar.gz)
+url='https://github.com/Mindwerks/wildmidi'
+license=('GPL-3.0-or-later AND LGPL-3.0-or-later')
+depends=(
+  alsa-lib
+  glibc
+)
+makedepends=(
+  cmake
+  git
+  ninja
+)
+source=("git+https://github.com/Mindwerks/wildmidi.git#tag=$pkgname-$pkgver")
+b2sums=(33100dfb9a7df1ee516083f90d7a2600e1c79117093dba568df540fd602da408cfe8373bea7363efbc893b1db943c681887e44b00f0861c1b29ac037d4b019f7)
 
 build() {
-    cmake -S$pkgname-$pkgname-$pkgver -Bbuild -GNinja \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_BUILD_TYPE="Release"
-    ninja -C build
+  cmake -S $pkgname -B build -G Ninja \
+    -D CMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
 }
- 
+
 package() {
-    DESTDIR="$pkgdir/" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
+  ln -s wildmidi.pc "$pkgdir/usr/lib/pkgconfig/WildMIDI.pc"
 }
+

@@ -5,7 +5,7 @@
      </key>
      <key name="logo" type="s">
 -      <default>''</default>
-+      <default>'/usr/share/pixmaps/avouch-gdm.svg'</default>
++      <default>'/usr/share/pixmaps/avouch.svg'</default>
        <summary>
          Path to small image at top of user list
        </summary>

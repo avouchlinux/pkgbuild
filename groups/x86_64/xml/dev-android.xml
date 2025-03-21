@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>anbox</Name>
+	 <Name>anbox-image</Name>
+	 <Name>android-google-repository</Name>
+	 <Name>android-platform</Name>
+	 <Name>android-sdk</Name>
+	 <Name>android-sdk-build-tools</Name>
+	 <Name>android-sdk-platform-tools</Name>
+	 <Name>android-sources</Name>
+	 <Name>android-studio</Name>
+	 <Name>android-support</Name>
+	 <Name>android-support-repository</Name>
+	 <Name>android-tools</Name>
+	 <Name>android-udev</Name>
+	 <Name>heimdall</Name>
+</Packages>

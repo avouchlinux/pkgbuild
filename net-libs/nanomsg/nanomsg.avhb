@@ -1,32 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=nanomsg
-pkgver=1.1.5
+pkgver=1.2
 pkgrel=1
 pkgdesc='Simple high-performance implementation of several "scalability protocols"'
 arch=('x86_64')
 groups=('net-libs')
 url='https://nanomsg.org/'
 license=(MIT)
+arch=(x86_64)
 depends=(glibc)
 makedepends=(cmake)
-source=(https://github.com/nanomsg/nanomsg/archive/$pkgver.tar.gz)
+source=(nanomsg-$pkgver.tar.gz::https://github.com/nanomsg/nanomsg/archive/$pkgver.tar.gz)
+sha256sums=('6ef7282e833df6a364f3617692ef21e59d5c4878acea4f2d7d36e21c8858de67')
+
 
 build() {
-  cmake -S $pkgname-$pkgver -B build -G Ninja \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib
-  ninja -C build
+  cd nanomsg-$pkgver
+  cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib .
+  make
 }
 
 check() {
-  cd build
+  cd nanomsg-$pkgver
   ctest
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja -C build install
-  install -Dm644 $pkgname-$pkgver/COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  cd nanomsg-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 }

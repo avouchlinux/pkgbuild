@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -11,7 +12,7 @@ groups=('sys-libs')
 url=https://github.com/NVIDIA/eglexternalplatform
 license=(MIT)
 depends=(mesa)
-source=("https://github.com/NVIDIA/eglexternalplatform/archive/$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/NVIDIA/eglexternalplatform/archive/$pkgver.tar.gz")
 
 package() {
   cd $pkgname-$pkgver

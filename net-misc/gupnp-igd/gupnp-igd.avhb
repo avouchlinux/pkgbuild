@@ -1,26 +1,48 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gupnp-igd
-pkgver=1.2.0
+pkgver=1.6.0
 pkgrel=1
 pkgdesc="A library to handle UPnP IGD port mapping"
 arch=('x86_64')
 groups=('net-misc')
 url="https://wiki.gnome.org/Projects/GUPnP"
 license=(LGPL)
-depends=(gupnp)
-makedepends=(gobject-introspection git gtk-doc)
-makedepends=('meson')
-source=("https://gitlab.gnome.org/GNOME/gupnp-igd/-/archive/$pkgver/gupnp-igd-$pkgver.tar.bz2")
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+)
+_commit=e60764858374d776869605d39e5e4d1033e9ad4a  # tags/1.6.0^0
+source=("git+https://gitlab.gnome.org/GNOME/gupnp-igd.git#commit=$_commit")
+b2sums=('SKIP')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+}
 
 build() {
-  avouch-meson $pkgname-$pkgver-correct build
-  ninja -C build
+  avouch-meson $pkgname build -D gtk_doc=true
+  meson compile -C build
+}
+
+check() {
+  # No multicast in our containers?
+  meson test -C build --print-errorlogs || :
 }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  depends+=(libg{lib,object,io}-2.0.so libg{ssdp,upnp}-1.6.so)
+  provides+=(libgupnp-igd-1.6.so)
+
+  meson install -C build --destdir "$pkgdir"
 }

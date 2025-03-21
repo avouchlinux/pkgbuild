@@ -1,19 +1,53 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ktexteditor
-pkgver=5.110.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Advanced embeddable text editor'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://projects.kde.org/projects/frameworks/ktexteditor'
 license=('LGPL')
-depends=('kparts' 'libgit2')
-makedepends=('extra-cmake-modules')
-source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+depends=(editorconfig-core-c
+         gcc-libs
+         glibc
+         karchive
+         kauth
+         kcodecs
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kguiaddons
+         ki18n
+         kio
+         kitemviews
+         kparts
+         ktextwidgets
+         kwidgetsaddons
+         kxmlgui
+         qt6-declarative
+         qt6-base
+         qt6-speech
+         sonnet
+         syntax-highlighting)
+makedepends=(doxygen
+             extra-cmake-modules
+             qt6-doc
+             qt6-tools)
+optdepends=('git: git integration')
+source=(https://download.kde.org/stable/frameworks/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('9991a78fd5cf692964d84210baea472ece56434d924f9e67561b857f8b48c777'
+            'SKIP')
+validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB # David Faure <faure@kde.org>
+              E0A3EB202F8E57528E13E72FD7574483BB57B18D # Jonathan Esk-Riddell <jr@jriddell.org>
+              90A968ACA84537CC27B99EAF2C8DF587A6D4AAC1 # Nicolas Fella <nicolas.fella@kde.org>
+              )
+
 
 build() {
 	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \

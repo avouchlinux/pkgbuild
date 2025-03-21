@@ -1,27 +1,32 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kcodecs
-pkgver=5.110.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Provide a collection of methods to manipulate strings using various encodings'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://projects.kde.org/projects/frameworks/kcodecs'
 license=('LGPL')
-depends=('qt5-base')
-makedepends=('extra-cmake-modules' 'qt5-tools')
-ssource=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
+depends=(gcc-libs
+         glibc
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             gperf
+             qt6-doc
+             qt6-tools)
+source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
 
 build() {
 	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
 		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON \
-		-DCMAKE_DISABLE_FIND_PACKAGE_PythonModuleGeneration=ON
+		-DBUILD_QCH=ON
 	ninja -C build
 }
 

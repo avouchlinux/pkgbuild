@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>fpc</Name>
+	 <Name>fpc-src</Name>
+	 <Name>go</Name>
+	 <Name>lazarus</Name>
+	 <Name>ldc</Name>
+	 <Name>lua</Name>
+	 <Name>lua51</Name>
+	 <Name>lua52</Name>
+	 <Name>luajit</Name>
+	 <Name>mono</Name>
+	 <Name>mono-addins</Name>
+	 <Name>nasm</Name>
+	 <Name>ocaml</Name>
+	 <Name>ocaml-ctypes</Name>
+	 <Name>ocaml-findlib</Name>
+	 <Name>perl</Name>
+	 <Name>php</Name>
+	 <Name>python</Name>
+	 <Name>python2</Name>
+	 <Name>r</Name>
+	 <Name>ruby</Name>
+	 <Name>ruby-ruby-dbus</Name>
+	 <Name>rust</Name>
+	 <Name>sassc</Name>
+	 <Name>swig</Name>
+	 <Name>vala</Name>
+	 <Name>yasm</Name>
+</Packages>

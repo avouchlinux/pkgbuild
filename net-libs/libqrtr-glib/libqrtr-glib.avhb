@@ -1,0 +1,35 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libqrtr-glib
+pkgver=1.2.2
+pkgrel=1
+pkgdesc="Qualcomm IPC Router protocol helper library"
+url="https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib"
+arch=(x86_64)
+license=(GPL2)
+depends=(glib2)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+)
+provides=(libqrtr-glib.so)
+source=("https://gitlab.freedesktop.org/mobile-broadband/libqrtr-glib/-/archive/$pkgver/libqrtr-glib-$pkgver.tar.bz2")
+b2sums=('SKIP')
+
+build() {
+  avouch-meson libqrtr-glib-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

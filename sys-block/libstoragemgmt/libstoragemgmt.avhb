@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname='libstoragemgmt'
-pkgver='1.9.4'
+pkgver='1.10.1'
 pkgrel='1'
 pkgdesc='A library for storage management'
 arch=('any')
@@ -37,9 +37,8 @@ build() {
     --libdir=/usr/lib \
     --datarootdir=/usr/share \
     --datadir=/usr/share \
-    --with-python3 \
-    --without-mem-leak-test
-  make ${MAKEFLAGS}
+    --with-python3
+  make
 }
 
 # check() {

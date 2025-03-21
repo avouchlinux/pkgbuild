@@ -1,19 +1,19 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdev-php
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='PHP language and documentation plugin for KDevelop'
 arch=(x86_64)
-groups=('kde-release-service')
+groups=('kde-release-services')
 url='http://www.kdevelop.org/'
 license=(GPL)
 depends=(kdevelop)
 makedepends=(extra-cmake-modules kdoctools kdevelop-pg-qt)
-source=(https://download.kde.org/stable/release-service/$pkgver/src/kdev-php-$pkgver.tar.xz{,.sig})
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
 sha256sums=('fbbf9a15c41105257ecdceb520fe60ddeb75b01689d56faf76518e6040c02adc'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
@@ -22,12 +22,14 @@ validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aac
 
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }
+
 
 package() {
   DESTDIR="$pkgdir" cmake --install build

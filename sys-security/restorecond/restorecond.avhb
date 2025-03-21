@@ -1,18 +1,26 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=restorecond
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="SELinux restorecon daemon"
 arch=('x86_64')
 groups=('sys-security')
 url='https://github.com/SELinuxProject/selinux/wiki'
 license=('GPL2')
-depends=('dbus-glib' 'libselinux')
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+makedepends=('pkgconf')
+depends=('dbus-glib' 'libselinux>=2.7')
+conflicts=('policycoreutils<2.7')
+validpgpkeys=(
+  '63191CE94183098689CAB8DB7EF137EC935B0EAF'  # Jason Zaman <perfinion@gentoo.org>
+  'B8682847764DF60DF52D992CBC3905F235179CF1'  # Petr Lautrbach <plautrba@redhat.com>
+)
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc})
+sha256sums=('8f8aa2c6c66bcc6d91c6edd63913e5d738de6428928f27d1019d89c31cf347b1'
+            'SKIP')
 
 build() {
   cd "${pkgname}-${pkgver}"

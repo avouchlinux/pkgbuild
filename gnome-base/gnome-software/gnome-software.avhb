@@ -1,0 +1,89 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+### we build without packagekit support
+
+pkgname=gnome-software
+pkgver=48.0
+pkgrel=1
+pkgdesc="GNOME Software Tools"
+url="https://wiki.gnome.org/Apps/Software/"
+arch=('x86_64')
+groups=('gnome-base')
+arch=(x86_64)
+license=(GPL-2.0-or-later)
+depends=(
+  appstream
+  dconf
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-app-list
+  gsettings-desktop-schemas
+  gtk4
+  hicolor-icon-theme
+  json-glib
+  libadwaita
+  libgudev
+  libsoup3
+  libsysprof-capture
+  libxmlb
+  pango
+  polkit
+)
+makedepends=(
+  docbook-xsl
+  flatpak
+  fwupd
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  itstool
+  libglib-testing
+  malcontent
+  meson
+)
+
+optdepends=(
+  'flatpak: Flatpak support plugin'
+  'fwupd: fwupd support plugin'
+  'malcontent: Parental control plugin'
+)
+source=(
+  "git+https://gitlab.gnome.org/GNOME/gnome-software.git?signed#tag=${pkgver/[a-z]/.&}"
+  "git+https://gitlab.gnome.org/mwleeds/gnome-pwa-list.git"
+)
+b2sums=('58510fddeb5ad5d071ddb2e8e618f3b5f46cd7eacead49df07d7903474e151be409e1b6714a5526fcc0089983ac023728b54a66cb3dcd2f9187f76d9ea46f08b'
+        'SKIP')
+validpgpkeys=(
+  2AA441054BD2F1715EC11610FB183E7EF3C36A0D # Milan Crha <mcrha@redhat.com>
+  923B7025EE03C1C59F42684CF0942E894B2EAFA0 # Philip Withnall <pwithnall@gnome.org>
+)
+
+prepare() {
+  cd $pkgname
+
+  git submodule init
+  git submodule set-url subprojects/gnome-pwa-list "$srcdir/gnome-pwa-list"
+  git -c protocol.file.allow=always -c protocol.allow=never submodule update
+}
+
+build() {
+  local meson_options=(
+    -D packagekit=false
+  )
+
+  avouch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+# Not running tests - need root and a D-Bus system bus
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}
+

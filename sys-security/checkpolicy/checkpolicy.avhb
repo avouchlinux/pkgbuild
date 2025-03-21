@@ -1,18 +1,26 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=checkpolicy
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="SELinux policy compiler"
 arch=('x86_64')
 groups=('sys-security')
 url='http://userspace.selinuxproject.org'
 license=('GPL2')
-makedepends=('libsepol>=2.9')
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+makedepends=('libsepol>=3.6')
+conflicts=("selinux-usr-${pkgname}")
+provides=("selinux-usr-${pkgname}=${pkgver}-${pkgrel}")
+validpgpkeys=(
+  '63191CE94183098689CAB8DB7EF137EC935B0EAF'  # Jason Zaman <perfinion@gentoo.org>
+  'B8682847764DF60DF52D992CBC3905F235179CF1'  # Petr Lautrbach <plautrba@redhat.com>
+)
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc})
+sha256sums=('1b346b3cdd4f8a78a157627bad64a3b3479c67b6a19d15e6d5c8694620eadbc1'
+            'SKIP')
 
 build() {
   cd "${pkgname}-${pkgver}"

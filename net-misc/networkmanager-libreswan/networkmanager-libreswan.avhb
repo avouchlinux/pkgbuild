@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=networkmanager-libreswan
 _realname=NetworkManager-libreswan
-pkgver=1.2.16
+pkgver=1.2.22
 pkgrel=1
 pkgdesc="NetworkManager VPN integration for openconnect"
 arch=('x86_64')
@@ -32,7 +32,7 @@ build() {
         --libexecdir=/usr/lib/NetworkManager \
         --enable-more-warnings=yes \
         --disable-static
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

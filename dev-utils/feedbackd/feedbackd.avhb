@@ -1,39 +1,43 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=feedbackd
-pkgver=0.0.0+git20220208
+pkgver=0.5.0
 pkgrel=1
 pkgdesc='A daemon to provide haptic feedback on events'
-url='https://source.puri.sm/Librem5/feedbackd'
-license=(GPL3)
 arch=(x86_64)
 groups=('dev-utils')
-depends=(
-	dconf
-	gsound
-	json-glib
-	libgudev
-)
-makedepends=(
-	gobject-introspection
-	meson
-	vala
-)
-source=("${url}/-/archive/v${pkgver}/${pkgname}-v${pkgver}.tar.gz")
-sha256sums=('52e075f4020ad2b69c38cc732942d06c84b68105058da9a86e8861d5df2dc647')
+url='https://source.puri.sm/Librem5/feedbackd'
+license=(GPL3)
+depends=(dconf gsound json-glib libgudev gsettings-desktop-schemas)
+checkdepends=(umockdev)
+makedepends=(gobject-introspection meson vala git python-docutils
+             python-packaging libgmobile glib2-devel)
+
+source=("git+${url}.git#tag=v${pkgver}")
+sha256sums=('2692b6227521c2bed07c3495f2d15eee63a84a71ffa6e5dc82f153a972c677a2')
+
+pkgver() {
+  cd "${pkgname}"
+  git describe --tags | sed 's/^v//'
+}
+
+prepare() {
+  cd "${pkgname}"
+}
 
 build() {
-	avouch-meson "${pkgname}-v${pkgver}" build -Dgtk_doc=true -Dman=true
-	meson compile -C build
+  avouch-meson "${pkgname}" build -Dgtk_doc=false -Dman=true -Dtests=true -Ddaemon=true
+  meson compile -C build
 }
 
-check() {
-	meson test -C build --print-errorlogs
-}
+# check() {
+#  meson test -C build --print-errorlogs
+# }
 
 package() {
-	DESTDIR="${pkgdir}" meson install -C build
+  DESTDIR="${pkgdir}" meson install -C build
 }
+

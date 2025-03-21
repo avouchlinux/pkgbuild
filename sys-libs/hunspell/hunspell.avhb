@@ -1,43 +1,42 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hunspell
-pkgver=1.7.0
+pkgver=1.7.2
 pkgrel=1
 pkgdesc="Spell checker and morphological analyzer library and program"
 arch=('x86_64')
 groups=('sys-libs')
-url="https://hunspell.github.io/"
+url="https://github.com/hunspell/hunspell"
 license=('GPL' 'LGPL' 'MPL')
 depends=('gcc-libs' 'readline')
 optdepends=('perl: for ispellaff2myspell')
-source=(https://github.com/hunspell/hunspell/archive/v${pkgver}.tar.gz)
-
-prepare() {
-	cd hunspell-$pkgver
-	autoreconf -vfi
-}
+source=(https://github.com/hunspell/hunspell/releases/download/v${pkgver}/hunspell-${pkgver}.tar.gz)
+sha256sums=('11ddfa39afe28c28539fe65fc4f1592d410c1e9b6dd7d8a91ca25d85e9ec65b8')
 
 build() {
-	cd hunspell-$pkgver
-	./configure --prefix=/usr --disable-static \
-	--with-ui --with-readline # --with-experimental breaks build in this release
-	make ${MAKEFLAGS}
+  cd hunspell-$pkgver
+  ./configure --prefix=/usr \
+    --disable-static \
+    --with-ui \
+    --with-readline
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
-	cd hunspell-$pkgver
-	make ${MAKEFLAGS} check
+  cd hunspell-$pkgver
+  make check
 }
 
 package() {
-	cd hunspell-$pkgver
-	make DESTDIR="$pkgdir" install
+  cd hunspell-$pkgver
+  make DESTDIR="$pkgdir" install
   
-	# add generic hunspell.so for development and projects not using pkgconfig flags - FS#30592
-	pushd $pkgdir/usr/lib
-		ln -s libhunspell-?.?.so libhunspell.so
-	popd
+  # add generic hunspell.so for development and projects not using pkgconfig flags - FS#30592
+  pushd "$pkgdir"/usr/lib
+  ln -s libhunspell-?.?.so libhunspell.so
+  popd
 }

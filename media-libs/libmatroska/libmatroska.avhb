@@ -1,27 +1,42 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmatroska
-pkgver=1.5.2
+pkgver=1.7.1
 pkgrel=1
 pkgdesc="Matroska library"
 arch=('x86_64')
 groups=('media-libs')
-url="http://dl.matroska.org/downloads/libmatroska/"
-license=('LGPL')
-depends=('libebml')
-source=("http://dl.matroska.org/downloads/${pkgname}/${pkgname}-${pkgver}.tar.bz2")
+url=https://github.com/Matroska-Org/libmatroska
+license=(LGPL2.1)
+depends=(libebml.so)
+makedepends=(
+  cmake
+  git
+  ninja
+)
+provides=(libmatroska.so)
+_tag=f5315fddda2d434e47035c038549a808d8b8eac7
+source=(git+https://github.com/Matroska-Org/libmatroska.git#tag=${_tag})
+sha256sums=(SKIP)
+
+pkgver() {
+  cd libmatroska
+
+  git describe --tags | sed 's/^release-//'
+}
 
 build() {
-  mkdir build
-  cmake -S${pkgname}-${pkgver} -Bbuild \
+  cmake -S libmatroska -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
     -DBUILD_SHARED_LIBS=ON
-  make ${MAKEFLAGS} -C build
+  cmake --build build
 }
 
 package() {
-	make DESTDIR="${pkgdir}" -C build install
+  DESTDIR="${pkgdir}" cmake --build build --target install
 }

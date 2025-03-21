@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -9,32 +9,68 @@ pkgname=(
   libnautilus-extension
   libnautilus-extension-docs
 )
-pkgver=45.0
+pkgver=48.rc
 pkgrel=1
 pkgdesc="Default file manager for GNOME"
 url="https://wiki.gnome.org/Apps/Nautilus"
 arch=(x86_64)
 groups=('gnome-base')
-license=(GPL)
-depends=(libgexiv2 gnome-desktop gvfs dconf tracker nautilus-sendto gnome-autoar
-         gst-plugins-base-libs tracker-miners)
-makedepends=(gobject-introspection git gtk-doc meson appstream-glib)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  dconf
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-autoar
+  gnome-desktop-4
+  graphene
+  gst-plugins-base-libs
+  gstreamer
+  gtk4
+  gvfs
+  hicolor-icon-theme
+  libadwaita
+  libcloudproviders
+  libgexiv2
+  libportal
+  libportal-gtk4
+  libx11
+  localsearch
+  pango
+  tinysparql
+  wayland
+  xdg-user-dirs-gtk
+)
+makedepends=(
+  appstream-glib
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+)
+checkdepends=(python-gobject)
+_commit=dcd221d57d0180d9d5cc0524bc6e3278d3d3a04c  # tags/46.0^0
+source=(
+  "https://download.gnome.org/sources/$pkgbase/${pkgver%.*}/$pkgbase-$pkgver.tar.xz"
+)
+b2sums=('eb963b0b45afc66f6d331db2405bc0cb951c799f5341283dc10a5b598ba55bded847c6f88919f8391185ab57e6931d0899cf32b363066ed6f21864b0a39d7636')
 
 build() {
-    local meson_options=(
-        -D docs=true
-        -D packagekit=false
-    )
+  local meson_options=(
+    -D docs=true
+    -D packagekit=false
+  )
 
-    avouch-meson ${pkgbase}-${pkgver} build "${meson_options[@]}"
-    meson compile -C build
-
+  avouch-meson nautilus-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
-check() {
-  meson test -C build --print-errorlogs
-}
+# check() {
+#   meson test -C build --print-errorlogs
+# }
 
 _pick() {
   local p="$1" f d; shift

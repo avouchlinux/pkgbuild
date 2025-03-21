@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,30 +10,39 @@ pkgdesc="Free library for decoding DTS Coherent Acoustics streams"
 arch=('x86_64')
 groups=('media-libs')
 license=('GPL')
-url="https://www.videolan.org/developers/libdca.html"
-depends=('sh')
-provides=('libdts')
-replaces=('libdts')
-options=('!emptydirs')
-source=(https://download.videolan.org/pub/videolan/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.bz2)
+url='https://www.videolan.org/developers/libdca.html'
+license=(GPL-2.0-or-later)
+depends=(
+  bash
+  glibc
+)
+makedepends=(git)
+source=("git+https://code.videolan.org/videolan/libdca.git?signed#tag=$pkgver")
+b2sums=(0c290c4fcebe4b3ff4131ba9cc6ce5e77ce77a84ee034640edcbfa151bc980885caa2369406e504345391b17cd3f37bbc9cdd036556210848199b5f781132e57)
+validpgpkeys=(9477E0D31426892D23619994DF8480A4E3CF72EB) # Hugo Beauzée-Luyssen <hugo@beauzee.fr>
 
 prepare() {
-  cd $pkgname-$pkgver
-  autoreconf -fiv
+  cd $pkgname
+
+  # Don't install symlink for libdts.a
+  sed -i '/libdts.a/d' libdca/Makefile.am
+
+  # Update symlinks to use compressed man pages
+  sed -i '/DESTDIR/ s/\.1/.1.gz/g' src/Makefile.am
+
+  autoreconf -fi
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --mandir=/usr/share/man --disable-static
-  make ${MAKEFLAGS}
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="${pkgdir}" install
-
-  rm -f "${pkgdir}/usr/share/man/man1"/{extract_dts,dtsdec}.1
-  ln -s dcadec.1.gz "${pkgdir}/usr/share/man/man1/dtsdec.1.gz"
-  ln -s extract_dca.1.gz "${pkgdir}/usr/share/man/man1/extract_dts.1.gz"
-  rm -f "${pkgdir}/usr/lib/libdts.a"
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

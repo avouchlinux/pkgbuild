@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,23 +10,36 @@ pkgrel=1
 pkgdesc="An extractor/converter for .LIT eBooks"
 arch=('any')
 groups=('app-text')
-url="http://www.convertlit.com/"
-license=('GPL')
-depends=('glibc')
-makedepends=('libtommath')
-source=("http://www.convertlit.com/clit18src.zip")
+url='http://www.convertlit.com/'
+license=(GPL-2.0-or-later)
+depends=(glibc
+         libtommath)
+makedepends=('dos2unix')
+source=(http://www.convertlit.com/clit18src.zip
+        Wformat-security.patch)
+sha256sums=('d70a85f5b945104340d56f48ec17bcf544e3bb3c35b1b3d58d230be699e557ba'
+            '7514b97fc593ca79aa517dd70d2e7c8dadd6e0223892ce38ff1deda1d15a693d')
+
+prepare() {
+# source code is ending with CRLF, convert patch from LF to CRLF
+  unix2dos -n Wformat-security.patch Wformat-security-crlf.patch
+# Fix build with -Wformat-security (Gentoo)
+  patch -p1 --binary < Wformat-security-crlf.patch
+# Link to shared libtommath and use system LDFLAGS
+  sed -e 's|../libtommath-0.30/libtommath.a|/usr/lib/libtommath.so ${LDFLAGS}|' -i clit18/Makefile
+# Use system CFLAGS
+  sed -e 's|CFLAGS=-O3 -Wall|CFLAGS+=|' -i lib/Makefile
+  sed -e 's|CFLAGS=-funsigned-char -Wall -O2|CFLAGS+=|' -i clit18/Makefile
+}
 
 build() {
-  cd ${srcdir}/lib
-  make 
+  export CFLAGS+=" -Wno-implicit-function-declaration"
 
-  cd ../clit18
-  sed -i 's|../libtommath-0.30/|/usr/lib/|' Makefile
-  make
+  cd lib && make
+  cd ../clit18 && make
 }
 
 package() {
-  cd ${srcdir}/clit18
-
-  install -Dm755 clit "$pkgdir/usr/bin/clit"
+  cd clit18
+  install -Dm755 clit -t "$pkgdir"/usr/bin
 }

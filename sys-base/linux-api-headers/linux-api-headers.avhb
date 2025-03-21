@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -7,8 +7,9 @@
 
 pkgname=linux-api-headers
 _realname=linux
-pkgver=6.6.1
-_pkgver=6.6.1
+pkgver=6.10
+_pkgver=6.10
+_baseversion=${pkgver%%.*}
 pkgrel=1
 pkgdesc="Kernel headers sanitized for use in userspace"
 arch=('x86_64')
@@ -16,7 +17,7 @@ groups=('sys-base')
 url="http://www.gnu.org/software/libc"
 license=('GPL2')
 options=('!strip')
-source=(http://www.kernel.org/pub/linux/kernel/v5.x/linux-${_basever}.tar.xz)
+source=(https://cdn.kernel.org/pub/linux/kernel/v$_baseversion.x/linux-$pkgver.tar.xz)
 
 build() {
 	cd "${srcdir}/${_realname}-${_pkgver}"

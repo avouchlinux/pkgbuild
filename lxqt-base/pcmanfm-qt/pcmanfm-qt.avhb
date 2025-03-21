@@ -1,33 +1,45 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pcmanfm-qt
-pkgver=1.1.0
+pkgver=2.1.0
 pkgrel=1
 pkgdesc="The LXQt file manager, Qt port of PCManFM"
 arch=("x86_64")
 groups=('lxqt-base')
-url="http://lxqt.org"
-license=("GPL2")
-depends=("desktop-file-utils" "libfm-qt" "lxmenu-data")
+url="https://github.com/lxqt/$pkgname"
+# https://github.com/lxqt/pcmanfm-qt/blob/1.4.1/README.md?plain=1#L12
+license=("GPL-2.0-or-later")
+depends=("desktop-file-utils" "libfm-qt" "libfm-qt6.so" "layer-shell-qt")
 makedepends=("lxqt-build-tools")
 optdepends=(
-	"gvfs: for trash support, mounting with udisks and remote filesystems"
+	"gvfs: for various features like mounting without root, remote filesystems, encrypted filesystems and many others mentioned on https://github.com/lxqt/pcmanfm-qt/wiki"
 	"gvfs-mtp: MTP support (Media Transfer Protocol)"
 	"lxqt-archiver: archive management"
-	"qt5-translations: allow keyboard shortcuts to function in some languages (e.g. German)"
+	"qt6-translations: allow keyboard shortcuts to function in some languages (e.g. German)"
 )
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha256sums=('167958a19f0e826f77887d9b7453f69347e8c74c70ffbf64aeab5d7b4b63cc83'
+            'SKIP')
+validpgpkeys=(
+	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
+	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    cmake --build build
+	cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DCMAKE_BUILD_TYPE=None
+	make -C build
 }
 
 package() {
-    DESTDIR="$pkgdir" cmake --install build
+	cd build
+	make DESTDIR="$pkgdir" install
 }

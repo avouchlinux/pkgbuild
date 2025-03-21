@@ -1,0 +1,78 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=starlette
+pkgname=python-$_name
+pkgver=0.45.3
+pkgrel=1
+pkgdesc='The little ASGI framework that shines'
+arch=(any)
+groups=('dev-python')
+url="https://github.com/encode/starlette"
+license=(BSD-3-Clause)
+depends=(
+  python
+  python-anyio
+)
+makedepends=(
+  python-build
+  python-installer
+  python-hatchling
+  python-wheel
+)
+checkdepends=(
+  python-aiosqlite
+  python-databases
+  python-pytest
+  python-trio
+
+  # optdepends
+  python-itsdangerous
+  python-jinja
+  python-python-multipart
+  python-pyyaml
+  python-httpx
+
+  # not specified,but required
+  python-sqlalchemy
+)
+optdepends=(
+  'python-itsdangerous: for session middleware support'
+  'python-jinja: for jinja templates'
+  'python-python-multipart: for form parsing'
+  'python-pyyaml: for schema generator'
+  'python-httpx: for test client'
+)
+source=($_name-$pkgver.tar.gz::$url/archive/$pkgver.tar.gz)
+sha512sums=('45d3726ce794a7572e4c816fa3eb1a8a9ad2c110757200b4f6e1aed0d502d2cc293e29c5b282d3451c9770ea067cfb684176755bf2d261fdb22de111ef8a1542')
+b2sums=('e3a1c44288ba8d2da558417d14a2787a7c00c689298074b4ac9ce330d90e17181d98ad2ed85795bcea408ee2a64d287dec14ce5c7f9dfc79507562697b83511a')
+
+prepare() {
+  cd $_name-$pkgver
+  # Ignore new warnings from python-anyio 4.4.0 making check() fails
+  sed -i '/"error"/d' pyproject.toml
+}
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+# check() {
+#   local pytest_options=(
+#     -vv
+#     --deselect 'tests/test_routing.py::test_lifespan_with_on_events[asyncio]'
+#     --deselect 'tests/test_routing.py::test_lifespan_with_on_events[trio]'
+#   )
+
+#   cd $_name-$pkgver
+#   pytest "${pytest_options[@]}"
+# }
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 LICENSE.md -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

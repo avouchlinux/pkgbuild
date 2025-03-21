@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,7 +13,7 @@ arch=(any)
 groups=('media-fonts')
 license=(custom:SIL)
 makedepends=(meson appstream-glib git)
-source=("https://download.gnome.org/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz")
+source=("https://download.gnome.org/sources/$pkgname/0.303/$pkgname-$pkgver.tar.xz")
 
 build() {
   avouch-meson $pkgname-$pkgver build -D useprebuilt=true

@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=('geoip-database' 'geoip-database-extra')
 _realname=GeoIP
-pkgver=20210427
+pkgver=20240720
 pkgrel=1
 arch=('any')
 groups=('net-misc')
@@ -69,6 +69,7 @@ package_geoip-database() {
 
   install -d "$pkgdir/usr/share/GeoIP"
   install -m644 -t "$pkgdir/usr/share/GeoIP" GeoIP{,v6}.dat
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" GeoLite2-End-User-License-Agreement.pdf
 }
 
 package_geoip-database-extra() {
@@ -78,4 +79,5 @@ package_geoip-database-extra() {
 
   install -d "$pkgdir/usr/share/GeoIP"
   install -m644 -t "$pkgdir/usr/share/GeoIP" GeoIPCity{,v6}.dat GeoIPASNum{,v6}.dat
+  install -Dm644 -t "$pkgdir/usr/share/licenses/$pkgname" GeoLite2-End-User-License-Agreement.pdf
 }

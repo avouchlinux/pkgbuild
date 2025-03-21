@@ -1,10 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=ktextaddons
-pkgver=1.5.2
+pkgbase=ktextaddons
+pkgname=(ktextaddons)
+pkgver=1.5.4
 pkgrel=1
 pkgdesc='Various text handling addons'
 arch=('x86_64')
@@ -12,35 +13,68 @@ groups=('kde-apps')
 license=(GPL)
 url='https://invent.kde.org/libraries/ktextaddons'
 depends=(gcc-libs
-         glibc
-         karchive
-         kconfig
-         kconfigwidgets
-         ki18n
-         kio
-         kwidgetsaddons
-         qt5-base
-         qt5-speech
-         qtkeychain-qt5
-         sonnet
-         syntax-highlighting)
+         glibc)
 makedepends=(doxygen
              extra-cmake-modules
-             qt5-tools)
+             karchive
+             kconfig
+             kconfigwidgets
+             ki18n
+             kio
+             ktextaddons
+             kwidgetsaddons
+             kxmlgui
+             qt6-base
+             qt6-doc
+             qt6-speech
+             qt6-tools
+             qtkeychain-qt6
+             sonnet
+             syntax-highlighting
+             karchive5
+             kconfig5
+             kconfigwidgets5
+             ki18n5
+             kio5
+             kwidgetsaddons5
+             qt5-base
+             qt5-doc
+             qt5-speech
+             qt5-tools
+             qtkeychain-qt5
+             sonnet5
+             syntax-highlighting5)
 optdepends=('languagetool: Grammar checking'
             'grammalecte: French grammar checking'
             'libreoffice: Use autocorrection data from LibreOffice')
-source=(https://download.kde.org/stable/$pkgname/$pkgname-$pkgver.tar.xz)
-sha256sums=('288bbb1cefb1e8b570a383c792eba5fca291c46dd0155dbc2531f0a36684a7db')
+source=(https://download.kde.org/stable/$pkgname/$pkgbase-$pkgver.tar.xz)
+sha256sums=('64b80602e84b25e9164620af3f6341fa865b85e826ab8f5e02061ae24a277b20')
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
+  cmake -B build -S $pkgbase-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF \
     -DBUILD_DESIGNERPLUGIN=ON \
-    -DBUILD_QCH=ON
+    -DBUILD_QCH=ON \
+    -DQT_MAJOR_VERSION=6
   cmake --build build
 }
 
 package() {
+  depends+=(karchive
+            kcolorscheme
+            kconfig
+            kconfigwidgets
+            ki18n
+            kio  
+            kwidgetsaddons
+            qt6-base
+            qt6-speech
+            qtkeychain-qt6
+            sonnet
+            syntax-highlighting)
+
   DESTDIR="$pkgdir" cmake --install build
 }

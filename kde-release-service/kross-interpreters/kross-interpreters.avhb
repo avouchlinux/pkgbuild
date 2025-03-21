@@ -1,13 +1,14 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kross-interpreters
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Language interpreters to enable in-process scripting with Kross'
 arch=('x86_64')
-groups=('kde-apps')
+groups=('kde-release-services')
 url='https://www.kde.org/applications/development/'
 license=(GPL)
 depends=(kross)
@@ -23,18 +24,17 @@ prepare() {
 }
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DKDE_INSTALL_LIBEXECDIR=lib \
-    -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF \
+    -DBUILD_QCH=ON
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }
+
 

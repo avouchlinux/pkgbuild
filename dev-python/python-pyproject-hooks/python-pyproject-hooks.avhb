@@ -1,0 +1,46 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pyproject-hooks
+_name=${pkgname#python-}
+pkgver=1.2.0
+pkgrel=1
+pkgdesc="A low-level library for calling build-backends in pyproject.toml-based project"
+arch=(any)
+groups=('dev-python')
+url="https://github.com/pypa/pyproject-hooks"
+license=(MIT)
+depends=(python)
+makedepends=(
+  python-build
+  python-installer
+  python-flit-core
+  python-wheel
+)
+checkdepends=(
+  python-pytest
+  python-setuptools
+  python-testpath
+)
+source=($pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz)
+sha512sums=('c198624ca278001922e07039333aa623a87bd9ef9f38ec98346d6d49f19dec422f788f6737623b461d76586bc8fa752518906bc7501e822429803881700ce701')
+b2sums=('cb4503a1e79bd338a14ec1583b3755c7135258ce318cb804527ea83dc032d14462654e9bfa3c1f8bb5f099d72dc2dffc2bd9bb41d1591d8b3d77a2c49e217176')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd $_name-$pkgver
+  export PYTHONPATH="$PWD/src:$PYTHONPATH"
+  pytest -vv
+}
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

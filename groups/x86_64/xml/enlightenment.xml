@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>bullet</Name>
+	 <Name>connman</Name>
+	 <Name>econnman</Name>
+	 <Name>ecrire</Name>
+	 <Name>efl</Name>
+	 <Name>emotion_generic_players</Name>
+	 <Name>empc</Name>
+	 <Name>enlightenment</Name>
+	 <Name>enventor</Name>
+	 <Name>epdfview</Name>
+	 <Name>ephoto</Name>
+	 <Name>epour</Name>
+	 <Name>espeak</Name>
+	 <Name>evas_generic_loaders</Name>
+	 <Name>ewebkit</Name>
+	 <Name>expedite</Name>
+	 <Name>exquisite</Name>
+	 <Name>extra</Name>
+	 <Name>fle</Name>
+	 <Name>python-efl</Name>
+	 <Name>rage</Name>
+	 <Name>terminology</Name>
+</Packages>

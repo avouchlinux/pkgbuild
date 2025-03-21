@@ -1,35 +1,49 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vpnc
-pkgver=0.5.3.r501.r153
+_vpnc_commit=d0fd23d9432d54e7f354ecf3ced1e35d92d3dbde
+_vpncscripts_commit=4ed41c21e3857f96ab935b45092bbb07c3ccd5be
+pkgver=0.5.3.r539.r239
 pkgrel=1
 epoch=1
 pkgdesc='VPN client for cisco3000 VPN Concentrators'
 url='https://github.com/streambinder/vpnc'
 arch=('x86_64')
 groups=('net-misc')
-license=('GPL')
-depends=('libgcrypt' 'openssl' 'iproute2')
-makedepends=('git')
-optdepends=('openresolv: Let vpnc manage resolv.conf')
-backup=('etc/vpnc/default.conf')
-source=("https://github.com/streambinder/vpnc.git"
-        "https://gitlab.com/openconnect/vpnc-scripts.git"
-        "https://github.com/streambinder/vpnc.wiki.git"
-        vpnc.conf
-        vpnc@.service)
-
-_vpnc_commit=249d8fcd0ac25b735638bbe31e86a591acd61348
-_vpncscripts_commit=92fe06f6589dcc21725c51b8f86051482bf3b1bd
-
-getsrc(){
-  git clone https://github.com/streambinder/vpnc.git
-  git clone https://gitlab.com/openconnect/vpnc-scripts.git
-  git clone https://github.com/streambinder/vpnc.wiki.git
-}
+license=(GPL-2.0-only)
+depends=(
+  bash
+  glibc
+  iproute2
+  libgcrypt
+  openssl
+  perl
+  which
+)
+makedepends=(
+  git
+)
+optdepends=(
+  'openresolv: Let vpnc manage resolv.conf'
+)
+backup=(
+  etc/vpnc/default.conf
+)
+source=(
+  "vpnc::git+https://github.com/streambinder/vpnc#commit=${_vpnc_commit}"
+  "vpnc-scripts::git+https://gitlab.com/openconnect/vpnc-scripts.git#commit=${_vpncscripts_commit}"
+  git+https://github.com/streambinder/vpnc.wiki.git
+  vpnc.conf
+  vpnc@.service
+)
+sha512sums=('SKIP'
+            'SKIP'
+            'SKIP'
+            'ac70712192c01ff638a9badc5cff7105bee5c4fed5d3a3b728e9597661952d156041c82fe1e544e2bab602d193d4105d3689c79c46d964623f6ce38dd89f0ea7'
+            'cafcab676986c1a2e49441f01d61997f1c6b54bbb68661b9af007d4816f8e76eee6b7ac2dfab55b55965fa407e8331c663cf11aa79384c30b0c9049c1477b791')
 
 pkgver() {
   cd ${pkgname}
@@ -40,9 +54,10 @@ pkgver() {
 
 prepare() {
   cd ${pkgname}
+
   git submodule init
   git config submodule."src/doc".url "${srcdir}/vpnc.wiki"
-  git submodule update --recursive
+  git -c protocol.file.allow=always submodule update --recursive
 
   # Build hybrid support
   sed 's|^#OPENSSL|OPENSSL|g' -i Makefile
@@ -69,3 +84,4 @@ package() {
   install -Dm 644 .github/README.md -t "${pkgdir}/usr/share/doc/${pkgname}"
   install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
+

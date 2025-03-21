@@ -1,0 +1,71 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=koko
+pkgver=24.12.3
+pkgrel=1
+pkgdesc='Image gallery application'
+url='https://apps.kde.org/koko/'
+arch=(x86_64)
+groups=('kde-release-service')
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(exiv2
+         gcc-libs
+         glibc
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kdbusaddons
+         kdeclarative
+         kfilemetadata
+         kguiaddons
+         ki18n
+         kio
+         kirigami
+         kirigami-addons
+         knotifications
+         kquickimageeditor
+         kwindowsystem
+         libxcb
+         purpose
+         qqc2-desktop-style
+         qt6-base
+         qt6-declarative
+         qt6-multimedia
+         qt6-positioning
+         qt6-svg)
+makedepends=(extra-cmake-modules)
+groups=(kde-applications
+        kde-graphics)
+# update with ./download-data
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
+        https://sources.archlinux.org/other/packages/koko/cities1000-2023-11-14.zip
+        https://sources.archlinux.org/other/packages/koko/admin1CodesASCII-2023-11-14.txt
+        https://sources.archlinux.org/other/packages/koko/admin2Codes-2023-11-14.txt)
+sha256sums=('29e39a7dd2ef163e5ac22e49830f66e29367042f12e724718327fbf449ad7c27'
+            'SKIP'
+            '68e71c0790b37ac1e102c49d5ed4bb28a8ef3106d92fd03764538db623167259'
+            '14e12e9d94edac5c97bbc02869c051b2188b2ec2b4c7af18597a7b36167f211e'
+            '25a34f94da79abe10272bacd0ed870a13a17b179bc08a7d975c5afd8e1b7b0dd')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+
+prepare() {
+  cp -L cities1000-2023-11-14.zip admin1CodesASCII-2023-11-14.txt $pkgname-$pkgver/src
+}
+
+build() {
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

@@ -1,0 +1,16 @@
+b43-firmware
+b43-firmware-classic
+edk2-shell-202102-1-avh030-x86_64.avh.tar.zst
+edk2-ovmf-202102-1-avh030-x86_64.avh.tar.zst
+linux-firmware-whence-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+amd-ucode-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-nfp-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-mellanox-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-marvell-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-qcom-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-liquidio-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-qlogic-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+linux-firmware-bnx2x-20241017.22a6c7dc-1-avh040-x86_64.avh.tar.zst
+nouveau-fw-340.108-1-avh040-x86_64.avh.tar.zst
+seabios-1.14.0-1-avh030-x86_64.avh.tar.zst

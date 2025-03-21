@@ -1,0 +1,55 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-usage
+pkgver=48.rc
+pkgrel=1
+pkgdesc="View information about use of system resources"
+url="https://wiki.gnome.org/Apps/Usage"
+arch=(x86_64)
+groups=('gnome-base')
+license=(GPL-3.0-or-later)
+depends=(
+  cairo
+  dconf
+  glib2
+  glibc
+  graphene
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libgee
+  libgtop
+  pango
+  tracker3
+  xdg-user-dirs
+)
+makedepends=(
+  accountsservice
+  gamemode
+  git
+  meson
+  vala
+)
+optdepends=(
+  'accountsservice: show user tags for processes'
+  'gamemode: show processes requesting game mode'
+)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('f8a29276b6abad862deda88bfa0a8ea33b1a864bb186b5fc6df527952cf2bd1012224767c61a2e3fe6a48822bed3b85a5093ff59f6bb2e9cdf6b0837676287eb')
+
+build() {
+  export CFLAGS="$CFLAGS -Wnoint-conversion"
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

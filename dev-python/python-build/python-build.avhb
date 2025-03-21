@@ -1,0 +1,69 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=build
+pkgname=python-$_pkgname
+pkgver=1.2.2
+pkgrel=1
+pkgdesc='A simple, correct Python build frontend'
+arch=(any)
+groups=('dev-python')
+url='https://github.com/pypa/build'
+license=(MIT)
+depends=(
+  python
+  python-packaging
+  python-pyproject-hooks
+)
+makedepends=(
+  git
+  python-build
+  python-flit-core
+  python-installer
+)
+checkdepends=(
+  python-filelock
+  python-pytest
+  python-pytest-mock
+  python-pytest-rerunfailures
+  python-setuptools
+  python-uv
+  python-virtualenv
+  python-wheel
+)
+optdepends=(
+  'python-pip: to use as the Python package installer (default)'
+  'python-uv: to use as the Python package installer'
+  'python-virtualenv: to use virtualenv for build isolation'
+)
+source=("$pkgname::git+$url#tag=$pkgver?signed")
+validpgpkeys=(
+#  3DCE51D60930EBA47858BA4146F633CBB0EB4BF2 # Filipe Laíns (FFY00) <lains@archlinux.org>
+  2FDEC9863E5E14C7BC429F27B9D0E45146A241E8 # Henry Schreiner <henryschreineriii@gmail.com>
+)
+b2sums=('50f927c2f51e9ae85b857f115f22671e6fa869459fe66e0447b32d74f86130a33313065c0eca2cc68350f8a6530cfa3c72661fc2528ff628c7cc10557c662f18')
+
+build() {
+  cd $pkgname
+
+  python -m build --wheel --skip-dependency-check --no-isolation
+}
+
+check() {
+  cd $pkgname
+
+  PYTHONPATH=src pytest -k 'not test_verbose_output'
+}
+
+package() {
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/$_pkgname-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+
+  cd $pkgname
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

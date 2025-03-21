@@ -1,0 +1,42 @@
+From b80f2846ee53cd6e292bef76c73cb98ab1f4fb7f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Thu, 26 Dec 2024 16:58:35 +0100
+Subject: [PATCH] build: Add missing figures for manuals
+
+These files were missing from the installation.
+---
+ help/clock/Makefile.am | 3 ++-
+ help/fish/Makefile.am  | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/help/clock/Makefile.am b/help/clock/Makefile.am
+index 992b25c9f..3f86dd064 100644
+--- a/help/clock/Makefile.am
++++ b/help/clock/Makefile.am
+@@ -6,7 +6,8 @@ HELP_FILES = \
+ 	index.docbook \
+ 	legal.xml
+ 
+-HELP_MEDIA =
++HELP_MEDIA = \
++	figures/clock_applet.png
+ 
+ HELP_LINGUAS = ar ca cs da de el en_GB es eu fi fr hu id it ja ko nl oc pa pt pt_BR ru sr sl sv te th uk zh_CN zh_HK zh_TW
+ 
+diff --git a/help/fish/Makefile.am b/help/fish/Makefile.am
+index 72d614f4a..fe0717199 100644
+--- a/help/fish/Makefile.am
++++ b/help/fish/Makefile.am
+@@ -6,7 +6,8 @@ HELP_FILES = \
+ 	index.docbook \
+ 	legal.xml
+ 
+-HELP_MEDIA =
++HELP_MEDIA = \
++	figures/fish_applet.png
+ 
+ HELP_LINGUAS = ca cs da de el en_GB es eu fi fr hu it ja ko oc pt_BR ru sl sv th uk zh_CN
+ 
+-- 
+GitLab
+

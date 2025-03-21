@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>adobe-source-han-sans</Name>
+	 <Name>adobe-source-sans-pro-fonts</Name>
+	 <Name>cantarell-fonts</Name>
+	 <Name>font-alias</Name>
+	 <Name>font-bh-ttf</Name>
+	 <Name>font-bitstream-speedo</Name>
+	 <Name>font-misc-ethiopic</Name>
+	 <Name>font-misc-meltho</Name>
+	 <Name>noto-fonts</Name>
+	 <Name>ttf-dejavu</Name>
+	 <Name>ttf-font-awesome</Name>
+	 <Name>ttf-freefont</Name>
+	 <Name>ttf-hack</Name>
+	 <Name>ttf-liberation</Name>
+	 <Name>ttf-urdufonts</Name>
+	 <Name>xorg-font-cyrillic</Name>
+	 <Name>xorg-fonts-100dpi</Name>
+	 <Name>xorg-fonts-75dpi</Name>
+	 <Name>xorg-fonts-encodings</Name>
+	 <Name>xorg-fonts-misc</Name>
+	 <Name>xorg-fonts-type1</Name>
+	 <Name>xorg-font-util</Name>
+</Packages>

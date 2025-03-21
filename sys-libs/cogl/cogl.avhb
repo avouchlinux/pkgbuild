@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -19,7 +19,7 @@ prepare(){
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	# Fix building with libglvnd headers
 	#patch -Np1 -i ../eglmesaext.diff
-	# NOCONFIGURE=1 ./autogen.sh
+	NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {

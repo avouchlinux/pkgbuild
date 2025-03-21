@@ -1,31 +1,27 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-translations
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10
+_basever=5.15.15
+pkgver=5.15.15
 pkgrel=1
-_commit=a680686754d84b91d4cc4252a2fb8af0c58f5f49
+_commit=07ae7ea7c94225e73c8eddc9f3f89edc863e83e0
 arch=('any')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='A cross-platform application and UI framework (Translations)'
 depends=()
 makedepends=('git' 'qt5-tools')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('a8dad28329544fa15c002d438313397a7d7e8da10abc4c7ca661d9317fd4189a')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -36,8 +32,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

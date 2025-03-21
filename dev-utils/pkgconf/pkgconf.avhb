@@ -1,68 +1,74 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pkgconf
-pkgver=1.6.3
+pkgver=2.1.1
 pkgrel=1
 pkgdesc="Package compiler and linker metadata toolkit"
 url="https://github.com/pkgconf/pkgconf"
 license=(custom:ISC)
 arch=('x86_64')
 groups=('dev-utils')
-depends=(glibc sh)
-makedepends=(git)
-source=("https://github.com/pkgconf/pkgconf/archive/pkgconf-$pkgver.tar.gz" platform-pkg-config.in)
-sha256sums=('SKIP'
-            '7c61338fbd83f9783d805c2f2f97b426977895a2f4b79e0ae5bc8e9d7996edaa')
+depends=(
+  glibc
+  sh
+)
+makedepends=(
+  git
+  meson
+)
+provides=(
+  libpkgconf.so
+  pkg-config
+  pkgconfig
+)
+conflicts=(pkg-config)
+replaces=(pkg-config)
+_commit=b6e04e2d47b4ca093632b9efde6303a137ea0634  # tags/pkgconf-2.1.1
+source=(
+  "git+$url#commit=$_commit"
+  {x86_64,i686}-pc-linux-gnu.personality
+)
+b2sums=('SKIP'
+        'c04583e19149c1035cb7777a59f0fbc4988b672d8e45105e33def3d0f9054464e33a400a3e7c7e8b99b334e4fe06aaa9d7e34662e806096d4374bd6b12d803db'
+        '94c8fd12b5f33611fd6dbeae03b20e72bcf2937e764766e2633b2fd4c14925860d57eee234016c81b0563a47b112ac9ef4a8b3bb9fa3fc0dd266f355bc156c58')
 
-_pcdirs=/usr/lib/pkgconfig:/usr/share/pkgconfig
-_libdir=/usr/lib
-_includedir=/usr/include
+pkgver() {
+  cd pkgconf
+  git describe --tags | sed 's/^pkgconf-//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  mkdir build
-  cd $pkgname-$pkgname-$pkgver
-  ./autogen.sh
+  cd pkgconf
 }
 
 build() {
-  cd build
-  ../$pkgname-$pkgname-$pkgver/configure \
-    --prefix=/usr \
-    --sysconfdir=/etc \
-    --with-pkg-config-dir="$_pcdirs" \
-    --with-system-libdir="$_libdir" \
-    --with-system-includedir="$_includedir" \
-    --disable-static
-  make ${MAKEFLAGS}
+  local meson_options=(
+    -D tests=disabled  # Tests need kyua
+  )
+
+  avouch-meson pkgconf build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-  DESTDIR="$pkgdir" make -C build install
+  meson install -C build --destdir "$pkgdir"
 
-  # From https://src.fedoraproject.org/rpms/pkgconf/
-  sed -e "s|@TARGET_PLATFORM@|$CHOST|g" \
-      -e "s|@PKGCONF_LIBDIRS@|$_pcdirs|g" \
-      -e "s|@PKGCONF_SYSLIBDIR@|$_libdir|g" \
-      -e "s|@PKGCONF_SYSINCDIR@|$_includedir|g" \
-      platform-pkg-config.in |
-    install -D /dev/stdin "$pkgdir/usr/bin/$CHOST-pkg-config"
-  ln -s $CHOST-pkg-config "$pkgdir/usr/bin/pkg-config"
+  local p
+  for p in {x86_64,i686}-pc-linux-gnu; do
+    install -Dt "$pkgdir/usr/share/pkgconfig/personality.d" -m644 $p.personality
+    ln -s pkgconf "$pkgdir/usr/bin/$p-pkg-config"
+  done
 
-  # Multilib
-  if [[ $CARCH = x86_64 ]]; then
-    _host32=${CHOST/x86_64/i686}
-    sed -e "s|@TARGET_PLATFORM@|$_host32|g" \
-        -e "s|@PKGCONF_LIBDIRS@|${_pcdirs/lib/lib32}|g" \
-        -e "s|@PKGCONF_SYSLIBDIR@|${_libdir/lib/lib32}|g" \
-        -e "s|@PKGCONF_SYSINCDIR@|$_includedir|g" \
-        platform-pkg-config.in |
-      install -D /dev/stdin "$pkgdir/usr/bin/$_host32-pkg-config"
-    ln -s $_host32-pkg-config "$pkgdir/usr/bin/pkg-config-32"
-  fi
-
+  ln -s pkgconf "$pkgdir/usr/bin/pkg-config"
   ln -s pkgconf.1 "$pkgdir/usr/share/man/man1/pkg-config.1"
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgname-$pkgver/COPYING
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 pkgconf/COPYING
 }
+

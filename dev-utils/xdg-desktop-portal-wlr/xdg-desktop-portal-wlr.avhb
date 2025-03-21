@@ -1,0 +1,55 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xdg-desktop-portal-wlr
+pkgver=0.7.1
+pkgrel=1
+pkgdesc='xdg-desktop-portal backend for wlroots'
+url="https://github.com/emersion/xdg-desktop-portal-wlr"
+arch=('x86_64')
+groups=('dev-utils')
+license=('MIT')
+provides=('xdg-desktop-portal-impl')
+depends=(
+    'glibc'
+    'libdrm'
+    'libinih'
+    'libpipewire'
+    'mesa'
+    'pipewire'
+    'pipewire-session-manager'
+    'systemd-libs'
+    'wayland'
+    'xdg-desktop-portal'
+)
+makedepends=(
+    'meson'
+    'scdoc'
+    'wayland-protocols'
+)
+optdepends=(
+    'bemenu: to choose which output to screencast using bemenu'
+    'slurp: to choose which output to screencast using slurp'
+    'wofi: to choose which output to screencast using wofi'
+)
+source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/v${pkgver}.tar.gz"
+        wlr-portals.conf)
+sha512sums=('d5685cc54fe71d600b6ad580655a280a52fed9327cc5b1c7d4a9f728c2474f7834911dc8a1231fd30c8ca097918057d41fc5334978e02025ac73c43dacb2e036'
+            '71f3383c3f62100dc669c519d107614a4566e808deddf66a179dd2bf175dc272a2390965cf38cd11dc4f0db0dc5cc7104712805034b9bced5874d62b03a579c2')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+    avouch-meson -Dsd-bus-provider=libsystemd build
+    ninja -C build
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    DESTDIR="${pkgdir}" ninja -C build install
+    install -vDm644 -t "$pkgdir/usr/share/licenses/${pkgname}" LICENSE
+
+    # fix detection with x-d-p 1.18
+    install -vDm644 -t "${pkgdir}/usr/share/xdg-desktop-portal" "${srcdir}/wlr-portals.conf"
+}

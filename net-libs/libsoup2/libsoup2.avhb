@@ -3,9 +3,10 @@
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libsoup2
+pkgbase=libsoup2
+pkgname=(libsoup2 libsoup2-docs)
 _realname=libsoup
-pkgver=2.74.2
+pkgver=2.74.3
 pkgrel=1
 pkgdesc="GNOME HTTP Library"
 arch=('x86_64')
@@ -13,20 +14,72 @@ groups=('net-libs')
 url="https://wiki.gnome.org/Projects/libsoup"
 arch=(x86_64)
 license=(LGPL)
-depends=(glib2 libxml2 glib-networking sqlite krb5 libpsl)
-makedepends=(gobject-introspection python vala git gtk-doc meson)
-checkdepends=(apache php-apache)
-source=("https://gitlab.gnome.org/GNOME/libsoup/-/archive/$pkgver/libsoup-$pkgver.tar.bz2")
+depends=(
+  brotli
+  glib-networking
+  glib2
+  krb5
+  libpsl
+  libsysprof-capture
+  libxml2
+  sqlite
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  samba
+  vala
+)
+checkdepends=(
+  apache
+  php-apache
+)
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/2.74.3/$_realname-$pkgver.tar.bz2"
+        disable-flaky-test.diff)
+b2sums=('SKIP'
+        '4d71171b26ed107884a22696f9df1609c45c377e27baaaeb4ec5d890f9fbd62f09607ba3da0acdb42b4f86b9e828014471e6731437ec80de3b6ad98d7f0a2f60')
 
 prepare() {
-    cd  $_realname-$pkgver
+    cd $_realname-$pkgver
+
+    # https://gitlab.gnome.org/GNOME/libsoup/-/issues/120
+    patch -Np1 -i ../disable-flaky-test.diff
 }
 
 build() {
-    avouch-meson $_realname-$pkgver build -D gtk_doc=true
-    ninja -C build
+  local meson_options=(
+    -D gtk_doc=true
+  )
+  avouch-meson $_realname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+check() {
+  meson test -C build --print-errorlogs
 }
+
+package_libsoup2() {
+  depends+=(
+    libbrotlidec.so
+    libgssapi_krb5.so
+    libg{lib,object,io}-2.0.so
+    libpsl.so
+  )
+  optdepends=('samba: Windows Domain SSO')
+  provides+=(libsoup{,-gnome}-2.4.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/gtk-doc
+}
+
+package_libsoup2-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+

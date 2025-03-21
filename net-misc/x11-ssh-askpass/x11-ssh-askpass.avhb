@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -12,8 +13,9 @@ arch=('x86_64')
 groups=('net-misc')
 depends=('libxt')
 makedepends=('imake')
-source=("https://src.fedoraproject.org/repo/pkgs/openssh/x11-ssh-askpass-$pkgver.tar.gz/")
-install=${pkgname}.install
+#source=("${url}${pkgname}-${pkgver}.tar.gz" # httpd only sends half the bits
+source=("https://pkgs.fedoraproject.org/repo/pkgs/openssh/x11-ssh-askpass-1.2.4.1.tar.gz/8f2e41f3f7eaa8543a2440454637f3c3/x11-ssh-askpass-1.2.4.1.tar.gz")
+sha256sums=('620de3c32ae72185a2c9aeaec03af24242b9621964e38eb625afb6cdb30b8c88')
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
@@ -33,3 +35,4 @@ package() {
 	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
 	sed '109,174p;d' README > "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+

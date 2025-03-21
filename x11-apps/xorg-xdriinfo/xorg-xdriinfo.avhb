@@ -1,29 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-xdriinfo
 _realname=xdriinfo
-pkgver=1.0.6
+pkgver=1.0.7
 pkgrel=1
 pkgdesc="Query configuration information of DRI drivers"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 license=('custom')
 depends=('libx11' 'libgl')
-makedepends=('xorg-util-macros' 'glproto')
-source=("http://xorg.freedesktop.org/archive/individual/app/xdriinfo-${pkgver}.tar.bz2")
+makedepends=('xorg-util-macros' 'xorgproto')
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/app/xdriinfo-${pkgver}.tar.xz{,.sig})
+sha512sums=('a368cf32c606ca78f3a23bc5d88fb57b9c1a3827d0fec3e48cee153703135e47cecd3db8ee0eba93f309d7f03b4306c3f2e7f46f36d0d2970671c5e5b78093ad'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xdriinfo-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xdriinfo-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

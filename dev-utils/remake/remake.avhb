@@ -1,42 +1,37 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=remake
-pkgver=0.14
+_remakever=dbg-1.6
+pkgver=4.3+${_remakever/-/}
 pkgrel=1
 pkgdesc="Enhanced GNU Make - tracing, error reporting, debugging, profiling and more"
 arch=('x86_64')
 groups=('dev-utils')
-url="https://github.com/silene/remake/"
+url="http://bashdb.sourceforge.net/remake/"
 license=('GPL3')
 depends=('glibc' 'guile')
-source=("https://github.com/silene/remake/archive/remake-$pkgver.tar.gz")
+_archive="$pkgname-${pkgver%+*}+$_remakever"
+source=("https://sourceforge.net/projects/bashdb/files/remake/4.3%2B${_remakever}/$_archive.tar.gz")
+sha256sums=('f6a0c6179cd92524ad5dd04787477c0cd45afb5822d977be93d083b810647b87')
 
 prepare() {
-  cd ${pkgname}-${pkgname}-${pkgver}
-  patch -Np0 -i ../remake-test.patch
+  cd "$_archive"
+  autoreconf -fi
 }
 
 build() {
-  cd ${pkgname}-${pkgname}-${pkgver}
-  g++ $CFLAGS $CPPFLAX -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE -o remake remake.cpp
-  doxygen
-}
-
-check() {
-  cd ${pkgname}-${pkgname}-${pkgver}/testsuite
-  ./all.sh
+  cd "$_archive"
+  CFLAGS+=' -fcommon' # https://wiki.gentoo.org/wiki/Gcc_10_porting_notes/fno_common
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-  cd ${pkgname}-${pkgname}-${pkgver}
-  # Install the binary
-  mkdir -p ${pkgdir}/usr/bin
-  install -pm 0755 remake ${pkgdir}/usr/bin/
-
-  # Install the doxygen documentation
-  mkdir -p ${pkgdir}/usr/share/doc/$pkgname
-  cp -a doxydoc/html ${pkgdir}/usr/share/doc/$pkgname
+  cd "$_archive"
+  make DESTDIR="${pkgdir}" install
+  rm "$pkgdir"/usr/share/info/make.info{,-1,-2}
 }
+

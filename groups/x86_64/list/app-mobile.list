@@ -1,0 +1,12 @@
+ideviceinstaller
+ifuse
+ofono
+ofono-phonesim
+libgmobile
+libusbmuxd
+libimobiledevice
+libimobiledevice-glue
+libideviceactivation
+libplist
+libqofono
+usbmuxd

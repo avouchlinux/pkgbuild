@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=colord-gtk
-pkgver=0.3.0
+pkgver=0.3.1
 pkgrel=1
 pkgdesc="Additional GTK support code for colord"
 arch=('x86_64')
@@ -14,11 +14,11 @@ license=(GPL2)
 depends=(lcms2 gtk3 colord)
 makedepends=(intltool gobject-introspection vala gtk-doc meson
              docbook-utils docbook-sgml perl-sgmls)
-source=("https://github.com/hughsie/colord-gtk/archive/COLORD_GTK_${pkgver//./_}.tar.gz")
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/hughsie/colord-gtk/archive/refs/tags/0.3.1.tar.gz")
 validpgpkeys=('163EB50119225DB3DF8F49EA17ACBA8DFA970E17')
 
 build() {
-    avouch-meson $pkgname-${pkgver} build -D docs=true
+    avouch-meson ${pkgname}-${pkgver} build -D docs=true
     ninja -C build
 }
 

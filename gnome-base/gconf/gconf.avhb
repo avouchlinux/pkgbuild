@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -39,6 +39,7 @@ prepare() {
 }
 
 build() {
+export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
 	cd ${srcdir}/${_realname}-${pkgver}
 	./configure --prefix=/usr --sysconfdir=/etc \
 	--localstatedir=/var --libexecdir=/usr/lib/GConf \

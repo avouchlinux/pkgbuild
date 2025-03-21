@@ -1,32 +1,27 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-svg
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10+kde+r8
+_basever=5.15.15
+pkgver=5.15.15+kde+r5
 pkgrel=1
-_commit=37b2c764fb599c96fc415049208e871c729217c8
+_commit=26fdcaff0d3d6bf6f5c847e833006577a6e8ba7d
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='Classes for displaying the contents of SVG files'
 depends=('qt5-base')
 makedepends=('git')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('6740bcdc48d6ed80ce91ff97260c47d4d347c4f6407914d5e0d078837694ae98')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -37,8 +32,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

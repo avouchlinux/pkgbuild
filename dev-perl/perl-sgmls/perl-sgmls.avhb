@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -47,5 +47,5 @@ package() {
 	make install
 	find "$pkgdir" -name .packlist -o -name perllocal.pod -delete
 
-	ln -sf sgmlspl.pl "$pkgdir"/usr/bin/sgmlspl
+	ln -sv /usr/bin/vendor_perl/sgmlspl.pl "$pkgdir"/usr/bin/sgmlspl
 }

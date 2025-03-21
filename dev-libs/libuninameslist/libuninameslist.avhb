@@ -1,30 +1,35 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libuninameslist
-pkgver=20200413
+pkgver=20221022
 pkgrel=1
 pkgdesc='Large, sparse array mapping each unicode code point to the annotation data for it'
-url='https://github.com/fontforge/libuninameslist'
 license=('custom')
 arch=('x86_64')
 groups=('dev-libs')
+url='https://github.com/fontforge/libuninameslist'
+license=('custom')
+arch=('x86_64')
 source=("https://github.com/fontforge/${pkgname}/releases/download/${pkgver}/${pkgname}-dist-${pkgver}.tar.gz")
+sha256sums=('92c833936d653b2f205fb5e7ac82818311824dabdc7abdc2e81f07c3a0ea39bb')
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	autoreconf -i
-	automake --foreign -Wall
+  cd ${pkgname}-${pkgver}
+  autoreconf -i
+  automake --foreign -Wall
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }
+

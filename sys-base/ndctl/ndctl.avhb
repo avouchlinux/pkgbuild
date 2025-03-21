@@ -1,28 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ndctl
-pkgver=69
+pkgver=78
 pkgrel=1
 pkgdesc='Utility library for managing the libnvdimm (non-volatile memory device) sub-system in the Linux kernel'
 arch=('x86_64')
 groups=('sys-base')
 url="https://github.com/pmem/ndctl"
 license=('LGPL')
-depends=('json-c' 'kmod' 'systemd-libs' 'libutil-linux')
-makedepends=('asciidoctor' 'xmlto' 'bash-completion')
-source=("https://github.com/pmem/ndctl/archive/v$pkgver.tar.gz")
+depends=('iniparser' 'json-c' 'keyutils' 'kmod' 'libtraceevent' 'libtracefs' 'systemd-libs'
+         'util-linux-libs')
+makedepends=('asciidoctor' 'bash-completion' 'cmake' 'meson' 'systemd' 'xmlto')
+source=("https://github.com/pmem/ndctl/archive/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha512sums=('cd1e37d015f209df446441da162d41bbca1b740d799b383c1147d3a3b1acc4e6dc4bcc1fda0e868f305e8a1698c969426c08d8a6222d8a0c8f3c94963b0ae36e')
 
-build() {
-  cd "$srcdir"/$pkgname-$pkgver
-  #export CFLAGS+=' -fcommon'
-  ./autogen.sh
-  ./configure --prefix=/usr --sysconfdir=/etc
-  make ${MAKEFLAGS}
+prepare() {
+  # fix location of modprobe.d conf
+  sed -i "s|^modprobedatadir =.*|modprobedatadir = '/usr/lib/modprobe.d/'|" $pkgname-$pkgver/contrib/meson.build
 }
 
+build() {
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+# check() {
+#   meson test -C build --print-errorlogs
+# }
+
 package() {
-  cd "$srcdir"/$pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }

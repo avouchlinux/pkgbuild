@@ -1,0 +1,33 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=qtxdg-tools
+pkgver=4.1.0
+pkgrel=1
+pkgdesc="libqtxdg user tools"
+arch=("x86_64")
+groups=('lxqt-base')
+url="https://github.com/lxqt/qtxdg-tools"
+license=("LGPL2.1")
+depends=("qt6-base" "libqtxdg")
+makedepends=("cmake" "qt6-tools" "lxqt-build-tools")
+source=("https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"{,.asc})
+sha256sums=('4cd485e2780290d99d7242f605db9f0ffe5ed598cc672ed5e4acef871ce27b3a'
+            'SKIP')
+validpgpkeys=(
+  "19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
+)
+conflicts=('libqtxdg<3.9.1')
+
+build() {
+  cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

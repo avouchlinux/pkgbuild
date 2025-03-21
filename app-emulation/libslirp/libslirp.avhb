@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libslirp
-pkgver=4.3.0
+pkgver=4.9.0
 pkgrel=1
 pkgdesc='General purpose TCP-IP emulator'
 arch=(x86_64)
@@ -12,15 +12,18 @@ groups=('app-emulation')
 url='https://gitlab.freedesktop.org/slirp/libslirp'
 license=(BSD MIT)
 depends=(glib2)
-makedepends=(git meson)
-source=("https://gitlab.freedesktop.org/slirp/libslirp/-/archive/v$pkgver/libslirp-v$pkgver.tar.bz2")
+makedepends=(meson)
+provides=('libslirp.so')
+source=("${url}/-/archive/v${pkgver}/libslirp-v${pkgver}.tar.gz")
+sha512sums=('503035b24f657f610398c23656b0783bc15ec08d020e42085fd4f558a642d067dab21dd339d0f243f8f34347c3bc82edf22e6a9fc8164bfdfb9bfd7878af9fae')
+b2sums=('1058727a37f5aa959f2149f60df9b2791c9216393b67d2befd49100341c1bf67d4e2d19dfa63b655cdf0aa0816dde75b8527c3f5df40372aa1f2fd45936200a8')
 
 build() {
-  avouch-meson $pkgname build
+  avouch-meson "$pkgname-v${pkgver}" build
   ninja -C build
 }
 
 package() {
   DESTDIR="$pkgdir" meson install -C build
-  install -Dm644 $pkgname/COPYRIGHT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -vDm 644 "$pkgname-v${pkgver}"/COPYRIGHT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

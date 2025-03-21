@@ -1,30 +1,34 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt6-networkauth
-_qtver=6.0.2
-pkgver=${_qtver/-/}
+pkgver=6.8.2
 pkgrel=1
-_realname="${pkgname/6-/}-everywhere-src-${_qtver}"
+_realname="${pkgname/6-/}-everywhere-src-${pkgver}"
 arch=('x86_64')
 groups=('dev-qt6')
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
 pkgdesc='Network authentication module'
-depends=(qt6-base)
-makedepends=(cmake)
-source=("https://download.qt.io/official_releases/additional_libraries/${pkgver%.*}/$_qtver/$_pkgfn.tar.xz")
+depends=(gcc-libs
+         glibc
+         qt6-base)
+makedepends=(cmake
+             git
+             ninja)
+source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/submodules/$_realname.tar.xz")
 sha256sums=('05b66ef42f3e6bf4cf5f36744db8483f9a57dbc7bd9ecc9ba81e7ca99b0a37e6')
 
 build() {
-  cmake -B build -S $_realname -G Ninja
-  ninja -C build
+  cmake -B build -S $_realname -G Ninja \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+  cmake --build build
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 
   install -d "$pkgdir"/usr/share/licenses
   ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname

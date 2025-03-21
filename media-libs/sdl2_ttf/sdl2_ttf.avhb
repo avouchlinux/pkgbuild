@@ -1,32 +1,33 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sdl2_ttf
 _realname=SDL2_ttf
-pkgver=2.0.18
+pkgver=2.22.0
 pkgrel=1
 pkgdesc="A library that allows you to use TrueType fonts in your SDL applications (Version 2)"
 arch=('x86_64')
 groups=('media-libs')
-url="http://www.libsdl.org/projects/SDL_ttf"
+url="https://github.com/libsdl-org/SDL_ttf"
 license=('MIT')
 depends=('sdl2' 'freetype2')
-makedepends=('cmake')
-source=("https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-${pkgver}.tar.gz")
+source=("https://github.com/libsdl-org/SDL_ttf/releases/download/release-${pkgver}/SDL2_ttf-${pkgver}.tar.gz"{,.sig})
+sha512sums=('34a1d210d8f1b1e802139d65ba47e36033bb7881e75a8862c1b1c515565bef85e3d81ee42e952aa664de043debef387ba60088a9cf3ba3297413db39a13af912'
+            'SKIP')
+validpgpkeys=('1528635D8053A57F77D1E08630A59377A7763BE6')
 
 prepare() {
   cd SDL2_ttf-${pkgver}
 
-  touch NEWS README AUTHORS ChangeLog
   autoreconf -vi
 }
 
 build() {
   cd "${srcdir}/SDL2_ttf-${pkgver}/"
 
-  ./configure --disable-static --prefix=/usr
+  ./configure --disable-static --disable-freetype-builtin --disable-harfbuzz-builtin --prefix=/usr
   make
 }
 
@@ -34,5 +35,5 @@ package() {
   cd "${srcdir}/SDL2_ttf-${pkgver}/"
 
   make DESTDIR="${pkgdir}/" install
-  install -Dm644 COPYING.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  install -Dm644 LICENSE.txt "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

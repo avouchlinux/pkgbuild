@@ -1,34 +1,40 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=flashrom
-pkgver=1.2
+pkgver=1.4.0
 pkgrel=1
 pkgdesc="Utility for reading, writing, erasing and verifying flash ROM chips"
 arch=('x86_64')
 groups=('app-admin')
 url="https://www.flashrom.org/"
-license=(GPL)
-depends=(libftdi pciutils libusb-compat)
-makedepends=(meson)
+license=(GPL-2.0-or-later)
+depends=(
+  libftdi
+  libusb
+  pciutils
+)
+makedepends=(
+  cmocka
+  git
+  meson
+  python-sphinx
+)
 optdepends=('dmidecode: for SMBIOS/DMI table decoder support')
-source=("https://download.flashrom.org/releases/${pkgname}-v${pkgver}.tar.bz2")
-validpgpkeys=(58A4868B25C7CFD662FB0132A3EB95B8D9780F68) # David Hendricks (packaging key) <david.hendricks@gmail.com>
+source=(git+https://github.com/flashrom/flashrom.git#tag=v${pkgver})
+sha256sums=('a9e6d4cc525c7cb5591f940d7472c639ecbe8fab845409ed873997292f634a9e')
 
 build() {
-  cd ${pkgname}-v${pkgver}
-  avouch-meson ../build
-  ninja -v -C ../build
-  # Workaround for meson not installing manpage
-  make
+  avouch-meson ${pkgname} build
+  meson compile -C build
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
-  # Workaround for meson not installing manpage
-  cd ${pkgname}-v${pkgver}
-  make PREFIX=temp/ install
-  cp -r temp/share "${pkgdir}"/usr/
+  meson install -C build --destdir "${pkgdir}"
+
+  cd ${pkgname}
+  sed -i 's#GROUP="plugdev"#TAG+="uaccess"#g' util/flashrom_udev.rules
+  install -Dm644 util/flashrom_udev.rules "${pkgdir}"/usr/lib/udev/rules.d/70-flashrom.rules
 }

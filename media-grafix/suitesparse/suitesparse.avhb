@@ -1,42 +1,57 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=suitesparse
-_realname=SuiteSparse
-pkgver=5.11.0
+pkgbase=suitesparse
+pkgname=(suitesparse
+         suitesparse-graphblas)
+pkgver=7.8.2
 pkgrel=1
 pkgdesc="A collection of sparse matrix libraries"
-url="http://faculty.cse.tamu.edu/davis/suitesparse.html"
 arch=('x86_64')
 groups=('media-grafix')
-depends=('metis' 'lapack' 'intel-tbb')
-makedepends=('gcc-fortran' 'cmake' 'chrpath')
-license=('GPL')
-options=('staticlibs')
-source=("https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/v$pkgver.tar.gz"
-        suitesparse-no-demo.patch)
-
-prepare() {
-  cd SuiteSparse-$pkgver
-  patch -p1 -i ../suitesparse-no-demo.patch # Don't run demo
-}
+url='http://faculty.cse.tamu.edu/davis/suitesparse.html'
+depends=(blas
+         gcc-libs
+         glibc
+         gmp
+         lapack
+         mpfr)
+makedepends=(cmake
+             gcc-fortran
+             git)
+replaces=('suitesparse64<7.1.0')
+license=(GPL)
+source=(git+https://github.com/DrTimothyAldenDavis/SuiteSparse#tag=v$pkgver)
+sha256sums=('92645255bcfeaab9ad32c7de8b3d8804808484f18ff9f3e6c432e1132147b579')
 
 build() {
-  cd SuiteSparse-$pkgver
-
-  BLAS=-lblas LAPACK=-llapack MY_METIS_LIB=/usr/lib/libmetis.so make
+  cd SuiteSparse
+  CMAKE_OPTIONS="-DBLA_VENDOR=Generic \
+                 -DCMAKE_INSTALL_PREFIX=/usr \
+                 -DCMAKE_BUILD_TYPE=None \
+                 -DNSTATIC=ON" \
+  make
 }
 
+package_suitesparse() {
+  cd SuiteSparse
+  DESTDIR="$pkgdir" make install
 
-package() {
-  cd SuiteSparse-$pkgver
-  install -dm755 "${pkgdir}"/usr/{include,lib}
-
-  BLAS=-lblas LAPACK=-llapack MY_METIS_LIB=/usr/lib/libmetis.so \
-  make INSTALL_LIB="${pkgdir}"/usr/lib INSTALL_INCLUDE="${pkgdir}"/usr/include install
-
-  # fix RPATH
-  chrpath -d "$pkgdir"/usr/lib/*
+  rm -r "$pkgdir"/usr/lib/lib{graphblas,lagraph,lagraphx}.so* \
+        "$pkgdir"/usr/include/suitesparse/{GraphBLAS,LAGraph,LAGraphX}.h \
+        "$pkgdir"/usr/lib/cmake/{GraphBLAS,LAGraph} \
+        "$pkgdir"/usr/lib/pkgconfig/{GraphBLAS,LAGraph}.pc
 }
+
+package_suitesparse-graphblas() {
+  pkgdesc='Graph algorithms in the language of linear algebra'
+  depends=(gcc-libs
+           glibc)
+
+  cd SuiteSparse
+  DESTDIR="$pkgdir" make install -C GraphBLAS
+  DESTDIR="$pkgdir" make install -C LAGraph
+}
+

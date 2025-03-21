@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -11,15 +12,23 @@ groups=('media-fonts')
 license=('Apache')
 url='https://www.droidfonts.com/'
 provides=('ttf-font')
-source=("https://sources.archlinux.org/other/community/$pkgname/$pkgname-$pkgver.tar.xz"
-        60-droid-sans-mono.conf 65-droid-sans.conf 65-droid-serif.conf 65-droid-kufi.conf)
+source=("https://sources.archlinux.org/other/packages/$pkgname/$pkgname-$pkgver.tar.xz"
+        65-droid-{kufi,sans,sans-mono,serif}.conf)
+sha256sums=('f068efec9e8201fe0d1be75b1a4751c98d14dc44267b2237f549403b2a8069e3'
+            'fc208932ae52bc678415b66b2fa958d24d6100f2d9609d5564c611b3c53b38c7'
+            '93a0dc8e3258be4fafa68df120add114018bb723af7c0d61b60c6d908fcd87b2'
+            '42da7d1ac6d7055971c8b1bb98a83e893fbed621534b04247a5f6ed89ca14d44'
+            '311c79e55fc58e83f066377393e59865518dcbe09b51e5fe3459b69fbac3b6af')
 
 package() {
   # Install fonts
-  install -Dt "$pkgdir/usr/share/fonts/${pkgname#ttf-}" -m644 google-droid-fonts-$pkgver/*.ttf
+  install -Dt "$pkgdir/usr/share/fonts/${pkgname#ttf-}" -m644 \
+    google-droid-fonts-$pkgver/*.ttf
 
   # Install fontconfig
-  install -Dt "$pkgdir/etc/fonts/conf.avail" -m644 *.conf
-  mkdir "$pkgdir/etc/fonts/conf.d"
-  ln -srt "$pkgdir/etc/fonts/conf.d" "$pkgdir"/etc/fonts/conf.avail/*
+  local fcdir="$pkgdir/usr/share/fontconfig"
+  install -Dt "$fcdir/conf.avail" -m644 *.conf
+  mkdir -p "$fcdir/conf.default"
+  ln -srt "$fcdir/conf.default" "$fcdir"/conf.avail/*
 }
+

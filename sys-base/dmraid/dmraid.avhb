@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -16,7 +17,8 @@ source=(#https://sources.archlinux.org/other/dmraid/$pkgname-$pkgver.tar.bz2
         dmraid_install
         dmraid_hook
         dmraid_tmpfiles
-        dmraid.service)
+        dmraid.service
+        dmraid-format-security.patch)
 install=dmraid.install
 md5sums=('819338fcef98e8e25819f0516722beeb'
          '7a040ebcba305aba1e47dfe6ca8323b5'
@@ -24,9 +26,23 @@ md5sums=('819338fcef98e8e25819f0516722beeb'
          '56a8bb0ece8d206cd8efb504ee072ddd'
          'ea6d280fc6f63fb799abcd882bca53c8')
 
+prepare() {
+    cd "$pkgname/1.0.0.rc16-3/$pkgname"
+    # Patches from Gentoo
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-return-all-sets.patch
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-undo-p-rename.patch
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-parallel-make.patch
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-fix-missing-PATH-MOUNTED.patch
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-static-build-fixes.patch
+    patch -Np1 -i $srcdir/dmraid-1.0.0_rc16-musl.patch
+
+}
+
+
 build() {
 	cd "${srcdir}/${pkgname}/1.0.0.rc16-3/${pkgname}"
-	./configure --enable-led --enable-intel_led
+    export MAKE_EXTRA_FLAGS=""
+	./configure --enable-debug --enable-libselinux --enable-libsepol --disable-static_link --enable-led --enable-intel_led
 	make
 }
 

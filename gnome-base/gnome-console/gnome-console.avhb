@@ -1,10 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-console
-pkgver=45.0
+_realname=console
+pkgver=48.0.1
 pkgrel=1
 pkgdesc="A simple user-friendly terminal emulator for the GNOME desktop"
 url="https://gitlab.gnome.org/GNOME/console"
@@ -12,20 +13,27 @@ arch=(x86_64)
 groups=('gnome-base')
 license=(GPL3)
 depends=(
+  dconf
+  gcc-libs
+  gtk4
+  glib2
+  glibc
+  hicolor-icon-theme
   libadwaita
   libgtop
+  pango
   vte4
 )
 makedepends=(
-  appstream-glib
+  appstream
   git
+  glib2-devel
   meson
 )
-groups=(gnome)
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2)
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  avouch-meson $_realname-$pkgver build
   ninja -C build
 }
 

@@ -1,0 +1,37 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=xf86-input-vmmouse
+pkgver=13.2.0
+pkgrel=2
+pkgdesc="X.org VMWare Mouse input driver"
+arch=(x86_64)
+groups=('x11-drivers')
+license=('custom')
+url="https://xorg.freedesktop.org/"
+depends=('systemd-libs')
+makedepends=('xorg-server-devel' 'X-ABI-XINPUT_VERSION=24.4' 'xorgproto')
+conflicts=('xorg-server<21.1.1' 'X-ABI-XINPUT_VERSION<24' 'X-ABI-XINPUT_VERSION>=25')
+groups=('xorg-drivers')
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('26a01347a679db058abdc7cbd9a363bb4fccd1a727dc18e279d15b8a0dce71f67af5ff54df28b908391da8d2fc311d8c1813f26dcded4e9a2668db7b55ca5687'
+            'SKIP')
+#validpgpkeys=('90D027AEAF33CBABC140735BC1F5D3CDF5176580') # Thomas Hellstrom (VMware) <thellstrom@vmware.com>
+validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # "Matt Turner <mattst88@gmail.com>"
+
+build() {
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+    --with-udev-rules-dir=/usr/lib/udev/rules.d
+  make
+}
+
+package() {
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+  rm -rfv "${pkgdir}"/usr/{lib,share}/hal
+}

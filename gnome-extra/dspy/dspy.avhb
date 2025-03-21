@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dspy
-pkgver=1.2.0
+pkgver=48.beta
 pkgrel=1
 pkgdesc="D-Spy is a tool to explore and test end-points and interfaces on the System or Session D-Bus."
 arch=('any')

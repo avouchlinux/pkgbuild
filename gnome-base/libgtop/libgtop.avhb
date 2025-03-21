@@ -1,29 +1,32 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgtop
-pkgver=2.41.1
+pkgver=2.41.3
 pkgrel=1
 pkgdesc="A library for collecting system monitoring data"
 url="https://gitlab.gnome.org/GNOME/libgtop"
 arch=('x86_64')
 groups=('gnome-base')
-license=(LGPL)
-depends=(glib2 libxau)
-makedepends=(gobject-introspection git gtk-doc)
-source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/2.28/${pkgname}-${pkgver}.tar.xz)
-url="http://www.gnome.org/"
+license=('GPL-2.0-or-later')
+depends=('glib2' 'glibc' 'libxau')
+makedepends=('gobject-introspection' 'gtk-doc')
+provides=('libgtop-2.0.so')
+source=("https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz")
+sha256sums=('775676df958e2ea2452f7568f28b2ea581063d312773dd5c0b7624c1b9b2da8c')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib \
-	--localstatedir=/var --disable-static --enable-gtk-doc
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --libexecdir=/usr/lib/$pkgname --enable-gtk-doc
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="$pkgdir" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }
+

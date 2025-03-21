@@ -1,43 +1,55 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=openmp
-pkgver=14.0.0
+pkgver=18.1.8
 pkgrel=1
 pkgdesc="LLVM OpenMP Runtime Library"
 arch=('x86_64')
 groups=('dev-libs')
-url="http://openmp.llvm.org/"
-license=('custom:University of Illinois/NCSA Open Source License')
-depends=('glibc' 'libelf' 'libffi')
-makedepends=('cmake' 'ninja')
-source=(https://releases.llvm.org/$pkgver/$pkgname-$pkgver.src.tar.xz{,.sig})
-validpgpkeys+=('B6C8F98282B944E3B0D5C2530FC3042E345AD05D') # Hans Wennborg <hans@chromium.org>
-validpgpkeys+=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
+url="https://openmp.llvm.org/"
+license=('Apache-2.0 WITH LLVM-exception')
+depends=('llvm-libs' 'libelf' 'libffi')
+makedepends=('llvm' 'clang' 'cmake' 'ninja')
+optdepends=('cuda: offloading to NVIDIA GPUs'
+            'hsa-rocr: offloading to AMD GPUs')
+options=('!lto') # https://bugzilla.redhat.com/show_bug.cgi?id=1988155
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+source=($_source_base/openmp-$pkgver.src.tar.xz{,.sig}
+        $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
+sha256sums=('60ed57245e73894e4a2a89b15889f367bd906abfe6d3f92e1718223d4b496150'
+            'SKIP'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
+            'SKIP')
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
-	cd "$pkgname-$pkgver.src"
-	mkdir build
+  mv cmake{-$pkgver.src,}
+  cd openmp-$pkgver.src
+  mkdir build
 }
 
 build() {
-	cd "$pkgname-$pkgver.src/build"
+  cd openmp-$pkgver.src/build
 
-  cmake .. -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
+  local cmake_args=(
+    -G Ninja
+    -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
+    -DLIBOMP_INSTALL_ALIASES=OFF
+  )
+  cmake .. "${cmake_args[@]}"
   ninja
 }
 
 package() {
-  cd "$pkgname-$pkgver.src/build"
+  cd openmp-$pkgver.src/build
 
   DESTDIR="$pkgdir" ninja install
-  install -Dm644 ../LICENSE.txt "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 
-  # libgomp.so is also provided by gcc-libs; remove it to fix the conflict
-  rm "$pkgdir/usr/lib/libgomp.so"
-
+  rm "$pkgdir/usr/lib/libarcher_static.a"
 }
+

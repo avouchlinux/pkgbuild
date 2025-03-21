@@ -1,37 +1,86 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=criu
-pkgver=3.16.1
+pkgver=3.19
 pkgrel=1
 pkgdesc="Utilities to checkpoint and restore processes in userspace"
 url="http://criu.org"
-license=('GPL2')
 arch=('x86_64')
 groups=('sys-process')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/checkpoint-restore/criu/archive/v$pkgver.tar.gz")
-depends=('libbsd' 'libnet' 'libnl' 'protobuf-c' 'python-protobuf' 'gnutls' 'nftables')
-makedepends=('xmlto' 'asciidoc')
-options=('!buildflags' '!lto')
-sha512sums=('a558af41f1927a1b1d87f8d11163a5f3d2e4f83a74aba00619b45a6d464d5477a6a0aac3c1b9d9a17e3343a4bf21a3fd6b279b51fa0c347c86c307381a4d0739')
-b2sums=('45aa87ee00a18b91474e767dc0326cce6c0942af7771a0c5536751361c171c86ba2065c54587e82b51fd6d7ab116e659324369955086c5237cd7fd26b60d6ce6')
+license=(
+  'GPL-2.0-only'
+  'LGPL-2.1-only'
+)
+depends=(
+  'gcc-libs'
+  'glibc'
+  'gnutls'
+  'libbpf'
+  'libbsd'
+  'libdrm'
+  'libnet'
+  'libnl'
+  'nftables'
+  'protobuf-c'
+  'python'
+  'python-protobuf'
+)
+makedepends=(
+  'asciidoc'
+  'git'
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+  'xmlto'
+)
+# Can't run tests (only unit tests) due to privilege escalation required.
+# https://github.com/checkpoint-restore/criu/issues/434
+# checkdepends=(
+#   'libaio'
+#   'python-yaml'
+# )
+provides=(
+  'libcompel.so'
+  'libcriu.so'
+)
+options=('!lto')
+source=("git+https://github.com/checkpoint-restore/criu#tag=v$pkgver")
+sha512sums=('f38581b5709e4057f35f36ece46be4b122509e466b6daff4a413efd9b23582d7b35daee43bfbd292524683f6c57cd51994caaabf3f53c1e6dacf29c070276cd3')
+b2sums=('da93a2358346490c364cda5e26ea5618ad68bf0984481d2e58d6d08fb42370cc4c38a2c354f1eaf099764a95df59df54b4ee9ffea8c1be5c25d27d8d2d27c250')
 
 build() {
-  cd "$pkgname-$pkgver"
-  make
+  cd "$pkgname"
+
+  # shellcheck disable=SC2001
+  export CFLAGS=$(echo "$CFLAGS" | sed 's/-Wp,-D_FORTIFY_SOURCE=[0-9]//g')
+  make criu crit amdgpu_plugin docs
+  python -m build --wheel --no-isolation crit
+  python -m build --wheel --no-isolation --skip-dependency-check lib
+}
+
+check() {
+  cd "$pkgname"
+
+  make unittest
+  # make test
 }
 
 package() {
-  cd "$pkgname-$pkgver"
-  make DESTDIR="$pkgdir" \
+  cd "$pkgname"
+
+  make \
+    DESTDIR="$pkgdir" \
     PREFIX=/usr \
     SBINDIR=/usr/bin \
     LIBDIR=/usr/lib \
     LIBEXECDIR=/usr/lib \
     install
-
-  # remove empty directory
-  rmdir "$pkgdir/usr/include/compel/common/asm"
+  python -m installer --destdir="$pkgdir" crit/dist/*.whl
+  python -m installer --destdir="$pkgdir" lib/dist/*.whl
+  # Remove empty directory to silence namcap warning.
+  rm -r "$pkgdir/usr/include/compel/common/asm"
 }

@@ -1,0 +1,253 @@
+# accessibility-inspector failed to build
+akonadi-24.12.3-1-avh040-x86_64.avh.tar.zst
+libakonadi-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-calendar-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-calendar-tools-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-contacts-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-import-wizard-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-mime-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadi-search-24.12.3-1-avh040-x86_64.avh.tar.zst
+akonadiconsole-24.12.3-1-avh040-x86_64.avh.tar.zst
+akregator-24.12.3-1-avh040-x86_64.avh.tar.zst
+alligator-24.12.3-1-avh040-x86_64.avh.tar.zst
+analitza-24.12.3-1-avh040-x86_64.avh.tar.zst
+# angelfish failed to build
+arianna-24.12.3-1-avh040-x86_64.avh.tar.zst
+ark-24.12.3-1-avh040-x86_64.avh.tar.zst
+# artikulate failed to build
+audex-24.12.3-1-avh040-x86_64.avh.tar.zst
+audiocd-kio-24.12.3-1-avh040-x86_64.avh.tar.zst
+# audiotube failed to build
+baloo-widgets-24.12.3-1-avh040-x86_64.avh.tar.zst
+# blinken failed to build
+# bomber failed to build
+# bovo failed to build
+calendarsupport-24.12.3-1-avh040-x86_64.avh.tar.zst
+calindori-24.12.3-1-avh040-x86_64.avh.tar.zst
+# calligra failed to build
+# cantor failed to build
+# cervisia failed to build
+# colord-kde failed to build
+dolphin-24.12.3-1-avh040-x86_64.avh.tar.zst
+dolphin-plugins-24.12.3-1-avh040-x86_64.avh.tar.zst
+dragon-24.12.3-1-avh040-x86_64.avh.tar.zst
+elisa-24.12.3-1-avh040-x86_64.avh.tar.zst
+# eventviews failed to build
+falkon-24.12.3-1-avh040-x86_64.avh.tar.zst
+ffmpegthumbs-24.12.3-1-avh040-x86_64.avh.tar.zst
+filelight-24.12.3-1-avh040-x86_64.avh.tar.zst
+francis-24.12.3-1-avh040-x86_64.avh.tar.zst
+ghostwriter-24.12.3-1-avh040-x86_64.avh.tar.zst
+# granatier failed to build
+grantlee-editor-24.12.3-1-avh040-x86_64.avh.tar.zst
+grantleetheme-24.12.3-1-avh040-x86_64.avh.tar.zst
+# gwenview failed to build
+# incidenceeditor failed to build
+isoimagewriter
+# itinerary failed to build
+juk-24.12.3-1-avh040-x86_64.avh.tar.zst
+k3b-24.12.3-1-avh040-x86_64.avh.tar.zst
+kaccounts-integration-24.12.3-1-avh040-x86_64.avh.tar.zst
+kaccounts-providers-24.12.3-1-avh040-x86_64.avh.tar.zst
+kaddressbook-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kajongg failed to build
+# kalarm failed to build
+kalgebra-24.12.3-1-avh040-x86_64.avh.tar.zst
+kalk-24.12.3-1-avh040-x86_64.avh.tar.zst
+kalm-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kalzium failed to build
+kamera-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kamoso failed to build
+# kanagram failed to build
+# kapman failed to build
+kapptemplate-24.12.3-1-avh040-x86_64.avh.tar.zst
+kasts-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kate failed to build
+# katomic failed to build
+kbackup-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kblackbox failed to build
+# kblocks failed to build
+# kbounce failed to build
+# kbreakout failed to build
+kbruch-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcachegrind-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcachegrind-common-24.12.3-1-avh040-x86_64.avh.tar.zst
+qcachegrind-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcalc-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcalutils-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcharselect-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcolorchooser-24.12.3-1-avh040-x86_64.avh.tar.zst
+kcron-24.12.3-1-avh040-x86_64.avh.tar.zst
+kde-dev-scripts-24.12.3-1-avh040-x86_64.avh.tar.zst
+kde-dev-utils-24.12.3-1-avh040-x86_64.avh.tar.zst
+kde-inotify-survey-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdebugsettings-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdeconnect-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdeedu-data-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdegraphics-mobipocket-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdegraphics-thumbnailers-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdenetwork-filesharing-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdenlive-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kdepim-addons failed to build
+kdepim-runtime-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdesdk-kio-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdesdk-thumbnailers-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kdev-php failed to build
+# kdev-python failed to build
+kdevelop-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdf-24.12.3-1-avh040-x86_64.avh.tar.zst
+kdialog-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kdiamond failed to build
+keditbookmarks-24.12.3-1-avh040-x86_64.avh.tar.zst
+keysmith-24.12.3-1-avh040-x86_64.avh.tar.zst
+kfind-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kfourinline failed to build
+kgeography-24.12.3-1-avh040-x86_64.avh.tar.zst
+kget-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kgoldrunner failed to build
+kgpg-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kgraphviewer failed to build
+# khangman failed to build
+khealthcertificate
+khelpcenter-24.12.3-1-avh040-x86_64.avh.tar.zst
+kidentitymanagement-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kig failed to build
+# kigo failed to build
+# killbots failed to build
+kimagemapeditor-24.12.3-1-avh040-x86_64.avh.tar.zst
+kimap-24.12.3-1-avh040-x86_64.avh.tar.zst
+kio-admin-24.12.3-1-avh040-x86_64.avh.tar.zst
+kio-extras-24.12.3-1-avh040-x86_64.avh.tar.zst
+kio-gdrive-24.12.3-1-avh040-x86_64.avh.tar.zst
+kio-zeroconf-24.12.3-1-avh040-x86_64.avh.tar.zst
+kirigami-gallery-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kiriki failed to build
+kiten-24.12.3-1-avh040-x86_64.avh.tar.zst
+kitinerary-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kjumpingcube failed to build
+kldap-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kleopatra failed to build
+klettres-24.12.3-1-avh040-x86_64.avh.tar.zst
+# klickety failed to build
+# klines failed to build
+kmag-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kmahjongg failed to build
+kmail-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmail-account-wizard-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmailtransport-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmbox-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmime-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kmines failed to build
+kmix-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmousetool-24.12.3-1-avh040-x86_64.avh.tar.zst
+kmouth-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kmplot failed to build
+# knavalbattle failed to build
+# knetwalk failed to build
+# knights failed to build
+# koko failed to build
+# kolf failed to build
+# kollision failed to build
+kolourpaint-24.12.3-1-avh040-x86_64.avh.tar.zst
+kompare-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kongress failed to build
+konqueror-24.12.3-1-avh040-x86_64.avh.tar.zst
+# konquest failed to build
+konsole-24.12.3-1-avh040-x86_64.avh.tar.zst
+kontact-24.12.3-1-avh040-x86_64.avh.tar.zst
+kontactinterface-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kontrast failed to build
+konversation-24.12.3-1-avh040-x86_64.avh.tar.zst
+kopeninghours-24.12.3-1-avh040-x86_64.avh.tar.zst
+# korganizer failed to build
+# kosmindoormap failed to build
+# kpat failed to build
+kpimtextedit-24.12.3-1-avh040-x86_64.avh.tar.zst
+kpkpass-24.12.3-1-avh040-x86_64.avh.tar.zst
+kpmcore-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kpublictransport failed to build
+kqtquickcharts-24.12.3-1-avh040-x86_64.avh.tar.zst
+# krdc failed to build
+krecorder-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kreversi failed to build
+krfb-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kross-interpreters failed to build
+kruler-24.12.3-1-avh040-x86_64.avh.tar.zst
+ksanecore-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kshisen failed to build
+# ksirk failed to build
+ksmtp-24.12.3-1-avh040-x86_64.avh.tar.zst
+# ksnakeduel failed to build
+# kspaceduel failed to build
+# ksquares failed to build
+# ksudoku failed to build
+# ksystemlog failed to build
+# kteatime failed to build
+ktimer-24.12.3-1-avh040-x86_64.avh.tar.zst
+ktnef-24.12.3-1-avh040-x86_64.avh.tar.zst
+ktorrent-24.12.3-1-avh040-x86_64.avh.tar.zst
+# ktouch failed to build
+# ktrip failed to build
+# ktuberling failed to build
+kturtle-24.12.3-1-avh040-x86_64.avh.tar.zst
+# kubrick failed to build
+kunifiedpush
+kwalletmanager-24.12.3-1-avh040-x86_64.avh.tar.zst
+kwave-24.12.3-1-avh040-x86_64.avh.tar.zst
+kweather-24.12.3-1-avh040-x86_64.avh.tar.zst
+kweathercore-24.12.3-1-avh040-x86_64.avh.tar.zst
+kwordquiz-24.12.3-1-avh040-x86_64.avh.tar.zst
+libgravatar-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkcddb-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkcompactdisc-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkdcraw-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkdegames-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkdepim-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkeduvocdocument-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkexiv2-24.12.3-1-avh040-x86_64.avh.tar.zst
+# libkexiv2-qt5 failed to build
+libkgapi-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkleo-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkmahjongg-24.12.3-1-avh040-x86_64.avh.tar.zst
+libkomparediff2-24.12.3-1-avh040-x86_64.avh.tar.zst
+libksane-24.12.3-1-avh040-x86_64.avh.tar.zst
+libksieve-24.12.3-1-avh040-x86_64.avh.tar.zst
+libktorrent-24.12.3-1-avh040-x86_64.avh.tar.zst
+lokalize-24.12.3-1-avh040-x86_64.avh.tar.zst
+lskat-24.12.3-1-avh040-x86_64.avh.tar.zst
+mailcommon-24.12.3-1-avh040-x86_64.avh.tar.zst
+mailimporter-24.12.3-1-avh040-x86_64.avh.tar.zst
+# marble failed to build
+markdownpart-24.12.3-1-avh040-x86_64.avh.tar.zst
+# massif-visualizer failed to build
+mbox-importer-24.12.3-1-avh040-x86_64.avh.tar.zst
+# merkuro failed to build
+messagelib-24.12.3-1-avh040-x86_64.avh.tar.zst
+mimetreeparser
+# minuet failed to build
+# neochat failed to build
+# okular failed to build
+# palapeli failed to build
+parley-24.12.3-1-avh040-x86_64.avh.tar.zst
+partitionmanager-24.12.3-1-avh040-x86_64.avh.tar.zst
+picmi-24.12.3-1-avh040-x86_64.avh.tar.zst
+pim-data-exporter-24.12.3-1-avh040-x86_64.avh.tar.zst
+pim-sieve-editor-24.12.3-1-avh040-x86_64.avh.tar.zst
+pimcommon-24.12.3-1-avh040-x86_64.avh.tar.zst
+plasmatube-24.12.3-1-avh040-x86_64.avh.tar.zst
+poxml-24.12.3-1-avh040-x86_64.avh.tar.zst
+qmlkonsole-24.12.3-1-avh040-x86_64.avh.tar.zst
+# rocs failed to build                                              // Require KF5
+signon-kwallet-extension-24.12.3-1-avh040-x86_64.avh.tar.zst
+skanlite-24.12.3-1-avh040-x86_64.avh.tar.zst
+# skanpage failed to build                                          // Require KF5
+skladnik-24.12.3-1-avh040-x86_64.avh.tar.zst
+spectacle-24.12.3-1-avh040-x86_64.avh.tar.zst
+# step failed to build                                              // Require KF5
+svgpart-24.12.3-1-avh040-x86_64.avh.tar.zst
+sweeper-24.12.3-1-avh040-x86_64.avh.tar.zst
+telly-skout-24.12.3-1-avh040-x86_64.avh.tar.zst
+# tokodon failed to build                                           // Require KF5
+# umbrello failed to build
+yakuake-24.12.3-1-avh040-x86_64.avh.tar.zst
+zanshin-24.12.3-1-avh040-x86_64.avh.tar.zst

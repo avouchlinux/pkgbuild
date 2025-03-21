@@ -1,43 +1,48 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=shotcut
 pkgdesc='Cross-platform Qt based Video Editor'
-pkgver=21.10.31
+pkgver=24.10.29
 pkgrel=1
 arch=('x86_64')
 groups=('media-video')
 url='https://www.shotcut.org'
 license=('GPL3')
-depends=('qt5-base' 'qt5-declarative' 'qt5-graphicaleffects' 'qt5-multimedia'
-         'qt5-quickcontrols' 'qt5-quickcontrols2' 'qt5-websockets' 'qt5-x11extras'
-         'mlt' 'movit' 'ffmpeg' 'libx264' 'libvpx' 'lame' 'frei0r-plugins' 'ladspa')
-optdepends=('swh-plugins: Several audio filters')
-makedepends=('qt5-tools')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/mltframework/shotcut/archive/v$pkgver.tar.gz")
-sha512sums=('de5d9992a41217323b3d96cc7618ed5adc633e7d0e65b6f8f189405008f6faba011a80f38cda0126b18ab28a359f6784078cb298b2ee29dcdfdc6769963714f3')
+depends=('qt6-base' 'qt6-declarative' 'qt6-imageformats' 'qt6-multimedia' 'qt6-translations'
+         'mlt' 'movit' 'ffmpeg' 'libx264' 'libvpx' 'lame' 'frei0r-plugins' 'ladspa' 'qt6-charts')
+optdepends=('swh-plugins: Several audio filters'
+            'opencv: For motion tracking')
+makedepends=('qt6-tools' 'git' 'cmake' 'ninja' 'clang')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/mltframework/$pkgname/archive/refs/tags/v$pkgver.tar.gz")
+sha512sums=('ab3d0679cf5a54d66ff086e1e2d69f9c8928777727131d185bf8b68e480ca23dbe5227ab8bc60b998a5557eca76795176fe0d27a09f87406f36509d87468ed36')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+
+  sed -e 's|${Qt6_LUPDATE_EXECUTABLE}|/usr/lib/qt6/bin/lupdate|' -i translations/CMakeLists.txt
+}
 
 build() {
-  mkdir $pkgname-$pkgver/build
-  cd $pkgname-$pkgver/build
+  cd "$pkgname-$pkgver"
 
-  qmake .. \
-    PREFIX='/usr' \
-    QMAKE_CFLAGS_RELEASE="$CFLAGS" \
-    QMAKE_CXXFLAGS_RELEASE="$CXXFLAGS" \
-    SHOTCUT_VERSION=Avouch-$pkgver \
-    DEFINES+=SHOTCUT_NOUPGRADE
+  # https://github.com/mltframework/shotcut/issues/1275
+  export CXXFLAGS+=" -DSHOTCUT_NOUPGRADE"
 
-  make ${MAKEFLAGS}
-
-  lrelease ../translations/*.ts
+  cmake \
+    -Bbuild \
+    -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DSHOTCUT_VERSION=${pkgver}
+  cmake --build build --verbose
 }
 
 package() {
-    cd $pkgname-$pkgver/build
+  cd "$pkgname-$pkgver"
 
-    make INSTALL_ROOT="$pkgdir" install
+  DESTDIR="${pkgdir}" cmake --install build
 }
 

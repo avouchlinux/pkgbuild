@@ -1,26 +1,29 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libiptcdata
-pkgver=1.0.4
+pkgver=1.0.5
 pkgrel=1
 pkgdesc="Library for manipulating the IPTC metadata"
 arch=('x86_64')
 groups=('sys-libs')
-url="http://libiptcdata.sourceforge.net/"
-license=('GPL')
+url='https://libiptcdata.sourceforge.net/'
+license=('LGPL-2.0-or-later')
 depends=('glibc')
-source=(https://downloads.sourceforge.net/sourceforge/libiptcdata/$pkgname-$pkgver.tar.gz)
+makedepends=('python')
+optdepends=('python: Python bindings')
+source=("https://github.com/ianw/libiptcdata/releases/download/release_${pkgver//./_}/$pkgname-$pkgver.tar.gz")
+sha256sums=('c094d0df4595520f194f6f47b13c7652b7ecd67284ac27ab5f219bc3985ea29e')
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
-
-  ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --enable-python
+  make
 }
 
 package() {
-  cd "$srcdir/$pkgname-$pkgver"
-  make DESTDIR="$pkgdir/" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
 }

@@ -1,32 +1,27 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-imageformats
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.10+kde+r9
-pkgrel=2
-_commit=5aa33ec870977863c400103db94da452edbaf414
+_basever=5.15.15
+pkgver=5.15.15+kde+r4
+pkgrel=1
+_commit=9f658c2093e81d1dc3333e594cc1aa4b0990e221
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='Plugins for additional image formats: TIFF, MNG, TGA, WBMP'
 depends=('qt5-base' 'jasper' 'libmng' 'libwebp')
 makedepends=('git')
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')  
-options=(debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
+_pkgfqn=${pkgname/5-/}
+source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit)
+sha256sums=('510240996f5a6307cb8156dfeb362a666b6ef31110538929b3c3d021cde18992')
 
 pkgver() {
-  cd $_realname
-  git checkout $_commit
+  cd kde-$_pkgfqn
   echo "$_basever+kde+r"`git rev-list --count v$_basever-lts-lgpl..$_commit` | sed -e 's|+kde+r0||'
 }
 
@@ -37,8 +32,8 @@ prepare() {
 build() {
   cd build
 
-  qmake ../${_realname}
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn
+  make
 }
 
 package() {

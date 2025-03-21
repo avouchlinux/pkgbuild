@@ -1,35 +1,58 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=akonadi-search
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Libraries and daemons to implement searching in Akonadi"
-url='https://community.kde.org/KDE_PIM'
 arch=('x86_64')
-groups=('kde-apps')
-license=(GPL LGPL FDL)
-depends=(xapian-core akonadi-mime kcontacts kcalcore krunner kcmutils)
-makedepends=(extra-cmake-modules kdoctools boost python kdesignerplugin)
-source=("https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-
-prepare() {
-  mkdir -p build
-}
+groups=('kde-release-services')
+url='https://kontact.kde.org'
+arch=(x86_64)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(akonadi-mime
+         gcc-libs
+         glibc
+         kcalendarcore
+         kcmutils
+         kcodecs
+         kcompletion
+         kconfig
+         kcontacts
+         kcoreaddons
+         ki18n
+         kmime
+         krunner
+         ktextaddons
+         kwidgetsaddons
+         libakonadi
+         qt6-base
+         xapian-core)
+makedepends=(corrosion
+             doxygen
+             extra-cmake-modules
+             qt6-doc
+             qt6-tools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('976d686525b9cd5c827d335cd1c9643afa0d09d8f1dda9ae5aeef67ef8929c5c'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+options=(!lto)
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DKDE_INSTALL_LIBDIR=lib \
-    -DBUILD_TESTING=OFF 
-    -DBUILD_QCH=ON
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF \
+        -DBUILD_QCH=ON
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

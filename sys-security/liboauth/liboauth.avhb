@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=liboauth
-pkgver=1.0.3
+pkgver=1.0.3+r16+gc26f038
 pkgrel=1
 pkgdesc="C library implementing OAuth Core RFC 5849"
 arch=('x86_64')
@@ -13,28 +13,35 @@ url="https://github.com/x42/liboauth"
 license=(MIT)
 depends=(curl nss)
 makedepends=(git)
-source=("https://github.com/x42/liboauth/archive/refs/tags/v$pkgver.tar.gz")
-
+_commit=c26f038eb9a4d97782e3f9f1e3da2b9356581869  # master
+source=("git+$url#commit=$_commit")
+sha256sums=('SKIP')
 
 prepare() {
-	cd $pkgname-$pkgver
-	autoreconf -fvi
+  cd liboauth
+  autoreconf -fvi
+}
+
+pkgver() {
+  cd liboauth
+  git describe --tags | sed 's/^v//;s/[^-]*-g/r&/;s/-/+/g'
 }
 
 build() {
-	cd $pkgname-$pkgver
-	./configure --prefix=/usr --disable-static --enable-nss
-	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-	make
+  cd liboauth
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-static --enable-nss
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
-	cd $pkgname-$pkgver
-	make check
+  cd liboauth
+  make check
 }
 
 package() {
-	cd $pkgname-$pkgver
-	make DESTDIR="$pkgdir" install
-	install -Dm644 COPYING.MIT "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+  cd liboauth
+  make DESTDIR="$pkgdir" install
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING.MIT
 }

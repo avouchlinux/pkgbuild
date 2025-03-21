@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -16,6 +17,7 @@ source=("https://gitlab.gnome.org/GNOME/clutter-gst/-/archive/$pkgver/clutter-gs
 
 prepare() {
     cd $pkgname-$pkgver
+    patch -Np1 -i ../0001-video-sink-Remove-RGBx-BGRx-support.patch
     NOCONFIGURE=1 ./autogen.sh
 }
 

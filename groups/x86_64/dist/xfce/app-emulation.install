@@ -1,0 +1,33 @@
+bochs-2.6.11-1-avh02-x86_64.avhp.tar.zstd
+bubblewrap-0.6.1-1-avh02-x86_64.avhp.tar.zstd
+bubblewrap-suid-0.6.1-1-avh02-x86_64.avhp.tar.zstd
+faudio-21.01-1-avh02-x86_64.avhp.tar.zstd
+libcacard-2.5.3-1-avh02-x86_64.avhp.tar.zstd
+libslirp-4.3.0-1-avh02-x86_64.avhp.tar.zstd
+# libvirt-6.4.0-1-avh02-x86_64.avhp.tar.zstd
+# libvirt-storage-gluster-6.4.0-1-avh02-x86_64.avhp.tar.zstd
+# libvirt-storage-iscsi-direct-6.4.0-1-avh02-x86_64.avhp.tar.zstd
+# libvirt-storage-rbd-6.4.0-1-avh02-x86_64.avhp.tar.zstd
+# libvirt-glib-4.0.0-1-avh02-x86_64.avhp.tar.zstd
+# lxc-4.0.9-1-avh02-x86_64.avhp.tar.zstd
+# mame-0.231-1-avh02-x86_64.avhp.tar.zstd
+# mame-tools-0.231-1-avh02-x86_64.avhp.tar.zstd
+# playonlinux-4.3.4-1-avh02-x86_64.avhp.tar.zstd
+# q4wine-1.3.12-1-avh02-x86_64.avhp.tar.zstd
+# qemu-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-headless-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-arch-extra-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-headless-arch-extra-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-block-iscsi-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-block-rbd-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-block-gluster-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# qemu-guest-agent-6.1.0-1-avh02-x86_64.avhp.tar.zstd
+# sdlmame
+# tilix
+# vde2-2.3.2-1-avh02-x86_64.avhp.tar.zstd
+# wine
+# wine-gecko
+# wine-mono-5.1.1-1-avh02-x86_64.avhp.tar.zstd
+# winetricks-20201206-1-avh02-x86_64.avhp.tar.zstd
+# xen
+# zsnes

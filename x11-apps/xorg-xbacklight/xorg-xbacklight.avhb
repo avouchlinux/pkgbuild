@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -9,21 +10,25 @@ pkgrel=1
 pkgdesc="RandR-based backlight control application"
 arch=('x86_64')
 groups=('x11-apps')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 license=('custom')
 depends=('xcb-util')
-makedepends=('xorg-util-macros')
-source=(http://xorg.freedesktop.org/archive/individual/app/xbacklight-${pkgver}.tar.bz2)
+makedepends=('xorg-util-macros' 'xorgproto')
+groups=('xorg-apps' 'xorg')
+source=(https://xorg.freedesktop.org/archive/individual/app/xbacklight-${pkgver}.tar.bz2{,.sig})
+sha512sums=('717c87ce24634892fc4ac54fc59dcc0a5bc8f206aaf1d13410f95f7e4fe6e3dbc7ff8d951bcd8ea8c5e955357a00fea6ceadd4559e60b1a632e40f71290e12c7'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd xbacklight-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd xbacklight-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

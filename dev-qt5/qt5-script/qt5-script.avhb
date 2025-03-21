@@ -1,34 +1,25 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=qt5-script
 _realname=${pkgname/5-/}
-_basever=5.15.10
-pkgver=5.15.15
+_basever=5.15.15
+pkgver=5.15.18
 pkgrel=1
 arch=('x86_64')
-groups=('dev-qt')
+groups=('dev-qt5')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
 pkgdesc='Classes for making Qt applications scriptable. Provided for Qt 4.x compatibility'
 depends=('qt5-base')
 makedepends=('git')
+groups=('qt5')
 _pkgfqn=${pkgname/5-/}
-source=(https://invent.kde.org/qt/qt/$_realname.git)
-sha256sums=('SKIP')
-options=(!lto debug)
-
-getsrc(){
-  git clone ${source[0]}
-}
-
-pkgver() {
-  cd $_realname
-  git checkout v${pkgver}-lts
-  echo `git describe`
-}
+source=(kde-$_pkgfqn::git+https://code.qt.io/qt/$_pkgfqn.git#tag=v${pkgver}-lts)
+sha256sums=('cb3384f9a96a73a1fd413ba841b9961430bd818f3990a36a9663e3edecc4aa9f')
+options=(!lto)
 
 prepare() {
   mkdir -p build
@@ -38,8 +29,8 @@ build() {
   cd build
 
 # Disable LTO, see FS#73264
-  qmake ../${_pkgfqn} CONFIG-=ltcg
-  make ${MAKEFLAGS}
+  qmake ../kde-$_pkgfqn CONFIG-=ltcg
+  make
 }
 
 package() {

@@ -1,31 +1,36 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxft
 _realname=libXft
-pkgver=2.3.4
+pkgver=2.3.8
 pkgrel=1
 pkgdesc="FreeType-based font drawing library for X"
 arch=('x86_64')
 groups=('x11-libs')
 license=('custom')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 depends=('fontconfig' 'libxrender')
 makedepends=('pkgconfig')
-source=("${url}/releases/individual/lib/libXft-${pkgver}.tar.bz2"
-        freetype_header.patch)
-sha256sums=('7fce32b92dcb7b2869bed567af2abc7bbad0d5d6fcf471b8a3e137964a31bbbd'
-            '991c91998e61e83061c6c08218a2e6ac5643f16183750f73ee74f29fdd440be9')
+source=(${url}/releases/individual/lib/libXft-${pkgver}.tar.xz{,.sig})
+sha512sums=('fc385d73e1acb701942c154ffb5a283d17891f21d3ac598c4a3fb375a7d6082734593062368c15cad67c1a94177dd15deed878ec5ea852188393b52e92c372c8'
+            'SKIP')
+#validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
+#validpgpkeys=('19882D92DDA4C400C22C0D56CC2AF4472167BE03') # Thomas E. Dickey (use for email) <dickey@his.com>
+validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # Matt Turner <mattst88@gmail.com>
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  cd libXft-${pkgver}
+  ./configure --prefix=/usr --sysconfdir=/etc --disable-static
+  make
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd libXft-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -d -m755 "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+
 }

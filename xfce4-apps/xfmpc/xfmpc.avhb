@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfmpc
-pkgver=0.3.0
+pkgver=0.3.1
 pkgrel=1
 pkgdesc="A graphical GTK+ MPD client focusing on low footprint"
 arch=('x86_64')
@@ -17,8 +17,10 @@ source=("https://archive.xfce.org/src/apps/${pkgname}/${pkgver%.*}/${pkgname}-${
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
+    # GCC=14
+    export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
 	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

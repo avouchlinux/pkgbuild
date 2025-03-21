@@ -1,34 +1,37 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=zenity
-pkgver=3.44.2
+pkgver=4.0.5
 pkgrel=1
 pkgdesc="Display graphical dialog boxes from shell scripts"
 url="https://gitlab.gnome.org/GNOME/zenity"
 arch=('x86_64')
 groups=('gnome-base')
-license=(LGPL)
-depends=(webkit2gtk libnotify)
+license=(LGPL-2.1-or-later)
 depends=(
-  gtk3
-  libnotify
+  gcc-libs
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  pango
 )
 makedepends=(
   git
+  glib2-devel
+  help2man
   meson
+  util-linux
   yelp-tools
 )
-optdepends=('perl: gdialog wrapper')
-
-source=(https://gitlab.gnome.org/GNOME/zenity.git)
+source=(https://gitlab.gnome.org/GNOME/zenity/-/archive/$pkgver/zenity-$pkgver.tar.bz2)
 
 build() {
-    local meson_options=(
-        -D libnotify=true
-    )
+    local meson_options=()
 
     avouch-meson ${pkgname}-${pkgver} build "${meson_options[@]}"
     meson compile -C build
@@ -37,4 +40,5 @@ build() {
 
 package() {
     DESTDIR="$pkgdir" meson install -C build
+    hardlink -c "$pkgdir/usr/share/help"
 }

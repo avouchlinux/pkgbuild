@@ -1,31 +1,82 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=eog
-pkgver=45.0
+pkgbase=eog
+pkgname=(
+  eog
+  eog-docs
+)
+pkgver=47.0
 pkgrel=1
 pkgdesc="Eye of Gnome: An image viewing and cataloging program"
 url="https://wiki.gnome.org/Apps/EyeOfGnome"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(gnome-desktop libexif lcms2 exempi libpeas librsvg dconf)
-makedepends=(gobject-introspection gtk-doc git meson yelp-tools)
-optdepends=('eog-plugins: Additional features')
-options=(!emptydirs)
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+arch=(x86_64)
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  dconf
+  exempi
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnome-desktop
+  gtk3
+  hicolor-icon-theme
+  lcms2
+  libexif
+  libgirepository
+  libhandy
+  libjpeg-turbo
+  libpeas
+  librsvg
+  libx11
+  webp-pixbuf-loader
+  zlib
+)
+makedepends=(
+  gi-docgen
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+  systemd
+  yelp-tools
+)
+source=("https://gitlab.gnome.org/GNOME/eog/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2")
+b2sums=('c7875b5faa571941924353e734587b1e7cdd19867b7d57d5f8b3f2a4103e3aa5b62dc1d8c1abee3cdeea63524aee6dc346d697cc4059baf3a3fd39321584c80f')
 
 build() {
-  avouch-meson $pkgname-$pkgver build -D gtk_doc=true
-  ninja -C build
+  local meson_options=(
+    -D gtk_doc=true
+    -D libportal=false
+  )
+
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
   meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+package_eog() {
+  optdepends=('eog-plugins: Additional features')
+  groups=(gnome-extra)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/gtk-doc
+}
+
+package_eog-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

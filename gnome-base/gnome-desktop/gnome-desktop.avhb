@@ -1,34 +1,131 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gnome-desktop
-pkgver=44.0
+pkgbase=gnome-desktop
+pkgname=(
+  gnome-desktop-common
+  gnome-desktop
+  gnome-desktop-4
+  gnome-desktop-docs
+)
+pkgver=44.1
+
 pkgrel=1
 epoch=1
 pkgdesc="Library with common API for various GNOME modules"
-url="https://gitlab.gnome.org/GNOME/gnome-desktop"
 arch=(x86_64)
 groups=('gnome-base')
-license=(GPL LGPL)
-depends=(gsettings-desktop-schemas gtk3 libxkbfile xkeyboard-config iso-codes libseccomp bubblewrap)
-makedepends=(gobject-introspection git meson gtk-doc yelp-tools)
+url="https://gitlab.gnome.org/GNOME/gnome-desktop"
+arch=(x86_64)
+license=(
+  GPL
+  LGPL
+)
+depends=(
+  bubblewrap
+  cairo
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gsettings-desktop-schemas
+  iso-codes
+  libseccomp
+  libxkbcommon
+  systemd-libs
+  xkeyboard-config
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  gtk3
+  gtk4
+  meson
+  systemd
+  yelp-tools
+)
+
 checkdepends=(xorg-server-xvfb)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+source=("git+https://gitlab.gnome.org/GNOME/gnome-desktop.git#tag=${pkgver/[a-z]/.&}")
+b2sums=('22c8885f9c5bff5b14756d2f406b3830533a49e9412637ab0cbb20fcf8ac9ab8d6d50899e2a7846bdcf41da59e3985c1b8ee3e027101222a869ee4ba9f26d694')
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    -D build_gtk4=true \
+  local meson_options=(
+    -D debug_tools=false
     -D gtk_doc=true
-  ninja -C build
+  )
+
+  avouch-meson $pkgbase build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-  # tests broken: missing locale he_IL.UTF-8
-  xvfb-run meson test -C build --print-errorlogs || :
+  dbus-run-session xvfb-run -s '-nolisten local' \
+    meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_gnome-desktop-common() {
+  pkgdesc+=" (common files)"
+  depends=()
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick gtk3 usr/include/gnome-desktop-3.0
+  _pick gtk3 usr/lib/libgnome-desktop-3.so*
+  _pick gtk3 usr/lib/pkgconfig/gnome-desktop-3.0.pc
+  _pick gtk3 usr/lib/girepository-1.0/GnomeDesktop-3.0.typelib
+  _pick gtk3 usr/share/gir-1.0/GnomeDesktop-3.0.gir
+
+  _pick gtk4 usr/include/gnome-desktop-4.0
+  _pick gtk4 usr/lib/libgnome-*-4.so*
+  _pick gtk4 usr/lib/pkgconfig/gnome-*-4.pc
+  _pick gtk4 usr/lib/girepository-1.0/Gnome*-4.0.typelib
+  _pick gtk4 usr/share/gir-1.0/Gnome*-4.0.gir
+
+  _pick docs usr/share/gtk-doc
+}
+
+package_gnome-desktop() {
+  pkgdesc+=" using GTK 3"
+  depends+=(
+    "gnome-desktop-common=$epoch:$pkgver-$pkgrel"
+    gtk3
+  )
+  provides=(libgnome-desktop-3.so)
+
+  mv gtk3/* "$pkgdir"
+}
+
+package_gnome-desktop-4() {
+  pkgdesc+=" using GTK 4"
+  depends+=(
+    "gnome-desktop-common=$epoch:$pkgver-$pkgrel"
+    gtk4
+  )
+  provides=(libgnome-{bg,desktop,rr}-4.so)
+
+  mv gtk4/* "$pkgdir"
+}
+
+package_gnome-desktop-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv docs/* "$pkgdir"
 }

@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=easy-rsa
 _realname=EasyRSA
-pkgver=3.1.0
+pkgver=3.2.1
 pkgrel=1
 pkgdesc='Simple shell based CA utility'
 arch=('any')

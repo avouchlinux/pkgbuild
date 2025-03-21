@@ -1,7 +1,8 @@
 # default avouch groups
+# groups first
 g root 0 - -
-g bin 1 - -
-g daemon 2 - -
+# g bin 1 - -
+# g daemon 2 - -
 g sys 3 - -
 g mem 8 - -
 g usb 14 - -

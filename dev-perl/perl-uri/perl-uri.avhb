@@ -1,39 +1,35 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=perl-uri
 _realname=URI
-pkgver=5.09
+pkgver=5.31
 pkgrel=1
 pkgdesc="Uniform Resource Identifiers (absolute and relative)"
 arch=('any')
 groups=('dev-perl')
-url="http://search.cpan.org/dist/${_realname}/"
+url="https://search.cpan.org/dist/URI/"
 license=('PerlArtistic')
 depends=('perl')
-provides=('perl-uri-escape=3.30')
+checkdepends=('perl-test-fatal' 'perl-test-needs' 'perl-test-warnings' 'perl-mime-base32')
 options=('!emptydirs')
-source=("http://cpan.metacpan.org/authors/id/E/ET/ETHER/${_realname}-${pkgver}.tar.gz")
+source=("https://cpan.metacpan.org/authors/id/O/OA/OALDERS/URI-$pkgver.tar.gz")
+sha512sums=('b086e3e1b5f13362a9c49f99888773d76ca2d042ff0a0f73650f1e4e76be0d04a6e78206ec8dd4d3098a5bdc9daacfe4ba8779b08f79203bbe45b6ef240852eb')
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	# install module in vendor directories.
-	perl Makefile.PL INSTALLDIRS=vendor
-	make
+  cd URI-$pkgver
+  perl Makefile.PL INSTALLDIRS=vendor
+  make
 }
 
 check() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	# make test
+  cd URI-$pkgver
+  make test
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-
-	find $pkgdir -name '.packlist' -delete
-	find $pkgdir -name '*.pod' -delete
+  cd URI-$pkgver
+  make install DESTDIR="$pkgdir"
 }
-

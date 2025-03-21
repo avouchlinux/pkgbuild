@@ -1,41 +1,46 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pangox-compat
-pkgver=0.0.2
+pkgver=0.0.2+2+gedb9e09
 pkgrel=1
 pkgdesc="X Window System font support for Pango"
 arch=('x86_64')
+url="http://www.pango.org/"
 groups=('x11-libs')
 license=('LGPL')
 depends=('pango')
 makedepends=(git)
 _commit=edb9e0904d04d1da02bba7b78601a2aba05aaa47  # master
-source=("https://gitlab.gnome.org/Archive/pangox-compat/-/archive/$pkgver/pangox-compat-$pkgver.tar.bz2"
+source=("git+https://gitlab.gnome.org/Archive/pangox-compat#commit=$_commit"
         0001-Re-add-pango_x_get_shaper_map-it-is-still-used-in-th.patch)
-url="http://www.pango.org/"
-options=(!strip)
+sha256sums=('SKIP'
+            'd5aad903439ede05b866c9a2962f293bec4897f07d5a7b07ebc5aa99eeb27e48')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/-/+/g'
+}
 
 prepare() {
-  cd $pkgname-$pkgver
-  #patch -Np1 -i ../0001-Re-add-pango_x_get_shaper_map-it-is-still-used-in-th.patch
-  patch -Np1 -i ../fix_ind_shaper_for_module-less_pango.patch
-  patch -Nup1 -i '../0002-disable-shaper.patch'
+  cd $pkgname
+  patch -Np1 -i ../0001-Re-add-pango_x_get_shaper_map-it-is-still-used-in-th.patch
+  patch -Np1 -i ../0002-disable-shaper.patch
   NOCONFIGURE=1 ./autogen.sh
 }
 
 build() {
-  cd $pkgname-$pkgver
-
+  cd $pkgname
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration -Wno-int-conversion -Wno-deprecated-declarations"
   ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
     --disable-static
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make -j1 DESTDIR="${pkgdir}" install
 }

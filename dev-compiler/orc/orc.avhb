@@ -1,18 +1,25 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=orc
-pkgver=0.4.31
+pkgver=0.4.38
 pkgrel=1
 pkgdesc="Optimized Inner Loop Runtime Compiler"
 arch=('x86_64')
 groups=('dev-compiler')
 license=(custom)
 url="https://cgit.freedesktop.org/gstreamer/orc/"
-depends=(glibc)
-makedepends=(valgrind git gtk-doc meson)
+depends=(
+  glibc
+)
+makedepends=(
+  git
+  gtk-doc
+  meson
+  valgrind
+)
 source=(https://gstreamer.freedesktop.org/data/src/orc/orc-${pkgver}.tar.xz{,.asc})
 validpgpkeys=('7F4BC7CC3CA06F97336BBFEB0668CC1486C2D7B5') #Sebastian Dröge
 

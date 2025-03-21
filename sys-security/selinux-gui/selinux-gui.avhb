@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=selinux-gui
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="SELinux GUI tools"
 arch=('any')
@@ -12,8 +12,14 @@ groups=('sys-security')
 url='https://github.com/SELinuxProject/selinux/wiki'
 license=('GPL2')
 depends=('python-gobject' 'hicolor-icon-theme' 'selinux-python' 'gtk3')
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
-sha256sums=('bbd9e1799cc0c22d64c815c3033a54393f6f84947ff2841a4df60ded5eee0510')
+conflicts=('policycoreutils<2.7')
+validpgpkeys=(
+  '63191CE94183098689CAB8DB7EF137EC935B0EAF'  # Jason Zaman <perfinion@gentoo.org>
+  'B8682847764DF60DF52D992CBC3905F235179CF1'  # Petr Lautrbach <plautrba@redhat.com>
+)
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc})
+sha256sums=('7625e960586214338a5ff273a0c032b042c02bcea47a3f2aed307d46b8de9d71'
+            'SKIP')
 
 build() {
   cd "${pkgname}-${pkgver}"

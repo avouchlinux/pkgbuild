@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,7 +11,7 @@ pkgname=(
   gtk-update-icon-cache
 )
 _realname=gtk
-pkgver=4.12.3
+pkgver=4.18.1
 pkgrel=1
 pkgdesc="GObject-based multi-platform GUI toolkit"
 arch=(x86_64)
@@ -19,12 +19,14 @@ groups=('x11-libs')
 url="https://www.gtk.org/"
 depends=(
   adwaita-icon-theme
+  at-spi2-core
   cairo
   cantarell-fonts
   dconf
   desktop-file-utils
   fontconfig
   fribidi
+  gcc-libs
   gdk-pixbuf2
   glib2
   graphene
@@ -37,7 +39,7 @@ depends=(
   libegl
   libepoxy
   libgl
-  libjpeg
+  libjpeg-turbo
   libpng
   librsvg
   libtiff
@@ -53,19 +55,22 @@ depends=(
   libxrender
   pango
   shared-mime-info
-  tracker3
+  tinysparql
   wayland
 )
 makedepends=(
   docbook-xsl
   gi-docgen
   git
+  glib2-devel
   gobject-introspection
+  libsysprof-capture
   meson
   python-docutils
   python-gobject
   sassc
   shaderc
+  vulkan-headers
   wayland-protocols
 )
 checkdepends=(
@@ -75,27 +80,38 @@ checkdepends=(
   noto-fonts
   pipewire
   python-pydbus
+  vulkan-swrast
   weston
   wireplumber
 )
 license=(LGPL)
-source=(http://ftp.gnome.org/pub/gnome/sources/gtk+/${pkgver%.*}/gtk+-$pkgver.tar.xz
+source=(https://download.gnome.org/sources/gtk/${pkgver%.*}/gtk-$pkgver.tar.xz
         settings.ini)
 
+prepare() {
+  cd gtk-$pkgver
+
+  # Allow -fcf-protection to work
+  # https://gitlab.gnome.org/GNOME/gtk/-/issues/6153
+  patch -Np1 -i ../0001-HACK-Don-t-use-objcopy-for-resource-embedding.patch
+}
+
+
 build() {
-  export CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
-  local meson_options=(
-    -D broadway-backend=true
-    -D cloudproviders=enabled
-    -D colord=enabled
-    -D documentation=true
-    -D man-pages=true
-    -D tracker=enabled
-  )
+  
+    local meson_options=(
+        -D broadway-backend=true
+        -D cloudproviders=enabled
+        -D colord=enabled
+        -D documentation=true
+        -D man-pages=true
+        -D sysprof=enabled
+        -D tracker=enabled
+    )
 
-
-  avouch-meson gtk-$pkgver build "${meson_options[@]}"
-  meson compile -C build
+    export CFLAGS+=" -DG_DISABLE_CAST_CHECKS"
+    avouch-meson gtk-$pkgver build "${meson_options[@]}"
+    meson compile -C build
 }
 
 # check() (
@@ -122,7 +138,14 @@ _pick() {
 }
 
 package_gtk4() {
-  depends+=(gtk-update-icon-cache)
+  depends+=(
+    bash
+    glibc
+    gst-plugins-base-libs
+    gstreamer
+    gtk-update-icon-cache
+    vulkan-icd-loader
+  )
   optdepends=('evince: Default print preview command')
   provides=(libgtk-4.so)
 
@@ -135,25 +158,38 @@ gtk-theme-name = Adwaita
 gtk-font-name = Cantarell 11
 END
 
-
   cd "$pkgdir"
 
-  _pick guic usr/bin/gtk4-update-icon-cache
-  _pick guic usr/share/man/man1/gtk4-update-icon-cache.1
+  _pick demo usr/bin/gtk4-{demo,demo-application,icon-browser,node-editor,print-editor,widget-factory}
+  _pick demo usr/share/applications/org.gtk.{Demo4,IconBrowser4,PrintEditor4,WidgetFactory4,gtk4.NodeEditor}.desktop
+  _pick demo usr/share/glib-2.0/schemas/org.gtk.Demo4.gschema.xml
+  _pick demo usr/share/icons/hicolor/*/apps/org.gtk.{Demo4,IconBrowser4,PrintEditor4,WidgetFactory4,gtk4.NodeEditor}[-.]*
+  _pick demo usr/share/man/man1/gtk4-{demo,demo-application,icon-browser,node-editor,widget-factory}.1
+  _pick demo usr/share/metainfo/org.gtk.{Demo4,IconBrowser4,PrintEditor4,WidgetFactory4,gtk4.NodeEditor}.appdata.xml
 
   _pick docs usr/share/doc
 
-  _pick demo usr/bin/gtk4-{demo,demo-application,icon-browser,print-editor,widget-factory}
-  _pick demo usr/share/applications/org.gtk.{Demo,IconBrowser,PrintEditor,WidgetFactory}4.desktop
-  _pick demo usr/share/glib-2.0/schemas/org.gtk.Demo4.gschema.xml
-  _pick demo usr/share/icons/hicolor/*/apps/org.gtk.{Demo,IconBrowser,PrintEditor,WidgetFactory}4[-.]*
-  _pick demo usr/share/man/man1/gtk4-{demo,demo-application,icon-browser,widget-factory}.1
-  _pick demo usr/share/metainfo/org.gtk.{Demo,IconBrowser,PrintEditor,WidgetFactory}4.appdata.xml
+  # Built by GTK 4, shared with GTK 3
+  _pick guic usr/bin/gtk4-update-icon-cache
+  _pick guic usr/share/man/man1/gtk4-update-icon-cache.1
 }
 
 package_gtk4-demos() {
   pkgdesc+=" (demo applications)"
-  depends=(gtk4)
+  depends=(
+    cairo
+    dconf
+    gdk-pixbuf2
+    glib2
+    glibc
+    graphene
+    gtk4
+    harfbuzz
+    hicolor-icon-theme
+    libepoxy
+    librsvg
+    pango
+  )
   mv demo/* "$pkgdir"
 }
 
@@ -165,12 +201,21 @@ package_gtk4-docs() {
 
 package_gtk-update-icon-cache() {
   pkgdesc="GTK icon cache updater"
-  depends=(gdk-pixbuf2 librsvg hicolor-icon-theme)
+  depends=(
+    bash
+    gdk-pixbuf2
+    glib2
+    glibc
+    hicolor-icon-theme
+    librsvg
+  )
 
   mv guic/* "$pkgdir"
-  ln -s gtk4-update-icon-cache "$pkgdir/usr/bin/gtk-update-icon-cache"
-  ln -s gtk4-update-icon-cache.1 "$pkgdir/usr/share/man/man1/gtk-update-icon-cache.1"
+
+  ln -sr "$pkgdir"/usr/bin/gtk{4,}-update-icon-cache
+  ln -sr "$pkgdir"/usr/share/man/man1/gtk{4,}-update-icon-cache.1
 
   install -Dt "$pkgdir/usr/share/libalpm/hooks" -m644 gtk-update-icon-cache.hook
-  install -D gtk-update-icon-cache.script "$pkgdir/usr/share/libalpm/scripts/gtk-update-icon-cache"
+  install -D gtk-update-icon-cache.script \
+    "$pkgdir/usr/share/libalpm/scripts/gtk-update-icon-cache"
 }

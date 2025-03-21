@@ -1,17 +1,17 @@
-# Copyright 2010-202 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=bluez
 pkgname=('bluez' 'bluez-utils' 'bluez-libs' 'bluez-cups' 'bluez-hid2hci' 'bluez-plugins')
-pkgver=5.64
+pkgver=5.72
 pkgrel=1
 arch=('x86_64')
 groups=('sys-libs')
 url="http://www.bluez.org/"
 license=('GPL2')
-makedepends=('dbus' 'libical' 'systemd' 'alsa-lib' 'json-c' 'ell' 'python3-docutils')
+makedepends=('dbus' 'libical' 'systemd' 'alsa-lib' 'json-c' 'ell' 'python-docutils')
 source=(https://www.kernel.org/pub/linux/bluetooth/${pkgname}-${pkgver}.tar.{xz,sign}
         bluetooth.modprobe
         refresh_adv_manager_for_non-LE_devices.diff)
@@ -38,7 +38,7 @@ build() {
           --enable-hid2hci \
           --enable-experimental \
           --enable-library # this is deprecated
-	make ${MAKEFLAGS}
+	make
 }
 
 # check() {

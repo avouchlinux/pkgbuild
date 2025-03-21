@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lcms2
-pkgver=2.12
+pkgver=2.16
 pkgrel=1
 pkgdesc="Small-footprint color management engine, version 2"
 arch=('x86_64')
@@ -12,21 +12,27 @@ groups=('sys-libs')
 url="http://www.littlecms.com"
 license=('MIT')
 depends=('libtiff')
-source=(http://downloads.sourceforge.net/sourceforge/lcms/${pkgname}-${pkgver}.tar.gz)
+provides=('liblcms2.so')
+source=("https://github.com/mm2/Little-CMS/releases/download/lcms${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('d873d34ad8b9b4cea010631f1a6228d2087475e4dc5e763eb81acc23d9d45a51')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd "${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd "${pkgname}-${pkgver}"
+
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd "${pkgname}-${pkgver}"
 
+  make DESTDIR="${pkgdir}" install
+  install -D -m0644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

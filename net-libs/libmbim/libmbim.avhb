@@ -1,43 +1,48 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libmbim
-pkgver=1.24.2
+pkgver=1.30.0
 pkgrel=1
 pkgdesc="MBIM modem protocol helper library"
 arch=('x86_64')
 groups=('net-libs')
 url="https://www.freedesktop.org/wiki/Software/libmbim/"
+arch=(x86_64)
 license=(GPL2)
-depends=(glib2 bash systemd libgudev)
-makedepends=(gtk-doc python git help2man)
+depends=(
+  bash
+  glib2
+  systemd
+)
+makedepends=(
+  bash-completion
+  git
+  gobject-introspection
+  gtk-doc
+  help2man
+  meson
+)
+provides=(libmbim-glib.so)
 source=("https://gitlab.freedesktop.org/mobile-broadband/libmbim/-/archive/$pkgver/libmbim-$pkgver.tar.bz2")
-sha256sums=('SKIP')
+b2sums=('SKIP')
 
-prepare() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    NOCONFIGURE=1 ./autogen.sh
-}
 
-build() {	
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    ./configure --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --libexecdir=/usr/lib/${pkgname} \
-        --disable-static \
-        --enable-gtk-doc
-    make ${MAKEFLAGS}
+build() {
+  local meson_options=(
+    -D gtk_doc=true
+  )
+
+  avouch-meson libmbim-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make ${MAKEFLAGS} check
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "$pkgdir"
 }

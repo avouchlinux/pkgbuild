@@ -1,32 +1,71 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-nm
-pkgver=5.27.8
+pkgver=6.3.3
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Plasma applet written in QML for managing network connections'
 arch=('x86_64')
 groups=('kde-plasma')
-url='https://projects.kde.org/projects/kde/workspace/plasma-nm'
-license=('GPL2')
-depends=('plasma-workspace' 'modemmanager-qt' 'networkmanager-qt' 'qca-qt5')
-makedepends=('extra-cmake-modules' 'kdoctools' 'openconnect' 'mobile-broadband-provider-info'
-             'python' 'kdelibs4support')
-optdepends=('mobile-broadband-provider-info: Database of mobile broadband service providers'
-            'openconnect: Cisco AnyConnect VPN plugin')
-source=("http://download.kde.org/stable/plasma/${pkgver}/$pkgname-$pkgver.tar.xz")
+url='https://kde.org/plasma-desktop/'
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glib2
+         glibc
+         kcmutils
+         kcolorscheme
+         kcompletion
+         kconfig
+         kcoreaddons
+         kdbusaddons
+         kdeclarative
+         ki18n
+         kio
+         kirigami
+         knotifications
+         kquickcharts
+         ksvg
+         kwallet
+         kwidgetsaddons
+         kwindowsystem
+         libnm
+         libplasma
+         modemmanager-qt
+         networkmanager-qt
+         plasma-workspace
+         prison
+         qca-qt6
+         qcoro
+         qt6-base
+         qt6-declarative
+         solid)
+makedepends=(extra-cmake-modules
+             openconnect
+	      qt6-webengine
+)
+optdepends=('openconnect: Cisco AnyConnect VPN plugin'
+            'qt6-webengine: Cisco AnyConnect VPN plugin')
+groups=(plasma)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('ce72008abf17555d1b20f66480ff21992a7c44b26cf056a133fd2d2ee7421e75'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

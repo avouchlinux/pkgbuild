@@ -1,26 +1,66 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=konversation
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="A user friendly IRC client for KDE"
 arch=('x86_64')
 groups=('kde-release-service')
-url="http://konversation.kde.org"
-depends=('knotifyconfig' 'kemoticons' 'kparts' 'kidletime' 'qca-qt5' 'hicolor-icon-theme')
-optdepends=('python: python scripting support' 'kdebase-keditbookmarks: for managing bookmarks')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python')
-license=('GPL2' 'FDL')
-source=("http://download.kde.org/stable/${pkgname}/${pkgver}/src/${pkgname}-${pkgver}.tar.xz"{,.sig})
-validpgpkeys=(514A8CD602861D417D20C480BCC34138A218774B) # Eike Hein <sho@eikehein.com>
+url='https://apps.kde.org/konversation/'
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         karchive
+         kbookmarks
+         kcodecs
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kglobalaccel
+         ki18n
+         kidletime
+         kio
+         kitemviews
+         knewstuff
+         knotifications
+         knotifyconfig
+         kparts
+         kstatusnotifieritem
+         ktextwidgets
+         kwallet
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         perl
+         qca-qt6
+         qt6-5compat
+         qt6-base
+         qt6-multimedia
+         qt6-tools
+         sh)
+optdepends=('keditbookmarks: for managing bookmarks'
+            'python: python scripting support')
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('ac22e3a7db7e8834f7cd0ad8e3984ab84acad88a04fe43b3e16c91e743526cae'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }

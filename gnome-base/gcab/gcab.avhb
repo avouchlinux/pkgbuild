@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,9 +11,15 @@ arch=('x86_64')
 groups=('gnome-base')
 url="http://www.gnome.org"
 license=('GPL2')
-depends=('dconf' 'desktop-file-utils' 'gtk3' 'hicolor-icon-theme' 'libgcrypt')
-makedepends=('intltool' 'gobject-introspection' 'python' 'vala' 'meson')
-source=(http://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+depends=(glib2)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+source=(https://download.gnome.org/sources/$pkgname/$pkgver/$pkgname-$pkgver.tar.xz)
 
 build() {
     avouch-meson ${pkgname}-${pkgver} build \

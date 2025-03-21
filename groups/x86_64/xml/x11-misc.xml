@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>evieext</Name>
+	 <Name>gccmakedep</Name>
+	 <Name>imake</Name>
+	 <Name>lndir</Name>
+	 <Name>makedepend</Name>
+	 <Name>nautilus-ext-git</Name>
+	 <Name>vdpauinfo</Name>
+	 <Name>xbindkeys</Name>
+	 <Name>xbitmaps</Name>
+	 <Name>xkeyboard-config</Name>
+	 <Name>xorg-cf-files</Name>
+	 <Name>xorg-util-macros</Name>
+	 <Name>xscreensaver</Name>
+</Packages>

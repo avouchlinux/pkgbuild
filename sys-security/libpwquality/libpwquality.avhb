@@ -1,40 +1,45 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libpwquality
-pkgver=1.4.4
+pkgver=1.4.5
 pkgrel=1
 pkgdesc="Library for password quality checking and generating random passwords"
 arch=('x86_64')
 groups=('sys-security')
 url="https://github.com/libpwquality/libpwquality"
-license=('GPL')
-depends=('cracklib' 'pam')
+license=('BSD-3-Clause OR GPL-2.0-or-later')
+depends=('cracklib' 'glibc' 'pam')
 optdepends=('python: Python bindings')
-makedepends=('python' git)
+makedepends=('python-setuptools')
 backup=('etc/security/pwquality.conf')
-source=("https://github.com/libpwquality/libpwquality/releases/download/libpwquality-$pkgver/libpwquality-$pkgver.tar.bz2")
-md5sums=('SKIP')
+source=("https://github.com/libpwquality/$pkgname/releases/download/$pkgname-$pkgver/$pkgname-$pkgver.tar.bz2"
+        'libpwquality-setuptools.patch')
+sha256sums=('6fcf18b75d305d99d04d2e42982ed5b787a081af2842220ed63287a2d6a10988'
+            'ca488234cca2e7883e987163dfb44a1eda1946ac05895afc7b79d19fc2c7a156')
 
 prepare() {
   cd $pkgname-$pkgver
-  sed '/mr_IN/d' -i po/LINGUAS
+
+  # Use setuptools instead of distutils
+  # https://github.com/libpwquality/libpwquality/pull/74
+  patch -Np1 -i ../libpwquality-setuptools.patch
+
+  autoreconf -fi
 }
 
 build() {
-	cd $pkgname-$pkgver
-    ./configure --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --with-python-binary=python3
-    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-	cd $pkgname-$pkgver
-    make DESTDIR="$pkgdir" install
-    install -m755 -d "$pkgdir"/etc/security/pwquality.conf.d
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -dm755 "$pkgdir"/etc/security/pwquality.conf.d
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
 }

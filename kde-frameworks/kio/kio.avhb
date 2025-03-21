@@ -1,20 +1,54 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kio
-pkgver=5.110.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc='Resource and network access abstraction'
 arch=('x86_64')
 groups=('kde-frameworks')
 url='https://community.kde.org/Frameworks'
-license=('LGPL')
-depends=('solid' 'kjobwidgets' 'kbookmarks' 'libxslt' 'kwallet' 'desktop-file-utils')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python' 'doxygen' 'qt5-tools')
-optdepends=('kio-extras: extra protocols support (sftp, fish and more)' 'kdoctools: for the help kioslave'
-            'knetattach: to add new kio-remote entries')
+license=(LGPL-2.0-only LGPL-3.0-only)
+depends=(acl
+         gcc-libs
+         glibc
+         karchive
+         kauth
+         kbookmarks
+         kcolorscheme
+         kcompletion
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kguiaddons
+         ki18n
+         kiconthemes
+         kitemviews
+         kjobwidgets
+         kservice
+         kwallet
+         kwidgetsaddons
+         kwindowsystem
+         libxml2
+         libxslt
+         qt6-5compat
+         qt6-base
+         solid
+         util-linux-libs)
+makedepends=(doxygen
+             extra-cmake-modules
+             kdoctools
+             qt6-doc
+             qt6-tools)
+optdepends=('kded: proxy management and cookie storage'
+            'kdoctools: for the help kioslave'
+            'kio-extras: extra protocols support (sftp, fish and more)'
+            'kio-fuse: to mount remote filesystems via FUSE'
+            'switcheroo-control: hybrid GPU support')
 source=("http://download.kde.org/stable/frameworks/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz")
 validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB) # David Faure <faure@kde.org>
 

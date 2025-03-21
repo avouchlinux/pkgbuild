@@ -1,9 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=publicsuffix-list
-pkgver=20200424.918.cbbba1
+_gitcommit=9094af5c6cb260e69137c043c01be18fee01a540
+pkgver=20240306.1440.9094af5
 pkgrel=1
 pkgdesc='Cross-vendor public domain suffix database'
 url='https://github.com/publicsuffix/list'
@@ -14,9 +16,6 @@ makedepends=('git')
 source=(${pkgname}::"git+https://github.com/publicsuffix/list#commit=${_gitcommit}")
 sha512sums=('SKIP')
 
-getsrc() {
-    git clone https://github.com/publicsuffix/list
-}
 pkgver() {
   cd list
   printf "%s.%s.%s" "$(TZ=UTC git show -s --pretty=%cd --date=format-local:%Y%m%d HEAD)" \
@@ -30,3 +29,4 @@ package() {
   ln -s public_suffix_list.dat "${pkgdir}/usr/share/publicsuffix/effective_tld_names.dat"
   install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
+

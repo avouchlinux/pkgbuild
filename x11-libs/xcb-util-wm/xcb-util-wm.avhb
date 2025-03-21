@@ -1,34 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xcb-util-wm
-pkgver=0.4.1
+pkgver=0.4.2
 pkgrel=1
 pkgdesc="Utility libraries for XC Binding - client and window-manager helpers for ICCCM"
 arch=('x86_64')
 groups=('x11-libs')
-url="http://xcb.freedesktop.org"
+url="https://xcb.freedesktop.org"
 license=('custom')
-depends=('libxcb>=1.7')
-makedepends=('xorg-util-macros')
-source=("http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
-        'LICENSE')
-sha256sums=('038f9bdb917b1f6d98a164f57dfb32212a102d771ab6f03de49fef3786746030'
-            'ded299aa179dcf0d885bf89274a4db77a530e03f9f5e7cf1c3c4ef1d60e914b9')
+depends=('libxcb')
+makedepends=('xorg-util-macros' 'xorgproto')
+source=(https://xorg.freedesktop.org/archive/individual/lib/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('eab6588e6a47d28a3b25ecd13b5018529419db6b49c74458c093699b60a194933be1e1f6f7799abf03344f7ebc7af88586ff2935938d53644bdd5c763a7fa9b0'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-static
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd ${pkgname}-${pkgver}
+  make check
 }
 
-package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+package() { 
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

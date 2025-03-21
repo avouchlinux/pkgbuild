@@ -1,0 +1,39 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-sphinx-reredirects
+_pkgname=${pkgname#python-}
+pkgver=0.1.5
+pkgrel=1
+pkgdesc='Handles redirects for moved pages in Sphinx documentation projects'
+arch=(any)
+groups=('dev-python')
+url="https://github.com/documatt/$_pkgname"
+license=("BSD")
+depends=(python
+         python-sphinx)
+makedepends=(python-{build,installer}
+             python-setuptools
+             python-wheel)
+checkdepends=(python-defusedxml
+              python-pytest)
+_archive="$_pkgname-$pkgver"
+source=("$url/archive/v$pkgver/$_archive.tar.gz")
+sha256sums=('6ea785d7b2a8b0c375646d7f7ee6f67fa2908ba0c94d4f2a0b456f2cd66b86ef')
+
+build() {
+	cd "$_archive"
+	python -m build -wn
+}
+
+check() {
+	cd "$_archive"
+	pytest
+}
+
+package() {
+	cd "$_archive"
+	python -m installer -d "$pkgdir" dist/*.whl
+}

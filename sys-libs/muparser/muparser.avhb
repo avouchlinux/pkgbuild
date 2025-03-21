@@ -1,30 +1,29 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=muparser
-pkgver=2.2.6.1
+pkgver=2.3.4
 pkgrel=1
 pkgdesc="A fast math parser library"
 arch=('x86_64')
 groups=('sys-libs')
 url="http://muparser.sourceforge.net/"
 depends=('gcc-libs')
+makedepends=('cmake')
 license=('custom')
 options=('!makeflags')
-source=("https://github.com/beltoforion/muparser/archive/v$pkgver.tar.gz")
+source=(https://github.com/beltoforion/muparser/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
+sha512sums=('5226fd666eaf3ff7e661bbf72e60114d0ceed10491ffa4ed2dd34cd669c6c21c037eff0388402d6b9d60b0a5a27b03ca35153e0c048328abc75dfd1eaf38ceca')
 
 build() {
-  cd $srcdir/${pkgname}-${pkgver}
-  sh ./configure --prefix=/usr 
-	make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
 }
 
 package() {
-  cd $srcdir/${pkgname}-${pkgver}
-  make DESTDIR=$pkgdir install
-
-  # license
-  install -D -m644 License.txt \
-	$pkgdir/usr/share/licenses/${pkgname}/LICENSE
+  DESTDIR="$pkgdir" cmake --install build
+  install -D -m644 $pkgname-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname
 }

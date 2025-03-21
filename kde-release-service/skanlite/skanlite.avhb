@@ -1,25 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=skanlite
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Image Scanning Application for KDE"
 arch=('x86_64')
-groups=('kde-release-service')
-url='https://www.kde.org/applications/graphics/skanlite'
-license=(GPL)
-depends=(libksane kio)
-makedepends=(extra-cmake-modules kdoctools)
-source=("https://download.kde.org/stable/$pkgname/${pkgver%.*.*}/$pkgname-$pkgver.tar.xz") # {,.sig} - No public key available
-sha256sums=('b4733e55b706eaf749522aa81ec47bfd65a95c2fec994c1c47e0c4b628e70442')
+groups=('kde-release-services')
+url='https://apps.kde.org/skanlite/'
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig5
+         kconfigwidgets5
+         kcoreaddons5
+         ki18n5
+         kio5
+         kjobwidgets5
+         kxmlgui5
+         kwidgetsaddons5
+         libksane5
+         qt5-base)
+makedepends=(extra-cmake-modules
+             kdoctools5)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('7cdb964112187395241b711b53510f9b60da3de7b13baa93f20d579ea2d731a6'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }

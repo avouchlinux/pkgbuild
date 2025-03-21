@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase="cups"
 pkgname=('libcups' 'cups')
-pkgver=2.4.7
+pkgver=2.4.11
 pkgrel=1
 arch=('x86_64')
 groups=('sys-libs')
@@ -62,6 +62,7 @@ build() {
   cd "${pkgbase}"-${pkgver}
 
   # The build system uses only DSOFLAGS but not LDFLAGS to build some libraries.
+  export CFLAGS+=" -Wno-implicit-function-declaration"
   export DSOFLAGS=${LDFLAGS}
 
   # use fixed cups user (id 209) since systemd adds "lp" group without a fixed id

@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-oclock
 _pkgname=oclock
-pkgver=1.0.4
+pkgver=1.0.5
 pkgrel=1
 pkgdesc="Round X clock"
 arch=('x86_64')
@@ -13,13 +14,15 @@ url="https://xorg.freedesktop.org/"
 license=('custom')
 depends=('libx11' 'libxmu' 'libxext' 'libxkbfile')
 makedepends=('xorg-util-macros')
-source=(https://xorg.freedesktop.org/archive/individual/app/oclock-${pkgver}.tar.bz2{,.sig})
+source=(https://xorg.freedesktop.org/archive/individual/app/oclock-${pkgver}.tar.xz{,.sig})
+sha512sums=('a87e89afdb25a91c36077e030b05c3907ddc063c6bdc0715a01bfc16edef8730b3b5a0347399ef4c8b2a13e70e068cba9ec5fe8d411f08548c0aa790a1873aff'
+            'SKIP')
 validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
   cd "${srcdir}/oclock-${pkgver}"
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {
@@ -28,3 +31,4 @@ package() {
   install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
   install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

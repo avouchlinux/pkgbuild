@@ -1,43 +1,62 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mtools
-pkgver=4.0.24
+pkgver=4.0.44
 pkgrel=1
 pkgdesc="A collection of utilities to access MS-DOS disks"
 arch=('x86_64')
 groups=('sys-fs')
 url="https://www.gnu.org/software/mtools/"
-license=('GPL')
-depends=('sh')
-makedepends=('texinfo' 'libx11' 'libsm')
-optdepends=('libx11: required by floppyd'
-	    'libsm:  required by floppyd')
-backup=('etc/mtools.conf')
-source=("https://ftp.gnu.org/gnu/mtools/${pkgname}-${pkgver}.tar.bz2"
-        "https://ftp.gnu.org/gnu/mtools/${pkgname}-${pkgver}.tar.bz2.sig")
-validpgpkeys=('E151F8F54AE4F4E9019F037BC80631B26F431961')
-md5sums=('1d17b58c53a46b29c7f521d4a55ccef1'
-         'SKIP')
+license=(
+  GPL-3.0-or-later
+)
+depends=(
+  bash
+  glibc
+)
+makedepends=(
+  libx11
+  texinfo
+)
+optdepends=(
+  'libx11: required by floppyd'
+  'libxau: required by floppyd'
+)
+backup=(etc/$pkgname.conf)
+source=(https://ftp.gnu.org/gnu/mtools/$pkgname-$pkgver.tar.bz2{,.sig})
+sha512sums=('e86de4db71deee0a5308e3e18a31580f9a10a924c207df763743ccf4506ddd62dc312e65ef2065c98f24296fd456beebc6594e267ddb828a02f3e3ee2d5e5228'
+            'SKIP')
+b2sums=('768ef4582b8f7abc30bfb2eac54dfd8032ff18f8b710550bf232bff46368a6aae0300569a5bf5aab6abd2460eeeaf3200901c1dd8d70b687a513804b0f9a8ad6'
+        'SKIP')
+validpgpkeys=('51A23D9D7C4DF41AA48FA893E99CF5537790B839') # Alain KNAFF <alain@knaff.lu>
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-
-	sed -i '/^SAMPLE FILE$/s:^:# :' mtools.conf
+  # comment entry in default config
+  sed -e '/^SAMPLE FILE$/s:^:# :' -i $pkgname-$pkgver/mtools.conf
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr \
-	--mandir=/usr/share/man \
-	--infodir=/usr/share/info \
-	--sysconfdir=/etc
-	make ${MAKEFLAGS}
+  local configure_options=(
+    --prefix=/usr
+    --mandir=/usr/share/man
+    --infodir=/usr/share/info
+    --sysconfdir=/etc
+  )
+
+  cd $pkgname-$pkgver
+  ./configure "${configure_options[@]}"
+  make
+}
+
+check() {
+  make -k check -C $pkgname-$pkgver
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make -j 1 DESTDIR="${pkgdir}" install
-	install -Dm644 mtools.conf "${pkgdir}/etc/mtools.conf"
+  make DESTDIR="$pkgdir" install -C $pkgname-$pkgver
+  install -vDm 644 $pkgname-$pkgver/mtools.conf -t "$pkgdir/etc/"
+  install -vDm 644 $pkgname-$pkgver/{README,NEWS} -t "$pkgdir/usr/share/doc/$pkgname"
 }

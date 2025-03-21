@@ -1,0 +1,46 @@
+From ba93b2646879764b4745f8c46a2c9718d3eb9d0d Mon Sep 17 00:00:00 2001
+From: nileshnegi <Nilesh.Negi@amd.com>
+Date: Mon, 16 Oct 2023 21:38:16 +0000
+Subject: [PATCH] MC/ROCM: ROCm compatibility fixes
+
+Signed-off-by: nileshnegi <Nilesh.Negi@amd.com>
+---
+ src/components/mc/rocm/mc_rocm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/components/mc/rocm/mc_rocm.c b/src/components/mc/rocm/mc_rocm.c
+index cc6fa5332..fbe7643ab 100644
+--- a/src/components/mc/rocm/mc_rocm.c
++++ b/src/components/mc/rocm/mc_rocm.c
+@@ -9,6 +9,7 @@
+ #include "utils/ucc_malloc.h"
+ #include "utils/arch/cpu.h"
+ #include <hip/hip_runtime.h>
++#include <hip/hip_version.h>
+ #include <hsa/hsa.h>
+ #include <hsa/hsa_ext_amd.h>
+ 
+@@ -301,13 +302,23 @@ static ucc_status_t ucc_mc_rocm_mem_query(const void *ptr,
+             hipGetLastError();
+             return UCC_ERR_NOT_SUPPORTED;
+         }
++
++#if HIP_VERSION >= 50500000
++        switch (attr.type) {
++#else
+         switch (attr.memoryType) {
++#endif
+         case hipMemoryTypeHost:
+             mem_type = (attr.isManaged ? UCC_MEMORY_TYPE_ROCM_MANAGED : UCC_MEMORY_TYPE_HOST);
+             break;
+         case hipMemoryTypeDevice:
+             mem_type = UCC_MEMORY_TYPE_ROCM;
+             break;
++#if HIP_VERSION >= 50300000
++        case hipMemoryTypeManaged:
++            mem_type = UCC_MEMORY_TYPE_ROCM_MANAGED;
++            break;
++#endif
+         default:
+             return UCC_ERR_NOT_SUPPORTED;
+         }

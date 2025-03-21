@@ -1,29 +1,38 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=markdownpart
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='KPart for rendering Markdown content'
 arch=(x86_64)
+groups=('kde-release-services')
 url='https://apps.kde.org/markdownpart/'
-license=(GPL)
-depends=(kparts)
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfigwidgets
+         kcoreaddons
+         ki18n
+         kio
+         kparts
+         kxmlgui
+         qt6-base)
 makedepends=(extra-cmake-modules)
-groups=('kde-release-service')
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('df75ea49a64cc7fd4b572717cff8acb11416daaa3bc0b21b593e6b89e119810b'
+sha256sums=('15b3341f723f969eed61c14e0eec57a5d7a8a931ac9018b06d1183311bf5ba30'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
               F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
               D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
   cmake --build build
 }

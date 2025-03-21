@@ -1,0 +1,10 @@
+--- gio/gnetworkmonitornetlink.c	2025-02-06 00:12:46.776489213 +0500
++++ ../gnetworkmonitornetlink.c	2025-02-06 00:16:07.756501360 +0500
+@@ -44,7 +44,6 @@
+ #endif
+ #ifdef HAVE_NETLINK_NETLINK_H
+ #include <netlink/netlink.h>
+-#include <netlink/netlink_route.h>
+ #endif
+ 
+ static GInitableIface *initable_parent_iface;

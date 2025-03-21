@@ -1,0 +1,75 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgname=furo
+pkgname=python-sphinx-$_pkgname
+pkgver=2024.08.06
+pkgrel=1
+pkgdesc='Clean customizable documentation theme for Sphinx'
+arch=(any)
+groups=('dev-python')
+url=https://github.com/pradyunsg/furo
+license=(MIT)
+depends=(
+  python-beautifulsoup4
+  python-pygments
+  python-sphinx-basic-ng
+)
+makedepends=(
+  git
+  nodejs-lts-iron
+  npm
+  python-build
+  python-flit-core
+  python-installer
+  python-sphinx-theme-builder
+)
+source=("git+$url.git#tag=$pkgver?signed")
+b2sums=('6bc28bbbf07cbd3ae6c0657cf706862c0aa47a1168ea16dac81afd131ed9272569722a85040a0132426ffc52fee4823871105839fa31e31e402fd0b51425f354')
+validpgpkeys=(E2FEFA4CA4BDD28171DB00F3FF99710C4332258E) # Pradyun Gedam (GitHub July 2020 Key) <pradyunsg@users.noreply.github.com>
+
+prepare() {
+  cd $_pkgname
+
+  # force use of system nodejs
+  local node_ver=$(node --version | sed 's/v//g')
+  sed -i "s/18.16.0/$node_ver/" pyproject.toml
+}
+
+build() {
+  cd $_pkgname
+
+  STB_USE_SYSTEM_NODE=true python -m build -nw
+
+  # docs disabled for now to unblock Python 3.10 update
+
+  # sphinx needs this theme installed because it is uses it.
+  # simply injecting the package to sys.path (via PYTHONPATH or similar)
+  # is not enough because sphinx looks for themes in the registered
+  # entrypoints, this means we actually have to install the package.
+  # for this we will create a venv with access to system packages and
+  # install the theme there, then we will build the documentation.
+
+  #python -m venv --system-site-packages doc-env
+  #doc-env/bin/python setup.py install --skip-build
+
+  #doc-env/bin/python /usr/bin/sphinx-build -b dirhtml -v docs build/docs/html
+}
+
+package() {
+  cd $_pkgname
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  #install -dm 755 "$pkgdir"/usr/share/doc/$pkgname
+  #cp -r -a --no-preserve=ownership build/docs/html "$pkgdir"/usr/share/doc/$pkgname
+  #rm -rf "$pkgdir"/usr/share/doc/$pkgname/html/.doctrees
+
+  # Symlink license file
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  install -d "$pkgdir"/usr/share/licenses/$pkgname
+  ln -s "$site_packages"/$_pkgname-$pkgver.dist-info/LICENSE \
+    "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

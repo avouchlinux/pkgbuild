@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=evolution-ews
-pkgver=3.44.3
+pkgver=3.56.0
 pkgrel=1
 pkgdesc="MS Exchange integration through Exchange Web Services"
 url="https://wiki.gnome.org/Apps/Evolution/EWS"

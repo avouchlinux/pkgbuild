@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -8,31 +8,36 @@ pkgver=0.16.21
 pkgrel=1
 pkgdesc="A complete 8086 assembler and loader"
 arch=('x86_64')
-groups=('dev-compiler')
 license=('GPL')
-url="http://www.debath.co.uk/"
+groups=('dev-compiler')
+url='https://v3.sk/~lkundrak/dev86/'
 depends=('glibc')
-source=("http://www.debath.co.uk/dev86/$pkgname-$pkgver.tar.gz"
-        bin86-0.16.17-x86_64-1.patch)
-md5sums=('0a20d79765a6855ce7c8c2d02b23a0f0'
-         '92bdce7b0655cd2e9f83c83fc56d128e')
+source=("https://sources.archlinux.org/other/packages/dev86/${pkgname}-${pkgver}.tar.gz"
+        'bin86-0.16.17-x86_64-1.patch')
+sha1sums=('35a1222350adce5b6d62dd56f3477d9416c59174'
+          '2c967c062fbee4e40ca1bf55feec2033e132e0a9')
+sha256sums=('021e37cde3a20632c4c9000993cb4aa9f58cb82b1d3c26b9aeb62d6566925738'
+            'f5174f7f703bb21486196c7d9ce027ba8d501c51f6099f02c6c13ee48fc861db')
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
+  cd "${pkgname}-${pkgver}"
 
-	if [[ $CARCH = x86_64 ]]; then
-		 patch -Np1 < "$srcdir/bin86-0.16.17-x86_64-1.patch"
-	fi
+  patch -Np1 < ../bin86-0.16.17-x86_64-1.patch
+
+  # thanks Gentoo
+  patch -Np1 < ../bin86-0.16.21-amd64-build.patch
+  patch -Np1 < ../bin86-0.16.21-fix-build-for-clang16.patch
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make PREFIX=/usr
+  cd "${pkgname}-${pkgver}"
+
+  make -j1 PREFIX=/usr
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
-	mkdir -p "$pkgdir/usr/bin" "$pkgdir/usr/share/man/man1"
-	make "PREFIX=$pkgdir/usr" "MANDIR=$pkgdir/usr/share/man/man1" install
-}
+  cd "${pkgname}-${pkgver}"
 
+  install -d "${pkgdir}"/usr/{bin,share/man/man1}
+  make PREFIX="${pkgdir}"/usr MANDIR="${pkgdir}"/usr/share/man/man1 install
+}

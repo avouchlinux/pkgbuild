@@ -1,0 +1,47 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-zope-exceptions
+_pkgname=zope.exceptions
+pkgver=5.2
+pkgrel=1
+pkgdesc="Generic exceptions and implementations for Zope"
+arch=('any')
+groups=('dev-python')
+url="https://github.com/zopefoundation/zope.exceptions"
+license=('ZPL-2.1')
+depends=(
+  'python'
+  'python-zope-interface'
+)
+makedepends=(
+  'git'
+  'python-build'
+  'python-installer'
+  'python-setuptools'
+  'python-wheel'
+)
+checkdepends=('python-zope-testrunner')
+source=("git+$url.git#tag=$pkgver")
+sha512sums=('dc92f391d8f3b8e21287397722d46df0011399e29e0bcb6dfdcd4c841f1b23b5448846776c6c216f21e05d5ac3f2b6910241e52c9da1cf32b96f739440ee77ec')
+
+build() {
+  cd "$_pkgname"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$_pkgname"
+  python -m installer --destdir=tmp_install dist/*.whl
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  export PYTHONPATH="$PWD/tmp_install/$site_packages"
+  zope-testrunner --test-path=src -vc
+}
+
+package() {
+  cd "$_pkgname"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}
+

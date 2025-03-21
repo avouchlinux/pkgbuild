@@ -1,34 +1,49 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=klettres
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="Learn The Alphabet"
 url="http://kde.org/applications/education/klettres/"
 arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('knewstuff' 'kemoticons' 'hicolor-icon-theme')
-makedepends=('extra-cmake-modules' 'python' 'kdoctools')
-source=("http://download.kde.org/stable/applications/${pkgver}/src/klettres-${pkgver}.tar.xz")
-sha1sums=('d12df574755fe5c05fa76e98d87c71fa97802128')
-
-prepare() {
-  mkdir -p build
-}
+groups=('kde-release-services')
+url='https://apps.kde.org/klettres/'
+arch=(x86_64)
+license=(GPL-2.0-or-later LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         ki18n
+         knewstuff
+         kwidgetsaddons
+         kxmlgui
+         phonon-qt6
+         qt6-base
+         qt6-svg)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('65d1d07cc163d0c02fc3a68e4ab8b36590d8990dc9a10a07b1d226df9a99b331'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=/usr
-  make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-  cd "${srcdir}"/build
-  make DESTDIR="${pkgdir}" install
+  DESTDIR="$pkgdir" cmake --install build
 }

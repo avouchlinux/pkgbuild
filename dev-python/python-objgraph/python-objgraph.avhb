@@ -1,0 +1,34 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-objgraph
+pkgver=3.6.2
+pkgrel=1
+pkgdesc="Draws Python object reference graphs with graphviz"
+url="https://github.com/mgedmin/objgraph"
+license=('MIT')
+arch=('any')
+groups=('dev-python')
+depends=('python')
+makedepends=('git' 'python-setuptools' 'python-build' 'python-installer' 'python-wheel')
+checkdepends=('graphviz')
+source=("git+https://github.com/mgedmin/objgraph.git#tag=$pkgver")
+sha512sums=('51633d3f43a9d7077b2348c757c1d974502636f79ed599e95861eef32952c25f8cb4252e967bc72b57c253ddeb0cb3a9630d07fc86efe1e28c2b6c1fef17cba9')
+
+build() {
+  cd objgraph
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd objgraph
+  python tests.py
+}
+
+package() {
+  cd objgraph
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

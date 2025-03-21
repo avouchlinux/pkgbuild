@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -17,7 +17,10 @@ source=(https://downloads.sourceforge.net/lxde/$pkgname-$pkgver.tar.xz)
 
 prepare() {
     cd $pkgname-$pkgver
-    patch -p1 -i ../menu-cache-1.1.0-fno-common.diff
+    # patch -p1 -i ../menu-cache-1.1.0-fno-common.diff
+    # Fix build (taken from Fedora)
+    patch -Np1 -i ../menu-cache-1.1.0-0001-Support-gcc10-compilation.patch
+
 }
 
 build() {
@@ -25,7 +28,7 @@ build() {
     ./configure --prefix=/usr --sysconfdir=/etc \
         --libexecdir=/usr/lib \
         --enable-gtk-doc
-    make ${MAKEFLAGS}
+    make
 }
 
 package() {

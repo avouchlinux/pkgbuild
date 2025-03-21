@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=minisign
-pkgver=0.8
+pkgver=0.11
 pkgrel=1
 pkgdesc="A dead simple tool to sign files and verify digital signatures."
 arch=('x86_64')
@@ -12,17 +12,22 @@ groups=('dev-utils')
 url="https://github.com/jedisct1/minisign"
 license=('custom:ISC')
 depends=('libsodium')
-makedepends=('cmake')
-source=("https://github.com/jedisct1/minisign/archive/$pkgver.tar.gz")
+makedepends=('cmake' 'git')
+source=("git+https://github.com/jedisct1/minisign.git?signed#tag=$pkgver")
+sha512sums=('1f02e0adcdc10e700ff90856f50ad29ba9a6bb36eb99d697dc3fba4a90f5de0bb2e85df9c0d343b6ca6345f1ba380989bf248a254d50af9ab5a5119674d7f018')
+validpgpkeys=(54A2B8892CC3D6A597B92B6C210627AABA709FE1) # Frank Denis
 
 build() {
-  cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
+  cmake -B build -S $pkgname \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DCMAKE_BUILD_TYPE=Release
-  ninja -C build
+    -DCMAKE_BUILD_TYPE=None \
+    -Wno-dev
+  cmake --build build
 }
 
 package() {
-  DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
+
+  install -Dm644 $pkgname/LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
+

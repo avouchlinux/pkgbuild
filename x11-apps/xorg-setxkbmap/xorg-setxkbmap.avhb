@@ -1,30 +1,35 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-setxkbmap
 _realname=setxkbmap
-pkgver=1.3.2
+pkgver=1.3.4
 pkgrel=1
 pkgdesc='Set the keyboard using the X Keyboard Extension'
-url='http://xorg.freedesktop.org/'
+url='https://xorg.freedesktop.org/'
 license=('custom')
 arch=('x86_64')
-groups=('x11-apps')
-depends=('libxkbfile')
+depends=('libxkbfile' 'libxrandr')
 makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/app/setxkbmap-${pkgver}.tar.bz2")
+source=(${url}/releases/individual/app/setxkbmap-${pkgver}.tar.xz{,.sig})
+sha512sums=('f4d026e7707656173f54d79b95ff3370ae06eaf252b89b79bc7175edeaf3ef79073d4d7d8a35fdee95608bf85d7d23514d74f00e55b613810ef6c3ccc0cf498b'
+            'SKIP')
+#validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
+validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
+
+groups=('xorg-apps' 'xorg')
 
 build() {
-	cd ${srcdir}/${_realname}-${pkgver}
+	cd setxkbmap-${pkgver}
 	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {
-	cd ${srcdir}/${_realname}-${pkgver}
+	cd setxkbmap-${pkgver}
 	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
 }
+

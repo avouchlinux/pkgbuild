@@ -1,48 +1,106 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-panel
-pkgver=3.50.0
+pkgver=3.54.0
 pkgrel=1
 pkgdesc="Panel of GNOME Flashback"
 arch=('x86_64')
 groups=('gnome-base')
-url="https://wiki.gnome.org/Projects/GnomePanel"
-license=('GPL')
-depends=('evolution-data-server' 'gnome-desktop' 'gnome-menus' 'libgdm' 'libwnck3' 'nautilus' 'polkit')
-makedepends=('intltool' 'itstool' 'python' 'git' 'gtk-doc' 'yelp-tools' 'autoconf-archive')
-optdepends=('alacarte: Main menu editor'
-            'gnome-applets: Extra applets for the panel')
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-sha256sums=('a41c45c5512e796b8602ce50bf0d205993eab364c860aae31afa582d77b77079')
+url='https://wiki.gnome.org/Projects/GnomePanel'
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+depends=(
+  at-spi2-core
+  cairo
+  dconf
+  evolution-data-server
+  gdk-pixbuf2
+  geocode-glib-2
+  glib2
+  glibc
+  gnome-desktop
+  gnome-menus
+  gsettings-desktop-schemas
+  gtk3
+  hicolor-icon-theme
+  libgdm
+  libgweather-4
+  libical
+  libwnck3
+  libx11
+  libxrandr
+  nautilus
+  pango
+  polkit
+  systemd-libs
+)
+makedepends=(
+  autoconf-archive
+  git
+  glib2-devel
+  yelp-tools
+)
+optdepends=(
+  'alacarte: Main menu editor'
+  'gnome-applets: Extra applets for the panel'
+)
+source=(
+  "git+https://gitlab.gnome.org/GNOME/$pkgname.git?signed#tag=$pkgver"
+  gnome-panel-60.patch
+  gnome-panel-64.patch
+  gnome-panel-65.patch
+  gnome-panel-75.patch
+  gnome-panel-76.patch
+)
+b2sums=(
+  ba7e7fefdf56b6506b2be8804b8b0503752711f9fe8e2ed5de86ee0d5fdcce83141ddabb7e032ffd61050d16a91fa0ec2cc343ce8c349959844f83c6114d1b58
+  22210d4e94c5279336014d0969a1059b5fa7c825f56a50c2741b50499be4af81fa165eda04ab8ee8f96a3f440c88c8a6416cb0468e82f684fe7b902bbe057735
+  4dd8d54490d500e2c9775908d6b6f8d07843fe6d2721de17befa22e62bd821910af42de8bcf2a356582186e2050449710c0866456c7ec11f0319aef78868eab2
+  386e17afb7575d87bc1caa5cb59505967367308454270747ebf5d30747cbcf981250d33bf53c559e39311e530571d8e981532992b884bf772b92d8977557a1fb
+  ca26d20daa8a817b9f138b4c5e2700f56a0b67ebe7c49474a9629343b2da10e32e381edbb8d30656d0b2696861e53451a8927c0c3895f46aa49acfd4947cd7b5
+  2aa3bf41ac3bee1ad5c4c93d6f66336f696f02c38b31d340a206072b508dc878448db6ee9de288123e326d54baad29a53649dd9ec778cc2a0b0301e044bb2f0b
+)
+validpgpkeys=(7B44FD78E49334EC10B3B288A3D013EC303E1894) # Alberts Muktupāvels <alberts.muktupavels@gmail.com>
 
 prepare() {
-    cd $pkgname-$pkgver
-    # NOCONFIGURE=1 ./autogen.sh
+  cd $pkgname
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/60
+  git apply -3 ../gnome-panel-60.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/64
+  git apply -3 ../gnome-panel-64.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/65
+  git apply -3 ../gnome-panel-65.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/75
+  git apply -3 ../gnome-panel-75.patch
+
+  # https://gitlab.gnome.org/GNOME/gnome-panel/-/merge_requests/76
+  git apply -3 ../gnome-panel-76.patch
+
+  # Reduce panel icon spacing
+  sed -i '/"panel-icon-spacing"/{n;n;s/>2</>1</}' data/org.gnome.gnome-panel.gschema.xml
+
+  autoreconf -fi
 }
 
 build() {
-    cd $pkgname-$pkgver
-    ./configure --prefix=/usr \
-        --sysconfdir=/etc \
-        --localstatedir=/var \
-        --disable-static \
-        --libexecdir=/usr/lib/gnome-panel \
-        --disable-schemas-compile \
-        --enable-compile-warnings=minimum \
-        --enable-gtk-doc
-        
-    #https://bugzilla.gnome.org/show_bug.cgi?id=656231
-    sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    
-    make ${MAKEFLAGS}
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-debug \
+    --enable-compile-warnings
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 package() {
-    cd $pkgname-$pkgver
-    make DESTDIR="$pkgdir" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }
-
-

@@ -1,0 +1,59 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=ghostwriter
+pkgver=24.12.3
+pkgrel=1
+pkgdesc='Aesthetic, distraction-free Markdown editor'
+arch=(x86_64)
+groups=('kde-release-service')
+url='https://ghostwriter.kde.org/'
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         hunspell
+         kconfigwidgets
+         kcoreaddons
+         kwidgetsaddons
+         kxmlgui
+         qt6-base
+         qt6-webchannel
+         qt6-webengine
+         sonnet)
+makedepends=(extra-cmake-modules
+             kdoctools
+             qt6-tools)
+optdepends=('cmark: processing and rendering CommonMark'
+            'mathjax: formula rendering in live preview'
+            'pandoc: Pandoc supported Markdown flavors and export to various formats')
+groups=(kde-applications
+        kde-office)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('2ec85782f0899d7dfbe9333e33470bbdfc4b1c550703301b8fa35e479c883da0'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
+
+prepare() {
+  cd $pkgname-$pkgver
+  # Unbundle MathJax
+  sed -i 's/typeof window.MathJax !==/typeof window.MathJax.typeset !==/' resources/preview.html
+  sed -i 's|qrc:3rdparty/MathJax/bin/tex-svg-full.js|file:///usr/share/mathjax/tex-svg-full.js|' resources/preview.html
+  sed -i '/MathJax/d' resources.qrc
+}
+
+build() {
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

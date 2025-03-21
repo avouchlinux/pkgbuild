@@ -1,44 +1,63 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=lapack
-pkgname=('lapack' 'blas' 'cblas' 'lapacke' 'lapack-doc')
-pkgver=3.9.1
+pkgname=(blas
+         cblas
+         lapack
+         lapacke
+         blas64
+         cblas64
+         lapack64
+         lapacke64
+         lapack-doc)
+pkgver=3.12.0
 pkgrel=1
 pkgdesc="Linear Algebra Package"
 arch=('x86_64')
 groups=('sci-libs')
 url="https://www.netlib.org/lapack"
 makedepends=('gcc-fortran' 'cmake' 'python3' 'doxygen')
-license=("custom")
-source=(https://github.com/Reference-LAPACK/$pkgbase/archive/refs/tags/v$pkgver.tar.gz)
+license=(custom)
+source=(https://github.com/Reference-LAPACK/lapack/archive/v$pkgver/$pkgbase-$pkgver.tar.gz)
+sha256sums=('eac9570f8e0ad6f30ce4b963f4f033f0f643e7c3912fc9ee6cd99120675ad48b')
 
 build() {
-  cmake -S ${pkgname}-${pkgver} -B build \
-    -DCMAKE_BUILD_TYPE=Release \
+  cmake -B build -S $pkgbase-$pkgver \
     -DCMAKE_SKIP_RPATH=ON \
     -DBUILD_SHARED_LIBS=ON \
     -DBUILD_TESTING=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_Fortran_COMPILER=gfortran \
     -DLAPACKE_WITH_TMG=ON \
     -DCBLAS=ON \
-    -DBUILD_DEPRECATED=ON
-  make ${MAKEFLAGS} -C build
+    -DBUILD_DEPRECATED=ON \
+    -DBUILD_MAN_DOCUMENTATION=ON
+  cmake --build build
+  cmake --build build --target man
 
-  # Build man pages
-  cd $pkgname-$pkgver
-  doxygen DOCS/Doxyfile_man
+  cmake -B build64 -S $pkgbase-$pkgver \
+    -DCMAKE_SKIP_RPATH=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_TESTING=OFF \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_Fortran_COMPILER=gfortran \
+    -DLAPACKE_WITH_TMG=ON \
+    -DCBLAS=ON \
+    -DBUILD_DEPRECATED=ON \
+    -DBUILD_INDEX64=ON
+  cmake --build build64
 }
 
 package_lapack() {
-  depends=("blas")
+  depends=(blas
+           gcc-libs
+           glibc)
   
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 
   rm -r "$pkgdir"/usr/lib/{libblas.*,libcblas.*,liblapacke.*}
   rm -r "$pkgdir"/usr/lib/pkgconfig/{blas.*,cblas.*,lapacke.*}
@@ -47,33 +66,82 @@ package_lapack() {
 }
 
 package_blas() {
-  pkgdesc="Basic Linear Algebra Subprograms"
-  depends=('gcc-libs')
+  pkgdesc='Basic Linear Algebra Subprograms'
+  depends=(gcc-libs
+           glibc)
 
-  cd build/BLAS
-  make DESTDIR="$pkgdir" install
-  
+  DESTDIR="$pkgdir" cmake --install build/BLAS
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_cblas() {
-  pkgdesc="C interface to BLAS"
-  depends=("blas")
+  pkgdesc='C interface to BLAS'
+  depends=(blas
+           glibc)
 
-  cd build/CBLAS
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build/CBLAS
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
 }
 
 package_lapacke() {
-  pkgdesc="C interface to LAPACK"
-  depends=("lapack")
+  pkgdesc='C interface to LAPACK'
+  depends=(glibc
+           lapack)
 
-  cd build/LAPACKE
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build/LAPACKE
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_lapack64() {
+  pkgdesc='Linear Algebra PACKage (64-bit integers)'
+  depends=(blas64
+           gcc-libs
+           glibc)
+
+  DESTDIR="$pkgdir" cmake --install build64
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+
+  rm -r "$pkgdir"/usr/lib/{libblas64.*,libcblas64.*,liblapacke64.*}
+  rm -r "$pkgdir"/usr/lib/pkgconfig/{blas64.*,cblas64.*,lapacke64.*}
+  rm -r "$pkgdir"/usr/lib/cmake/{cblas*,lapacke*}
+  rm -r "$pkgdir"/usr/include
+}
+
+package_blas64() {
+  pkgdesc='Basic Linear Algebra Subprograms (64-bit integers)'
+  depends=(gcc-libs
+           glibc)
+
+  DESTDIR="$pkgdir" cmake --install build64/BLAS
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}
+
+package_cblas64() {
+  pkgdesc='C interface to BLAS (64-bit integers)'
+  depends=(blas64
+           glibc)
+  optdepends=('cblas: development headers')
+
+  DESTDIR="$pkgdir" cmake --install build64/CBLAS
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  rm -r "$pkgdir"/usr/include # Provided by cblas
+}
+
+package_lapacke64() {
+  pkgdesc='C interface to LAPACK (64-bit integers)'
+  depends=(glibc
+           lapack64)
+  optdepends=('lapacke: development headers')
+ 
+  DESTDIR="$pkgdir" cmake --install build64/LAPACKE
+  install -Dm644 $pkgbase-$pkgver/LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+  rm -r "$pkgdir"/usr/include # Provided by lapacke
 }
 
 package_lapack-doc() {
-  pkgdesc="Man pages for BLAS/LAPACK"
+  pkgdesc='Man pages for BLAS/LAPACK'
 
   mkdir -p "$pkgdir"/usr/share
-  cp -r lapack-$pkgver/DOCS/man "$pkgdir"/usr/share
+  cp -r build/DOCS/man "$pkgdir"/usr/share
+  rm "$pkgdir"/usr/share/man/man3/isnan.3 # conflicts with man-pages
 }

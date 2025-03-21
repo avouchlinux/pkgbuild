@@ -1,10 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=librest
-pkgver=1.0.0
+pkgbase=librest
+pkgname=(librest librest-docs librest-demos)
+pkgver=0.9.1
 pkgrel=1
 pkgdesc="A helper library for RESTful services."
 arch=('x86_64')
@@ -17,14 +18,47 @@ source=("https://gitlab.gnome.org/GNOME/librest/-/archive/$pkgver/librest-$pkgve
 sha256sums=('SKIP')
 
 build() {
-	avouch-meson ${pkgname}-${pkgver} build
+	avouch-meson ${pkgname}-${pkgver} build -D vapi=true
 	meson compile -C build
 }
 
 check() {
-	meson test -C build
+  meson test -C build --print-errorlogs
 }
 
-package() {
-	DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_librest() {
+  depends+=(libg{lib,object,io}-2.0.so libxml2.so libsoup-3.0.so
+            libjson-glib-1.0.so)
+  provides+=(librest{,-extras}-1.0.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick docs usr/share/doc
+
+  _pick demo usr/bin/librest-demo
+  _pick demo usr/share/applications/org.gnome.RestDemo.desktop
+}
+
+package_librest-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+  mv docs/* "$pkgdir"
+}
+
+package_librest-demos() {
+  pkgdesc+=" (demo applications)"
+  depends=(librest libadwaita gtksourceview5)
+  mv demo/* "$pkgdir"
 }

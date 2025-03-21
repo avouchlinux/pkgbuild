@@ -1,0 +1,10 @@
+[externally-managed]
+ If you wish to install a non-Avouch-packaged Python package,
+ create a virtual environment using 'python -m venv path/to/venv'.
+ Then use path/to/venv/bin/python and path/to/venv/bin/pip.
+
+ If you wish to install a non-Avouch packaged Python application,
+ it may be easiest to use 'pipx install xyz', which will manage a
+ virtual environment for you. Make sure you have python-pipx
+ installed via pacman.
+

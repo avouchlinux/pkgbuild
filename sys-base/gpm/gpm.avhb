@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,23 +10,23 @@ pkgrel=1
 pkgdesc="A mouse server for the console and xterm"
 arch=('x86_64')
 groups=('sys-base')
-url="http://www.nico.schottelius.org/software/gpm/"
+url='https://www.nico.schottelius.org/software/gpm/'
 license=('GPL')
-depends=('bash')
+depends=('bash' 'procps-ng')
+makedepends=('git')
+provides=('libgpm.so')
 options=('!makeflags')
-install=gpm.install
-source=("https://github.com/telmich/gpm.git"
+source=("git+https://github.com/telmich/gpm.git#commit=${_commit}"
         'gpm.sh'
         'gpm.path'
         'gpm.service')
-
-# getsrc() {
-# 	git clone ${source[0]}
-# }
+sha256sums=('7db4089030c128d9ee5fb1afb08251d328f8f8835e4716ff41c6c08c1a90bed2'
+            'f41e90dcf6c0c6c4b8eff1c69039a20eb6b38ea851ffd1fa47ba311bf83d6ed8'
+            '1b8712650c70fd139f844fa754e288bfe05a8ed8044d118fda75a47d66034d23'
+            'dbce5688b3ba1d5bc9c4f38bcc2d89a6d68d51b30fb5d6d29a02d0c011d3688e')
 
 pkgver() {
   cd "${srcdir}/${pkgname}"
-  git checkout $_commit
 
   GITTAG="$(git describe --abbrev=0 --tags 2>/dev/null)"
   printf '%s.r%s.g%s' \
@@ -35,27 +35,35 @@ pkgver() {
     "$(git rev-parse --short HEAD)"
 }
 
-prepare(){
-	cd "${srcdir}/${pkgname}"
-    # Fix ABI values
+prepare() {
+  cd "${srcdir}/${pkgname}"
+
+    # patch -Np1 -i ../1.20.7...e82d1a653ca94aa4ed12441424da6ce780b1e530.diff
+    patch -Np1 -i ../gpm-1.20.6-multilib.patch
+    patch -Np1 -i ../gpm-1.20.1-lib-silent.patch
+    patch -Np1 -i ../gpm-1.20.5-close-fds.patch
+    patch -Np1 -i ../gpm-1.20.1-weak-wgetch.patch
+    patch -Np1 -i ../gpm-1.20.7-rhbz-668480-gpm-types-7-manpage-fixes.patch
+    # patch -Np1 -i ../gpm-1.20.6-capability.patch
+
+  # Fix ABI values
 	sed -i \
 		-e '/^abi_lev=/s:=.*:=1:' \
 		-e '/^abi_age=/s:=.*:=20:' \
-		configure.ac.footer || die
-	# Rebuild autotools since release doesn't include them.
-	# Should be fixed with the next release though.
-	# https://github.com/telmich/gpm/pull/15
-	sed -i -e '/ACLOCAL/,$d' autogen.sh || die
-	./autogen.sh
+		configure.ac.footer
+
+  ./autogen.sh
 }
 
 build() {
   cd "${srcdir}/${pkgname}"
   
+  # emacs support disabled due to bug #99533, bug #335900 (From Gentoo)
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
-    --sbindir=/usr/bin
+    --sbindir=/usr/bin \
+   emacs="/usr/bin/false"
   make
 }
 

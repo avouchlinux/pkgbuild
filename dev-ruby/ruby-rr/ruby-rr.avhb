@@ -1,0 +1,46 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_gemname='rr'
+pkgname="ruby-${_gemname}"
+pkgver=3.1.1
+pkgrel=1
+pkgdesc='RR is a test double framework that features a rich selection of double techniques and a terse syntax'
+arch=('any')
+groups=('dev-ruby')
+url='https://github.com/rr/rr'
+license=('MIT')
+# ruby-rr requires ruby-test-unit-rr to run it's tests.
+# ruby-test-unit-rr already has ruby-rr as a runtime dependency
+makedepends=('ruby-rdoc' 'ruby-rake' 'ruby-bundler' 'ruby-rspec')
+checkdepends=('ruby-test-unit-rr' 'ruby-test-unit')
+depends=('ruby')
+options=(!emptydirs)
+source=("${url}/archive/v${pkgver}/${pkgname}-v${pkgver}.tar.gz")
+sha512sums=('3b359db98e90e9be788f1da7baa9e58e74b91345c2c569ea7b3b354b4ab567f2b9f2dbe189323f3b0d1d0c61cfa3715fa423bc37ddba755256390c011365093f')
+
+build() {
+  cd "${_gemname}-${pkgver}"
+  rake build
+}
+
+check() {
+  cd "${_gemname}-${pkgver}"
+  rake test
+}
+
+package() {
+  cd "${_gemname}-${pkgver}"
+  local _gemdir="$(gem env gemdir)"
+  gem install --verbose --ignore-dependencies --no-user-install --install-dir "${pkgdir}/${_gemdir}" --bindir "${pkgdir}/usr/bin" "pkg/${_gemname}-${pkgver}.gem"
+
+  install -Dm 644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}/"
+  install -Dm 644 README.md CHANGES.md CREDITS.md FOR_DEVELOPERS.md -t "${pkgdir}/usr/share/doc/${pkgname}"
+  mv doc "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+  rm -rf "${pkgdir}/${_gemdir}/cache"
+}
+
+# vim: ts=2 sw=2 et:

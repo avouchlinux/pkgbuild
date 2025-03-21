@@ -1,27 +1,50 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libupnp
-pkgver=1.14.12
+_realname=pupnp
+pkgver=1.14.20
 pkgrel=1
 pkgdesc="Portable Open Source UPnP Development Kit"
 arch=('x86_64')
 groups=('media-libs')
-url="http://pupnp.sourceforge.net/"
-license=('BSD')
-depends=('glibc')
-makedepends=('pkgconfig')
-source=("http://downloads.sourceforge.net/sourceforge/pupnp/${pkgname}-${pkgver}.tar.bz2")
+url="https://pupnp.sourceforge.io/"
+license=(BSD-3-Clause)
+depends=(glibc)
+makedepends=(cmake)
+provides=(
+  libixml.so
+  libupnp.so
+)
+source=(https://github.com/$_realname/$_realname/archive/release-$pkgver/$_realname-release-$pkgver.tar.gz)
+sha512sums=('8aabd054d3c311abab762d15c739e5e10801e9a6caf09540560be9497cb632fdfc2c86a61522ab0b24e9baf20020ab0dab2a6e8e253c9cc1a1047efc701ba563')
+b2sums=('3d331a28b8f1b6c98d1153c4320b9c5b4191e82858a4874a2ce7fc93eab30c3aed61ebb2982aa6a08037943edf7a2196dc5d2e1103238292c48b119e6a8ed3ea')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make
+  local cmake_options=(
+    -B build
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D UPNP_BUILD_STATIC=OFF
+    -D blocking_tcp_connections=OFF
+    -D reuseaddr=ON
+    -S $_realname-release-$pkgver
+    -W no-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build --verbose
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR=${pkgdir} install
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 $_realname-release-$pkgver/COPYING -t "$pkgdir/usr/share/licenses/$pkgname"
+  install -vDm 644 $_realname-release-$pkgver/{ChangeLog,README.md} -t "$pkgdir/usr/share/doc/$pkgname"
 }
+

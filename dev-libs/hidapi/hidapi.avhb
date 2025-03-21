@@ -1,40 +1,30 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=hidapi
-pkgver=0.10.1
+pkgver=0.14.0
 pkgrel=1
 pkgdesc='Simple library for communicating with USB and Bluetooth HID devices'
 arch=(x86_64)
 groups=('dev-libs')
 url='https://github.com/libusb/hidapi'
 license=('GPL3' 'BSD' 'custom')
-makedepends=('systemd' 'systemd-libs' 'libusb')
-optdepends=('libusb: for the libusb backend -- hidapi-libusb.so'
-            'libudev.so: for the hidraw backend -- hidapi-hidraw.so')
+depends=('systemd-libs')
+optdepends=('libusb: for hidapi-libusb')
+makedepends=('cmake' 'libusb')
 provides=('libhidapi-hidraw.so' 'libhidapi-libusb.so')
 source=("https://github.com/libusb/${pkgname}/archive/${pkgname}-${pkgver}.tar.gz")
-
-prepare() {
-  cd "${srcdir}/${pkgname}-${pkgname}-${pkgver}"
-  patch -Np1 -i ../hidapi-0.8.0_rc1_p20140719-autoconf-2.70.patch
-  ./bootstrap
-}
+sha512sums=('66a045144f90b41438898b82f0398e80223323ebfe6e4f197d2713696bb3ae60f36aea5a37a9999b34b12294783fd7e4c28c6e785462559cbe21276009da1eac')
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgname}-${pkgver}"  
-  ./configure --prefix=/usr
-  make
+  cmake -B build -S ${pkgname}-${pkgname}-${pkgver} -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgname}-${pkgver}"
-
-  make DESTDIR="${pkgdir}/" install
-
-  mkdir -p "${pkgdir}/usr/share/licenses/${pkgname}"
-  rm -f "${pkgdir}/usr/share/doc/hidapi/"LICENSE*
-  install -m0644 LICENSE.txt LICENSE-bsd.txt LICENSE-orig.txt "${pkgdir}/usr/share/licenses/${pkgname}/"
+  DESTDIR="${pkgdir}" cmake --install build
+  install -Dm0644 ${pkgname}-${pkgname}-${pkgver}/LICENSE*.txt -t "${pkgdir}/usr/share/licenses/${pkgname}/"
 }
+

@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -10,19 +11,22 @@ arch=('x86_64')
 groups=('media-grafix')
 url="https://wiki.documentfoundation.org/DLP/Libraries/libzmf"
 license=('MPL')
-depends=('librevenge' 'libpng')
-makedepends=('boost' 'cppunit' 'doxygen')
 source=(https://dev-www.libreoffice.org/src/${pkgname}/${pkgname}-${pkgver}.tar.xz)
+depends=('librevenge' 'libpng'
+         'zlib' 'icu' 'gcc-libs' 'glibc')
+makedepends=('boost' 'cppunit' 'doxygen')
+sha256sums=('27051a30cb057fdb5d5de65a1f165c7153dc76e27fe62251cbb86639eb2caf22')
 
 build() {
   cd ${pkgname}-${pkgver}
   ./configure --prefix=/usr --disable-werror
-  make ${MAKEFLAGS}
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
   cd ${pkgname}-${pkgver}
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {

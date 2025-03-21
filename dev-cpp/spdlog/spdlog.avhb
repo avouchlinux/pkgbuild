@@ -1,41 +1,54 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=spdlog
-pkgver=1.5.0
+pkgver=1.14.1
 pkgrel=1
 pkgdesc='Very fast, header-only/compiled, C++ logging library'
 arch=('x86_64')
 groups=('dev-cpp')
 url='https://github.com/gabime/spdlog'
 license=('MIT')
-depends=('fmt')
+depends=('libfmt.so')
 makedepends=('cmake')
-source=("https://github.com/gabime/spdlog/archive/v$pkgver.tar.gz")
-provides=('libspdlog.so')
+source=(
+    "$pkgname-$pkgver.tar.gz::https://github.com/gabime/spdlog/archive/v$pkgver.tar.gz"
+    "spdlog_fmt_external.patch"
+)
+provides=(
+    'libspdlog.so'
+)
+sha256sums=('1586508029a7d0670dfcb2d97575dcdc242d3868a259742b69f100801ab4e16b'
+            'a0eb34b7c6920f0db2587460071f53372663c191cdfe34bf5ea2704c309c745f')
+
+prepare() {
+    cd "$pkgname-$pkgver"
+    patch -Np1 -i ../spdlog_fmt_external.patch
+}
 
 build() {
-    mkdir build
-    cd build
-    cmake ../"$pkgname-$pkgver" \
+    export CFLAGS+=" ${CPPFLAGS}"
+    export CXXFLAGS+=" ${CPPFLAGS}"
+    # FIXME: Stop -DSPDLOG_BUILD_TESTS=ON from downloading bundled catch2
+    cmake -B build -S "$pkgname-$pkgver" \
         -DSPDLOG_BUILD_BENCH=OFF \
-        -DSPDLOG_BUILD_EXAMPLES=OFF \
         -DSPDLOG_FMT_EXTERNAL=ON \
         -DSPDLOG_BUILD_SHARED=ON \
-        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_BUILD_TYPE=None \
         -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=lib
-    make ${MAKEFLAGS}
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -Wno-dev
+    make -C build
 }
 
-check() {
-    cd build
-    make test
-}
+# See FIXME above
+#check() {
+#    make -C build test
+#}
 
 package() {
-    cd build
-    make DESTDIR="$pkgdir" install
-    install -Dm644 ../"$pkgname-$pkgver/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+    make -C build DESTDIR="$pkgdir" install
+    install -Dm644 "$pkgname-$pkgver/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

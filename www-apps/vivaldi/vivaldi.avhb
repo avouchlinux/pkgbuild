@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=vivaldi
-_rpmversion=5.2.2623.48-1
-pkgver=5.2.2623.48
+_rpmversion=6.8.3381.53-1
+pkgver=6.8.3381.53
 pkgrel=1
 pkgdesc='An advanced browser made with the power user in mind.'
 url="https://vivaldi.com"

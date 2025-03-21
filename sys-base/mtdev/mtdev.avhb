@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -17,7 +18,7 @@ sha512sums=('78477a4af784e3f846df867f1428ffdc458e3ff33d465d45a84247a7e52f0e215ca
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 check() {

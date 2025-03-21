@@ -1,46 +1,46 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xf86-video-vmware
-pkgver=13.3.0
+pkgver=13.4.0
 pkgrel=1
 pkgdesc="X.org vmware video driver"
 arch=('x86_64')
 groups=('x11-drivers')
-url="http://xorg.freedesktop.org/"
+url="https://xorg.freedesktop.org/"
 license=('custom')
-depends=('libdrm' 'svga-dri' 'mesa>=10.0')
-makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.0')
+depends=('mesa' 'systemd-libs')
+makedepends=('xorg-server-devel' 'X-ABI-VIDEODRV_VERSION=25.2') # 'git')
+conflicts=('xorg-server<21.1.1' 'X-ABI-VIDEODRV_VERSION<25' 'X-ABI-VIDEODRV_VERSION>=26')
+groups=('xorg-drivers')
 options=('!emptydirs')
-source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.bz2)
-
-prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-
-	#Fixes building with the latest version of Glibc (BLFS)
-	sed -i "/xf86xv.h/i #include <xorg-server.h>" vmwgfx/vmwgfx_overlay.c
-
-	patch -Np0 -i ../gcc8.diff
-}
+source=(${url}/releases/individual/driver/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('7cacde21a490501dd9c2e9121040274c1f6ef64e6dc0ef49946b400f6297fab73a6e9548e45fe8930cee9028e65e45aaff9ba489dd69ac75a5133114726bf55d'
+            'SKIP')
+#validpgpkeys=('90D027AEAF33CBABC140735BC1F5D3CDF5176580') #  Thomas Hellstrom (VMware) <thellstrom@vmware.com>
+validpgpkeys=('3C2C43D9447D5938EF4551EBE23B7E70B467F0BF') # Peter Hutterer (Who-T) <office@who-t.net>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+  cd ${pkgname}-${pkgver}
 
-	# Since avouch, hardened flags are now enabled in apm.conf
-	# With them, module fail to load with undefined symbol.
-    export CFLAGS=${CFLAGS/-fno-plt}
-    export CXXFLAGS=${CXXFLAGS/-fno-plt}
-    export LDFLAGS=${LDFLAGS/ -z now}
+  # We are using hardened flags
+  # With them, module fail to load with undefined symbol.
+  # See https://bugs.archlinux.org/task/55102 / https://bugs.archlinux.org/task/54845
+  export CFLAGS=${CFLAGS/-fno-plt}
+  export CXXFLAGS=${CXXFLAGS/-fno-plt}
+  export LDFLAGS=${LDFLAGS/-z now}
+  
 
-
-	./configure --prefix=/usr --enable-vmwarectrl-client
-	make ${MAKEFLGS}
+  ./configure --prefix=/usr --enable-vmwarectrl-client
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

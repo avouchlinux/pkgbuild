@@ -1,19 +1,22 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=freerdp
-_realname=FreeRDP
+_tarname=FreeRDP
+pkgver=3.9.0
+_libver=${pkgver/.*/}
 epoch=1
-pkgver=2.11.2
 pkgrel=1
 pkgdesc="Free implementation of the Remote Desktop Protocol (RDP)"
 arch=('x86_64')
 groups=('net-misc')
 url="https://www.freerdp.com/"
-license=('Apache')
+license=(Apache-2.0)
 depends=(
+  fuse3
+  gcc-libs
   glibc
   libcups
   libx11
@@ -28,87 +31,120 @@ depends=(
   libxrandr
   libxrender
   libxtst
-  pcsclite
+  sdl2
+  sdl2_ttf
   wayland
 )
 makedepends=(
   alsa-lib
   cmake
-  docbook-xsl
+  e2fsprogs
   ffmpeg
   icu
+  json-c
   krb5
   libjpeg-turbo
+  libp11
+  libpng
   libpulse
   libusb
+  libwebp
   openssl
   pam
-  systemd
-  xmlto
+  pkcs11-helper
   xorgproto
+  zlib
 )
 provides=(
-  libfreerdp2.so
-  libfreerdp-client2.so
-  libfreerdp-server2
-  libfreerdp-shadow2.so
-  libfreerdp-shadow-subsystem2.so
-  libwinpr2.so
-  libwinpr-tools2.so
-  libuwac0.so
+  libfreerdp-client$_libver.so
+  libfreerdp-server-proxy$_libver.so
+  libfreerdp-server$_libver
+  libfreerdp-shadow-subsystem$_libver.so
+  libfreerdp-shadow$_libver.so
+  libfreerdp$_libver.so
+  libwinpr-tools$_libver.so
+  libwinpr$_libver.so
 )
-
-source=(https://github.com/${pkgname}/${pkgname}/archive/${pkgver/_/-}.tar.gz)
+source=(
+  https://github.com/$pkgname/$pkgname/archive/$pkgver/$pkgname-$pkgver.tar.gz
+  $pkgname-3.9.0-fix-overlapping-check.patch::https://github.com/FreeRDP/FreeRDP/commit/d8dc2956e5df589ca0766d88797f1cd4dbb10882.patch
+)
+sha512sums=('c73428975dbe5763cdd7c3334d3482c49f0bc091cab6e9e52b708d132435baa4f60b0a29ced4ace5cd72fc99daa60bd43e33d271d0516b7c05b69d04f348ae52'
+            '3980f3eff7a2b9754b9af83b1cad56683b982acd3a0ece96d57d3f602aef412d731233f517c080f13837d5c3ec6bb8d7829a06cd5534f4c00ae46f9de576bb3e')
+b2sums=('2e20c141a9e9892a748fc6e825c33351d38e73d1e8058dd2c54103b94c69a04783d563d1555ec73c3214851fe915609f4e69b3c6e63f478bd3548ec61d976d67'
+        'ea0149f7e15f227a62feb1aad5bdf84d43edc09dc5ce709525d5a88d614c7c3a08eb58afc3c27801f3e16961a5a2fccc2ac27f82fc7886a829747398129cc055')
 
 prepare() {
-  cd "${_realname}-${pkgver}"
-  # fix man page formatting:
-  patch -Np1 -i "../${pkgname}-2.0.0-manpage_formatting.patch"
+  patch -Np1 -d $_tarname-$pkgver -i ../$pkgname-3.9.0-fix-overlapping-check.patch
 }
 
 build() {
+  # gcc14 buildfix
+  export CFLAGS+=" -Wno-incompatible-pointer-types"
+  export CXXFLAGS+=" -Wno-incompatible-pointer-types"
+
   local cmake_options=(
-    -DCMAKE_INSTALL_PREFIX=/usr
-    -DCMAKE_INSTALL_LIBDIR=lib
-    -DCMAKE_BUILD_TYPE=None
-    -DCMAKE_SKIP_INSTALL_RPATH=ON
-    -DPROXY_PLUGINDIR=/usr/lib/freerdp2/server/proxy/plugins
-    -DWITH_DSP_FFMPEG=ON
-    -DWITH_FFMPEG=ON
-    -DWITH_PULSE=ON
-    -DWITH_CUPS=ON
-    -DWITH_PCSC=ON
-    -DWITH_ICU=ON
-    -DWITH_JPEG=ON
-    -DWITH_SERVER=ON
-    -DWITH_SWSCALE=ON
-    -DWITH_CHANNELS=ON
-    -DWITH_CLIENT_CHANNELS=ON
-    -DWITH_SERVER_CHANNELS=ON
-    -DCHANNEL_URBDRC_CLIENT=ON
-    -Wno-dev
     -B build
-    -S $_realname-$pkgver
+    -D CHANNEL_URBDRC_CLIENT=ON
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D CMAKE_INSTALL_LIBDIR=lib
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_SKIP_INSTALL_RPATH=ON
+    -D PROXY_PLUGINDIR=/usr/lib/$pkgname/server/proxy/plugins
+    -D RDTK_FORCE_STATIC_BUILD=ON  # prevent file conflicts with freerdp2
+    -D UWAC_FORCE_STATIC_BUILD=ON  # prevent file conflicts with freerdp2
+    -D WITH_ALSA=ON
+    -D WITH_BINARY_VERSIONING=ON  # prevent file conflicts with freerdp2
+    -D WITH_CHANNELS=ON
+    -D WITH_CLIENT_CHANNELS=ON
+    -D WITH_CUPS=ON
+    -D WITH_DSP_FFMPEG=ON
+    -D WITH_FFMPEG=ON
+    -D WITH_FUSE=ON
+    -D WITH_ICU=ON
+    -D WITH_JPEG=ON
+    -D WITH_PCSC=ON
+    -D WITH_PULSE=ON
+    -D WITH_SERVER=ON
+    -D WITH_SERVER_CHANNELS=ON
+    -D WITH_SYSTEMD=ON
+    -D WITH_SWSCALE=ON
+    -D WITH_WAYLAND=ON
+    -D WITH_WINPR_TOOLS=ON
+    -D WITH_X11=ON
+    -D WINPR_UTILS_IMAGE_PNG=ON
+    -D WINPR_UTILS_IMAGE_JPEG=ON
+    -D WINPR_UTILS_IMAGE_WEBP=ON
+    -S $_tarname-$pkgver
+    -W no-dev
   )
 
   cmake "${cmake_options[@]}"
   cmake --build build --verbose
+}
 
+check() {
+  ctest --test-dir build --output-on-failure
 }
 
 package() {
   depends+=(
     alsa-lib libasound.so
+    e2fsprogs libcom_err.so
     ffmpeg libavcodec.so libavutil.so libswresample.so libswscale.so
     icu libicuuc.so
+    json-c libjson-c.so
+    krb5 libk5crypto.so libkrb5.so
     libjpeg-turbo libjpeg.so
+    libpng libpng16.so
     libpulse libpulse.so
     libusb libusb-1.0.so
+    libwebp libwebp.so
     openssl libcrypto.so libssl.so
     pam libpam.so
-    systemd-libs libsystemd.so
+    zlib libz.so
   )
 
   DESTDIR="$pkgdir" cmake --install build
-  install -vDm 644 $_name-$pkgver/{ChangeLog,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
+  install -vDm 644 $_tarname-$pkgver/{ChangeLog,README.md} -t "$pkgdir/usr/share/doc/$pkgname/"
 }

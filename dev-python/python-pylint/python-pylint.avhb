@@ -1,0 +1,73 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pyname=pylint
+pkgname=python-$_pyname
+pkgver=3.3.1
+pkgrel=1
+pkgdesc='Analyzes Python code looking for bugs and signs of poor quality'
+arch=(any)
+groups=('dev-python')
+url=https://pylint.pycqa.org
+_url=https://github.com/PyCQA/pylint
+license=(GPL-2.0-only)
+_pydeps=(astroid
+         colorama
+         dill
+         isort
+         mccabe
+         platformdirs
+         tomlkit)
+depends=(python
+         "${_pydeps[@]/#/python-}")
+makedepends=(python-{build,installer,wheel}
+             python-myst-parser
+             python-setuptools
+             python-sphinx{,-reredirects})
+checkdepends=(mpdecimal
+              python-gitpython
+              python-py
+              python-pytest{,-timeout,-benchmark})
+optdepends=('graphviz: Enable output formats other than dot or vcg')
+_archive="$_pyname-$pkgver"
+source=("$_url/archive/v$pkgver/$_archive.tar.gz")
+sha256sums=('3343069bd6f6fcf220cfac79db466f69a509213ed1f0bedc9887600eb0b58084')
+
+prepare() {
+	cd "$_archive"
+	# Remove build time dependency pinning that conflicts with Arch packages
+	sed -i -E '/^requires.*setuptools/s/[>~]=[0-9.]+//g' pyproject.toml
+	# Remove overly restrictive dependency pinning that ends up in runtime checks
+	sed -i -e '/>=/{s/>.*//;p}' -e '/python_requires/d' setup.cfg
+}
+
+build() {
+	cd "$_archive"
+	python -m build -wn
+	export PYTHONPATH="$PWD/build/lib"
+	# Man page builds but throws deprecation warnings that sphinx declares should be fatal
+	make -C doc man ||:
+}
+
+check() {
+	cd "$_archive"
+	export PYTHONPATH="$PWD:$PWD/build/lib"
+	local deselected=(
+		tests/benchmark/test_baseline_benchmarks.py
+		tests/checkers/unittest_imports.py::TestImportsChecker
+		tests/checkers/unittest_variables.py::TestMissingSubmodule
+		tests/test_functional.py::test_functional
+		tests/test_regr.py::test_package
+		tests/test_self.py::TestRunTC::test_do_not_import_files_from_local_directory
+		tests/testutils/test_testutils_utils.py::test__test_environ_pythonpath_no_arg
+	)
+	pytest -vv --color=yes ${deselected[@]/#/--deselect }
+}
+
+package() {
+	cd "$_archive"
+	python -m installer -d "$pkgdir" dist/*.whl
+	install -Dm0644 -t "$pkgdir/usr/share/man/man1/" doc/_build/man/*.1
+}

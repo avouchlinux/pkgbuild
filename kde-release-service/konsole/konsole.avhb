@@ -1,38 +1,65 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=konsole
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
-pkgdesc="Terminal"
-url='http://kde.org/applications/system/konsole/'
+pkgdesc='KDE terminal emulator'
+url='https://apps.kde.org/konsole/'
 arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
-depends=('knotifyconfig' 'kpty' 'kparts')
-makedepends=('extra-cmake-modules' 'kdoctools' 'python')
+groups=('kde-release-services')
+license=(GPL-2.0-or-later
+         LGPL-2.0-or-later)
+depends=(glibc
+         gcc-libs
+         icu
+         kbookmarks
+         kcolorscheme
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kglobalaccel
+         kguiaddons
+         ki18n
+         kiconthemes
+         kio
+         knewstuff
+         knotifications
+         knotifyconfig
+         kparts
+         kpty
+         kservice
+         ktextwidgets
+         kwidgetsaddons
+         kwindowsystem
+         kxmlgui
+         qt6-5compat
+         qt6-base
+         qt6-multimedia
+         sh)
+makedepends=(extra-cmake-modules
+             kdoctools)
 optdepends=('keditbookmarks: to manage bookmarks')
-source=("http://download.kde.org/stable/release-service/${pkgver}/src/konsole-${pkgver}.tar.xz"{,.sig})
-sha1sums=('ed93fc6bb20a7114a4bdcc1b3c5e770e4191dbe6'
-          'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('ae72ca4e2d9123b9bada99d2d3b01398ff5082b549b38579cf9aa94c2bffd719'
+            'SKIP')
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DKDE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

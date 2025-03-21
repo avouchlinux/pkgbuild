@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>exo</Name>
+	 <Name>garcon</Name>
+	 <Name>gtk2-xfce-engine</Name>
+	 <Name>gtk-xfce-engine</Name>
+	 <Name>libxfce4ui</Name>
+	 <Name>libxfce4util</Name>
+	 <Name>libxfcegui4</Name>
+	 <Name>mousepad</Name>
+	 <Name>parole</Name>
+	 <Name>thunar</Name>
+	 <Name>thunar-archive-plugin</Name>
+	 <Name>thunar-media-tags-plugin</Name>
+	 <Name>thunar-volman</Name>
+	 <Name>tumbler</Name>
+	 <Name>xfce4-appfinder</Name>
+	 <Name>xfce4-dev-tools</Name>
+	 <Name>xfce4-icon-theme</Name>
+	 <Name>xfce4-mount-plugin</Name>
+	 <Name>xfce4-notifyd</Name>
+	 <Name>xfce4-panel</Name>
+	 <Name>xfce4-places-plugin</Name>
+	 <Name>xfce4-playercontrol-plugin</Name>
+	 <Name>xfce4-power-manager</Name>
+	 <Name>xfce4-pulseaudio-plugin</Name>
+	 <Name>xfce4-screenshooter</Name>
+	 <Name>xfce4-session</Name>
+	 <Name>xfce4-settings</Name>
+	 <Name>xfce4-taskmanager</Name>
+	 <Name>xfce4-terminal</Name>
+	 <Name>xfce4-volumed-pulse</Name>
+	 <Name>xfce4-whiskermenu-plugin</Name>
+	 <Name>xfconf</Name>
+	 <Name>xfdashboard</Name>
+	 <Name>xfdesktop</Name>
+	 <Name>xfwm4</Name>
+	 <Name>xfwm4-themes</Name>
+</Packages>

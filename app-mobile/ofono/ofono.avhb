@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ofono
-pkgver=1.31
+pkgver=2.9
 pkgrel=1
 pkgdesc="Infrastructure for building mobile telephony (GSM/UMTS) applications"
 arch=('x86_64')
@@ -29,7 +29,7 @@ build() {
 		--enable-shared \
 		--disable-bluez4
 
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -10,38 +11,46 @@ url="https://www.gnu.org/software/libcdio/"
 arch=('x86_64')
 groups=('media-libs')
 license=(GPL3)
-depends=(libcddb ncurses gcc-libs)
-source=(https://ftp.gnu.org/gnu/libcdio/$pkgname-$pkgver.tar.bz2{,.sig})
+depends=(ncurses gcc-libs)
+makedepends=(git help2man)
+_commit=9c7a2779846da161279bc1501e83c849cf89a594  # tags/release-2.1.0
+source=("git+https://git.savannah.gnu.org/git/libcdio.git#commit=$_commit")
+sha256sums=('SKIP')
 validpgpkeys=('DAA63BC2582034A02B923D521A8DE5008275EC21') # R. Bernstein
 
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^release-//;s/[^-]*-g/r&/;s/-/+/g'
+}
+
 prepare() {
-  cd $pkgname-$pkgver
-  autoreconf -fi
+  cd $pkgname
+
+  # Format security
+  git cherry-pick -n 2adb43c60afc6e98e94d86dad9f93d3df52862b1
+
+  # realpath test failure
+  git cherry-pick -n 56335fff0f21d294cd0e478d49542a43e9495ed0
+
+  autoreconf -fvi
 }
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --disable-vcd-info --enable-cpp-progs --disable-static
+  cd $pkgname
+  ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+    --disable-vcd-info --disable-cddb --enable-cpp-progs --disable-static \
+    --enable-maintainer-mode
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-    # Configure screipt wrongly append hadend flags
-  # temprary fix to correct hardening flags
-  # with out correction build fails as
-  # gcc: error: relro: No such file or directory
-  sed -i 's/relro/-z relro/g' Makefile
-  sed -i 's/-z -z relro/-z relro/g' Makefile
-  sed -i 's/relro/-z relro/g' src/Makefile
-  sed -i 's/-z -z relro/-z relro/g' src/Makefile
-
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
-  cd $pkgname-$pkgver
-  make ${MAKEFLAGS} -C test check
+  cd $pkgname
+  make -C test check
 }
 
 package() {
-  cd $pkgname-$pkgver
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 
   sed -e "/define CDIO_LIBCDIO_SOURCE_PATH/s|.*|/* #undef CDIO_LIBCDIO_SOURCE_PATH */|" \

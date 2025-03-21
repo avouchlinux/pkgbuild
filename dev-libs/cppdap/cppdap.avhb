@@ -1,0 +1,37 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cppdap
+pkgver=1.58.0
+pkgrel=1
+pkgdesc='C++ library for the Debug Adapter Protocol'
+arch=(x86_64)
+groups=('dev-libs')
+url='https://github.com/google/cppdap'
+license=(Apache-2.0)
+depends=(gcc-libs
+         glibc)
+makedepends=(cmake
+             git
+             nlohmann-json)
+source=(git+https://github.com/google/cppdap#tag=dap-$pkgver-a)
+sha256sums=('84c59af16b1fa109223c64ee44c5df12a9c3d3b4fab90cacd20a2b4efd048554')
+
+prepare() {
+  cd cppdap
+  git cherry-pick -n 6a3cc9a8 # Build shared lib
+}
+
+build() {
+  cmake -B build -S cppdap \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCPPDAP_USE_EXTERNAL_NLOHMANN_JSON_PACKAGE=ON \
+    -DBUILD_SHARED_LIBS=ON
+  cmake --build build
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+}

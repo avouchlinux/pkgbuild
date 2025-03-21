@@ -1,53 +1,76 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libjpeg-turbo
-pkgver=2.0.4
+pkgver=3.0.4
 pkgrel=1
 pkgdesc='JPEG image codec with accelerated baseline compression and decompression'
-url='http://libjpeg-turbo.virtualgl.org/'
 arch=('x86_64')
 groups=('media-libs')
-license=('custom')
-makedepends=('cmake' 'nasm' 'jdk8-openjdk')
-provides=('libjpeg=8.2.2')
-source=("https://downloads.sourceforge.net/project/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.sig})
-validpgpkeys=('7D6293CC6378786E1B5C496885C7044E033FDE16')
-
-prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	sed 's/Szathmáry/Szathmary/g' -i java/org/libjpegturbo/turbojpeg/*.java
-}
+url="https://libjpeg-turbo.org/"
+_url="https://github.com/libjpeg-turbo/libjpeg-turbo/"
+arch=(x86_64)
+license=(
+  BSD-3-Clause
+  IJG
+)
+depends=(glibc)
+makedepends=(
+  cmake
+  ninja
+  nasm
+  'java-environment>11'
+  strip-nondeterminism
+)
+optdepends=('java-runtime>11: for TurboJPEG Java wrapper')
+provides=(
+  libjpeg
+  libjpeg.so
+  libturbojpeg.so
+)
+source=(
+  $_url/releases/download/$pkgver/$pkgname-$pkgver.tar.gz{,.sig}
+)
+sha512sums=('04d37d65131f7ab8586507fe6520452e791e9b8d72a08cf52f81279450b4c6b8a5b49ff3e14e358d3c32cb5666b6d4576d1e16895af8213a1761464de5dc9d31'
+            'SKIP')
+b2sums=('cf951582ce7cdf0dce39075bb1cc58f6a61fa0bdaca4874a4f06a03d2cd11775bc626c8d391d4fc76574d302a781ba47e5c90e2aa2d6a21a8b8d06712437e241'
+        'SKIP')
+validpgpkeys=('0338C8D8D9FDA62CF9C421BD7EC2DBB6F4DBF434') # The libjpeg-turbo Project (Signing key for official binaries) <information@libjpeg-turbo.org>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
+  local cmake_options=(
+    -B build
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D CMAKE_INSTALL_LIBDIR=/usr/lib
+    -D CMAKE_BUILD_TYPE=None
+    -D ENABLE_STATIC=OFF
+    -D WITH_JAVA=ON
+    -D WITH_JPEG8=ON
+    -G Ninja
+    -S $pkgname-$pkgver
+    -W no-dev
+  )
 
-	cmake \
-		-DWITH_JAVA=1 \
-		-DWITH_JPEG8=1 \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=/usr/lib \
-		.
+  cmake "${cmake_options[@]}"
+  cmake --build build -v
 
-	make ${MAKEFLAGS}
+  # cmake creates non-reproducible jars: https://github.com/libjpeg-turbo/libjpeg-turbo/issues/745
+  strip-nondeterminism --timestamp "$SOURCE_DATE_EPOCH" build/java/turbojpeg.jar
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} test
+  ctest --test-dir build --output-on-failure --stop-on-failure -j$(nproc)
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make \
-		DESTDIR="${pkgdir}" \
-		docdir="/usr/share/doc/${pkgname}" \
-		exampledir="/usr/share/doc/${pkgname}" \
-		install
+  DESTDIR="$pkgdir" cmake --install build -v
 
-	install -d "${pkgdir}/usr/share/licenses/${pkgname}"
-	ln -s ../../doc/libjpeg-turbo/LICENSE.md "${pkgdir}/usr/share/licenses/${pkgname}"
-	install -m 644 jpegint.h "${pkgdir}/usr/include" # required by other software
+  # header required by some dependents
+  # https://bugs.archlinux.org/task/24787
+  install -vDm 644 $pkgname-$pkgver/jpegint.h "$pkgdir/usr/include"
+
+  install -vDm 644 $pkgname-$pkgver/LICENSE.md -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 $pkgname-$pkgver/README.ijg -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

@@ -1,34 +1,67 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=snappy
-pkgver=1.1.8
+pkgver=1.2.1
 pkgrel=1
 pkgdesc='A fast compressor/decompressor library'
 arch=('x86_64')
 groups=('app-archive')
-url="https://google.github.io/snappy/"
-license=('BSD')
-depends=('glibc' 'gcc-libs')
+url="https://github.com/google/snappy"
+license=('BSD-3-Clause')
+depends=(
+  'gcc-libs'
+  'glibc'
+)
+makedepends=(
+  'clang'
+  'cmake'
+  'gtest'
+)
 checkdepends=('zlib')
-source=("https://github.com/google/snappy/releases/download/1.1.3/$pkgname-$pkgver.tar.gz")
+provides=('libsnappy.so')
+source=(
+  "$url/archive/$pkgver/$pkgname-$pkgver.tar.gz"
+  snappy.pc.in
+  cmake_add_pkgconfig.patch
+  use_system_gtest.patch
+  reenable_rtti.patch::https://github.com/google/snappy/commit/516fdcca6606502e2d562d20c01b225c8d066739.patch
+)
+sha256sums=('736aeb64d86566d2236ddffa2865ee5d7a82d26c9016b36218fcc27ea4f09f86'
+            '134f06ca0584a1026538d0fb972fc141c008390ecae1806184b721eca1abbc75'
+            '2a204d7d35509ffc290d80c641fcb7e8488c67ca550aa1695493cff12c53156b'
+            '50b31b45511e8907f1319305c102f37631b0fbe509f862b612e70073383658e4'
+            '5c9a3be0cabfc58f091a6ba51b05a1627a39693695ab91a6260cecc982e9a6b5')
 
-prepare(){
-	cd ${pkgname}-${pkgver}
-	patch -Np1 -i ../snappy-1.1.7-0001-cmake-Add-missing-linking-to-GTEST_LIBRARIES.patch
+prepare() {
+  cd "$pkgname-$pkgver"
+  cp ../snappy.pc.in .
+  patch -Np1 < ../cmake_add_pkgconfig.patch # https://bugs.archlinux.org/task/71246
+  patch -Np1 < ../use_system_gtest.patch
+  patch -Np1 < ../reenable_rtti.patch
 }
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DBUILD_SHARED_LIBS=ON \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_PREFIX=/usr \
-		-DCMAKE_INSTALL_LIBDIR=lib
-	ninja -C build
+  cd "$pkgname-$pkgver"
+  cmake -S . -B build \
+    -D CMAKE_BUILD_TYPE=None \
+    -D CMAKE_INSTALL_PREFIX=/usr \
+    -W no-dev \
+    -DCMAKE_CXX_STANDARD=23 \
+    -DBUILD_SHARED_LIBS=ON \
+    -DSNAPPY_BUILD_BENCHMARKS=OFF
+  cmake --build build
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  cmake --build build --target test
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  cd "$pkgname-$pkgver"
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" COPYING
 }

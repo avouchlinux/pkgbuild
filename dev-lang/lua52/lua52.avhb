@@ -1,7 +1,7 @@
-# $Id: PKGBUILD 234446 2015-03-21 17:59:50Z bpiotrowski $
-# Maintainer: Sébastien Luttringer <seblu@archlinux.org>
-# Contributor: Juergen Hoetzel <juergen@archlinux.org>
-# Contributor: Damir Perisa <damir.perisa@bluewin.ch>
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=lua52
 _realname=lua

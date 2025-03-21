@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=selinux-dbus
-pkgver=3.2
+pkgver=3.6
 pkgrel=1
 pkgdesc="DBus service which allows managing SELinux configuration"
 arch=('x86_64')
@@ -12,7 +12,7 @@ groups=('sys-security')
 url='http://userspace.selinuxproject.org'
 license=('GPL2')
 makedepends=('libsepol')
-source=("https://github.com/SELinuxProject/selinux/releases/download/20190315/${pkgname}-${pkgver}.tar.gz")
+source=("https://github.com/SELinuxProject/selinux/releases/download/${pkgver}/${pkgname}-${pkgver}.tar.gz"{,.asc})
 sha256sums=('a946c32b284532447857e4c48830f8816867c61220c8c08bdd32e6f691335f8e')
 
 build() {

@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -23,7 +24,7 @@ build() {
 	cmake ../${pkgname}-${pkgver} \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DCMAKE_BUILD_TYPE=Release
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

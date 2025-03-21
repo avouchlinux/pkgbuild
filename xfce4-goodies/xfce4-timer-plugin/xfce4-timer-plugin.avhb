@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-timer-plugin
-pkgver=1.7.1
+pkgver=1.7.2
 pkgrel=1
 pkgdesc="Plugin to track time for the Xfce4 panel"
 arch=('x86_64')
@@ -24,7 +24,7 @@ build() {
     --libexecdir=/usr/lib/ \
     --localstatedir=/var \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

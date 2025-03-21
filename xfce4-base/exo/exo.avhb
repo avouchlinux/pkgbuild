@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=exo
-pkgver=4.16.1
+pkgver=4.18.0
 pkgrel=1
 pkgdesc="Extensions to Xfce by os-cillation"
 arch=('x86_64')
@@ -27,7 +27,7 @@ build() {
     --prefix=/usr \
     --sysconfdir=/etc \
     --disable-debug
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

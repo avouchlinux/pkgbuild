@@ -1,0 +1,58 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-characters
+pkgver=48.0
+pkgrel=1
+pkgdesc="A character map application"
+url="https://gitlab.gnome.org/GNOME/gnome-characters"
+arch=('x86_64')
+groups=('gnome-base')
+license=("BSD-3-Clause AND GPL-2.0-or-later")
+depends=(
+  dconf
+  emoji-font
+  gjs
+  glib2
+  glibc
+  gnome-desktop-4
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+)
+makedepends=(
+  appstream
+  git
+  glib2-devel
+  gobject-introspection
+  gperf
+  meson
+)
+checkdepends=(weston)
+
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+
+build() {
+	avouch-meson ${pkgname}-${pkgver} build
+	ninja -C build
+}
+
+check() (
+  export XDG_RUNTIME_DIR="$PWD/runtime-dir"
+  mkdir -p -m 700 "$XDG_RUNTIME_DIR"
+
+  export WAYLAND_DISPLAY=wayland-5
+  weston --backend=headless-backend.so --socket=$WAYLAND_DISPLAY --idle-time=0 &
+  _w=$!
+
+  trap "kill $_w; wait" EXIT
+
+#   meson test -C build --print-errorlogs
+)
+
+
+package() {
+	DESTDIR="$pkgdir" meson install -C build
+}

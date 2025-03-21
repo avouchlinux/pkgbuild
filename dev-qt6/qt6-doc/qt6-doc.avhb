@@ -1,39 +1,82 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=qt6-doc
-_qtver=6.0.2
-pkgver=${_qtver/-/}
-_realname="${pkgname/6-/}-everywhere-src-${_qtver}"
+pkgbase=qt6-doc
+pkgname=(qt6-doc qt6-examples)
+pkgver=6.7.3
+_realname=${pkgname/6-/}
+_tarname="${pkgname/6-doc/}-everywhere-src-${pkgver}"
 pkgrel=1
 arch=('any')
 groups=('dev-qt6')
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
-makedepends=(cmake mariadb-libs unixodbc postgresql alsa-lib gst-plugins-base-libs
-             gtk3 libpulse cups freetds vulkan-headers clang python llvm qt6-tools)
-source=("https://download.qt.io/official_releases/qt/${pkgver%.*}/${_qtver}/single/${_pkgfn}.tar.xz"
-         qt6-doc-bindir.patch)
+makedepends=(alsa-lib
+             clang
+             cmake
+             cups
+             freetds
+             gperf
+             gst-plugins-base-libs
+             gtk3
+             libpulse
+             libxkbfile
+             llvm
+             mariadb-libs
+             ninja
+             nodejs
+             postgresql
+             python
+             python-html5lib
+             qt6-declarative
+             qt6-tools
+             unixodbc
+             vulkan-headers)
 
-prepare() {
-	cd ${_realname}
-  # Generate headers
-	syncqt.pl -version ${_qtver} sync.profile 
-}
-
+source=(https://download.qt.io/official_releases/qt/${pkgver%.*}/$pkgver/single/$_tarname.tar.xz)
 
 build() {
-  cd ${_realname}
-  qmake
-	make ${MAKEFLAGS} docs
+  cmake -B build -S $_tarname -G Ninja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DQT_HOST_PATH=/usr \
+    -DINSTALL_BINDIR=lib/qt6/bin \
+    -DINSTALL_DOCDIR=share/doc/qt6 \
+    -DINSTALL_ARCHDATADIR=lib/qt6 \
+    -DINSTALL_DATADIR=share/qt6 \
+    -DINSTALL_INCLUDEDIR=include/qt6 \
+    -DINSTALL_MKSPECSDIR=lib/qt6/mkspecs \
+    -DINSTALL_EXAMPLESDIR=share/doc/qt6/examples \
+    -DQT_FEATURE_journald=ON \
+    -DQT_FEATURE_openssl_linked=ON \
+    -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
+  cmake --build build --target docs
+
 }
 
-package() {
-  cd ${_realname}
-  make INSTALL_ROOT="$pkgdir" install_docs
+package_qt6-doc() {
+  pkgdesc='A cross-platform application and UI framework (Documentation)'
+  DESTDIR="$pkgdir" cmake --build build --target install_docs
 
-  install -d "$pkgdir"/usr/share/licenses
-  ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname
+  install -Dm644 $_pkgfn/LICENSES/* -t "$pkgdir"/usr/share/licenses/$pkgbase
+}
+
+package_qt6-examples() {
+  pkgdesc='Examples and demos from qt6 documentation'
+  depends=(qt6-doc)
+
+  _base="$pkgdir"/usr/share/doc/qt6/examples
+
+  # The various example dirs have conflicting .pro files, but
+  # QtCreator requires them to be in the same top-level directory.
+  # Matching the Qt installer, only the qtbase project is kept.
+  mkdir -p $_base
+  cp ${_pkgfn}/qtbase/examples/examples.pro $_base
+
+  _fdirs=$(find "$_pkgfn" -maxdepth 2 -type d -name examples)
+  for _dir in $_fdirs; do
+    rm -f $_dir/{examples.pro,CMakeLists.txt,README}
+    cp -rn $_dir/* $_base
+  done
 }

@@ -1,27 +1,39 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libsysstat
-pkgver=0.4.6
+pkgver=1.1.0
 pkgrel=1
 pkgdesc="Library to query system statistics (net, resource usage, ...)"
 arch=("x86_64")
 groups=('lxqt-base')
 url="http://lxqt.org"
 license=("LGPL2.1")
-depends=("qt5-base")
-makedepends=("cmake" "qt5-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
-validpgpkeys=("169704C6FB490C6892C7F23C37E0AF1FDA48F373")
+depends=("qt6-base")
+makedepends=("lxqt-build-tools")
+source=(
+	"https://github.com/lxqt/libsysstat/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/libsysstat/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha512sums=('f27481d20b2817fc55056aa5db10193586cc9709419870e0411ce896383bf23c2faddb3d73d4db635534245acc4ef980ac4e28143eb6b0a1d84337df74daf7e7'
+            'SKIP')
+validpgpkeys=(
+	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
+	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
+)
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja \
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+	mkdir -p build
+	cd build
+	cmake "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	make
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+	cd build
+	make DESTDIR="$pkgdir" install
 }

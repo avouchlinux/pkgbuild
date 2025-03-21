@@ -1,0 +1,41 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=gnome-app-list
+pkgver=3.0
+pkgrel=1
+pkgdesc="Provides app recommendation data for the GNOME project"
+arch=(any)
+groups=('gnome-base')
+url="https://gitlab.gnome.org/GNOME/gnome-app-list"
+license=(LGPL-2.1-or-later)
+makedepends=(
+  git
+  libxml2
+  meson
+)
+checkdepends=(
+  flake8
+  python-black
+)
+source=("git+$url.git#tag=${pkgver/[a-z]/.&}")
+b2sums=('2b8c547ea959cef1065c3f6254cdf7273140c32996615a3eedf6c3bc1b0eb35b5d675ab1c3e4a39b97c76bf7036ed00f2536692a6d727d43b10659693fb1474b')
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  avouch-meson $pkgname build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

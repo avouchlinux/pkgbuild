@@ -1,41 +1,43 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libpng
-pkgver=1.6.37
-_apngver=1.6.37
+pkgver=1.6.44
+_apngver=1.6.44
 pkgrel=1
 pkgdesc="A collection of routines used to create PNG format graphics files"
 arch=('x86_64')
 groups=('media-libs')
-url="http://www.libpng.org/pub/png/libpng.html"
+url='http://www.libpng.org/pub/png/libpng.html'
 license=('custom')
 depends=('zlib' 'sh')
-validpgpkeys=('8048643BA2C840F4F92A195FF54984BFA16C640F') # Glenn Randers-Pehrson (mozilla) <glennrp@gmail.com>
-source=("https://downloads.sourceforge.net/sourceforge/$pkgname/$pkgname-$pkgver.tar.xz"
-        "https://downloads.sourceforge.net/sourceforge/libpng-apng/libpng-$_apngver-apng.patch.gz")
+makedepends=('git')
+provides=('libpng16.so')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/pnggroup/libpng/archive/refs/tags/v1.6.44.tar.gz")
+sha256sums=('56d285e5bdc6a7ef5a46b987d62fc88b199cfdf1cb1dad19df10b361ef6613ce')
+validpgpkeys=('F57A55036A4D45837074FD92C9E384533403C2F8') # Cosmin Truta
 
 prepare() {
   cd $pkgname-$pkgver
 
-  # Add animated PNG (apng) support. Required by Firefox
-  # see http://sourceforge.net/projects/libpng-apng/
-  patch -Np1 -i ../libpng-$_apngver-apng.patch
+  autoreconf -fiv
 }
 
 build() {
   cd $pkgname-$pkgver
 
-  ./configure --prefix=/usr --disable-static
-  make ${MAKEFLAGS}
+  ./configure \
+    --prefix=/usr \
+    --disable-static
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
 
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {

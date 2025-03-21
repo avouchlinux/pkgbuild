@@ -1,37 +1,73 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libphonenumber
-pkgver=8.12.36
+pkgver=8.13.46
 pkgrel=1
 pkgdesc="Google's common library for parsing, formatting, and validating international phone numbers"
 arch=('x86_64')
 groups=('sys-libs')
 url="https://github.com/googlei18n/libphonenumber"
-license=(Apache)
-depends=(icu protobuf boost-libs)
-makedepends=(boost cmake gtest git 'java-environment>=9')
-source=("https://github.com/google/libphonenumber/archive/v$pkgver.tar.gz")
+arch=(x86_64)
+license=('Apache-2.0 AND BSD-3-Clause')
+depends=(
+  abseil-cpp
+  gcc-libs
+  glibc
+  icu
+  protobuf
+)
+makedepends=(
+  cmake
+  git
+)
+source=(
+  "https://github.com/google/libphonenumber/archive/refs/tags/v$pkgver.tar.gz"
+  0001-Use-find_package-for-protobuf.patch
+)
+b2sums=('d240dabb3e2e240db0eaf0b967cb6b1505a95b748245f7b3a7f4e91a3149ff505164d06a70118b813911e1231177d6c25d0903e1c9a2be701f295af0d0dbdafd'
+        '8fc1c65d863051052bb1cb3759a252a3b36a9dffa1335eae4d043821797651e57ca8902cced0672d3c47192b50b9b54436a1551ce65b2e9a4bd82351a58ef1ac')
+
+prepare() {
+  cd $pkgname-$pkgver
+
+  # Use official protobuf cmake target instead of
+  # custom one, fixes build with protobuf 23
+  patch -Np1 -i ../0001-Use-find_package-for-protobuf.patch
+}
 
 build() {
-  CXXFLAGS+=" -Wno-error=deprecated-declarations"  # readdir_r deprecation
-  CXXFLAGS+=" -Wno-error=unused-variable"          # this is nuts
+  local cmake_options=(
+    -D CMAKE_INSTALL_PREFIX=/usr
+    -D CMAKE_BUILD_TYPE=None
+    -D CMAKE_CXX_STANDARD=17
+    -D USE_BOOST=OFF
+    -D USE_STDMUTEX=ON
 
-  cmake -S $pkgname-$pkgver/cpp -B build \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib
+    # https://issuetracker.google.com/issues/369040934
+    -D BUILD_TESTING=OFF
+    -D REGENERATE_METADATA=OFF
+  )
+
+  cmake -S $pkgname-$pkgver/cpp -B build "${cmake_options[@]}"
   cmake --build build
 }
 
-check() {
-  cmake --build build --target tests
-}
-
 package() {
-  depends+=(libicu{uc,i18n}.so libprotobuf.so libboost_thread.so)
-  provides+=(libgeocoding.so libphonenumber.so)
+  depends+=(
+    libicu{uc,i18n}.so
+    libprotobuf.so
+  )
+  provides+=(
+    libgeocoding.so
+    libphonenumber.so
+  )
 
   DESTDIR="$pkgdir" cmake --install build
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver//LICENSE.Chromium
 }
+
+

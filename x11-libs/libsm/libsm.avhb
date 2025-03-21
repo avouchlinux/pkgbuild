@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libsm
 _realname=libSM
-pkgver=1.2.3
+pkgver=1.2.4
 pkgrel=1
 pkgdesc="X11 Session Management library"
 arch=('x86_64')
@@ -13,13 +14,13 @@ license=('custom')
 url="http://xorg.freedesktop.org/"
 depends=('libice' 'util-linux')
 makedepends=('xorg-util-macros' 'xtrans')
-source=(${url}/releases/individual/lib/libSM-${pkgver}.tar.bz2)
+source=(${url}/releases/individual/lib/libSM-${pkgver}.tar.xz)
 sha256sums=('0baca8c9f5d934450a70896c4ad38d06475521255ca63b717a6510fdb6e287bd')
 
 build() {
 	cd "${srcdir}/${_realname}-${pkgver}"
 	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

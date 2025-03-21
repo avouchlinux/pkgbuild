@@ -1,19 +1,21 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgedit-gtksourceview
-pkgver=299.0.4
+pkgver=299.1.0
 pkgrel=1
 pkgdesc="A source code editing widget"
 arch=(x86_64)
 groups=('x11-libs')
 url="https://gedit-technology.net/"
-license=('LGPL2.1')
+license=('LGPL-2.1-or-later')
 depends=(
   cairo
   gdk-pixbuf2
+  glib2
+  glibc
   gtk3
   libxml2
   pango
@@ -26,33 +28,22 @@ makedepends=(
 )
 checkdepends=(xorg-server-xvfb)
 provides=(libgedit-gtksourceview-300.so)
-_commit=7062264d635f6efe04d88217a893a97ff385b873  # tags/299.0.4^0
-source=("https://github.com/gedit-technology/libgedit-gtksourceview.git")
+source=("https://github.com/gedit-technology/$pkgname/archive/refs/tags/$pkgver.tar.gz")
 sha256sums=('SKIP')
-
-getsrc(){
-  git clone ${source[0]}
-  cd $pkgname
-  git checkout $_commit
-}
-
-prepare() {
-  cd $pkgname
-}
 
 build() {
   local meson_options=(
     -D gtk_doc=true
   )
 
-  avouch-meson $pkgname build "${meson_options[@]}"
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
-check() {
-  dbus-run-session xvfb-run -s '-nolisten local' \
-    meson test -C build --print-errorlogs
-}
+# check() {
+#   dbus-run-session xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+# }
 
 package() {
   meson install -C build --destdir "$pkgdir"

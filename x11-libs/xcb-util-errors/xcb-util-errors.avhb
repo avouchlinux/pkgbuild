@@ -1,36 +1,31 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xcb-util-errors
-pkgver=1.0
+pkgver=1.0.1
 pkgrel=1
 pkgdesc="Utility libraries for XC Binding - Port of Xlib's XImage and XShmImage functions"
 arch=('x86_64')
 groups=('x11-libs')
-url="http://xcb.freedesktop.org"
-license=('custom')
-depends=('libxcb' 'xcb-util')
-makedepends=('xorg-util-macros')
-source=("http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
-        'LICENSE')
-sha256sums=('d35a3c0eaae171f5081ec127fb9cec174b716ce5d78196a87f2785376da021df'
-            'ded299aa179dcf0d885bf89274a4db77a530e03f9f5e7cf1c3c4ef1d60e914b9')
+url='https://cgit.freedesktop.org/xcb/util-errors/'
+license=('MIT')
+depends=('libxcb')
+makedepends=('xorgproto' 'python') # 'xorg-util-macros' 'doxygen' 'graphviz')  # no docs yet to build
+source=(https://xorg.freedesktop.org/archive/individual/lib/xcb-util-errors-$pkgver.tar.xz{,.sig})
+sha512sums=('e883e178921a6f783e0100acae66eaf0ed13fc169fd21b0c313d7a70c9358c129b01b117675eda50e258e8b3b27ff7b21aa4d15c4da69249ffc6bbc7dcf87d4a'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # Alan Coopersmith <alan.coopersmith@oracle.com>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
-}
-
-check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+    cd "$pkgname-$pkgver"
+    ./configure --prefix=/usr
+    make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -D -m644 "COPYING" "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+    cd "$pkgname-$pkgver"
+    make DESTDIR="$pkgdir/" install
+    install -Dm644 COPYING -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

@@ -1,37 +1,50 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kmail-account-wizard
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc="KMail account wizard"
 arch=('x86_64')
-groups=('kde-apps')
-url="https://community.kde.org/KDE_PIM"
-license=(GPL2)
-depends=(kidentitymanagement libkleo pimcommon kmailtransport kross ktexteditor knotifyconfig)
-makedepends=(extra-cmake-modules boost python kdoctools qt5-tools)
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig})
-sha256sums=('fb790134522ec3f9cef39a3f296ea24d1d7c933c443a2463682a5df8fdc1eed0'
+groups=('kde-release-services')
+url='https://kontact.kde.org'
+license=(GPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kconfig
+         kconfigwidgets
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         ki18n
+         kiconthemes
+         kidentitymanagement
+         kirigami
+         kmailtransport
+         kmime
+         libakonadi
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('6ef27ce524665377ae082aa0c7f6375894f601a321c1745e8f9aa681ba77a439'
             'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
     -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

@@ -1,11 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=shotwell
 epoch=2
-pkgver=0.32.2
+pkgver=33.alpha
 _basever=${pkgver%.*}
 pkgrel=1
 pkgdesc="A digital photo organizer designed for the GNOME desktop environment"

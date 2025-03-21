@@ -1,0 +1,44 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-argcomplete
+_pyname=argcomplete
+pkgver=3.5.3
+pkgrel=1
+pkgdesc='Easy, extensible command line tab completion of arguments for your Python script'
+url='https://github.com/kislyuk/argcomplete'
+arch=('any')
+groups=('dev-python')
+license=('Apache-2.0')
+depends=('python')
+makedepends=('git' 'python-build' 'python-hatch-vcs' 'python-hatchling' 'python-installer' 'python-wheel')
+checkdepends=('fish' 'python-pexpect' 'python-pip' 'tcsh' 'zsh')
+source=(${_pyname}::"git+$url#tag=v$pkgver")
+sha512sums=('446593154b8c16f2d280ed5727723b808c5873cfc2c4715a96e8e68ecc0572d0dc2cca8992e41ea9af6d6f88c53f36ac55583139ea659a173fc2186ee9221520')
+validpgpkeys=('29BCBADB4ECAAAC2382699388AFAFCD242818A52') # Andrey Kislyuk <kislyuk@gmail.com>
+
+build() {
+  cd ${_pyname}
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd ${_pyname}
+  python -m venv --system-site-packages test-venv
+  test-venv/bin/python -m installer dist/*.whl
+  PATH="$PWD/test-venv/bin/:$PATH" test-venv/bin/python test/test.py -v
+
+}
+
+package() {
+  cd ${_pyname}
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  # Disabled again, see https://gitlab.archlinux.org/archlinux/packaging/packages/python-argcomplete/-/issues/3
+  # local _site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+  # install -dm755 "$pkgdir"/usr/share/bash-completion/completions "$pkgdir"/usr/share/zsh/site-functions
+  # ln -s ../../../..${_site_packages}/argcomplete/bash_completion.d/_python-argcomplete -t "$pkgdir"/usr/share/bash-completion/completions/
+  # ln -s ../../../..${_site_packages}/argcomplete/bash_completion.d/_python-argcomplete -t "$pkgdir"/usr/share/zsh/site-functions/
+}

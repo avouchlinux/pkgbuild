@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libusb-compat
-pkgver=0.1.5
+pkgver=0.1.8
 pkgrel=1
 pkgdesc="Library to enable user space application programs to communicate with USB devices"
 arch=('x86_64')
@@ -11,15 +12,16 @@ groups=('sys-base')
 url="http://libusb.sourceforge.net/"
 license=('LGPL')
 depends=('libusb' 'sh')
-source=("http://downloads.sourceforge.net/${pkgname%-*}/${pkgname}-${pkgver%.*}/$pkgname-$pkgver/${pkgname}-${pkgver}.tar.bz2")
+source=("https://github.com/libusb/libusb-compat-0.1/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz")
+sha256sums=('d199c173fd3cd9d27c7f4bb6608befc7eb761984e6664da7d9d4386ff66fe6fc')
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr --disable-static
+  make
 }
 
 package() {
-	cd "$srcdir/$pkgname-$pkgver"
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

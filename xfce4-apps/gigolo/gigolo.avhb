@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gigolo
-pkgver=0.5.1
+pkgver=0.5.3
 pkgrel=1
 pkgdesc="Frontend to manage connections to remote filesystems using GIO/GVFS"
 arch=('x86_64')
@@ -13,13 +13,13 @@ url="https://www.uvena.de/gigolo"
 license=('GPL2')
 depends=('gvfs')
 makedepends=('intltool')
-source=(https://archive.xfce.org/src/apps/$pkgname/0.4/$pkgname-$pkgver.tar.bz2)
+source=(https://archive.xfce.org/src/apps/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.bz2)
 
 build() {
   cd "${srcdir}"/$pkgname-$pkgver
 
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

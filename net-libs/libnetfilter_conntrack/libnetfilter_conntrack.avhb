@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,13 +12,15 @@ groups=('net-libs')
 depends=('libnfnetlink' 'libmnl')
 url='https://www.netfilter.org/projects/libnetfilter_conntrack/'
 license=('GPL')
+validpgpkeys=('37D964ACC04981C75500FB9BD55D978A8A1420E4') # Netfilter Core Team
 source=("https://www.netfilter.org/projects/$pkgname/files/$pkgname-$pkgver.tar.bz2"{,.sig})
-validpgpkeys=('C09DB2063F1D7034BA6152ADAB4655A126D292E4') # Netfilter Core Team
+sha256sums=('67bd9df49fe34e8b82144f6dfb93b320f384a8ea59727e92ff8d18b5f4b579a8'
+            'SKIP')
 
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

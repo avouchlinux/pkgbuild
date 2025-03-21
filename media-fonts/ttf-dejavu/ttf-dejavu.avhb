@@ -1,29 +1,43 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=ttf-dejavu
 _realname=dejavu-fonts-ttf
-pkgver=2.37
+pkgver=2.37+18+g9b5d1b2f
+_commit=9b5d1b2ffeec20c7b46aa89c0223d783c02762cf # master
 pkgrel=1
 pkgdesc="Font family based on the Bitstream Vera Fonts with a wider range of characters"
 arch=('any')
 groups=('media-fonts')
-url="http://dejavu-fonts.org/wiki/Main_Page"
-license=('custom')
-depends=('fontconfig' 'xorg-fonts-encodings' 'xorg-mkfontscale' 'xorg-mkfontdir')
-provides=('ttf-font')
-install=ttf-dejavu.install
-source=(http://downloads.sourceforge.net/project/dejavu/dejavu/${pkgver}/dejavu-fonts-ttf-${pkgver}.tar.bz2)
+url='https://dejavu-fonts.github.io'
+license=(custom)
+makedepends=(fontforge
+             git
+             perl-font-ttf)
+provides=(ttf-font)
+source=("git+https://github.com/dejavu-fonts/dejavu-fonts.git#commit=$_commit")
+sha256sums=('9d38fcff213462f880756a4c7005cc4b43e90f1ba59d2bcb61e18450d376601a')
+
+pkgver() {
+	cd dejavu-fonts
+	git describe --tags |
+		sed 's/^version_//;s/_/./;s/-/+/g'
+}
+
+build() {
+	cd dejavu-fonts
+	make full-ttf
+}
 
 package() {
-	cd ${srcdir}/dejavu-fonts-ttf-${pkgver}
-	install -dm755 "${pkgdir}"/etc/fonts/conf.avail
-	install -dm755 "${pkgdir}"/usr/share/fonts/TTF
-
-	install -m644 ttf/*.ttf "${pkgdir}"/usr/share/fonts/TTF/
-	install -m644 fontconfig/*.conf "${pkgdir}"/etc/fonts/conf.avail/
-
-	install -Dm644 LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+	cd dejavu-fonts
+	install -Dm0644 -t "$pkgdir/usr/share/fonts/TTF" build/*.ttf
+	install -Dm0644 -t "$pkgdir/usr/share/fontconfig/conf.avail" fontconfig/*.conf
+	mkdir -p "$pkgdir/usr/share/fontconfig/conf.default"
+	ln -srt "$pkgdir/usr/share/fontconfig/conf.default" \
+		"$pkgdir"/usr/share/fontconfig/conf.avail/*
+	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
 }
 

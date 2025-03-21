@@ -1,0 +1,58 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-mako
+_pkgname=${pkgname#python-}
+pkgver=1.3.6
+_pkgver=rel_${pkgver//./_}
+pkgrel=1
+pkgdesc="A template library written in Python"
+arch=(any)
+groups=('dev-python')
+url="https://github.com/sqlalchemy/mako"
+license=(MIT)
+depends=(
+  python
+  python-markupsafe
+)
+makedepends=(
+  python-build
+  python-installer
+  python-setuptools
+  python-wheel
+)
+checkdepends=(
+  # python-lingua isn't packaged
+  python-babel
+  python-beaker
+  python-dogpile.cache
+  python-pygments
+  python-pytest
+)
+optdepends=(
+  'python-babel: for i18n features'
+  'python-beaker: for caching support'
+  'python-dogpile.cache: for caching support'
+  'python-pygments: for syntax highlighting'
+  'python-pytest: for testing utilities'
+)
+source=("$pkgname-$pkgver.tar.gz::$url/archive/$_pkgver.tar.gz")
+sha512sums=('190221fa4498ee749cafac2da9eec22a729ebfbecb02b10e6f46faccb939034dfe16e6a689c48d85f64e4ca95b2af1a838ceb78665694883e9b3a6e50e419286')
+
+build() {
+  cd "$_pkgname-$_pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$_pkgname-$_pkgver"
+  pytest
+}
+
+package() {
+  cd "$_pkgname-$_pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm644 -t "$pkgdir/usr/share/licenses/$pkgname" LICENSE
+}

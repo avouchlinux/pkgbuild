@@ -1,0 +1,13 @@
+diff --git a/libopenjpeg/jp2.c b/libopenjpeg/jp2.c
+index 4bc9eed95b3d9753..7b5708f6d6b2d8be 100644
+--- a/libopenjpeg/jp2.c
++++ b/libopenjpeg/jp2.c
+@@ -825,7 +825,7 @@ void jp2_write_jp2h(opj_jp2_t *jp2, opj_cio_t *cio) {
+ 		cio_skip(cio, box.length);
+ 		if ((cio_tell(cio) - box.init_pos) != box.length) {
+ 			opj_event_msg(jp2->cinfo, EVT_ERROR, "Box size exceeds size of codestream (expected: %d, real: %d)\n", box.length, (cio_tell(cio) - box.init_pos));
+-			return OPJ_FALSE;
++			return;
+ 		}
+ 		cio_seek(cio, curpos);
+ 	}

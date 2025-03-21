@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-framework
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Plasma library and runtime components based upon KF5 and Qt5'
 arch=('x86_64')

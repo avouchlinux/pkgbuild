@@ -1,0 +1,49 @@
+From ac51515bf836dbe4f0a91d2488224911794638cc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?S=C3=A9rgio=20M=2E=20Basto?= <sergio@serjux.com>
+Date: Wed, 18 Sep 2024 13:29:44 +0100
+Subject: [PATCH] Fixes warning nv_driver.c:1443:9: warning: implicit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+declaration of function ‘wfbScreenInit’; did you mean ‘fbScreenInit’? [-Wimplicit-function-declaration]
+   ret = wfbScreenInit(pScreen, FBStart, pScrn->virtualX,
+         ^~~~~~~~~~~~~
+         fbScreenInit
+
+In commit https://gitlab.freedesktop.org/sergiomb/xf86-video-nouveau/-/commit/794a27724fb9ab173dc7ea8062730797e1b4de04
+"nv50: use libwfb for pixmap access when driver pixmaps enabled", authored 15 years ago, it is missing the declaration of wfbScreenInit
+
+I got several attempts to fix this.
+
+We have https://gitlab.freedesktop.org/xorg/xserver/-/merge_requests/1222
+
+And this commit, IMO, should be reverted:
+https://gitlab.freedesktop.org/xorg/xserver/-/commit/34a430a16ec2cb9851b1f2bc7fc2117e19b9fcc7
+---
+ src/nv_proto.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/nv_proto.h b/src/nv_proto.h
+index b69fa07..d4a869d 100644
+--- a/src/nv_proto.h
++++ b/src/nv_proto.h
+@@ -229,5 +229,15 @@ extern void exaMoveInPixmap(PixmapPtr pPixmap);
+ 
+ extern Bool wfbPictureInit(ScreenPtr, PictFormatPtr, int);
+ 
++extern Bool wfbScreenInit(ScreenPtr pScreen,
++              void *pbits,
++              int xsize,
++              int ysize,
++              int dpix,
++              int dpiy,
++              int width,
++              int bpp,
++              SetupWrapProcPtr setupWrap, FinishWrapProcPtr finishWrap);
++
+ #endif /* __NV_PROTO_H__ */
+ 
+-- 
+2.46.1
+

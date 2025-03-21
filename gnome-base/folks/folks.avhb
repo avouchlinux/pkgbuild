@@ -1,36 +1,53 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=folks
-pkgver=0.15.6
+pkgver=0.15.9
 pkgrel=1
 pkgdesc="Library to aggregates people into metacontacts"
 arch=(x86_64)
 groups=('gnome-base')
-url="https://wiki.gnome.org/Projects/Folks"
-license=(LGPL2.1)
-depends=(telepathy-glib libgee libxml2 evolution-data-server)
-makedepends=(gobject-introspection gtk-doc vala git meson python2)
-checkdepends=(python-dbusmock)
+license=(LGPL-2.1-or-later)
+depends=(
+  evolution-data-server
+  libgee
+  libxml2
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  libsysprof-capture
+  meson
+  python-dbusmock
+  vala
+)
+provides=(
+  libfolks.so
+  libfolks-{dummy,eds}.so
+)
+options=(!lto)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-
-prepare() {
-  cd $pkgname-$pkgver
-  # patch -Np1 -i ../0001-eds-add-persona-Test-fails-when-eds-is-compiled-with.patch
-}
+b2sums=('SKIP')
 
 build() {
-  avouch-meson $pkgname-$pkgver build -D b_lto=false -D telepathy_backend=false
-  ninja -C build
+  local meson_options=(
+    -D docs=true
+    -D profiling=true
+    -D telepathy_backend=false
+  )
+
+  avouch-meson folks-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 # check() {
-#   # ** (/build/folks/src/build/tests/eds/eds-add-persona:3157): ERROR **: 11:55:16.528: test-utils.vala:71: Timed out
-#   meson test -C build --print-errorlogs || :
+#   meson test -C build --print-errorlogs -t 4
 # }
 
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }
+

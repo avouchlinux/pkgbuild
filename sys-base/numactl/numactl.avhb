@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=numactl
-pkgver=2.0.13
+pkgver=2.0.16
 pkgrel=1
 pkgdesc="Simple NUMA policy support"
 arch=('x86_64')

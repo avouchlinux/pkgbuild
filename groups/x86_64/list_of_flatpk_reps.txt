@@ -1,0 +1,19 @@
+### Flatpak Repos 
+
+List packages on a repo :
+flatpak remote-ls repon-name --user
+flatpak remote-ls
+
+Flathub:
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+Gnome Stable:
+flatpak remote-add --if-not-exists gnome https://sdk.gnome.org/gnome.flatpakrepo
+flatpak remote-add gnome-apps https://sdk.gnome.org/gnome-apps.flatpakrepo
+
+Gnome Development/Unstable
+flatpak remote-add --if-not-exists gnome-nightly https://sdk.gnome.org/gnome-nightly.flatpakrepo
+flatpak remote-add gnome-apps-nightly https://sdk.gnome.org/gnome-apps-nightly.flatpakrepo
+
+KDE Plasma Flatpak
+flatpak remote-add --if-not-exists kdeapps --from https://distribute.kde.org/kdeapps.flatpakrepo

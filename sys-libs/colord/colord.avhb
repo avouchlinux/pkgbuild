@@ -1,10 +1,14 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=colord
-pkgname=(colord colord-sane)
+pkgname=(
+  colord
+  colord-sane
+  libcolord
+)
 pkgver=1.4.6
 pkgrel=1
 pkgdesc="System daemon for managing color devices"
@@ -15,8 +19,7 @@ license=(GPL2)
 depends=(lcms2 libgusb polkit sqlite dconf dbus libgudev shared-mime-info systemd-libs udev)
 makedepends=(gobject-introspection vala sane bash-completion argyllcms git meson gtk-doc systemd
              docbook-xsl)
-source=("https://github.com/hughsie/colord/archive/$pkgver.tar.gz"
-        0001-trivial-Fix-error-checking-for-sd_pid_get_session-an.patch)
+source=("https://github.com/hughsie/colord/archive/$pkgver.tar.gz")
 validpgpkeys=('163EB50119225DB3DF8F49EA17ACBA8DFA970E17')  # Richard Hughes
 
 build() {
@@ -35,24 +38,59 @@ build() {
 #   meson test -C build
 # }
 
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
 package_colord() {
-  optdepends=('argyllcms: color profiling'
-              'colord-sane: SANE support')
+  depends+=("libcolord=$pkgver-$pkgrel")
+  optdepends=(
+    'argyllcms: color profiling'
+    'colord-sane: SANE support'
+  )
+  provides=(libcolorhug.so)
   replaces=(shared-color-profiles)
 
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 
   echo 'u colord - "Color management daemon" /var/lib/colord' |
     install -Dm644 /dev/stdin "$pkgdir/usr/lib/sysusers.d/colord.conf"
 
-### Split colord-sane
-  mkdir -p colord-sane/usr/lib/colord-plugins
-  mv {"$pkgdir",colord-sane}/usr/lib/colord-sane
-  mv {"$pkgdir",colord-sane}/usr/lib/colord-plugins/libcolord_sensor_sane.so
+  cd "$pkgdir"
+
+  _pick sane usr/lib/colord-sane
+  _pick sane usr/lib/colord-plugins/libcolord_sensor_sane.so
+
+  _pick lib usr/include/colord-1/colord{,.h}
+  _pick lib usr/lib/libcolord{,compat}.so*
+  _pick lib usr/lib/girepository-1.0/Colord-1.0.typelib
+  _pick lib usr/lib/pkgconfig/colord.pc
+  _pick lib usr/share/gir-1.0/Colord-1.0.gir
 }
 
 package_colord-sane() {
   pkgdesc+=" (SANE support)"
-  depends=("colord=$pkgver-$pkgrel" sane)
-  mv colord-sane/* "$pkgdir"
+  depends=(
+    "colord=$pkgver-$pkgrel"
+    sane
+  )
+  mv sane/* "$pkgdir"
 }
+
+package_libcolord() {
+  pkgdesc+=" (client library)"
+  depends=(
+    glib2
+    lcms2
+    systemd
+  )
+  provides=(libcolord.so)
+  mv lib/* "$pkgdir"
+}
+

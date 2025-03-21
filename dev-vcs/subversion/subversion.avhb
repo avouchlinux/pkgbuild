@@ -1,36 +1,44 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=subversion
-pkgver=1.14.1
+pkgver=1.14.4
 pkgrel=1
 pkgdesc="A Modern Concurrent Version Control System"
 arch=('x86_64')
 groups=('dev-vcs')
 url="https://subversion.apache.org/"
-license=('APACHE')
-depends=('file' 'libutf8proc' 'serf' 'sqlite' 'systemd')
-makedepends=('apache' 'python2' 'perl' 'swig3' 'java-environment>=8'
-             'libgnome-keyring' 'kwallet' 'kdelibs4support' 'ruby')
-optdepends=('libgnome-keyring: for GNOME Keyring for auth credentials'
-            'kwallet: for KWallet for auth credentials'
+license=('Apache-2.0')
+depends=('apr' 'apr-util' 'bash' 'dbus' 'expat' 'file' 'gcc-libs' 'glibc' 'libsasl' 'libutf8proc' 'lz4' 'serf' 'sqlite'
+         'zlib' )
+makedepends=('apache' 'python' 'python-py3c' 'perl' 'swig' 'java-environment>=8'
+             'libsecret' 'kwallet5' 'ruby' 'python-setuptools')
+optdepends=('libsecret: for GNOME Keyring for auth credentials'
+            'kwallet5: for KWallet for auth credentials'
             'bash-completion: for svn bash completion'
-            'python2: for some hook scripts'
+            'python: for some hook scripts'
             'java-environment: for Java support'
             'ruby: for some hook scripts')
 checkdepends=('ruby-test-unit')
 provides=('svn')
-backup=('etc/xinetd.d/svn' 'etc/conf.d/svnserve')
+backup=('etc/conf.d/svnserve')
 options=('!makeflags' '!emptydirs')
 source=(https://www.apache.org/dist/subversion/subversion-${pkgver}.tar.bz2{,.asc}
-        svn
         svnserve.conf
         svnserve.tmpfiles
         svnserve.service
         subversion.rpath.fix.patch
-        ruby-frozen-nil.patch)
+        ruby-frozen-nil.patch
+)
+sha512sums=('40b172492005fd3b0cd9e457b4444af8ea5d8ff8fc161a9a0c6dc3a7314c6ad4ff75a4676f68a1919ae6273ae03e34d04eba8c1c37b8c0b4ec70d6731b527b41'
+            'SKIP'
+            'f7f2ceac2446cc94ac2be3404083cc54a0f1f4d04d5301f600dfafca38819669bcffdfa45f1b90b9f3cdb042469385a764f11dc1a827f10c23ddf73b7ac6c9da'
+            '7775f4da5003970c9ebdc2f696ba090df194a77d9daed791875488c943f72ae496b5f9cc6f3ff9f3f4de9f352a3b518137babdea38947d1a2d5dd16aa1844036'
+            'd879cd8212b8c242386dc0668d1772358a94110fabde725ad132781da7dd0893d51cba09271a566fbbd7dc5fc8962b0de3ef8c8d9959fa47f1fa6db555f440d0'
+            '92087b9a70722f4d39b75345463c1b04c9db30faf9eb6fe9b911416e73570c7930dd74d3b6136c00da6adeb2a263cac75f3520ccc08ecdb56d88a8a256172af4'
+            'bb772e55acd9601121ad06b254c364e8d8cf772ca59b8df0cf4c5c5ecba110d4108d0363672f121f770550cdd052802474029e57643258f398aacd2b63ccb898')
 validpgpkeys=('19BBCAEF7B19B280A0E2175E62D48FAD16A0DE01'
               '8BC4DAE0C5A4D65F404401074F7DBAA99A59B973'
               'BA3C15B1337CF0FB222BD41A1BCA6586A347943F'
@@ -38,66 +46,94 @@ validpgpkeys=('19BBCAEF7B19B280A0E2175E62D48FAD16A0DE01'
               '3D1DC66D6D2E0B9039528138C4A6C625CCC8E1DF'
               'A844790FB5743606EE95920776D788E1ED1A599C'
               '7B8CA7F6451AD89C8ADC077B376A3CFD110B1C95'
-              '056F8016D9B87B1BDE41746799EC741B57921ACC')
-# Ben Reser / Stefan Sperling / Branko Čibej / Evgeny Kotkov / Bert Huijben / Philip Martin / Stefan Fuhrmann / Stefan Hett (CODE SIGNING KEY)
+              '056F8016D9B87B1BDE41746799EC741B57921ACC'
+              '3F8E467CB3366E3013E1120D583F00ADF981C39F'
+              '91BFBF4D6956BD5DF7B72D23DFE691AE331BA3DB'
+              'EC25FCC105618D04ADB43429C4416167349A3BCB'
+              '4FFCB55C0D0D9343CFB4611F28DB47329CFFDC63')
+# Ben Reser / Stefan Sperling / Branko Čibej / Evgeny Kotkov / Bert Huijben / Philip Martin /
+# Stefan Fuhrmann / Stefan Hett (CODE SIGNING KEY) /Nathan Hartman (CODE SIGNING KEY) / James McCoy /
+# Mark Phippard
 
 prepare() {
-   cd ${pkgname}-${pkgver}
-   patch -Np0 -i ../subversion.rpath.fix.patch
-   patch -p1 -i ../ruby-frozen-nil.patch
-   rm subversion/bindings/swig/proxy/*.swg
-
-   ./autogen.sh
+  cd ${pkgname}-${pkgver}
+  patch -Np0 -i ../subversion.rpath.fix.patch
+  patch -p1 -i ../ruby-frozen-nil.patch
+  rm subversion/bindings/swig/proxy/*.swg
+  ./autogen.sh
 }
 
 build() {
-   cd ${pkgname}-${pkgver}
-   ./configure --prefix=/usr --with-apxs \
-               --enable-javahl --with-jdk=/usr/lib/jvm/default \
-               --with-gnome-keyring --with-kwallet \
-               --with-apache-libexecdir=/usr/lib/httpd/modules \
-               --with-ruby-sitedir=/usr/lib/ruby/vendor_ruby \
-               --disable-static
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
 
-   make ${MAKEFLAGS} LT_LDFLAGS="-L$Fdestdir/usr/lib"
-   make swig_pydir=/usr/lib/python3.9/site-packages/libsvn \
-     swig_pydir_extra=/usr/lib/python3.9/site-packages/svn swig-py swig-pl javahl swig-rb
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-int-conversion"
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr \
+              --with-apxs \
+              --enable-javahl \
+              --with-jdk=/usr/lib/jvm/default \
+              --with-gnome-keyring \
+              --with-apache-libexecdir=/usr/lib/httpd/modules \
+              --with-ruby-sitedir=/usr/lib/ruby/vendor_ruby \
+              --disable-static
+
+  # prevent excessive overlinking due to libtool
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make LT_LDFLAGS="-L$Fdestdir/usr/lib"
+  make swig_pydir=$site_packages/libsvn \
+    swig_pydir_extra=$site_packages/svn swig-py swig-pl javahl swig-rb
+
+  # https://stackoverflow.com/questions/14351272/undefined-method-exists-for-fileclass-nomethoderror
+  sed -i "s|File.exists?|File.exist?|" subversion/bindings/swig/ruby/test/*.rb
 }
 
 check() {
-   cd ${pkgname}-${pkgver}
-   export LANG=C LC_ALL=C
-   # make check check-swig-pl check-swig-py check-swig-rb CLEANUP=yes # check-javahl
+  cd ${pkgname}-${pkgver}
+  export LANG=C LC_ALL=C
+  # make check-swig-py check check-swig-pl check-swig-rb CLEANUP=yes # check-javahl
 }
 
 package() {
-   cd ${pkgname}-${pkgver}
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
 
-   export LD_LIBRARY_PATH="${pkgdir}"/usr/lib:${LD_LIBRARY_PATH}
-   make DESTDIR="${pkgdir}" INSTALLDIRS=vendor \
-     swig_pydir=/usr/lib/python3.8/site-packages/libsvn \
-     swig_pydir_extra=/usr/lib/python3.8/site-packages/svn \
-     install install-swig-py install-swig-pl install-javahl install-swig-rb
+  cd ${pkgname}-${pkgver}
 
-   install -dm755 "${pkgdir}"/usr/share/subversion
-   cp -a tools/hook-scripts "${pkgdir}"/usr/share/subversion/
-   rm "${pkgdir}"/usr/share/subversion/hook-scripts/*.in
+  export LD_LIBRARY_PATH="${pkgdir}"/usr/lib:${LD_LIBRARY_PATH}
+  # make DESTDIR="${pkgdir}" INSTALLDIRS=vendor \
+  #   swig_pydir=$site_packages/libsvn \
+  #   swig_pydir_extra=$site_packages/svn \
+  #   install install-all install-swig-py install-swig-pl install-javahl install-swig-rb
 
-   ## svnserve ...
+  # Above install command does not work, don't knw why
+  make DESTDIR="${pkgdir}" INSTALLDIRS=vendor swig_pydir_extra=$site_packages/svn swig_pydir=$site_packages/libsvn  install install-swig-py install-swig-pl install-javahl install-swig-rb
 
-   # xinetd
-   install -D -m 644 "${srcdir}"/svn "${pkgdir}"/etc/xinetd.d/svn
+  # missing libraries from install
+  # cp -r subversion/libsvn_client/.libs/libsvn_client-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_wc/.libs/libsvn_wc-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra/.libs/libsvn_ra-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_diff/.libs/libsvn_diff-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra_local/.libs/libsvn_ra_local-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_ra_svn/.libs/libsvn_ra_svn-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_repos/.libs/libsvn_repos-1.so* "${pkgdir}"/usr/lib
+  # cp -r subversion/libsvn_fs/.libs/libsvn_fs-1.so* "${pkgdir}"/usr/lib
 
-   # ... systemd
-   install -D -m 644 "${srcdir}"/svnserve.service  "${pkgdir}"/usr/lib/systemd/system/svnserve.service
-   install -D -m 644 "${srcdir}"/svnserve.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/svnserve.conf
+  install -dm755 "${pkgdir}"/usr/share/subversion
+  cp -a tools/hook-scripts "${pkgdir}"/usr/share/subversion/
+  rm "${pkgdir}"/usr/share/subversion/hook-scripts/*.in
 
-   # ... common config
-   install -D -m 644 "${srcdir}"/svnserve.conf "${pkgdir}"/etc/conf.d/svnserve
+  ## svnserve ...
 
-   install -Dm 644 tools/client-side/bash_completion \
-     "${pkgdir}"/usr/share/bash-completion/completions/subversion
-   for i in svn svnadmin svndumpfilter svnlook svnsync svnversion; do
-      ln -sf subversion "${pkgdir}"/usr/share/bash-completion/completions/${i}
-   done
+  # ... systemd
+  install -D -m 644 "${srcdir}"/svnserve.service  "${pkgdir}"/usr/lib/systemd/system/svnserve.service
+  install -D -m 644 "${srcdir}"/svnserve.tmpfiles "${pkgdir}"/usr/lib/tmpfiles.d/svnserve.conf
+
+  # ... common config
+  install -D -m 644 "${srcdir}"/svnserve.conf "${pkgdir}"/etc/conf.d/svnserve
+
+  install -Dm 644 tools/client-side/bash_completion \
+    "${pkgdir}"/usr/share/bash-completion/completions/subversion
+  for i in svn svnadmin svndumpfilter svnlook svnsync svnversion; do
+     ln -sf subversion "${pkgdir}"/usr/share/bash-completion/completions/${i}
+  done
 }
+

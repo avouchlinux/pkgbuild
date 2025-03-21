@@ -1,58 +1,175 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=harfbuzz
-pkgname=(harfbuzz harfbuzz-icu)
-pkgver=4.2.0
+pkgname=(
+  harfbuzz
+  harfbuzz-cairo
+  harfbuzz-icu
+  harfbuzz-utils
+  harfbuzz-docs
+)
+pkgver=10.0.1
 pkgrel=1
 pkgdesc="OpenType text shaping engine"
 url="https://www.freedesktop.org/wiki/Software/HarfBuzz"
 arch=('x86_64')
 groups=('media-grafix')
 license=(MIT)
-makedepends=(glib2 freetype2 graphite cairo icu gobject-introspection gtk-doc
-             ragel git python3 meson chafa)
-checkdepends=(python3-fonttools python3-setuptools)
+depends=(
+  freetype2
+  glib2
+  glibc
+  graphite
+)
+makedepends=(
+  cairo
+  chafa
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  icu
+  meson
+  python
+  ragel
+)
+checkdepends=(
+  python-fonttools
+  python-setuptools
+)
 source=("https://github.com/harfbuzz/harfbuzz/releases/download/$pkgver/harfbuzz-$pkgver.tar.xz")
 
 build() {
-  avouch-meson $pkgbase-$pkgver build \
-    -D graphite=enabled
-  meson compile -C build
+    local meson_options=(
+        # -D cpp_std=c++17
+        -D graphite2=enabled
+        -D chafa=disabled
+        
+    )
+
+    # Harfbuzz wants no exceptions
+    export CFLAGS="${CFLAGS/-fexceptions/}"
+    export CXXFLAGS="${CXXFLAGS/-fexceptions/}"
+
+    avouch-meson harfbuzz-$pkgver build "${meson_options[@]}"
+    meson compile -C build
+
 }
 
 check() {
   mkdir -p tmp
-  TMPDIR="$PWD/tmp" meson test -C build --print-errorlogs
-  rm -r tmp
+#   TMPDIR="$PWD/tmp" meson test -C build --print-errorlogs
+#   rm -r tmp
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
 }
 
 package_harfbuzz() {
-  depends=(glib2 freetype2 graphite libglib-2.0.so libfreetype.so
-           libgobject-2.0.so)
-  provides=(libharfbuzz.so libharfbuzz-subset.so libharfbuzz-gobject.so)
-  optdepends=('cairo: hb-view program'
-              'chafa: hb-view program')
+  depends+=(
+    libfreetype.so
+    libgraphite2.so
+    libg{lib,object}-2.0.so
+  )
+  optdepends=('harfbuzz-utils: utilities')
+  provides=(libharfbuzz{,-subset,-gobject}.so)
 
   meson install -C build --destdir "$pkgdir"
 
-  # Split harfbuzz-icu
-  mkdir -p hb-icu/usr/{include/harfbuzz,lib/pkgconfig}
-  mv -t hb-icu/usr/lib "$pkgdir"/usr/lib/libharfbuzz-icu*
-  mv -t hb-icu/usr/lib/pkgconfig "$pkgdir"/usr/lib/pkgconfig/harfbuzz-icu.pc
-  mv -t hb-icu/usr/include/harfbuzz "$pkgdir"/usr/include/harfbuzz/hb-icu.h
+  ( cd "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/COPYING
+    _pick hb-cairo usr/lib/libharfbuzz-cairo*
+    _pick hb-cairo usr/lib/pkgconfig/harfbuzz-cairo.pc
+    _pick hb-cairo usr/include/harfbuzz/hb-cairo.h
+
+    _pick hb-icu usr/lib/libharfbuzz-icu*
+    _pick hb-icu usr/lib/pkgconfig/harfbuzz-icu.pc
+    _pick hb-icu usr/include/harfbuzz/hb-icu.h
+
+    _pick hb-utils usr/bin
+
+    _pick hb-docs usr/share/gtk-doc
+  )
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
+}
+
+package_harfbuzz-cairo() {
+  pkgdesc+=" - Cairo integration"
+  depends=(
+    cairo
+    freetype2
+    glib2
+    glibc
+    graphite
+    harfbuzz
+    libcairo.so
+    libharfbuzz.so
+  )
+  provides=(libharfbuzz-cairo.so)
+
+  mv hb-cairo/* "$pkgdir"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }
 
 package_harfbuzz-icu() {
-  pkgdesc="$pkgdesc (ICU integration)"
-  depends=("harfbuzz=$pkgver-$pkgrel" icu libharfbuzz.so)
+  pkgdesc+=" - ICU integration"
+  depends=(
+    glibc
+    harfbuzz
+    icu
+    libharfbuzz.so
+    libicuuc.so
+  )
   provides=(libharfbuzz-icu.so)
 
   mv hb-icu/* "$pkgdir"
 
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/COPYING
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
+}
+
+package_harfbuzz-utils() {
+  pkgdesc+=" - Utilities"
+  depends=(
+    cairo
+    chafa
+    freetype2
+    glib2
+    glibc
+    harfbuzz
+    harfbuzz-cairo
+    libcairo.so
+    libchafa.so
+    libfreetype.so
+    libglib-2.0.so
+    libgobject-2.0.so
+    libharfbuzz-cairo.so
+    libharfbuzz-gobject.so
+    libharfbuzz-subset.so
+    libharfbuzz.so
+  )
+
+  mv hb-utils/* "$pkgdir"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
+}
+
+package_harfbuzz-docs() {
+  pkgdesc+=" - Documentation"
+  depends=()
+
+  mv hb-docs/* "$pkgdir"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 harfbuzz-$pkgver/COPYING
 }

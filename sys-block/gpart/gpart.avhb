@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -11,21 +12,18 @@ groups=('sys-block')
 url="https://github.com/baruch/gpart"
 license=('GPL')
 depends=('glibc')
-source=("https://github.com/baruch/${pkgname}/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
-md5sums=('465870b72b647a3aa22b335ba527e869')
+source=("https://github.com/baruch/${pkgname}/archive/${pkgver}.tar.gz")
+sha256sums=('ec56d12ec9ffdb9877c12692ea6e51620b1ae44473d3d253b27fc31ed9ebb4dd')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./autogen.sh
-	./configure --prefix=/usr
-	make
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./autogen.sh
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make prefix=${pkgdir}/usr install
-	# usr move
-	mv ${pkgdir}/usr/sbin ${pkgdir}/usr/bin
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  make prefix="${pkgdir}"/usr sbindir="${pkgdir}"/usr/bin install
 }

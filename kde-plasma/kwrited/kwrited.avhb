@@ -1,32 +1,44 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kwrited
-pkgver=5.27.8
+pkgver=6.3.3
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='KDE daemon listening for wall and write messages'
 arch=('x86_64')
 groups=('kde-plasma')
-url='https://www.kde.org/workspaces/plasmadesktop/'
-license=(LGPL)
-depends=(kpty knotifications kdbusaddons)
-makedepends=(extra-cmake-modules kdoctools python)
-source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-$pkgver.tar.xz"{,.sig})
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell
-              '348C8651206633FD983A8FC4DEACEA00075E1D76'  # KDE Neon
-              'D07BD8662C56CB291B316EB2F5675605C74E02CF') # David Edmundson
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcoreaddons
+         kdbusaddons
+         knotifications
+         kpty
+         qt6-base)
+makedepends=(extra-cmake-modules
+             kdoctools)
+groups=(plasma)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('4b4890637029b8db05ff80e3225d8d8d78a95bb44802aa46d526ae2784f56029'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

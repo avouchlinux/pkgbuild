@@ -1,0 +1,29 @@
+From 99264b7352e9b89bfa8cfb2862a9fabd9eb5d764 Mon Sep 17 00:00:00 2001
+From: Yaakov Selkowitz <yselkowi@redhat.com>
+Date: Tue, 19 Dec 2023 13:13:25 -0500
+Subject: [PATCH] BUILD/CONFIG: Keep CFLAGS and CXXFLAGS separate
+
+If configured with CFLAGS containing flags which are specific to C and invalid in CXX, this results in errors when compiling src/tools/perf/lib/uc[pt]_tests.cc:
+
+```
+cc1plus: error: '-Werror=' argument '-Werror=implicit-function-declaration' is not valid for C++ [-Werror]
+cc1plus: error: '-Werror=' argument '-Werror=implicit-int' is not valid for C++ [-Werror]
+```
+This is currently breaking the build in Fedora 40 (rawhide) and ELN (the future RHEL 10).
+---
+ config/m4/compiler.m4 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/m4/compiler.m4 b/config/m4/compiler.m4
+index 6aa3360e76a..2719e98983b 100644
+--- a/config/m4/compiler.m4
++++ b/config/m4/compiler.m4
+@@ -222,7 +222,7 @@ AC_DEFUN([CHECK_COMPILER_FLAG],
+ [
+          AC_MSG_CHECKING([compiler flag $1])
+          SAVE_CFLAGS="$CFLAGS"
+-         SAVE_CXXFLAGS="$CFLAGS"
++         SAVE_CXXFLAGS="$CXXFLAGS"
+          CFLAGS="$BASE_CFLAGS $CFLAGS $2"
+          CXXFLAGS="$BASE_CXXFLAGS $CXXFLAGS $2"
+          AC_LINK_IFELSE([$3],

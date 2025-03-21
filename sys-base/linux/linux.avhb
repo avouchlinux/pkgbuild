@@ -1,15 +1,14 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=linux
-pkgver=6.6.4
-_pkgver=6.6.4
+pkgver=6.12.6.avouch1
 pkgrel=1
 arch=('x86_64')
 groups=('sys-base')
-url="http://www.kernel.org/"
+url='https://github.com/archlinux/linux'
 license=('GPL2')
 makedepends=(
   bc
@@ -26,100 +25,97 @@ makedepends=(
   graphviz
   imagemagick
   python-sphinx
+  python-yaml
   texlive-latexextra
 )
-
-options=('!strip')
-_srcname=linux
-source=("https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz"
-  config         # the main kernel config file
+options=(
+  !debug
+  !strip
+)
+_srcname=linux-${pkgver%.*}
+_srctag=v${pkgver%.*}-${pkgver##*.}
+source=(
+  https://cdn.kernel.org/pub/linux/kernel/v${pkgver%%.*}.x/${_srcname}.tar.{xz,sign}
+  linux-$_srctag.patch
+  config  # the main kernel config file
 )
 validpgpkeys=(
-  'ABAF11C65A2970B130ABE3C479BE3E4300411886'  # Linus Torvalds
-  '647F28654894E3BD457199BE38DBBDC86092693E'  # Greg Kroah-Hartman
-  '8218F88849AAC522E94CF470A5E9288C4FA415FA'  # Jan Alexander Steffens (heftig)
+  ABAF11C65A2970B130ABE3C479BE3E4300411886  # Linus Torvalds
+  647F28654894E3BD457199BE38DBBDC86092693E  # Greg Kroah-Hartman
+  83BC8889351B5DEBBB68416EB8AC08600F108CDF  # Jan Alexander Steffens (heftig)
 )
+# https://www.kernel.org/pub/linux/kernel/v6.x/sha256sums.asc
+sha256sums=('d450ab215de4e1f8bb85e0f4216760fa33fd024b4526b144f4ce0d9012b29c9e'
+            'SKIP'
+            '0f0f8493de874fe9872643696fb21461b09c374f5a14967d969975e570ccb3ff'
+            'SKIP'
+            '4100c6ed9f42652d98c129de31b1065d8dfac29a3df31eea2acc57326d372a08')
+b2sums=('b1b992e1c03c095203a6aa8e529768c0af00fc89e1afbbcb56821465a9e78fb8f8ca19d038bc1f08c5286e1781b407d49775f28153572d3b9fe8d80b86d540bf'
+        'SKIP'
+        '8839835d5026a472b756597043dffacc66831c2d63a3e79193903d6493ba63ee6ecc0ff9ab8bc093a7000e43086f3fb642026e75b2f48be3c9e57806f6522821'
+        'SKIP'
+        'f05d24a80af487ab554f5b5dbc0deeb8b2a5ffe09191ee0160598d8973dbb048dca94bee0b35406d0d40a0f812b876a572d189379a9c7d5263272a7c5d931392')
 
 export KBUILD_BUILD_HOST=avouch
 export KBUILD_BUILD_USER=$pkgbase
-
-_localversion="-$pkgrel"
-_localname="-avouch"
-KARCH=x86
+export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
 
 prepare() {
-    # disable gold linker
-    use_linker 'ld'
-    cd "${srcdir}/${pkgbase}-${_pkgver}"
-    message "Setting version..."
-    scripts/setlocalversion --save-scmversion
-    echo "${_localversion}" > localversion.10-pkgrel
-    echo "${_localname}" > localversion.20-pkgname
+  cd $_srcname
 
-    local src
-    for src in "${source[@]}"; do
-        src="${src%%::*}"
-        src="${src##*/}"
-        [[ $src = *.patch ]] || continue
-        message "Applying patch $src..."
-        patch -Np1 < "../$src"
-    done
+  echo "Setting version..."
+  echo "-$pkgrel" > localversion.10-pkgrel
+  echo "${pkgbase#linux}" > localversion.20-pkgname
 
-    message "Setting config..."
-    # cp ../kernel-$pkgver-x86_64.config .config
-    cp ../config .config
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    src="${src%.zst}"
+    [[ $src = *.patch ]] || continue
+    echo "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
 
-    # kbuild: Fail if gold linker is detected
-    # https://lore.kernel.org/lkml/20190716233708.GA11824@mit.edu/T/    
-    # Would it be possible to force ld.bfd with -fuse-ld=bfd when gold is detected?
-    # It's probably possible but way beyond my kbuild foo.
-    # Adding LD=ld.bfd to the make invocation is the trivial workaround.
+  echo "Setting config..."
+  cp ../config .config
+  make olddefconfig
+  diff -u ../config .config || :
 
-    make olddefconfig
-
-    diff -u ../config .config || :
-
-    # rewrite configuration
-    # yes "" | make config >/dev/null
-    # +++++++++++++++++++++++++++++++yes "" | make config
-
-    make -s kernelrelease > version
-    echo "Prepared $pkgbase version $(<version)"
+  make -s kernelrelease > version
+  echo "Prepared $pkgbase version $(<version)"
 }
 
 build() {
-    cd "${srcdir}/${pkgbase}-${_pkgver}"
-
-    # disable peephole2 optimization to avoid build errros
-    #export CFLAGS="$CFLAGS -fno-peephole2"
-
-    # UnicodeEncodeError: 'latin-1' codec can't encode characters in position 18-20: ordinal not in range(256)
-    # tpo avoid above built error unset lang variable
-    export LANG=""
-
-    make ${MAKEFLAGS} all
-    make htmldocs
+  cd $_srcname
+  make all
+  make -C tools/bpf/bpftool vmlinux.h feature-clang-bpf-co-re=1
+  make htmldocs
 }
 
 _package() {
- pkgdesc="The $pkgdesc kernel and modules"
+  pkgdesc="The $pkgdesc kernel and modules"
   depends=(
     coreutils
     initramfs
     kmod
   )
   optdepends=(
-    'wireless-regdb: to set the correct wireless channels of your country'
     'linux-firmware: firmware images needed for some devices'
+    'scx-scheds: to use sched-ext schedulers'
+    'wireless-regdb: to set the correct wireless channels of your country'
   )
   provides=(
     KSMBD-MODULE
     VIRTUALBOX-GUEST-MODULES
     WIREGUARD-MODULE
   )
-    
-  cd "${srcdir}/${pkgbase}-${_pkgver}"
-    
+  replaces=(
+    virtualbox-guest-modules-arch
+    wireguard-arch
+  )
+
+  cd $_srcname
   local modulesdir="$pkgdir/usr/lib/modules/$(<version)"
 
   echo "Installing boot image..."
@@ -136,38 +132,22 @@ _package() {
 
   # remove build link
   rm "$modulesdir"/build
-
-
-
-
-    # a place for external modules,
-    # with version file for building modules and running depmod
-    # local extradir="$pkgdir/usr/lib/modules/$kernver/extramodules"
-    # install -Dm644 version "$extradir/version"
-
-    # add real version for building modules and running depmod from post_install/upgrade
-    # install -Dm644 version "${pkgdir}/usr/lib/modules/${kernver}/version"
-
-    # remove build and source links
-    rm "$modulesdir"/{source,build}
-    
-    # message "Fixing permissions..."
-    # chmod -Rc u=rwX,go=rX "$pkgdir"
-
 }
 
 _package-headers() {
-    pkgdesc="Header files and scripts for building modules for ${pkgbase/linux/Linux} kernel"
+  pkgdesc="Headers and scripts for building modules for the $pkgdesc kernel"
+  depends=(pahole)
 
-    cd "${srcdir}/${pkgbase}-${_pkgver}"
-    local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
+  cd $_srcname
+  local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
 
   echo "Installing build files..."
   install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map \
-    localversion.* version vmlinux
+    localversion.* version vmlinux tools/bpf/bpftool/vmlinux.h
   install -Dt "$builddir/kernel" -m644 kernel/Makefile
   install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
   cp -t "$builddir" -a scripts
+  ln -srt "$builddir" "$builddir/scripts/gdb/vmlinux-gdb.py"
 
   # required when STACK_VALIDATION is enabled
   install -Dt "$builddir/tools/objtool" tools/objtool/objtool
@@ -240,7 +220,7 @@ _package-headers() {
 _package-docs() {
   pkgdesc="Documentation for the $pkgdesc kernel"
 
-  cd "${srcdir}/${pkgbase}-${_pkgver}"
+  cd $_srcname
   local builddir="$pkgdir/usr/lib/modules/$(<version)/build"
 
   echo "Installing documentation..."
@@ -254,7 +234,6 @@ _package-docs() {
   echo "Adding symlink..."
   mkdir -p "$pkgdir/usr/share/doc"
   ln -sr "$builddir/Documentation" "$pkgdir/usr/share/doc/$pkgbase"
-
 }
 
 pkgname=(
@@ -268,4 +247,3 @@ for _p in "${pkgname[@]}"; do
     _package${_p#$pkgbase}
   }"
 done
-

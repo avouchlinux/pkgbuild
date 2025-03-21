@@ -1,29 +1,46 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=plasma-thunderbolt
-pkgver=5.27.8
+pkgver=6.3.3
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='a Plasma Sytem Settings module and a KDED module to handle authorization of Thunderbolt devices connected to the computer'
 arch=('x86_64')
 groups=('kde-plasma')
-url='https://projects.kde.org/projects/kde/workspace/plasma-nm'
-license=('GPL2')
-depends=('bolt')
-makedepends=('extra-cmake-modules' 'kdoctools')
-source=("http://download.kde.org/stable/plasma/${pkgver}/$pkgname-$pkgver.tar.xz")
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(bolt
+         gcc-libs
+         glibc
+         kcmutils
+         kcoreaddons
+         kdbusaddons
+         ki18n
+         kirigami
+         knotifications
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('1cdc763003e201178e526f48c30df650f37a8b4e016d25a5e9839bbce94dce3a'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
-	cmake -S ${pkgname}-${pkgver} -B build -G Ninja \
-		-DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
-		-DBUILD_TESTING=OFF \
-		-DBUILD_QCH=ON
-	ninja -C build
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-	DESTDIR="${pkgdir}" ninja -C build install
+  DESTDIR="$pkgdir" cmake --install build
 }

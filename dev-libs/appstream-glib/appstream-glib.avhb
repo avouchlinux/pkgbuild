@@ -1,40 +1,74 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=appstream-glib
-pkgver=0.8.2
+_realname=${pkgname/-/_}
+pkgver=0.8.3
 pkgrel=1
 pkgdesc="Provides GObjects and helper methods to make it easy to read and write AppStream metadata."
 arch=('x86_64')
 groups=('dev-libs')
 url="http://people.freedesktop.org/~hughsient/appstream-glib/"
-license=('LGPL')
-depends=('glib2' 'libsoup' 'gdk-pixbuf2' 'libarchive' 'gtk3' 'libyaml')
-makedepends=('intltool')
-source=(http://people.freedesktop.org/~hughsient/appstream-glib/releases/$pkgname-$pkgver.tar.xz)
+license=(LGPL-2.1-or-later)
+depends=(
+  cairo
+  curl
+  fontconfig
+  freetype2
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gtk3
+  json-glib
+  libarchive
+  libyaml
+  pacman
+  pango
+  util-linux-libs
+)
+makedepends=(
+  git
+  gobject-introspection
+  gperf
+  gtk-doc
+  meson
+)
+provides=(
+  appdata-tools
+  libappstream-glib.so
+)
+conflicts=(appdata-tools)
+replaces=(appdata-tools)
+source=("$pkgname-${pkgname/-/_}_${pkgver//./_}.tar.gz::https://github.com/hughsie/appstream-glib/archive/refs/tags/${pkgname/-/_}_${pkgver//./_}.tar.gz")
+b2sums=('a356111d3daa1b62e8f0c67b4328c937f913b96fcc066d45a27a9bf0269db7aa3c71bfe5a4d11e0272aa7857c028766413adf293f8e8fdbc263162da6df4c6d1')
+validpgpkeys=(
+  163EB50119225DB3DF8F49EA17ACBA8DFA970E17 # Richard Hughes <richard@hughsie.com>
+)
 
 prepare() {
-	mkdir build
+  cd $pkgname-${pkgname/-/_}_${pkgver//./_}
 }
 
 build() {
-    cd "${srcdir}/build"
-    avouch-meson ../${pkgname}-${pkgver} \
-        -Dalpm=false \
-        -Dgtk-doc=true \
-        -Drpm=false
-    ninja
+  local meson_options=(
+    # -D alpm=true
+    -D gtk-doc=true
+    -D rpm=false
+  )
+
+  avouch-meson $pkgname-${pkgname/-/_}_${pkgver//./_} build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-    cd "${srcdir}/build"
-    meson test
+  meson test -C build --print-errorlogs
 }
 
 package() {
-    cd "${srcdir}/build"
-    DESTDIR="$pkgdir" ninja install
+  meson install -C build --destdir "$pkgdir"
+  rm -r "$pkgdir/usr/share/installed-tests"
 }
 

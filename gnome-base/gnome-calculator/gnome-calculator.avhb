@@ -1,20 +1,41 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-calculator
-pkgver=45.0.2
+pkgver=48.0
 pkgrel=1
 pkgdesc="GNOME Scientific calculator"
-url="https://wiki.gnome.org/Apps/Calculator"
+url="https://apps.gnome.org/Calculator"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(gtk3 dconf gtksourceview4 mpfr libsoup libmpc)
-makedepends=(yelp-tools vala git appstream-glib meson)
-options=(!emptydirs)
-url="http://www.gnome.org"
+license=(GPL-3.0-or-later)
+depends=(
+  dconf
+  glib2
+  glibc
+  gtk4
+  gtksourceview5
+  hicolor-icon-theme
+  libadwaita
+  libgee
+  libmpc
+  libsoup3
+  libxml2
+  mpfr
+)
+makedepends=(
+  git
+  gobject-introspection
+  meson
+  vala
+  yelp-tools
+)
+provides=(
+  libgcalc-2.so
+  libgci-1.so
+)
 install=gnome-calculator.install
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 

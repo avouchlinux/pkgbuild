@@ -1,27 +1,38 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=freetds
-pkgver=1.1.26
+pkgver=1.4.23
 pkgrel=1
 pkgdesc='Library for accessing Sybase and MS SQL Server databases'
 url='http://www.freetds.org'
 arch=('x86_64')
 groups=('dev-db')
-license=('LGPL')
-depends=('openssl' 'unixodbc')
-backup=('etc/freetds/freetds.conf'
-        'etc/freetds/locales.conf'
-        'etc/freetds/pool.conf')
-source=("ftp://ftp.freetds.org/pub/freetds/stable/$pkgname-$pkgver.tar.bz2")
+license=(GPL-2.0-only
+         LGPL-2.0-only)
+depends=(glibc
+         krb5
+         openssl
+         readline
+         unixodbc)
+backup=(etc/freetds/freetds.conf
+        etc/freetds/locales.conf
+        etc/freetds/pool.conf)
+source=(https://www.freetds.org/files/stable/$pkgname-$pkgver.tar.bz2)
+sha256sums=('93a3f186b82c6042a66a1970bd478d7914edb1c5669b642d80b4eaacf2a2d17e')
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --sysconfdir=/etc/freetds --enable-msdblib \
-    --with-unixodbc=/usr --with-openssl
-  make ${MAKEFLAGS}
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc/freetds \
+    --enable-msdblib \
+    --enable-krb5 \
+    --with-unixodbc=/usr \
+    --with-openssl
+  make 
 }
 
 package() {

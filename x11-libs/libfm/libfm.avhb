@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libfm
 pkgname=(libfm libfm-extra libfm-gtk2 libfm-gtk3)
-pkgver=1.3.1
+pkgver=1.3.2
 pkgrel=1
 pkgdesc='Library for file management'
 url='https://lxde.org/'
@@ -26,7 +27,9 @@ prepare() {
 }
 
 build() {
-  # GTK+ 2 version
+  # gcc-14
+  export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration -Wno-int-conversion -Wno-deprecated-declarations"
+  # GTK+ 2 version  
   [ -d gtk2 ] || cp -r $pkgbase-$pkgver gtk2
   cd gtk2
   ./configure --prefix=/usr \
@@ -37,7 +40,7 @@ build() {
   #https://bugzilla.gnome.org/show_bug.cgi?id=656231
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
-  make ${MAKEFLAGS}
+  make
 
   cd "$srcdir"
   # GTK+ 3 version
@@ -51,7 +54,7 @@ build() {
   #https://bugzilla.gnome.org/show_bug.cgi?id=656231
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
-  make ${MAKEFLAGS}
+  make
 }
 
 package_libfm() {

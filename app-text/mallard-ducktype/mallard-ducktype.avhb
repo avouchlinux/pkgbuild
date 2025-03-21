@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,16 +12,26 @@ groups=('app-text')
 url="http://projectmallard.org"
 license=(MIT)
 depends=(python)
-makedepends=(python-setuptools git)
-source=("git+https://github.com/projectmallard/mallard-ducktype#commit=$_commit")
+makedepends=(
+  git
+  python-build
+  python-installer
+  python-setuptools
+  python-wheel
+)
+source=("git+https://github.com/projectmallard/mallard-ducktype?signed#tag=$pkgver")
+b2sums=('52e3a2e45ac5eaff7e2aed73177088238b9bb9bb45025259fd9814aa676e5c9c1f2d726493d6a67b6d2cd334afb393a5f67d06fffab403a37eae243732d1be38')
+validpgpkeys=(
+  4E03CB89E1C8ED8E049367ABE5D9AD24CC3ADF80 # Shaun McCance <shaunm@gnome.org>
+)
 
 build() {
-  cd $pkgname-$pkgver
-  python setup.py build
+  cd $pkgname
+  python -m build --wheel --no-isolation
 }
 
 package() {
-  cd $pkgname-$pkgver
-  python setup.py install --root="$pkgdir" --optimize=1 --skip-build
+  cd $pkgname
+  python -m installer --destdir="$pkgdir" dist/*.whl
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING
 }

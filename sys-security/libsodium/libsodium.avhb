@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libsodium
-pkgver=1.0.18
+pkgver=1.0.20
 pkgrel=1
 pkgdesc="P(ortable|ackageable) NaCl-based crypto library"
 arch=('x86_64')
@@ -12,28 +12,26 @@ groups=('sys-security')
 url="https://github.com/jedisct1/libsodium"
 license=('custom:ISC')
 depends=('glibc')
-makedepends=('minisign')
-source=("https://download.libsodium.org/libsodium/releases/libsodium-$pkgver.tar.gz"{,.minisig})
-_validminisignkey='RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-
-# prepare() {
-#   minisign -Vm $pkgname-$pkgver.tar.gz -P $_validminisignkey
-# }
+makedepends=('git')
+provides=('libsodium.so')
+source=("git+${url}.git?signed#tag=${pkgver}-RELEASE")
+sha512sums=('SKIP')
+validpgpkeys=('54A2B8892CC3D6A597B92B6C210627AABA709FE1') # Frank Denis
 
 build() {
-  cd "$pkgname-$pkgver"
+  cd $pkgname
 
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
-  cd "$pkgname-$pkgver"
-  make ${MAKEFLAGS} check
+  cd $pkgname
+  make check
 }
 
 package() {
-  cd "$pkgname-$pkgver"
+  cd $pkgname
   make DESTDIR="$pkgdir" install
 
   # install license

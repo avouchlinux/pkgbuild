@@ -1,21 +1,39 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-font-viewer
-pkgver=45.0
+pkgver=48.0
 pkgrel=1
 pkgdesc="A font viewer utility for GNOME"
 url="https://gitlab.gnome.org/GNOME/gnome-font-viewer"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(gtk3 gnome-desktop)
-makedepends=(git meson)
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  fontconfig
+  freetype2
+  fribidi
+  gcc-libs
+  glib2
+  glibc
+  graphene
+  gtk4
+  harfbuzz
+  hicolor-icon-theme
+  libadwaita
+  pango
+)
+makedepends=(
+  git
+  meson
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {
+    # export CFLAGS+=" -Wno-incompatible-pointer-types -Wno-implicit-function-declaration"
     avouch-meson ${pkgname}-${pkgver} build
     ninja -C build
 }

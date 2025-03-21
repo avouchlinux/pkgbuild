@@ -1,27 +1,33 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxinerama
 _realname=libXinerama
-pkgver=1.1.4
+pkgver=1.1.5
 pkgrel=1
 pkgdesc="X11 Xinerama extension library"
 arch=('x86_64')
 groups=('x11-libs')
 url="http://xorg.freedesktop.org/"
 license=('custom')
-depends=('libxext' 'xineramaproto')
-makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/lib/libXinerama-${pkgver}.tar.bz2")
+depends=('libxext')
+makedepends=('xorg-util-macros' 'xorgproto')
+source=("${url}"/archive/individual/lib/libXinerama-${pkgver}.tar.xz{,.sig})
+sha512sums=('735b5320de4782005b379e409bf2f976131c17d496b297d33a0e127ca1443034778586b6b25c077b2ad73a4ab34d440d7510475e0041f38202bb40f15fb08ff7'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') # "Alan Coopersmith <alan.coopersmith@oracle.com>"
 
 build() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  cd libXinerama-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "${srcdir}/${_realname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  cd libXinerama-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
 }

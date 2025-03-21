@@ -1,0 +1,27 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname='obs-gnome-screencast'
+pkgver='0.2.0'
+pkgrel='1'
+pkgdesc="GNOME Screen Cast OBS Studio plugin"
+changelog='CHANGELOG'
+arch=('x86_64')
+groups=('media-video')
+url="https://github.com/fzwoch/${pkgname}"
+license=('GPL2')
+depends=('gnome-shell' 'obs-studio' 'gstreamer' 'gst-plugins-base-libs')
+makedepends=('meson' 'git')
+source=("${url}/archive/v${pkgver}.tar.gz")
+sha256sums=('ed48de33b1f0a89a0bee33683006a25925780f3e962d5ead8292241f1540353a')
+
+build() {
+    avouch-meson "${pkgname}-${pkgver}"  build
+    meson compile -C build
+}
+
+package() {
+    DESTDIR="${pkgdir}" ninja install -C build
+}

@@ -2,4 +2,4 @@
 osvers="5.17.1-1-avouch"
 myuname="avouch"
 myhostname="avouch"
-cf_time="`date -u --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}"`"
+cf_time="`date -u`"

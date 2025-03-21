@@ -1,32 +1,34 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=help2man
-pkgver=1.48.1
+pkgver=1.49.3
 pkgrel=1
 pkgdesc="Conversion tool to create man files"
 arch=('x86_64')
 groups=('app-text')
-url="http://www.gnu.org/software/help2man/"
+url="https://www.gnu.org/software/help2man/"
 license=('GPL')
 depends=('perl-locale-gettext')
-install=help2man.install
-source=("http://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz")
+source=("https://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz"{,.sig})
+sha512sums=('5f19fad1e38b0572b63ed8bfd146b717fc22dff3a26641e8b5c8431df13da9574679d9a3407da62790db8a29286694ea1bfd751cba168f475302ad31cce845cf'
+            'SKIP')
+validpgpkeys=('87EA44D150D89615E39A3FEEF0DC8E00B28C5995') # Brendan O'Dea <bod@debian.org>
 
 build() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    ./configure --prefix=/usr \
+  cd ${pkgname}-${pkgver}
+
+  ./configure --prefix=/usr \
         --mandir=/usr/share/man \
-        --infodir=/usr/share/info \
-        --libdir=/usr/lib
-    make
+	    --infodir=/usr/share/info \
+	    --libdir=/usr/lib
+  make
 }
 
 package() {
-    cd "${srcdir}/${pkgname}-${pkgver}"
-    make DESTDIR="${pkgdir}" install
-    # license
-    install -D -m644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+  cd ${pkgname}-${pkgver}
+
+  make DESTDIR="${pkgdir}" install
 }

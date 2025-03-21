@@ -1,0 +1,71 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=totem-pl-parser
+pkgver=3.26.6+r30+g51b8439
+pkgrel=1
+pkgdesc="Simple GObject-based library to parse and save a host of playlist formats"
+url="https://gitlab.gnome.org/GNOME/totem-pl-parser"
+license=(LGPL)
+arch=('x86_64')
+groups=('gnome-base')
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  libarchive
+  libgcrypt
+  libxml2
+  uchardet
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  meson
+)
+checkdepends=(
+  dbus
+  gvfs
+  shared-mime-info
+)
+provides=(
+  "totem-plparser=$pkgver-$pkgrel"
+  libtotem-plparser{,-mini}.so
+)
+_commit=51b843912dc7bc43f371f1d88901a38ff2090b43  # master
+source=("git+https://gitlab.gnome.org/GNOME/totem-pl-parser.git#commit=$_commit")
+b2sums=('2fc81482b159a1dea5dc4b7f7796a4cc251679f9187fa4fd778d00c4307eee241fb66595b679b41beef32922af8337b6bade7775311b4adc957e67c3ab68a529')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/^V_//;s/_/./g;s/[^-]*-g/r&/;s/-/+/g'
+}
+
+prepare() {
+  cd $pkgname
+}
+
+build() {
+  local meson_options=(
+    -D enable-gtk-doc=true
+    -D enable-libarchive=yes
+    -D enable-libgcrypt=yes
+    -D enable-uchardet=yes
+  )
+
+  avouch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() (
+  export GIO_USE_VOLUME_MONITOR=unix
+#   dbus-run-session meson test -C build --print-errorlogs
+)
+
+package() {
+  meson install -C build --destdir "$pkgdir"
+}

@@ -17,7 +17,7 @@ source=(https://github.com/docbook/xslt10-stylesheets/releases/download/release%
         765567_non-recursive_string_subst.patch)
 
 prepare() {
-	bsdtar -xf $srcarchivedir/docbook-xsl-nons-1.79.2.tar.bz2
+	bsdtar -xf $srcarchivedir/docbook-xsl-nons-1.79.2.tar.gz
 	cd $pkgname-$pkgver
 	patch -Np2 -i ../765567_non-recursive_string_subst.patch
 

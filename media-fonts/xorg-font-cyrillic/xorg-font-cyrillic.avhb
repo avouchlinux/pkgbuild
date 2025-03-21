@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xorg-font-cyrillic
-pkgver=1.0.3
+pkgver=1.0.4
 pkgrel=1
 pkgdesc="X.org cyrillic fonts"
 arch=(any)
@@ -13,18 +13,10 @@ url="http://xorg.freedesktop.org/"
 license=('custom')
 depends=(xorg-fonts-encodings xorg-fonts-alias xorg-font-utils fontconfig)
 install=xfonts.install
-source=(${url}/releases/individual/font/font-cronyx-cyrillic-1.0.3.tar.bz2
-        ${url}/releases/individual/font/font-misc-cyrillic-1.0.3.tar.bz2
-        ${url}/releases/individual/font/font-screen-cyrillic-1.0.4.tar.bz2
-        ${url}/releases/individual/font/font-winitzki-cyrillic-1.0.3.tar.bz2)
-prepare() {
-
-	tar -jxf "${srcarchivedir}/font-cronyx-cyrillic-1.0.3.tar.bz2"
-	tar -jxf "${srcarchivedir}/font-misc-cyrillic-1.0.3.tar.bz2"
-	tar -jxf "${srcarchivedir}/font-screen-cyrillic-1.0.4.tar.bz2"
-	tar -jxf "${srcarchivedir}/font-winitzki-cyrillic-1.0.3.tar.bz2"
-
-}
+source=(${url}/releases/individual/font/font-cronyx-cyrillic-1.0.4.tar.xz
+        ${url}/releases/individual/font/font-misc-cyrillic-1.0.4.tar.xz
+        ${url}/releases/individual/font/font-screen-cyrillic-1.0.5.tar.xz
+        ${url}/releases/individual/font/font-winitzki-cyrillic-1.0.4.tar.xz)
 
 build() {
 

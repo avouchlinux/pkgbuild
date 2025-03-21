@@ -1,18 +1,48 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-disk-utility
-pkgver=45.0
+pkgver=46.1
 pkgrel=1
 pkgdesc="Disk Management Utility for GNOME"
 url="https://gitlab.gnome.org/GNOME/gnome-disk-utility"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(udisks2 gtk3 libsecret libpwquality libcanberra libdvdread libnotify parted systemd-libs)
-makedepends=(docbook-xsl appstream-glib git meson)
+url="https://gitlab.gnome.org/GNOME/gnome-disk-utility"
+arch=(x86_64)
+license=(GPL-2.0-or-later)
+depends=(
+  at-spi2-core
+  cairo
+  dconf
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gtk3
+  hicolor-icon-theme
+  libcanberra
+  libdvdread
+  libhandy
+  libnotify
+  libpwquality
+  libsecret
+  pango
+  parted
+  systemd-libs
+  udisks2
+  xz
+)
+makedepends=(
+  appstream
+  docbook-xsl
+  git
+  glib2-devel
+  meson
+  systemd
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 build() {

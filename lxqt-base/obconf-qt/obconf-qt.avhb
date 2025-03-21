@@ -1,26 +1,42 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=obconf-qt
-pkgver=0.16.2
+pkgver=0.16.5
 pkgrel=1
 pkgdesc="Openbox configuration tool. Qt port of ObConf"
 arch=("x86_64")
 groups=('lxqt-base')
-url="http://lxqt.org"
-license=("GPL2")
-depends=("hicolor-icon-theme" "libxkbcommon-x11" "openbox" "qt5-x11extras" "xdg-utils")
-makedepends=("git" "cmake" "qt5-tools")
-source=(https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz)
+url="https://github.com/lxqt/$pkgname"
+# See discussions about the license at https://github.com/lxqt/obconf-qt/issues/210
+license=("GPL-2.0-or-later")
+depends=("hicolor-icon-theme" "openbox" "qt5-x11extras")
+makedepends=("lxqt-build-tools-qt5")
+source=(
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+	"https://github.com/lxqt/$pkgname/releases/download/$pkgver/$pkgname-$pkgver.tar.xz.asc"
+)
+sha512sums=('4f75a5275e14cd7e8f0abc1bfcd40b4d860d613bc37c06c0e68d6f622ed126dce2fea98b5dd8e629b5de472ab5e668a5b0af7f6621d09fcb0b2287a11b0fb662'
+            'SKIP')
+validpgpkeys=(
+	"169704C6FB490C6892C7F23C37E0AF1FDA48F373"  # Jerome Leclanche <jerome@leclan.ch>
+	"7C733BA5F585AAD669E4D23A42C9C8D3AF5EA5E3"  # Alf Gaida <agaida@siduction.org>
+	"19DFDF3A579BD509DBB572D8BE793007AD22DF7E"  # Pedram Pourang <tsujan2000@gmail.com>
+)
+
 
 build() {
-    cmake -S "$pkgname-$pkgver" -B build -G Ninja\
-        -DCMAKE_INSTALL_PREFIX=/usr
-    ninja -C build
+	mkdir -p build
+	cd build
+	cmake "$srcdir/$pkgname-$pkgver" \
+		-DCMAKE_INSTALL_PREFIX=/usr
+	make
 }
 
 package() {
-    DESTDIR="$pkgdir" ninja -C build install
+	cd build
+	make DESTDIR="$pkgdir" install
 }
+

@@ -1,54 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kopete
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Instant Messenger'
-url='http://kde.org/applications/internet/kopete/'
-arch=('x86_64')
-groups=('kde-apps')
-license=('GPL' 'LGPL' 'FDL')
+url='https://apps.kde.org/kopete/'
+arch=(x86_64)
 license=(GPL LGPL FDL)
-depends=(knotifyconfig kcmutils ktexteditor kcontacts kidentitymanagement libkleo qca-qt5 kdelibs4support khtml libotr)
-makedepends=(extra-cmake-modules mediastreamer libgadu jsoncpp kdoctools kdesignerplugin kdnssd libkleo ktexteditor)
-optdepends=('mediastreamer: jingle support' 'libgadu: Gadu-Gadu protocol' 'kdnssd: bonjour protocol')
-source=("https://download.kde.org/stable/applications/$pkgver/src/$pkgname-$pkgver.tar.xz"{,.sig} 
-        kopete-mediastreamer2.14.patch kopete-srtp2.patch kopete-openssl-1.1.patch kopete-pthread-link.patch)
-sha256sums=('28eec726ee3869415ecbced35ff6ce38997e950368330fe3971b91defb525dc7'
-            'SKIP'
-            'c34a268aaa058e563174581dbe37c15fed91e82326ec704d2a872463139865e0'
-            'ceed663f7007654d186d918cf7a0742972ed5bd319879021e9ba80e395177700'
-            'e3271a11814dce26666d05b02d04e57a9fc6d66aa69e6d869c0aa2e9bb6d9782'
-            'a7ebdd8dd4336b7ec085ef254bf18040f473b73379a8cd84569b28441a6c71df')
+groups=(kde-applications kde-network)
+depends=(knotifyconfig5 kcmutils5 ktexteditor5 kcontacts5 kidentitymanagement libkleo qca-qt5 kdelibs4support khtml
+         libidn libotr)
+makedepends=(extra-cmake-modules libgadu jsoncpp kdoctools5 kdesignerplugin kdnssd5 kinit)
+optdepends=('libgadu: Gadu-Gadu protocol' 'kdnssd5: bonjour protocol')
+source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('0af87805f0c256ec3e5615e3ec70720ee09d0dbdc0a36b53813f3078a91b8e31'
+            'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
-              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87) # Christoph Feck <cfeck@kde.org>
-
-prepare() {
-    mkdir -p build
-
-    # fix build with mediastreamer 2.14
-    cd kopete-$pkgver
-    patch -p1 -i ../kopete-mediastreamer2.14.patch
-    # fix build with OpenSSL 1.1 (Fedora patch)
-    patch -p1 -i ../kopete-openssl-1.1.patch
-    # fix link to pthread
-    patch -p1 -i ../kopete-pthread-link.patch
-    # support SRTP2
-    patch -p1 -i ../kopete-srtp2.patch
-}
+              F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
+              D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-    cd build
-    cmake ../$pkgname-$pkgver \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=lib \
-        -DBUILD_TESTING=OFF
-    make ${MAKEFLAGS}
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	-DCMAKE_INSTALL_PREFIX=/usr \
+	  -DLIB_INSTALL_DIR=lib \
+    -DCMAKE_INSTALL_LIBEXECDIR=lib \
+    -DBUILD_TESTING=OFF
+  cmake --build build
 }
 
 package() {
-    cd build
-    make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }

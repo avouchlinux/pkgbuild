@@ -1,0 +1,102 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_gemname=typeprof
+pkgname="ruby-${_gemname}"
+pkgver=0.21.9
+pkgrel=1
+pkgdesc='An experimental type-level Ruby interpreter for testing and understanding Ruby code'
+arch=('any')
+groups=('dev-ruby')
+url="https://github.com/ruby/${_gemname}"
+license=(
+  MIT
+)
+depends=(
+  ruby
+)
+makedepends=(
+  ruby-rdoc
+)
+checkdepends=(
+  git
+)
+options=('!emptydirs')
+source=("${url}/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz")
+sha512sums=('53182db1fe2187d2ab0fda1a07d40c6767e485d15588b101384beabbdcacddaa8044587b59fc166e03d2b768c549938b0e9893557c4854b3431694d6e3f4bc45')
+b2sums=('20582ec0591ed4f375e68960e304f22515cbd28ad00bbe6001a0fc32ad19e03f41b54dff8cb03e9b1220417aa12ae2807d193d891b74b47e54130d277d1afb3a')
+
+prepare() {
+  cd "${_gemname}-${pkgver}"
+
+  # update gemspec/Gemfile to allow newer version of the dependencies
+  sed --in-place --regexp-extended 's|~>|>=|g' "${_gemname}.gemspec"
+
+  # we don't build from a git checkout
+  sed --in-place --regexp-extended 's|`git ls-files -z`\.split\("\\x0"\)|`find . -type f -not -path "*/\.git*" -printf "%P\\n"`\.split\("\\n"\)|' "${_gemname}.gemspec"
+}
+
+build() {
+  cd "${_gemname}-${pkgver}"
+
+  local _gemdir="$(gem env gemdir)"
+
+  gem build --verbose "${_gemname}.gemspec"
+
+  gem install \
+    --local \
+    --verbose \
+    --ignore-dependencies \
+    --no-user-install \
+    --install-dir "tmp_install${_gemdir}" \
+    --bindir "tmp_install/usr/bin" \
+    "${_gemname}-${pkgver}.gem"
+
+  # remove unrepreducible files
+  rm --force --recursive --verbose \
+    "tmp_install${_gemdir}/cache/" \
+    "tmp_install${_gemdir}/gems/${_gemname}-${pkgver}/vendor/" \
+    "tmp_install${_gemdir}/doc/${_gemname}-${pkgver}/ri/ext/"
+
+  find "tmp_install${_gemdir}/gems/" \
+    -type f \
+    \( \
+      -iname "*.o" -o \
+      -iname "*.c" -o \
+      -iname "*.so" -o \
+      -iname "*.time" -o \
+      -iname "gem.build_complete" -o \
+      -iname "Makefile" \
+    \) \
+    -delete
+
+  find "tmp_install${_gemdir}/extensions/" \
+    -type f \
+    \( \
+      -iname "mkmf.log" -o \
+      -iname "gem_make.out" \
+    \) \
+    -delete
+}
+
+# NOTE: see https://github.com/ruby/typeprof/issues/157
+# check() {
+#   cd "${_gemname}-${pkgver}"
+#
+#   local _gemdir="$(gem env gemdir)"
+#
+#   GEM_HOME="tmp_install${_gemdir}" rake test
+# }
+
+package() {
+  cd "${_gemname}-${pkgver}"
+
+  cp --archive --verbose tmp_install/* "${pkgdir}"
+
+  install --verbose -D --mode=0644 LICENSE* --target-directory "${pkgdir}/usr/share/licenses/${pkgname}"
+  install --verbose -D --mode=0644 *.md --target-directory "${pkgdir}/usr/share/doc/${pkgname}"
+}
+
+# vim: tabstop=2 shiftwidth=2 expandtab:

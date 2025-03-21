@@ -1,75 +1,103 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=dracut
-pkgver=055
+pkgver=104
 pkgrel=1
 pkgdesc="Generic, modular, cross-distribution initramfs generation tool"
 arch=('x86_64')
 groups=('sys-base')
-url="https://dracut.wiki.kernel.org"
-license=('GPL')
-depends=('bash' 'coreutils' 'cpio' 'filesystem' 'findutils' 'grep' 'gzip'
-         'kmod' 'procps-ng' 'sed' 'systemd' 'util-linux' 'xz')
-makedepends=('asciidoc' 'bash-completion' 'git')
+url="https://github.com/dracut-ng/dracut-ng"
+license=('GPL-2.0-or-later')
+depends=(
+  'bash'
+  'coreutils'
+  'cpio'
+  'filesystem'
+  'findutils'
+  'gawk'
+  'grep'
+  'kmod'
+  'pkgconf'
+  'procps-ng'
+  'sed'
+  'systemd'
+  'util-linux'
+)
+makedepends=(
+  'asciidoc'
+  'bash-completion'
+  'git'
+  'rust'
+)
+optdepends=(
+  'binutils: --uefi option support'
+  'bluez: bluetooth (keyboard)'
+  'btrfs-progs: scan for Btrfs on block devices'
+  'busybox: allows use of busybox (on your own risk)'
+  'bzip2: bzip2 compression'
+  'cifs-utils: support CIFS'
+  'connman: support for connman networking'
+  'cryptsetup: support for encrypted with LUKS filesystems'
+  'dash: allows use of dash (on your own risk)'
+  'dhclient: legacy networking support'
+  'dmraid: dmraid dracut module support'
+  'e2fsprogs: ext2/3/4 filesystem support'
+  'elfutils: strip binaries to reduce initramfs size'
+  'f2fs-tools: fsfs filesystem support'
+  'fuse3: live on NTFS (dmsquash-live-ntfs module)'
+  'gzip: gzip compression'
+  'iproute2: legacy networking support'
+  'iputils: networking support'
+  'lvm2: support Logical Volume Manager'
+  'lzop: lzop compression'
+  'mdadm: support MD devices, also known as software RAID devices'
+  'multipath-tools: dmraid dracut module support'
+  'nbd: support network block devices'
+  'ndctl: NVDIMM support'
+  'networkmanager: networkmanager support'
+  'nfs-utils: support NFS'
+  'ntfs-3g: live on NTFS (dmsquash-live-ntfs module)'
+  'nvme-cli: NVMe-oF support (nvmf module)'
+  'open-iscsi: support iSCSI (iscsi module)'
+  'openssh: install ssh and scp along with config files and specified keys (ssh-client module)'
+  'pigz: faster gzip compression'
+  'plymouth: plymouth boot splash'
+  'rng-tools: enable rngd service to help generating entropy early during boot'
+  'sbsigntools: uefi_secureboot_cert/key configuration option support'
+  'squashfs-tools: support for building a squashed initramfs'
+  'tar: live tar image'
+  'tpm2-tools: tpm2 support for e.g. LUKS'
+  'xz: xz compression'
+)
 provides=('initramfs')
 backup=('etc/dracut.conf')
-source=("git+https://github.com/dracutdevs/dracut#tag=${_tag_blob}?signed")
-validpgpkeys=(
-  			'4C96E1500F9421CCF82D5DCA034EB370014DF270'	# Harald Hoyer <harald@redhat.com>
-			) 
-
-getsrc() {
-	cd ${srcdir}
-	#git clone git://git.kernel.org/pub/scm/boot/dracut/dracut.git
-}
-
-prepare() {
-	
-	cd ${srcdir}/${pkgname}-${pkgver}
-	# cd ${srcdir}/${pkgname}
-	# rm examples/yocto/recipes/cross-compiler-ldd/cross-compile-ldd-fix-infinite-loop.patch
-	# local patches=( $( find ../ -type f -name '*.patch' -print | sed 's/^..//' ) )
-	# message "paches are : ${patches[@]}"
-
-	# local i;
-	# for i in ${patches[@]}; do
-	# 	case ${i%::*} in
-	# 	*.patch)
-	# 		echo "  -> Applying ${i}"
-	# 		patch -p1 -i "$srcdir/${i}"
-	# 		;;
-	# 	esac
-  	# done
-
-	# For it to work with current dependencies # as arch command is depricated
-	# sed -i 's|$(arch)|$(uname -m)|g' "modules.d/90crypt/module-setup.sh"
-	# rmdir not aailable wait till fixed
-	# sed -i 's|rmdir|rm -r|g' "modules.d/90dmsquash-live/iso-scan.sh"
-
-	# systemd does not support for syslog from version 246
-	# sed -i 's|syslog|journal|g' modules.d/98dracut-systemd/*.service
-	# patch -Np1 -i $srcdir/050-systemd-remove-obsolete-syslog-parameter.patch
-
-}
+source=(
+  "git+${url}#tag=${pkgver}"
+)
+sha512sums=('efd567897b5cbc939ca38568fe146440a241923d01ab2133fb353fb5d67ffcfe5c9aac4e6811df6ceec6a7e41d15b8fda53c41b374fd50bc2f1ace22d5d0d693')
+b2sums=('debfa7def7257150615e60eddb3814efbfbbd825e034f31aae73eb4b71a955d620be7ccb2a87712a07087c8327899cb04159c4c49de70fd3317196bbeafe90dc')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	# cd ${srcdir}/${pkgname}
-	./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--sbindir=/usr/bin \
-		--libdir=/usr/lib \
-		--systemdsystemunitdir=/usr/lib/systemd/system \
-		--bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion)
-	make
+  local prefix=/usr sysconfdir=/etc
+
+  cd ${pkgname}-ng
+
+  ./configure \
+    --sysconfdir=${sysconfdir} \
+    --prefix=${prefix} \
+    --libdir=${prefix}/lib \
+    --systemdsystemunitdir=${prefix}/lib/systemd/system \
+    --bashcompletiondir=$(pkg-config --variable=completionsdir bash-completion) \
+    --enable-dracut-cpio
+  make
 }
 
+
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
+	cd ${pkgname}-ng
 	# cd ${srcdir}/${pkgname}
 	make DESTDIR="${pkgdir}" install
 

@@ -1,7 +1,7 @@
 From 6a6c4240fa1e628dbcca09fdde39aea4d8eb6138 Mon Sep 17 00:00:00 2001
 From: "Miss Skeleton (bot)" <31488909+miss-islington@users.noreply.github.com>
 Date: Mon, 19 Oct 2020 21:46:10 -0700
-Subject: [PATCH 05/24] bpo-41944: No longer call eval() on content received
+Subject: [PATCH 05/36] bpo-41944: No longer call eval() on content received
  via HTTP in the CJK codec tests (GH-22566) (GH-22579)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,5 +69,5 @@ index 0000000000..4f9782f1c8
 @@ -0,0 +1 @@
 +Tests for CJK codecs no longer call ``eval()`` on content received via HTTP.
 -- 
-2.30.1
+2.38.1
 

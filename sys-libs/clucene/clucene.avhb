@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -43,6 +44,12 @@ prepare() {
 	patch -Np0 -i ${srcdir}/clucene-debug.patch
 	patch -Np0 -i ${srcdir}/clucene-narrowing-conversions.patch
 	patch -Np0 -i ${srcdir}/clucene-multimap-put.patch
+
+	# FS#77036 / https://sourceforge.net/p/clucene/bugs/235/ 
+  	patch -Np1 -i ../0001-Fix-missing-include-time.h.patch
+
+  	# nuke bundled code
+  	rm -rfv src/ext/{boost/,zlib/}
 }
 
 build() {

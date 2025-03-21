@@ -1,32 +1,37 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libopenmpt
-pkgver=0.6.2
+pkgver=0.7.10
 pkgrel=1
 pkgdesc="A library to render tracker music to a PCM audio stream"
 arch=(x86_64)
 groups=('media-libs')
 url="https://lib.openmpt.org/libopenmpt/"
-license=(BSD)
+license=(BSD-3-Clause)
 depends=(
-  flac libFLAC.so
+  flac
   gcc-libs
   glibc
-  libogg libogg.so
-  libpulse libpulse.so libpulse-simple.so
-  libsndfile libsndfile.so
-  libvorbis libvorbis.so libvorbisfile.so
-  mpg123 libmpg123.so
-  portaudio libportaudio.so
+  libogg  # required by pkgconf
+  libpulse
+  libsndfile
+  libvorbis
+  mpg123
+  portaudio
+  zlib
 )
-makedepends=(autoconf-archive doxygen help2man)
-options=(debug)
+makedepends=(
+  autoconf-archive
+  doxygen
+  help2man
+)
+provides=(libopenmpt.so)
 source=($pkgname-$pkgver.tar.gz::https://lib.openmpt.org/files/libopenmpt/src/$pkgname-$pkgver+release.autotools.tar.gz)
-sha512sums=('a4bbf804d4be72d11216173371ab81703877071cf15e2daaaf59b0eb892d5948072af00bd1ec8c097c23bb3f77bc2c0be6cf853dcf3c7c24aa6109a9f74d0948')
-b2sums=('38e8d24352cce92b38ddf8e1f33af7fb72571b88b8f4cbddff626affe2f00bdb73635872d502417e37c68aa0f2254338088bb493b47c688a22d342b3ba54f725')
+sha512sums=('e5f02b045bc1449791ec43a32216c4c4231edff88b3bda07283c9768118bce3a1f50c2535dbe38a21eb12016294e3b5823ef2f32f2f1e21d40fafe188bad783d')
+b2sums=('62bd4a1bcd9685fdb92c270687b71609a23986941e301ad17cc37ca5f6b5b76fa1a8f425b2e68603bb29bfa34c3c1caea98faea1d95004f87943b2bed6b7c9a0')
 
 prepare() {
   cd $pkgname-$pkgver+release.autotools
@@ -47,6 +52,6 @@ check() {
 
 package() {
   cd $pkgname-$pkgver+release.autotools
-  make DESTDIR="$pkgdir/" install
+  make DESTDIR="$pkgdir" install
   install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
 }

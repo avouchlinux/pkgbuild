@@ -1,54 +1,78 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=vulkan-caps-viewer
+pkgbase=vulkan-caps-viewer
+pkgname=('vulkan-caps-viewer-x11' 'vulkan-caps-viewer-wayland')
 _realname=VulkanCapsViewer
-pkgver=3.22
+pkgver=3.43
 pkgrel=1
 pkgdesc='Vulkan Hardware Capability Viewer'
 arch=('x86_64')
 groups=('dev-vulkan')
-url='http://vulkan.gpuinfo.org/'
-license=('GPL2')
-source=('vulkan-caps-viewer.desktop'
-        'android_icon_256.png')
-depends=('vulkan-icd-loader' 'qt5-base' 'qt5-x11extras')
-source=(https://github.com/SaschaWillems/VulkanCapsViewer/archive/$pkgver.tar.gz
-              https://github.com/KhronosGroup/Vulkan-Headers)
-
-getsrc() {
-  git clone https://github.com/SaschaWillems/VulkanCapsViewer
-  git clone https://github.com/KhronosGroup/Vulkan-Headers
-}
+url="https://vulkan.gpuinfo.org"
+license=('LGPL-3.0-or-later')
+makedepends=('git' 'qt5-wayland' 'qt5-x11extras' 'vulkan-icd-loader')
+source=("git+https://github.com/SaschaWillems/VulkanCapsViewer.git#tag=$pkgver"
+        'git+https://github.com/KhronosGroup/Vulkan-Headers.git')
+sha256sums=('52652b5d2d8f70f4d9b4209466843dc195cccc0ef36a830fd1ee0c9aaeba65af'
+            'SKIP')
 
 prepare() {
-  cd VulkanCapsViewer
 
+  # Create build directories
+  mkdir -p build-x11 build-wayland
+
+  cd VulkanCapsViewer
   git submodule init
   git config submodule.Vulkan-Headers.url "$srcdir/Vulkan-Headers"
-  git submodule update
+  git -c protocol.file.allow=always submodule update
 }
 
 build() {
-  cd VulkanCapsViewer
 
-  qmake \
-    QMAKE_CFLAGS="$CFLAGS" \
-    QMAKE_CXXFLAGS="$CXXFLAGS" \
-    QMAKE_LFLAGS="$LDFLAGS" \
+  # X11
+  pushd build-x11
+  qmake-qt5 ../VulkanCapsViewer \
+    DEFINES+=X11 \
+    CONFIG+=release \
     PREFIX=/usr
-
   make
+  popd
+
+  # Wayland
+  pushd build-wayland
+  qmake-qt5 ../VulkanCapsViewer \
+    DEFINES+=WAYLAND \
+    CONFIG+=release \
+    PREFIX=/usr
+  make
+  popd
 }
 
-package() {
-  cd VulkanCapsViewer
+package_vulkan-caps-viewer-x11() {
+  pkgdesc+=" (X11)"
+  depends=('hicolor-icon-theme' 'qt5-x11extras' 'vulkan-icd-loader')
+  provides=('vulkan-caps-viewer')
+  conflicts=('vulkan-caps-viewer')
 
-  make INSTALL_ROOT="$pkgdir" install
+  cd build-x11
+  make INSTALL_ROOT="$pkgdir/" install
 
-  # There's a bug preventing this from being installed automatically
-  install -Dm644 gfx/android_icon_256.png \
+  install -m644 ../VulkanCapsViewer/gfx/android_icon_256.png \
+    "$pkgdir"/usr/share/icons/hicolor/256x256/apps/vulkanCapsViewer.png
+}
+
+package_vulkan-caps-viewer-wayland() {
+  pkgdesc+=" (Wayland)"
+  depends=('hicolor-icon-theme' 'qt5-wayland' 'vulkan-icd-loader')
+  provides=('vulkan-caps-viewer')
+  conflicts=('vulkan-caps-viewer')
+
+  cd build-wayland
+  make INSTALL_ROOT="$pkgdir/" install
+
+  install -m644 ../VulkanCapsViewer/gfx/android_icon_256.png \
     "$pkgdir"/usr/share/icons/hicolor/256x256/apps/vulkanCapsViewer.png
 }

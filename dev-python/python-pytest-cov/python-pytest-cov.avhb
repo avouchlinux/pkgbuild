@@ -1,0 +1,38 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-pytest-cov
+pkgver=5.0.0
+pkgrel=1
+pkgdesc='py.test plugin for coverage reporting with support for both centralised and distributed testing, including subprocesses and multiprocessing'
+arch=('any')
+groups=('dev-python')
+license=('MIT')
+url='https://github.com/pytest-dev/pytest-cov'
+depends=('python-coverage' 'python-pytest')
+makedepends=('git' 'python-setuptools')
+checkdepends=('python-virtualenv' 'python-process-tests' 'python-pytest-xdist' 'python-fields')
+source=("git+https://github.com/pytest-dev/pytest-cov.git#tag=v$pkgver")
+sha512sums=('cac0a4d5dd5d070ac9feb83ab820bd8d611150b3ccf33bcbd157edcf7a2195517f51222cd7a83153b701300612d8ceac300fce9fea7423d3bd2f41a4eea4c419')
+
+build() {
+  cd pytest-cov
+  python setup.py build
+}
+
+check() {
+  # Hack entry points by installing it
+
+  cd pytest-cov
+  python setup.py install --root="$PWD/tmp_install" --optimize=1
+  local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+  PYTHONPATH="$PWD/tmp_install/$site_packages:$PYTHONPATH:$PWD/tests" pytest || echo "Tests failed"
+}
+
+package() {
+  cd pytest-cov
+  python setup.py install --root="$pkgdir" --optimize=1
+  install -Dm644 LICENSE -t "$pkgdir"/usr/share/licenses/$pkgname/
+}

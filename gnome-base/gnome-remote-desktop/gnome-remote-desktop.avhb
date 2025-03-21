@@ -1,44 +1,65 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-remote-desktop
-pkgver=45.0
+pkgver=48.rc
 pkgrel=1
 pkgdesc="GNOME Remote Desktop server"
-url="https://wiki.gnome.org/Projects/Mutter/RemoteDesktop"
+url="https://gitlab.gnome.org/GNOME/gnome-remote-desktop"
 arch=(x86_64)
-groups=('gnome-base')
-license=(GPL2)
-depends=(glib2 pipewire systemd libvncserver libsecret libnotify dconf)
-makedepends=(meson)
-checkdepends=(xorg-server-xvfb python-dbus python-gobject mutter)
+groups=(gnome-base)
+arch=(x86_64)
+license=(GPL-2.0-or-later)
+depends=(
+  cairo
+  dconf
+  freerdp
+  fuse3
+  gcc-libs
+  glib2
+  glibc
+  libdrm
+  libei
+  libepoxy
+  libfdk-aac
+  libnotify
+  libpipewire
+  libsecret
+  libvncserver
+  libxkbcommon
+  opus
+  pipewire
+  polkit
+  systemd
+  systemd-libs
+  tpm2-tss
+)
+makedepends=(
+  asciidoc
+  ffnvcodec-headers
+  git
+  glib2-devel
+  meson
+)
 source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-
-prepare() {
-  cd $pkgname-$pkgver
-
-  # Disable the Xvfb abstract socket which leaks out of our containers
-  # sed -i 's|-noreset|& -nolisten local|' tests/vnc-test-runner.sh
-}
+b2sums=('24796ff19165dd317046276c680d1860eba1f8e0604552610aabef0b51da9fb3b596063137c43a84fc30b8fb6bb521e26ca36fffcb1e367509319c9fa6e7a22c')
+validpgpkeys=(
+  8307C0A224BABDA1BABD0EB9A6EEEC9E0136164A # Jonas Ådahl <jadahl@gmail.com>
+  E60DADB5546D3F01AF35B87289F540EAB24513E2 # Ray Strode <rstrode@redhat.com>
+)
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  local meson_options=(
+    -D tests=false
+    -D vnc=true
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
-# check() (
-#   mkdir -p -m 700 "${XDG_RUNTIME_DIR:=$PWD/runtime-dir}"
-#   glib-compile-schemas "${GSETTINGS_SCHEMA_DIR:=$PWD/build/src}"
-#   export XDG_RUNTIME_DIR GSETTINGS_SCHEMA_DIR
-
-#   pipewire &
-#   trap "kill $!; wait" EXIT
-
-#   meson test -C build --print-errorlogs
-# )
-
 package() {
-  DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

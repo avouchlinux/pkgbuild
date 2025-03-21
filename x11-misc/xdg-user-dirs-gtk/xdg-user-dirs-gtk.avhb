@@ -1,40 +1,57 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xdg-user-dirs-gtk
-pkgver=0.10
+pkgver=0.11
 pkgrel=1
 pkgdesc="Creates user dirs and asks to relocalize them"
+url="https://gitlab.gnome.org/GNOME/xdg-user-dirs-gtk"
 arch=('x86_64')
 groups=('x11-misc')
-license=('GPL')
-depends=('gtk3' 'xdg-user-dirs')
-makedepends=('intltool' gnome-common git)
-options=('!emptydirs')
-url="https://www.gnome.org"
-source=("https://gitlab.gnome.org/GNOME/xdg-user-dirs-gtk.git"
-        show-in-mate.patch)
-
-# getsrc(){
-# 	git clone $source
-# }
+license=(GPL)
+depends=(
+  gtk3
+  xdg-user-dirs
+)
+makedepends=(
+  git
+  intltool
+)
+groups=(gnome)
+_commit=cf2a85fa5370aa7cdf36d1c8259ca89d3d737ef9  # tags/0.11^0
+source=(
+  "git+https://gitlab.gnome.org/GNOME/xdg-user-dirs-gtk.git#commit=$_commit"
+  show-in-more.diff
+)
+b2sums=('SKIP'
+        '13c74b98253791c248f4250d2a080160076ca1008a6747c3247121fcb8ec07bb3fd420356b7177a3865d50f675bc07ee4d1d327d4b2d920b1dd51d1bce6775a3')
 
 pkgver() {
   cd $pkgname
-  git describe --tags | sed 's/-/+/g'
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
 }
 
 prepare() {
   cd $pkgname
-  patch -Np1 -i ../show-in-mate.patch
-  NOCONFIGURE=1 ./autogen.sh
+
+  # Show in more environments
+  git apply -3 ../show-in-more.diff
+
+  autoreconf -fvi
 }
 
 build() {
+  local configure_options=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --localstatedir=/var
+    --disable-more-warnings
+  )
+
   cd $pkgname
-  ./configure --prefix=/usr --sysconfdir=/etc --disable-more-warnings
+  ./configure "${configure_options[@]}"
   make
 }
 
@@ -42,3 +59,4 @@ package() {
   cd $pkgname
   make DESTDIR="$pkgdir" install
 }
+

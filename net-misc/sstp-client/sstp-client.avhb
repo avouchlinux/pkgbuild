@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sstp-client
-pkgver=1.0.13
+pkgver=1.0.19
 pkgrel=1
 pkgdesc="SSTP client stable revision"
 arch=('x86_64')
@@ -16,35 +17,40 @@ optdepends=('ppp')
 install=$pkgname.install
 source=('50-sstp.PROFILE.sh.sample'
         'sstp.options.sample'
-        "https://sourceforge.net/projects/sstp-client/files/sstp-client/$pkgname-$pkgver.tar.gz")
+        "https://gitlab.com/sstp-project/sstp-client/-/releases/$pkgver/downloads/dist-gzip/$pkgname-$pkgver.tar.gz")
+sha512sums=('56859f24a3599d3f68f432e36661f43e08aeb8cb3bf959ddede6028a426117c06f0221ffd91c852bf9f4f34069d8adc7a199db6679f75daf508713e12735484d'
+            'a817dbfc9038f240bf0cbed295b654587070226c71fbf89fee4cd6a6d7912629cb2e15e7ae2b74c9a5e42e756bc6819c95bbb493503ac6921b4b01a571bf5430'
+            '7c6b77ff874c7cd4a58bcd13cae5375273e593f33bf702c1c9db29c98a6113db463a16597bd2462e553ea4c0232818fb5382223bc97206c2b1040a719d6dd5ef')
+
+prepare() {
+    cd $pkgname-$pkgver
+}
 
 build() {
-  pppd_version=(`pppd --version 2>&1 | awk '{print $3}'`)
-
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  pppd_version="$(pppd --version 2>&1 | awk '{print $3}')"
+  cd $pkgname-$pkgver
 
   ./configure \
     --prefix=/usr \
     --localstatedir=/ \
-    --with-pppd-plugin-dir=/usr/lib/pppd/${pppd_version}
-
-  make ${MAKEFLAGS}
+    --with-pppd-plugin-dir=/usr/lib/pppd/$pppd_version
+  make
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
+  cd $pkgname-$pkgver
 
-  make DESTDIR=${pkgdir} install
+  make DESTDIR="$pkgdir" install
 
-  install -d ${pkgdir}/run/sstpc
-  install -d ${pkgdir}/etc/sstpc
-  install -d ${pkgdir}/etc/ppp/ip-up.d
+  install -d "$pkgdir"/run/sstpc
+  install -d "$pkgdir"/etc/sstpc
+  install -d "$pkgdir"/etc/ppp/ip-up.d
 
-  install -Dm644 "${srcdir}/sstp.options.sample" "${pkgdir}/etc/sstpc/sstp.options.sample"
-  install -Dm744 "${srcdir}/50-sstp.PROFILE.sh.sample" "${pkgdir}/etc/ppp/ip-up.d/50-sstp.PROFILE.sh.sample"
+  install -Dm644 "$srcdir"/sstp.options.sample "$pkgdir"/etc/sstpc/sstp.options.sample
+  install -Dm744 "$srcdir"/50-sstp.PROFILE.sh.sample "$pkgdir"/etc/ppp/ip-up.d/50-sstp.PROFILE.sh.sample
 
-  rm -rf ${pkgdir}/var
-  rm -rf ${pkgdir}/run
+  rm -rf "$pkgdir"/var
+  rm -rf "$pkgdir"/run
 
-  mv ${pkgdir}/usr/sbin ${pkgdir}/usr/bin
+  mv "$pkgdir"/usr/sbin "$pkgdir"/usr/bin
 }

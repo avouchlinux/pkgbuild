@@ -1,39 +1,44 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdav
-pkgver=5.110.0
+pkgver=6.11.0
 pkgrel=1
 pkgdesc="A DAV protocol implemention with KJobs"
 url='https://pim.kde.org/'
 arch=('x86_64')
 groups=('kde-frameworks')
 license=(GPL LGPL FDL)
-depends=(kio)
-makedepends=(extra-cmake-modules)
-source=("https://download.kde.org/stable/applications/${pkgver}/src/${pkgname}-${pkgver}.tar.xz"{,.sig})
-sha256sums=('3c713f3c5c48b04a661e10925ec990b38b96f6e3b033cd65c9a6d94c6ea2127a'
+depends=(gcc-libs
+         glibc
+         kcoreaddons
+         ki18n
+         kio
+         qt6-base)
+makedepends=(doxygen
+             extra-cmake-modules
+             qt6-doc
+             qt6-tools)
+source=(https://download.kde.org/stable/frameworks/${pkgver%.*}/$pkgname-$pkgver.tar.xz{,.sig})
+sha256sums=('825ed9de5fc94e228fccd4af48cf7c101c0bbe37bbf6385cf81820bbeaf778e7'
             'SKIP')
-validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7) # Albert Astals Cid <aacid@kde.org>
-
-prepare() {
-  mkdir -p build
-}
+validpgpkeys=(53E6B47B45CEA3E0D5B7457758D0EE648A48B3BB # David Faure <faure@kde.org>
+              E0A3EB202F8E57528E13E72FD7574483BB57B18D # Jonathan Esk-Riddell <jr@jriddell.org>
+              90A968ACA84537CC27B99EAF2C8DF587A6D4AAC1 # Nicolas Fella <nicolas.fella@kde.org>
+            )
 
 build() {
-  cd build
-  cmake ../$pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
+  cmake -B build -S $pkgname-$pkgver \
     -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib  \
-		-DLIB_INSTALL_DIR=lib \
-    -DBUILD_TESTING=OFF
-  make ${MAKEFLAGS}
+    -DLIB_INSTALL_DIR=lib \
+    -DBUILD_TESTING=OFF \
+    -DBUILD_QCH=ON
+  cmake --build build
 }
 
 package() {
-  cd build
-  make DESTDIR="$pkgdir" install
+  DESTDIR="$pkgdir" cmake --install build
 }
+

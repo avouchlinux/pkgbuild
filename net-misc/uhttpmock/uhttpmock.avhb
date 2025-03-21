@@ -1,25 +1,50 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=uhttpmock
-pkgver=0.5.1
+pkgver=0.11.0
 pkgrel=1
 pkgdesc="HTTP web service mocking project for projects which use libsoup"
 arch=('x86_64')
 groups=('net-misc')
-url="https://gitlab.com/uhttpmock/uhttpmock"
-depends=('glib2' 'libsoup')
-license=('LGPL2.1')
-source=(https://tecnocode.co.uk/downloads/uhttpmock/$pkgname-$pkgver.tar.xz)
+url="https://gitlab.freedesktop.org/pwithnall/uhttpmock"
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  libsoup3
+)
+makedepends=(
+  git
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+license=(LGPL-2.1-or-later)
+source=("git+https://gitlab.freedesktop.org/pwithnall/uhttpmock.git#tag=$pkgver")
+b2sums=('121a8a8b71cb6f3d7faa8c044670ce6de574fc6f92d54a47870477751ef17967c7d4858cae21bb21c8445dc30a95d060a552d100a6901d1adcbc297ae87f898e')
+
+pkgver() {
+  cd $pkgname
+  git describe --tags | sed 's/[^-]*-g/r&/;s/-/+/g'
+}
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  local meson_options=(
+	-D gtk_doc=false
+  )
+
+  avouch-meson $pkgname build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="${pkgdir}" install
+  meson install -C build --destdir "$pkgdir"
 }

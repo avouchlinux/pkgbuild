@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=kdesignerplugin
-pkgver=5.110.0
+pkgver=6.6.0
 pkgrel=1
 pkgdesc='Integration of Frameworks widgets in Qt Designer/Creator'
 arch=('x86_64')

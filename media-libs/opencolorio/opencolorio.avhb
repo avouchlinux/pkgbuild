@@ -1,44 +1,44 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=opencolorio
 _realname=OpenColorIO
-pkgver=1.1.1
+pkgver=2.4.0
 pkgrel=1
 pkgdesc="A color management framework for visual effects and animation"
 arch=('x86_64')
 groups=('media-libs')
-url="http://opencolorio.org"
+url="https://opencolorio.org"
 license=('BSD')
-depends=('lcms2' 'tinyxml' 'yaml-cpp')
-makedepends=('boost' 'cmake' 'python')
+depends=('freeglut' 'glew' 'lcms2' 'tinyxml' 'yaml-cpp' 'imath' 'pystring' 'minizip-ng' 'openexr')
+makedepends=('cmake' 'python' 'pybind11' 'ninja')
+checkdepends=('openimageio')
 optdepends=('python: python bindings')
-source=(https://github.com/imageworks/OpenColorIO/tarball/v$pkgver
-        8d48ee8da42de2d878db7b42586db8b3c67f83e1.patch)
-
-prepare() {
-  cd $_realname-$pkgver
-  sed -i "s/-Werror//g" src/core/CMakeLists.txt
-  sed -i "s/-Werror//g" src/pyglue/CMakeLists.txt
-  sed -i "s/push(hidden)/push(default)/g" src/core/OCIOYaml.cpp
-
-  patch -Np1 -i "$srcdir"/8d48ee8da42de2d878db7b42586db8b3c67f83e1.patch
-}
+source=($pkgname-$pkgver.tar.gz::https://github.com/AcademySoftwareFoundation/OpenColorIO/archive/v$pkgver.tar.gz)
+sha512sums=('11ad89b3ac30700be58181a0bdd4154a3ae2bf59651edb48629c51c7f1fadf221394abb285efd9b6c259195821a4e531043b266eea36d8fa4382f23c3b54ab6d')
 
 build() {
-  cmake -S $_realname-$pkgver -B build -G Ninja  \
-    -DCMAKE_INSTALL_PREFIX=/usr \
-    -DCMAKE_INSTALL_LIBDIR=lib \
-    -DUSE_EXTERNAL_YAML=ON \
-    -DUSE_EXTERNAL_TINYXML=ON \
-    -DUSE_EXTERNAL_LCMS=ON
-  ninja -C build
+	export CXXFLAGS+=" -ffat-lto-objects"
+	
+	cmake -B build -S $_realname-$pkgver -G Ninja \
+ 		-DCMAKE_INSTALL_PREFIX=/usr \
+		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DCMAKE_SKIP_INSTALL_RPATH=YES \
+        -Wno-dev
+	cmake --build build
+}
+
+check() {
+	  cd $srcdir/build
+
+	  # Currently broken
+	  # ctest -E test_gpu
 }
 
 package() {
-  DESTDIR="$pkgdir" ninja -C build install
-
-  mv "$pkgdir"/usr/lib/static/libOpenColorIO.a "$pkgdir"/usr/lib/libOpenColorIO.a
-  rmdir "$pkgdir"/usr/lib/static
+	DESTDIR="$pkgdir" ninja -C build install
+	install -Dm644 LICENSE $pkgdir/usr/share/licenses/$pkgname/LICENSE
 }

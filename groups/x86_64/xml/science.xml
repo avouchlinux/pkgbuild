@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>cfitsio</Name>
+	 <Name>cln</Name>
+	 <Name>gsl</Name>
+	 <Name>gwenhywfar</Name>
+	 <Name>hdf5</Name>
+	 <Name>lapack</Name>
+	 <Name>libqalculate</Name>
+	 <Name>lpsolve</Name>
+	 <Name>units</Name>
+	 <Name>wcslib</Name>
+	 <Name>z3</Name>
+</Packages>

@@ -1,0 +1,109 @@
+aqbanking-6.5.4-1-avh040-x86_64.avh.tar.zst
+arpwatch-3.6-1-avh040-x86_64.avh.tar.zst
+bridge-utils-1.7.1-1-avh040-x86_64.avh.tar.zst
+# crda failed to build
+dhcp-4.4.3.P1-1-avh040-x86_64.avh.tar.zst
+dhclient-4.4.3.P1-1-avh040-x86_64.avh.tar.zst
+dhcpcd-10.1.0-1-avh040-x86_64.avh.tar.zst
+# dleyna-connector-dbus failed to build
+dleyna-core-0.7.0-1-avh040-x86_64.avh.tar.zst
+# dleyna-server failed to build
+dnsmasq-2.90-1-avh040-x86_64.avh.tar.zst
+freerdp-3.1.0-1-avh040-x86_64.avh.tar.zst
+geoclue-2.7.2-1-avh040-x86_64.avh.tar.zst
+geoip-1.6.12-1-avh040-x86_64.avh.tar.zst
+# geoip2-database failed to build
+# geoip-database failed to build
+glib-networking-2.80.0-1-avh040-x86_64.avh.tar.zst
+# gpsd failed to build
+grpc-1.65.5-4-avh040-x86_64.avh.tar.zst
+python-grpcio-1.65.5-4-avh040-x86_64.avh.tar.zst
+python-grpcio-tools-1.65.5-4-avh040-x86_64.avh.tar.zst
+php-grpc-1.65.5-4-avh040-x86_64.avh.tar.zst
+php-legacy-grpc-1.65.5-4-avh040-x86_64.avh.tar.zst
+grpc-cli-1.65.5-4-avh040-x86_64.avh.tar.zst
+gsasl-2.2.1-1-avh040-x86_64.avh.tar.zst
+gssdp-1.6.3-1-avh040-x86_64.avh.tar.zst
+gssdp-docs-1.6.3-1-avh040-x86_64.avh.tar.zst
+gupnp-1.6.7-1-avh040-x86_64.avh.tar.zst
+gupnp-docs-1.6.7-1-avh040-x86_64.avh.tar.zst
+gupnp-dlna-0.12.0-1-avh040-x86_64.avh.tar.zst
+gupnp-igd-1.6.0-1-avh040-x86_64.avh.tar.zst
+gupnp-tools-0.12.1-1-avh040-x86_64.avh.tar.zst
+http-parser-2.9.4-1-avh040-x86_64.avh.tar.zst
+ifenslave-1.1.0-1-avh040-x86_64.avh.tar.zst
+inetutils-2.5-1-avh040-x86_64.avh.tar.zst
+iproute2-6.11.0-1-avh040-x86_64.avh.tar.zst
+iptables-nft-1.8.10-1-avh040-x86_64.avh.tar.zst
+iputils-20240905-1-avh040-x86_64.avh.tar.zst
+# isdn4k-utils failed to build
+iwd-2.22-1-avh040-x86_64.avh.tar.zst
+kdsoap-qt5-2.2.0-1-avh040-x86_64.avh.tar.zst
+kdsoap-qt6-2.2.0-1-avh040-x86_64.avh.tar.zst
+kdsoap-ws-discovery-client-0.4.0-1-avh040-x86_64.avh.tar.zst
+lldpd-1.0.18-1-avh040-x86_64.avh.tar.zst
+# lrzsz failed to build
+memcached-1.6.21-1-avh040-x86_64.avh.tar.zst
+mobile-broadband-provider-info-20240407-1-avh040-x86_64.avh.tar.zst
+modemmanager-1.22.0-1-avh040-x86_64.avh.tar.zst
+libmm-glib-1.22.0-1-avh040-x86_64.avh.tar.zst
+mozjs128-128.3.0-1-avh040-x86_64.avh.tar.zst
+nanomsg-1.2-1-avh040-x86_64.avh.tar.zst
+neon-0.33.0-1-avh040-x86_64.avh.tar.zst
+netcf-0.2.8-1-avh040-x86_64.avh.tar.zst
+netctl-1.29-1-avh040-x86_64.avh.tar.zst
+net-snmp-5.9.4-1-avh040-x86_64.avh.tar.zst
+networkmanager-1.50.0-1-avh040-x86_64.avh.tar.zst
+libnm-1.50.0-1-avh040-x86_64.avh.tar.zst
+nm-cloud-setup-1.50.0-1-avh040-x86_64.avh.tar.zst
+networkmanager-docs-1.50.0-1-avh040-x86_64.avh.tar.zst
+network-manager-applet-1.36.0--avh040-x86_64.avh.tar.zst
+nm-connection-editor-1.36.0--avh040-x86_64.avh.tar.zst
+# networkmanager-fortisslvpn failed to build
+# networkmanager-iodine failed to build
+# networkmanager-l2tp failed to build
+networkmanager-libreswan-1.2.22-1-avh040-x86_64.avh.tar.zst
+# networkmanager-openconnect failed to build
+networkmanager-openvpn-1.12.0-1-avh040-x86_64.avh.tar.zst
+# networkmanager-pptp failed to build
+networkmanager-ssh-1.2.13-1-avh040-x86_64.avh.tar.zst
+# network-manager-sstp failed to build
+# networkmanager-strongswan failed to build
+networkmanager-vpnc-1.2.8-1-avh040-x86_64.avh.tar.zst
+nftables-1.1.1-1-avh040-x86_64.avh.tar.zst
+npapi-sdk-0.27.2-1-avh040-x86_64.avh.tar.zst
+nspr-4.35-1-avh040-x86_64.avh.tar.zst
+# openconnect failed to build
+# open-fcoe failed to build
+openldap-2.6.8-1-avh040-x86_64.avh.tar.zst
+libldap-2.6.8-1-avh040-x86_64.avh.tar.zst
+openresolv-3.13.2-1-avh040-x86_64.avh.tar.zst
+opensmtpd-7.5.0p0-1-avh040-x86_64.avh.tar.zst
+openssh-9.9p1-1-avh040-x86_64.avh.tar.zst
+openvpn-2.6.12-1-avh040-x86_64.avh.tar.zst
+pcsclite-2.3.0-1-avh040-x86_64.avh.tar.zst
+ppp-2.5.1-1-avh040-x86_64.avh.tar.zst
+radvd-2.19-1-avh040-x86_64.avh.tar.zst
+raft-0.22.1-1-avh040-x86_64.avh.tar.zst
+rp-pppoe-4.0-1-avh040-x86_64.avh.tar.zst
+libwbclient-4.21.0-1-avh040-x86_64.avh.tar.zst
+ldb-4.21.0-1-avh040-x86_64.avh.tar.zst
+smbclient-4.21.0-1-avh040-x86_64.avh.tar.zst
+samba-4.21.0-1-avh040-x86_64.avh.tar.zst
+signond-8.61-1-avh040-x86_64.avh.tar.zst
+socat-1.8.0.1-1-avh040-x86_64.avh.tar.zst
+sofia-sip-1.12.11-1-avh040-x86_64.avh.tar.zst
+spice-0.15.2-1-avh040-x86_64.avh.tar.zst
+spice-gtk-0.42-1-avh040-x86_64.avh.tar.zst
+spice-protocol-0.14.4-1-avh040-x86_64.avh.tar.zst
+# sstp-client failed to build
+stunnel-5.73-1-avh040-x86_64.avh.tar.zst
+tcpdump-4.99.5-1-avh040-x86_64.avh.tar.zst
+# telegram-qt failed to build
+# traceroute failed to build
+uhttpmock-0.11.0-1-avh040-x86_64.avh.tar.zst
+vpnc-0.5.3.r539.r239-1-avh040-x86_64.avh.tar.zst
+wireless-regdb-2019.06.03-1-avh040-x86_64.avh.tar.zst
+wireless_tools-30.pre9-1-avh040-x86_64.avh.tar.zst
+wpa_supplicant-2.11-1-avh040-x86_64.avh.tar.zst
+x11-ssh-askpass-1.2.4.1-1-avh040-x86_64.avh.tar.zst

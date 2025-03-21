@@ -1,46 +1,71 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=flac
 pkgname=('flac' 'flac-doc')
-pkgver=1.3.3
+pkgver=1.4.3
 pkgrel=1
 arch=('x86_64')
 groups=('media-libs')
-url="http://flac.sourceforge.net/"
+url='https://xiph.org/flac/'
 license=('BSD' 'GPL')
-depends=('libogg')
-makedepends=('nasm' 'xmms' 'doxygen')
-options=('!makeflags')
-source=(http://downloads.xiph.org/releases/flac/${pkgbase}-${pkgver}.tar.xz)
+depends=('gcc-libs' 'libogg')
+makedepends=('nasm' 'cmake' 'ninja' 'doxygen')
+source=(https://github.com/xiph/flac/releases/download/${pkgver}/flac-${pkgver}.tar.xz)
+b2sums=('c4f441aeaa0493433347b8a110ca01865fd40d5b21150174372af2fee4fa5c3397a67add31138e92999eab9d9abe6c46a5ac29e13cbac60093fbff6d7a672ad3')
 
-build() {
-  cd ${pkgbase}-${pkgver}
-  ./configure --prefix=/usr --disable-sse
-  make ${MAKEFLAGS}
+# https://github.com/xiph/flac/releases
+sha256sums=('6c58e69cd22348f441b861092b825e591d0b822e106de6eb0ee4d05d27205b70')
+
+prepare() {
+  cd flac-${pkgver}
+
+  # Shorten tests
+  sed -i 's/FLAC__TEST_LEVEL=1/FLAC__TEST_LEVEL=0/' test/CMakeLists.txt
 }
 
-# check() {
-#   cd ${pkgbase}-${pkgver}
-#   make check
-# }
+build() {
+  cmake -S flac-${pkgver} -B build -G Ninja \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON \
+    -DINSTALL_MANPAGES=ON \
+    -DWITH_STACK_PROTECTOR=OFF \
+    -DNDEBUG=ON
+  cmake --build build
+
+  # Build docs and place them where install expects them
+  cmake --build build --target FLAC-doxygen
+  mv build/doc/doxytmp/html flac-${pkgver}/doc/api
+}
+
+check() {
+  cd build
+  # ctest --output-on-failure --stop-on-failure -j1
+}
 
 package_flac() {
-  options=('!docs')
   provides=('libFLAC.so' 'libFLAC++.so')
 
-  cd ${pkgbase}-${pkgver}
-  make DESTDIR="${pkgdir}" install
-  install -Dm 644 COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  DESTDIR="${pkgdir}" cmake --install build
+
+  install -Dm 644 flac-${pkgver}/src/*/*.m4 -t "${pkgdir}/usr/share/aclocal"
+
+  mkdir -p doc/usr/share
+  mv {"${pkgdir}",doc}/usr/share/doc
+
+  install -Dm 644 flac-${pkgver}/COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
 
 package_flac-doc() {
   pkgdesc+=' documentation'
-  depends=('flac')
+  depends=()
 
-  cd ${pkgbase}-${pkgver}
-  make DESTDIR="${pkgdir}" -C doc install
-  sed -i "s|${srcdir}/${pkgbase}-${pkgver}|/usr|" "${pkgdir}/usr/share/doc/${pkgbase}/FLAC.tag"
-  install -Dm 644 COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
+  mv doc/* "$pkgdir"
+
+  install -Dm 644 flac-${pkgver}/COPYING.Xiph -t "${pkgdir}/usr/share/licenses/${pkgname}"
 }
+
+

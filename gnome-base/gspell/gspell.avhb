@@ -1,27 +1,82 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gspell
-pkgver=1.12.2
+pkgbase=gspell
+pkgname=(
+  gspell
+  gspell-docs
+)
+pkgver=1.14.0
 pkgrel=1
 pkgdesc="A flexible API to implement the spell checking in a GTK+ application"
 arch=('x86_64')
 groups=('gnome-base')
 url="https://wiki.gnome.org/Projects/gspell"
-license=('GPL2')
-depends=('gtk3' 'enchant' 'libxml2' 'iso-codes')
-makedepends=('intltool' 'gobject-introspection' 'vala')
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+license=(LGPL)
+depends=(
+  enchant
+  glib2
+  glibc
+  gtk3
+  icu
+)
+makedepends=(
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  meson
+  vala
+)
+checkdepends=(
+  aspell
+  hspell
+  hunspell
+  hunspell-en_us
+  libvoikko
+  nuspell
+  xorg-server-xvfb
+)
+source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
+b2sums=('SKIP')
 
 build() {
-	cd "$pkgname-$pkgver"
-	./configure  --prefix=/usr --enable-gtk-doc
-	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-	make ${MAKEFLAGS}
+  local meson_options=(
+    -D install_tests=false
+  )
+
+  avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
-package(){
-	cd "$pkgname-$pkgver"
-	make DESTDIR="$pkgdir" install
+
+check() {
+  echo '*:hunspell' > enchant.ordering
+#   ENCHANT_CONFIG_DIR="$PWD" \
+#     xvfb-run -s '-nolisten local' \
+#     meson test -C build --print-errorlogs
+}
+
+package_gspell(){
+  depends+=(
+    libenchant-2.so
+    libgtk-3.so
+    libg{lib,object,io}-2.0.so
+    libicuuc.so
+    libpango-1.0.so
+  )
+  provides+=("libgspell-${pkgver%%.*}.so")
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/gtk-doc
+}
+
+package_gspell-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

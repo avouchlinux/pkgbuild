@@ -1,0 +1,32 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libnvme
+pkgver=1.10
+pkgrel=1
+pkgdesc="C Library for NVM Express on Linux"
+arch=('x86_64')
+groups=('sys-block')
+url="https://github.com/linux-nvme/libnvme"
+license=('LGPL2.1')
+makedepends=('systemd' 'meson' 'asciidoc' 'python' 'swig')
+depends=('json-c' 'openssl' 'keyutils' 'dbus')
+source=(
+	"$pkgname-$pkgver.tar.gz::https://github.com/linux-nvme/${pkgname}/archive/v${pkgver}.tar.gz"
+)
+sha256sums=('add9efa968e8341459fcaa2d96f2594a6f871e1fb3f57c02ce1c8ba5424f3960')
+
+build() {
+	cd "${pkgname}-${pkgver}"
+    avouch-meson \
+	-Dlibdbus=auto \
+	-Ddocs-build=true \
+	.build
+}
+
+package() {
+	cd "${pkgname}-${pkgver}"
+	DESTDIR="$pkgdir" meson install -C .build
+}

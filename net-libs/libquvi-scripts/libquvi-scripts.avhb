@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,16 +11,20 @@ arch=('any')
 groups=('net-libs')
 url='http://quvi.sourceforge.net/'
 license=('AGPL3')
-depends=('lua-socket' 'lua-bitop' 'lua-expat')
-source=("http://downloads.sourceforge.net/sourceforge/quvi/${pkgname}-${pkgver}.tar.xz"{,.sig})
+depends=('lua52-socket' 'lua52-bitop' 'lua52-expat' 'lua52-luajson')
+source=("https://downloads.sourceforge.net/sourceforge/quvi/${pkgname}-${pkgver}.tar.xz"{,.sig})
+sha512sums=('97de4cead30dc181da700cbf3a0ad66ee709fef17f449f75cd43e0376a4aa53c7b2174188130aaa34dcc7ddc578581111f3655cb10f4b0c92df2f75d32c72a02'
+            'SKIP')
+validpgpkeys=('E220FCFF9EADBA326FD6B23BBF1D59CCAD00BE50')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr --with-nsfw --with-geoblocked
-	make ${MAKEFLAGS}
+  cd "${pkgname}-${pkgver}"
+  ./configure --prefix=/usr --with-nsfw --with-geoblocked
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
+  cd "${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
 }
+

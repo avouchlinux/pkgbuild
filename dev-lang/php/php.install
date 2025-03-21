@@ -24,3 +24,6 @@ echo "LoadModule php_module modules/libphp.so" >> /etc/httpd/conf/httpd.conf
 echo "AddHandler php-script .php" >> /etc/httpd/conf/httpd.conf
 echo "Include conf/extra/php_module.conf" >> /etc/httpd/conf/httpd.conf
 
+# phpmyadmin
+echo "Include /etc/httpd/conf/extra/phpmyadmin.conf" >> /etc/httpd/conf/httpd.conf
+

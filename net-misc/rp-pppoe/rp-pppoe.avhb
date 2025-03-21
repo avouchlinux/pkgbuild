@@ -1,32 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=rp-pppoe
-pkgver=3.13
+pkgver=4.0
 pkgrel=1
 pkgdesc="Roaring Penguin's Point-to-Point Protocol over Ethernet client"
 arch=('x86_64')
 groups=('net-misc')
 url="https://dianne.skoll.ca/projects/rp-pppoe"
 license=('GPL')
-depends=('ppp=2.4.8' 'sh' 'net-tools')
-backup=(etc/ppp/pppoe.conf etc/ppp/firewall-standalone etc/ppp/firewall-masq 
-        etc/ppp/pppoe-server-options)
+depends=('ppp=2.5.1' 'sh' 'iproute2')
+makedepends=('git')
+backup=(etc/ppp/pppoe-server-options)
 options=('!makeflags')
 install=rp-pppoe.install
-source=(https://dianne.skoll.ca/projects/rp-pppoe/download/rp-pppoe-$pkgver.tar.gz{,.sig} 
-       adsl.service)
-validpgpkeys=('FC2E9B645468698FD7B21655C1842E2A126F42E0') # Dianne Skoll
+source=(git+https://github.com/dfskoll/rp-pppoe.git?signed#tag=$pkgver
+        adsl.service)
+validpgpkeys=('FC2E9B645468698FD7B21655C1842E2A126F42E0'  # Dianne Skoll <dfs@roaringpenguin.com>
+              '738E4D954052902C147D07B2685A5A5E511D30E2') # Dianne Skoll <dianne@skoll.ca>
+sha512sums=('bea793f4ac8dfa7c4afef367241c81c64566588d18f0337d23308fd07fd98fe64555b0f2396d67f3c910c26456701c3b27553d418987aec3bada5e1a55dd9a1a'
+            '75fdb55b872e6388053aa0c1ba0b98ab9eda6b6f59a7452843cff8de5a68276be3f48dbd9a6324917254d4fe0d1b2d7442f7a9bbfa1355b6f500db13c9409089')
 
 build() {
-  cd $pkgname-$pkgver/src
+  cd rp-pppoe/src
   ./configure --prefix=/usr --sbindir=/usr/bin --enable-plugin
-  make ${MAKEFLAGS} PLUGIN_DIR="/usr/lib/rp-pppoe" all rp-pppoe.so
+  make PLUGIN_DIR="/usr/lib/rp-pppoe" all rp-pppoe.so
 }
 
 package() {
-  cd $pkgname-$pkgver/src
+  cd rp-pppoe/src
   make PLUGIN_DIR="/usr/lib/rp-pppoe" DESTDIR="$pkgdir" install
 
   #install -Dm755 "$srcdir/adsl" "$pkgdir/etc/rc.d/adsl"

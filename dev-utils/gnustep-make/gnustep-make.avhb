@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnustep-make
-pkgver=2.8.0
+pkgver=2.9.2
 pkgrel=1
 pkgdesc="The GNUstep make package"
 arch=('x86_64')
@@ -14,17 +14,17 @@ license=('GPL')
 depends=()
 backup=('etc/GNUstep/GNUstep.conf')
 source=(https://github.com/gnustep/tools-make/archive/make-${pkgver//./_}.tar.gz)
-sha256sums=('a9df9b0d756a93306a8e0cb9e127f5688a459dad3d356cd760565833da605825')
+sha256sums=('b3fdee058879675f6979c553fb6172b160ca79ffd0f170f51379326b7922941a')
 
 prepare() {
-  cd "$srcdir"/$pkgname-$pkgver
+  cd "$srcdir"/tools-make-make-${pkgver//./_}
   for i in GNUSTEP_SYSTEM_ADMIN_TOOLS GNUSTEP_NETWORK_ADMIN_TOOLS GNUSTEP_LOCAL_ADMIN_TOOLS; do
     sed -i "s|@$i@|/usr/bin|g" GNUstep{,-strict-v2}.conf.in filesystem.{sh,csh,make}.in
   done
 }
 
 build() {
-  cd "$srcdir"/$pkgname-$pkgver
+  cd "$srcdir"/tools-make-make-${pkgver//./_}
   ./configure \
     --prefix=/usr \
     --sbindir=/usr/bin \
@@ -34,7 +34,8 @@ build() {
 }
 
 package() {
-  cd "$srcdir"/$pkgname-$pkgver
+  cd "$srcdir"/tools-make-make-${pkgver//./_}
   make DESTDIR="$pkgdir" install
 }
+
 

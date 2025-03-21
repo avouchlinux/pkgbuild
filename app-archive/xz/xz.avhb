@@ -1,37 +1,52 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xz
-pkgver=5.2.5
+pkgver=5.6.3
 pkgrel=1
 pkgdesc='Library and command line tools for XZ and LZMA compressed files'
 arch=('x86_64')
 groups=('app-archive')
-url='http://tukaani.org/xz/'
+url='https://tukaani.org/xz/'
 license=('GPL' 'LGPL' 'custom')
 depends=('sh')
-source=("http://tukaani.org/${pkgname}/${pkgname}-${pkgver}.tar.gz"
-        "http://tukaani.org/${pkgname}/${pkgname}-${pkgver}.tar.gz.sig")
+makedepends=('git' 'po4a' 'doxygen')
+provides=('liblzma.so')
+validpgpkeys=('3690C240CE51B4670D30AD1C38EE757D69184620') # Lasse Collin <lasse.collin@tukaani.org>
+source=("git+https://github.com/tukaani-project/xz#tag=v${pkgver}?signed")
+sha256sums=('5a4495e85ddec6979a7c34fec7355304588e37830d663ffb5e57069636f47900')
+sha512sums=('5dab9545bc63249c7716d40464f77b603a4255a91d65743d4fa8163e9819768c8a26b31dc783c1fb65904c954a6d5fd4a974420e4d599c7079828bdd3c78b593')
+
+prepare() {
+  cd ${pkgname}
+
+  ./autogen.sh
+}
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	export CFLAGS="${CFLAGS} -D_FILE_OFFSET_BITS=64"
-	
-	./configure --prefix=/usr --disable-rpath
-	make
+  cd ${pkgname}
+
+  ./configure \
+    --prefix=/usr \
+    --disable-rpath \
+    --enable-doxygen \
+    --enable-werror
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make check
+  cd ${pkgname}
+
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR=${pkgdir} install
-	install -d -m755 ${pkgdir}/usr/share/licenses/xz/
-	ln -sf /usr/share/doc/xz/COPYING ${pkgdir}/usr/share/licenses/xz/COPYING
-	ln -sf /usr/share/licenses/common/GPL2/license.txt ${pkgdir}/usr/share/doc/xz/COPYING.GPLv2
+  cd ${pkgname}
+
+  make DESTDIR="${pkgdir}" install
+
+  install -d -m0755 "${pkgdir}/usr/share/licenses/xz/"
+  ln -sf /usr/share/doc/xz/COPYING "${pkgdir}/usr/share/licenses/xz/"
 }

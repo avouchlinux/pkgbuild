@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -13,7 +14,7 @@ groups=('sys-libs')
 depends=('gtk2' 'enchant')
 makedepends=('intltool' 'gtk-doc')
 validpgpkeys=('7C70E4D9927061BD840E82DB6BA6197569B23319') #Daniel Atallah <daniel.atallah@gmail.com>
-source=(https://downloads.sourceforge.net/sourceforge/gtkspell/${pkgname}-${pkgver}.tar.gz{,.asc}
+source=(https://downloads.sourceforge.net/sourceforge/gtkspell/${_realname}-${pkgver}.tar.gz{,.asc}
         enchant-2.diff)
 
 prepare() {
@@ -29,7 +30,7 @@ prepare() {
 build() {
 	cd "${srcdir}/${_realname}-${pkgver}"
 	./configure --prefix=/usr --enable-gtk-doc=no
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

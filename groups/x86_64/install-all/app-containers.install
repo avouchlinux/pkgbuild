@@ -1,0 +1,16 @@
+aardvark-dns-1.0.1-1-avh030-x86_64.avh.tar.zst
+cni-plugins-1.1.1-1-avh030-x86_64.avh.tar.zst
+containerd-1.6.1-1-avh030-x86_64.avh.tar.zst
+docker-20.10.13-1-avh030-x86_64.avh.tar.zst
+docker-compose-2.3.3-1-avh030-x86_64.avh.tar.zst
+kube-apiserver-1.23.5-1-avh030-x86_64.avh.tar.zst
+kube-controller-manager-1.23.5-1-avh030-x86_64.avh.tar.zst
+kube-proxy-1.23.5-1-avh030-x86_64.avh.tar.zst
+kube-scheduler-1.23.5-1-avh030-x86_64.avh.tar.zst
+kubectl-1.23.5-1-avh030-x86_64.avh.tar.zst
+kubelet-1.23.5-1-avh030-x86_64.avh.tar.zst
+kubeadm-1.23.5-1-avh030-x86_64.avh.tar.zst
+lxc-6.0.0-1-avh040-x86_64.avh.tar.zst
+lxd-5.21.0-1-avh040-x86_64.avh.tar.zst
+netavark-1.0.1-1-avh030-x86_64.avh.tar.zst
+runc-1.1.0-1-avh030-x86_64.avh.tar.zst

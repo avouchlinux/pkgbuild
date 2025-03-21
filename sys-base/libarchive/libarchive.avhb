@@ -13,7 +13,12 @@ url='https://libarchive.org/'
 license=(BSD)
 depends=('acl' 'libacl.so' 'bzip2' 'expat' 'lz4' 'openssl' 'xz' 'zlib' 'zstd')
 provides=(libarchive.so)
-source=("https://github.com/$pkgname/$pkgname/archive/v$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/$pkgname/$pkgname/archive/v$pkgver.tar.gz")
+
+prepare(){
+	cd "${pkgname}-${pkgver}"
+	autoreconf -vif
+}
 
 build() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
@@ -21,7 +26,7 @@ build() {
 		--without-xml2 \
 		--without-nettle \
 		--disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 check() {

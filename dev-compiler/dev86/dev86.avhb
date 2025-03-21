@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -10,38 +10,41 @@ pkgrel=1
 pkgdesc="Simple C compiler to generate 8086 code"
 arch=('x86_64')
 groups=('dev-compiler')
-url="http://v3.sk/~lkundrak/dev86/"
+url='https://v3.sk/~lkundrak/dev86/'
 license=(GPL)
-if [ "${CARCH}" == "x86_64" ]; then
-  depends=('lib32-glibc')
-  makedepends=('bin86' 'gcc-multilib')
-else
-  makedepends=('bin86')
-fi
-options=('!libtool' '!strip' '!makeflags' 'staticlibs')
-source=(http://v3.sk/~lkundrak/dev86/Dev86src-$pkgver.tar.gz
-	mandir.patch)
-md5sums=('567cf460d132f9d8775dd95f9208e49a'
-         '509df653dec8956faf1a40a8c544d9ce')
+makedepends=('bin86')
+options=('!strip' '!makeflags' 'staticlibs')
+source=(#"https://v3.sk/~lkundrak/dev86/Dev86src-${pkgver}.tar.gz"
+        "https://sources.archlinux.org/other/packages/dev86/Dev86src-${pkgver}.tar.gz"
+	'0001-mandir.patch')
+sha256sums=('234b110e6df9b7f6843e2ee53473127c2211243a16748f229fc0127845f68d94'
+            'f1cc9e3779c435a39c0a3b773b6fc220c6bd7909ec4bb1b8ee781cf4f89d4827')
 
 prepare() {
-	cd "${srcdir}/$pkgname-${pkgver}"
+  cd "$srcdir"/$pkgname-$pkgver
+  patch -p1 <"$srcdir"/0001-mandir.patch
 
-	patch -p1 <$srcdir/mandir.patch
+  patch -p1 <"$srcdir"/dev86/dev86-0.16.19-fortify.patch
+  patch -p1 <"$srcdir"/dev86-0.16.21-make.patch
+  patch -p1 <"$srcdir"/dev86-0.16.21-non-void-return-clang.patch
+  patch -p1 <"$srcdir"/dev86-0.16.21-void-return-check-msdos-clang-fix.patch
+  patch -p1 <"$srcdir"/dev86-pic.patch
 }
 
 build() {
-	cd $srcdir/$pkgname-$pkgver
-	make PREFIX=/usr DIST="$pkgdir"
+  	cd "$srcdir"/$pkgname-$pkgver
+	export CPPFLAGS=""
+	export CFLAGS+=" -fno-strict-aliasing -Wno-incompatible-pointer-types -Wno-implicit-function-declaration -Wno-implicit-function-declaration -Wno-builtin-declaration-mismatch"
+ 	make -j1 PREFIX=/usr DIST="$pkgdir"
 }
 
 package() {
-	cd $srcdir/$pkgname-$pkgver
-	mkdir -p $pkgdir/usr/share/man/man1
-	make install-all DIST="$pkgdir"
+  cd "$srcdir"/$pkgname-$pkgver
 
-	# remove all the stuff supplied by bin86
-	rm $pkgdir/usr/bin/{as,ld,nm,objdump,size}86
-	rm $pkgdir/usr/share/man/man1/{as,ld}86.1
+  mkdir -p "$pkgdir"/usr/share/man/man1
+  make install-all DIST="$pkgdir"
+
+  # remove all the stuff supplied by bin86
+  rm "$pkgdir"/usr/bin/{as,ld,nm,objdump,size}86
+  rm "$pkgdir"/usr/share/man/man1/{as,ld}86.1
 }
-

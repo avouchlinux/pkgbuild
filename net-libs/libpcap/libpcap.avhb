@@ -1,46 +1,58 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libpcap
-pkgver=1.9.1
+pkgver=1.10.5
 pkgrel=1
 pkgdesc="A system-independent interface for user-level packet capture"
 arch=('x86_64')
 groups=('net-libs')
 url='https://www.tcpdump.org/'
-license=('BSD')
-depends=('glibc' 'libnl' 'sh' 'libusbx' 'dbus')
-makedepends=('flex' 'bluez-libs')
-source=(https://www.tcpdump.org/release/libpcap-${pkgver}.tar.gz{,.sig}
-        mgmt.h)
+_url=https://github.com/the-tcpdump-group/libpcap
+license=(BSD-3-Clause)
+depends=(
+  glibc
+  libnl
+  sh
+)
+makedepends=(
+  bluez-libs
+  dbus
+  git
+)
+provides=(libpcap.so)
+source=(https://github.com/the-tcpdump-group/$pkgname/archive/refs/tags/$pkgname-$pkgver.tar.gz)
+sha512sums=('b07d570933ccfc671c66e9355fb84b087dfc144f41e4088c253f544bfbecc71f38aac33ac66b2c0510422381e4c53f2499214e046146a781af050e76b3f774e8')
+b2sums=('41a719c1eb22f411c133973d8971ff8c4de6d940ceb83acc5bfd9942bf337f12db55315a808caa907cdc7c14d20a7fae9d554aca945f97a0bbeee0b6c0d2f23c')
 validpgpkeys=('1F166A5742ABB9E0249A8D30E089DEF1D9C15D0D') # The Tcpdump Group
 
 prepare() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-
-	mkdir -p ${srcdir}/include/bluetooth
-	cp ${srcdir}/mgmt.h ${srcdir}/include/bluetooth/
+  cd $pkgname-$pkgname-$pkgver
+  autoreconf -fiv
 }
 
 build() {
-    cd ${srcdir}/${pkgname}-${pkgver}
-    CFLAGS="$CFLAGS -I${srcdir}/include $(pkg-config libnl-genl-3.0 --cflags)" \
-    ./configure --prefix=/usr \
-        --enable-ipv6 \
-        --enable-bluetooth \
-        --with-libnl
-    make ${MAKEFLAGS}
+  local configure_options=(
+    --prefix=/usr
+    --enable-ipv6
+    --enable-bluetooth
+    --enable-usb
+    --with-libnl
+  )
+
+  cd $pkgname-$pkgname-$pkgver
+  ./configure "${configure_options[@]}"
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	install -d -m755 ${pkgdir}/usr/bin
-	make DESTDIR=${pkgdir} install
+  depends+=(libdbus-1.so)
 
-	# backwards compatibility, programs often look for net/bpf.h
-	mkdir -p ${pkgdir}/usr/include/net
-	cd ${pkgdir}/usr/include/net
-	ln -s ../pcap-bpf.h bpf.h
+  cd $pkgname-$pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 {CHANGES,{CONTRIBUTING,README}.md} -t "$pkgdir/usr/share/doc/$pkgname/"
 }
 

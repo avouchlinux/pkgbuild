@@ -1,29 +1,96 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-settings-daemon
-pkgver=45.0
+pkgver=48.rc
 pkgrel=1
 pkgdesc="GNOME Settings Daemon"
 url="https://gitlab.gnome.org/GNOME/gnome-settings-daemon"
 arch=(x86_64)
-groups=('gnome-base')
-license=(GPL)
-depends=(dconf gnome-desktop gsettings-desktop-schemas libcanberra-pulse libnotify systemd-libs
-         libwacom pulseaudio pulseaudio-alsa upower librsvg libgweather geocode-glib geoclue2 nss
-         libgudev gtk3-print-backends libnm)
-makedepends=(xf86-input-wacom libxslt docbook-xsl python3 git meson)
-checkdepends=(python3-pygobject python3-dbusmock)
-source=("https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2")
-sha256sums=('')
+groups=(gnome-base)
+license=(
+  GPL-2.0-or-later
+  LGPL-2.0-or-later
+)
+depends=(
+  alsa-lib
+  bash
+  cairo
+  dconf
+  fontconfig
+  gcc-libs
+  gcr-4
+  geoclue
+  geocode-glib-2
+  glib2
+  glibc
+  gnome-desktop
+  gsettings-desktop-schemas
+  gtk3
+  libcanberra-pulse
+  libcolord
+  libcups
+  libgudev
+  libgweather-4
+  libmm-glib
+  libnm
+  libnotify
+  libp11-kit
+  libpulse
+  librsvg
+  libwacom
+  libx11
+  libxext
+  libxfixes
+  libxi
+  nss
+  pango
+  polkit
+  pulse-native-provider
+  systemd
+  systemd-libs
+  upower
+  wayland
+  xorg-xrdb
+)
+makedepends=(
+  docbook-xsl
+  git
+  glib2-devel
+  libxslt
+  meson
+  python
+  usbguard
+)
+checkdepends=(
+  python-dbusmock
+  python-gobject
+)
+optdepends=('usbguard: USB protection support')
+backup=(etc/xdg/Xwayland-session.d/00-xrdb)
+source=(
+  "https://download.gnome.org/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz"
+  0001-subprojects-Update-gvc-to-latest-commit.patch
+)
+b2sums=('d3e0c207fa2df397a9f2d0c39c68d8fbc719f1962915130e10641bf2ca765e86b05b5d512789c65d1641aad5f9986cb0bb0c21c12f36d288201cdb89c7790e73'
+        'SKIP'
+        '51cfe280b938ae8c74a46432feddbafb598d7e82fec7dfbf657791cb4749a0a205d5e99decb4953272451b03c91fe7c3891df0c4e945c2070615405db3ec897c')
 
-build() {
-    avouch-meson $pkgname-$pkgver build
-    meson compile -C build
+prepare() {
+  cd $pkgname-$pkgver
 }
 
+build() {
+  avouch-meson $pkgname-$pkgver build
+  meson compile -C build
+}
+
+# check() {
+#   meson test -C build --print-errorlogs
+# }
+
 package() {
-    DESTDIR="$pkgdir" meson install -C build
+  meson install -C build --destdir "$pkgdir"
 }

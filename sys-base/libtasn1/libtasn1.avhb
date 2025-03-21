@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libtasn1
-pkgver=4.16.0
+pkgver=4.19.0
 pkgrel=1
 pkgdesc="The ASN.1 library used in GNUTLS"
 arch=('x86_64')
@@ -17,22 +18,18 @@ sha256sums=('7e528e8c317ddd156230c4e31d082cd13e7ddeb7a54824be82632209550c8cca'
 validpgpkeys=('1F42418905D8206AA754CCDC29EE58B996865171') #Nikos Mavrogiannopoulos <nmav@gnutls.org>
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr \
-	--disable-static \
-	--with-packager="Avouch Linux" \
-	--with-packager-bug-reports="http://bugs.avouch.org/" \
-	--with-packager-version=${pkgver}-${pkgrel}
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  CODE_COVERAGE_LDFLAGS=${LDFLAGS} make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd ${pkgname}-${pkgver}
+  make check
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	make -C doc/reference DESTDIR="${pkgdir}" install-data-local
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
+  make -C doc/reference DESTDIR="${pkgdir}" install-data-local
 }

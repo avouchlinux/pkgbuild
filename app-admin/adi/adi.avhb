@@ -4,7 +4,7 @@
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=adi
-pkgver=0.3.0
+pkgver=0.4.0
 pkgrel=1
 pkgdesc="Avouch Linux distribution installer written in QT"
 arch=('x86_64')

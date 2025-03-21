@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -12,17 +13,25 @@ url='https://launchpad.net/schroedinger'
 license=('GPL2' 'LGPL2.1' 'MPL' 'MIT')
 depends=('orc')
 source=("https://launchpad.net/schroedinger/trunk/${pkgver}/+download/schroedinger-${pkgver}.tar.gz"{,.asc})
-validpgpkeys=('9456AFC0814A8139E99483517FE6B095B582B0D4') # Timothy Gu)
+validpgpkeys=('9456AFC0814A8139E99483517FE6B095B582B0D4') # Timothy Gu
+sha256sums=('1e572a0735b92aca5746c4528f9bebd35aa0ccf8619b22fa2756137a8cc9f912'
+            'SKIP')
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd schroedinger-${pkgver}
+
+  # fix compatibility with gtk-doc 1.26
+  gtkdocize
+  autoreconf -fiv
+
+  ./configure \
+    --prefix='/usr'
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="$pkgdir" install
-	# license
-	install -m644 -D COPYING.MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  cd schroedinger-${pkgver}
+
+  make DESTDIR="$pkgdir" install
+  install -Dm 644 COPYING.MIT -t "${pkgdir}"/usr/share/licenses/schroedinger/
 }

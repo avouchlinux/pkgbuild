@@ -1,0 +1,25 @@
+From 837af73f7e639e81e2ebc2989a236b25cf54aca7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Sun, 22 Sep 2024 17:32:17 +0000
+Subject: [PATCH] Set icon for the window
+
+This is commonly used by desktop environments on Xorg.
+---
+ showtime/main.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/showtime/main.py b/showtime/main.py
+index 4d31386..11d93b5 100644
+--- a/showtime/main.py
++++ b/showtime/main.py
+@@ -99,6 +99,7 @@ class ShowtimeApplication(Adw.Application):
+         self.add_main_option_entries((new_window,))
+         self.set_option_context_parameter_string("[VIDEO FILES]")
+ 
++        Gtk.Window.set_default_icon_name(shared.APP_ID)
+         Adw.StyleManager.get_default().set_color_scheme(Adw.ColorScheme.PREFER_DARK)
+ 
+         if shared.system == "Darwin" and (settings := Gtk.Settings.get_default()):
+-- 
+GitLab
+

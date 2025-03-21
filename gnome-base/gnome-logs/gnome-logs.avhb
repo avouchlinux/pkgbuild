@@ -1,28 +1,44 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-logs
-pkgver=45.beta
+pkgver=45.0
 pkgrel=1
 pkgdesc="A log viewer for the systemd journal"
+url="https://apps.gnome.org/Logs"
 arch=('x86_64')
 groups=('gnome-base')
-license=('GPL' 'LGPL')
-depends=('gtk3' 'gcr' 'libcap-ng')
-makedepends=('intltool' 'gtk-doc')
+license=(GPL)
+depends=(
+  dconf
+  glib2
+  gsettings-desktop-schemas
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  pango
+  systemd
+)
+makedepends=(
+  appstream
+  git
+  meson
+  yelp-tools
+)
+
 options=('!emptydirs')
 url="http://www.gnome.org"
 install=gnome-keyring.install
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.gnome.org/GNOME/gnome-logs/-/archive/$pkgname-$pkgver/$pkgname-$pkgname-$pkgver.tar.bz2)
 
 build() {
     local meson_options=(
         -D man=true
     )
 
-    avouch-meson $pkgname-$pkgver build "${meson_options[@]}"
+    avouch-meson $pkgname-$pkgname-$pkgver build "${meson_options[@]}"
     meson compile -C build
 
 }

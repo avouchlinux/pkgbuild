@@ -1,45 +1,60 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=catch2
 _realname=Catch2
-pkgver=2.13.8
+pkgver=3.8.0
 pkgrel=1
 pkgdesc="Modern, C++-native, header-only, test framework for unit-tests, TDD and BDD"
 arch=('any')
 groups=('dev-utils')
 url="https://github.com/catchorg/catch2"
-license=('Boost')
-makedepends=('git' 'cmake' 'python') # python seems to be necessary for building tests (FS#60273)
-source=(https://github.com/catchorg/Catch2/archive/v$pkgver.tar.gz)
+license=(BSL-1.0)
+#depends=('gcc-libs' 'glibc') # only needed when building shared library
+makedepends=(
+  git
+  cmake
+  python  # python seems to be necessary for building tests (FS#60273)
+)
+conflicts=('catch2-v2')
+source=(${pkgname}::"git+https://github.com/catchorg/Catch2#tag=v${pkgver}?signed")
+sha512sums=('2abfe4eef3928baf996773c549b599834e970ace19e8bea02b18e130c4186860e334bfba7badba04f60cbbd43a1c545cd4c032f729888fdbb2d2bbe11c02ae46')
 validpgpkeys=(
   E29C46F3B8A7502860793B7DECC9C20E314B2360 # Martin Hořeňovský
   81E70B717FFB27AFDB45F52090BBFF120F9C087B # Jozef Grajciar
 )
 
 build() {
-  cd ${_realname}-${pkgver}
-  export CFLAGS+=" ${CPPFLAGS}"
-  export CXXFLAGS+=" ${CPPFLAGS}"
-  cmake -B build \
+  # our recent default flags break test 1 (ApprovalTests)
+  unset CXXFLAGS
+
+  cmake -B "${pkgname}"/build \
+    -S "${pkgname}" \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DCATCH_USE_VALGRIND=OFF \
     -DCATCH_BUILD_EXAMPLES=OFF \
     -DCATCH_ENABLE_COVERAGE=OFF \
     -DCATCH_ENABLE_WERROR=OFF \
-    -DBUILD_TESTING=ON
-  make ${MAKEFLAGS} -C build
+    -DBUILD_TESTING=OFF \
+    -DBUILD_SHARED_LIBS=OFF
+
+#    -DBUILD_TESTING=ON \
+#    -DCATCH_BUILD_TESTING=ON \
+#    -DCATCH_DEVELOPMENT_BUILD=ON -Wno-dev \
+#    -DCATCH_BUILD_EXTRA_TESTS=ON 
+
+  cmake --build "${pkgname}"/build
 }
 
-check() {
-  cd ${_realname}-${pkgver}
-  make -C build test
-}
+#check() {
+#  # test are only built whith build option
+#  #  -DCATCH_DEVELOPMENT_BUILD=ON
+#  ctest --test-dir "${pkgname}"/build
+#}
 
 package() {
-  cd ${_realname}-${pkgver}
-  make -C build DESTDIR="$pkgdir" install
+  DESTDIR="${pkgdir}" cmake --install "${pkgname}"/build
 }
+

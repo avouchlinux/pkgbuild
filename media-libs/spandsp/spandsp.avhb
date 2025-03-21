@@ -1,30 +1,57 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=spandsp
+pkgbase=spandsp
+pkgname=(
+  spandsp
+  spandsp-docs
+)
 pkgver=0.0.6
 pkgrel=1
 pkgdesc="A DSP library for telephony"
 arch=('x86_64')
 groups=('media-libs')
-license=('GPL')
-url="https://www.soft-switch.org/"
-depends=('libtiff')
-source=(https://www.soft-switch.org/downloads/$pkgname/$pkgname-$pkgver.tar.gz)
+url='https://www.soft-switch.org/'
+license=(LGPL-2.1-only)
+depends=(
+  glibc
+  libtiff
+)
+makedepends=(
+  docbook-xsl
+  doxygen
+)
+source=("https://www.soft-switch.org/downloads/$pkgbase/$pkgbase-$pkgver.tar.gz")
+b2sums=(6ee95501473d5758c9ff96580bb51222f49a230dc6a5f52f5a852781cbb70079bb07f9d7224f5c7ea91c0dd617fa543a37518f68875c76a44b3be1415aece696)
 
-build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+prepare() {
+  cd $pkgbase-$pkgver
+  autoreconf -fi
 }
 
-check() {
-   cd $pkgname-$pkgver
-   make ${MAKEFLAGS} check
-}  
+build() {
+  cd $pkgbase-$pkgver
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-doc
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+}
 
-package() {
-  cd $pkgname-$pkgver
+package_spandsp() {
+  cd $pkgbase-$pkgver
   make DESTDIR="$pkgdir" install
+}
+
+package_spandsp-docs() {
+  pkgdesc='Developer documentation for spandsp'
+  depends=()
+
+  cd $pkgbase-$pkgver
+  install -dm755 "$pkgdir/usr/share/doc/$pkgbase"
+  cp -r doc/api/html "$pkgdir/usr/share/doc/$pkgbase/"
 }

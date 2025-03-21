@@ -1,18 +1,20 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=unrar
-pkgname=(unrar libunrar)
-pkgver=5.9.2
+pkgname=(libunrar
+         unrar)
+pkgver=7.0.9
 pkgrel=1
 epoch=1
-url="https://www.rarlab.com/rar_add.htm"
-arch=('x86_64')
-groups=('app-archive')
-license=(custom)
-source=("https://ftp.osuosl.org/pub/blfs/conglomeration/$pkgbase/unrarsrc-$pkgver.tar.gz")
+url='https://www.rarlab.com/rar_add.htm'
+depends=(gcc-libs
+         glibc)
+license=(LicenseRef-UnRAR)
+source=(https://www.rarlab.com/rar/unrarsrc-$pkgver.tar.gz)
+sha256sums=('505c13f9e4c54c01546f2e29b2fcc2d7fabc856a060b81e5cdfe6012a9198326')
 
 prepare() {
   sed -e '/CXXFLAGS=/d' -e '/LDFLAGS=/d' -i unrar/makefile # Use system build flags
@@ -26,8 +28,7 @@ build() {
 }
 
 package_unrar() {
-  pkgdesc="The RAR uncompression program"
-  depends=(gcc-libs)
+  pkgdesc='The RAR uncompression program'
   cd unrar
   install -Dm755 unrar -t "$pkgdir"/usr/bin/
   # install license
@@ -35,8 +36,7 @@ package_unrar() {
 }
 
 package_libunrar() {
-  pkgdesc="Library and header file for applications that use libunrar"
-  depends=(gcc-libs)
+  pkgdesc='Library and header file for applications that use libunrar'
   cd libunrar
   install -Dm755 libunrar.so -t "$pkgdir"/usr/lib/
   install -Dm644 dll.hpp -t "$pkgdir"/usr/include/unrar/

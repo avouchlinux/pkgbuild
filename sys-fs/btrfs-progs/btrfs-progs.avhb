@@ -1,37 +1,46 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=btrfs-progs
-pkgver=5.18.1
+pkgver=6.9.2
 pkgrel=1
 pkgdesc='Btrfs filesystem utilities'
 arch=('x86_64')
 groups=('sys-fs')
 url='https://btrfs.wiki.kernel.org'
 license=('GPL2')
-makedepends=('git' 'asciidoc' 'xmlto' 'systemd' 'python' 'python-setuptools' 'e2fsprogs' 'reiserfsprogs')
-depends=('glibc' 'libutil-linux' 'lzo' 'zlib' 'zstd' 'libgcrypt')
+makedepends=('git' 'asciidoc' 'xmlto' 'systemd' 'python' 'python-setuptools' 'e2fsprogs' 
+             'reiserfsprogs' 'python-sphinx' 'python-sphinx_rtd_theme')
+depends=('glibc' 'util-linux-libs' 'lzo' 'zlib' 'zstd' 'libgcrypt' 'systemd-libs')
 optdepends=('python: libbtrfsutil python bindings'
             'e2fsprogs: btrfs-convert'
             'reiserfsprogs: btrfs-convert')
+license=('GPL-2.0-only')
+validpgpkeys=('F2B41200C54EFB30380C1756C565D5F9D76D583B')
 source=("https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v$pkgver.tar."{sign,xz}
         'btrfs-scrub@.service'
-        'btrfs-scrub@.timer')
+        'btrfs-scrub@.timer'
+      )
 install=btrfs-progs.install
 options=(!staticlibs)
-validpgpkeys=('F2B41200C54EFB30380C1756C565D5F9D76D583B')
+sha256sums=('SKIP'
+            '43865bb272dc0ab2585de3605434d81ba217578f0897bf700cd36c14ac40652a'
+            'bbe60b35d1b1e2efc1308a8f54f1fdc6808240a81c5f5b4d75321b7ee86e41f4'
+            '35efeee8590d6d60c711ae9cdc918e4841ab61d10cb02359e65e36ebff95ffc5'
+            'eaa7af92d28bfa8940bb551560fd7be777f9f175292eaa72b5f6ef00fb240252'
+            '9a0b6cc23f7bd97b83b6c38dd2b4e4373fead8bd3ccfb82a47c72971e9d6f8ad')
 
 prepare() {
   cd $pkgname-v$pkgver
-  # apply patch from the source array (should be an eaglesye feature)
+  # apply patch from the source array (should be a pacman feature)
   local src
   for src in "${source[@]}"; do
     src="${src%%::*}"
     src="${src##*/}"
     [[ $src = *.patch ]] || continue
-    msg2 "Applying patch $src..."
+    echo "Applying patch $src..."
     patch -Np1 < "../$src"
   done
 }
@@ -39,7 +48,7 @@ prepare() {
 build() {
   cd $pkgname-v$pkgver
   ./configure --prefix=/usr --with-crypto=libgcrypt
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {
@@ -55,6 +64,7 @@ package() {
   install -Dm644 btrfs-completion "$pkgdir/usr/share/bash-completion/completions/btrfs"
 
   # install scrub service/timer
-  install -Dm644 $srcdir/btrfs-scrub@.service "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.service"
-  install -Dm644 $srcdir/btrfs-scrub@.timer "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.timer"
+  cd $srcdir
+  install -Dm644 btrfs-scrub@.service "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.service"
+  install -Dm644 btrfs-scrub@.timer "$pkgdir/usr/lib/systemd/system/btrfs-scrub@.timer"
 }

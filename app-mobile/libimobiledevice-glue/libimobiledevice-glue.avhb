@@ -1,0 +1,40 @@
+# Copyright 2010-2022 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=libimobiledevice-glue
+pkgver=1.3.1
+pkgrel=1
+pkgdesc='A library with common code used by libraries and tools around the libimobiledevice project'
+arch=(x86_64)
+groups=('app-mobile')
+url='https://libimobiledevice.org/'
+license=(LGPL-2.1-or-later)
+depends=(
+  glibc
+  libplist
+)
+makedepends=(git)
+source=("git+https://github.com/libimobiledevice/libimobiledevice-glue.git#tag=$pkgver")
+b2sums=(20fb892f5a06ca5f07dfc109288b4c8cb7010dcdfe34f44b4bc27ff00fc8604567c2c2217d8b971421121cdf0b2f0a94c70bb2847bce8585f441ebae8b8291e6)
+
+prepare() {
+  cd $pkgname
+  autoreconf -fi
+}
+
+build() (
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
+)
+
+package() {
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
+}

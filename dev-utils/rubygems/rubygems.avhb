@@ -1,49 +1,91 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=rubygems
 pkgdesc='Package management framework for Ruby'
-pkgver=3.3.14
+pkgver=3.3.16
 pkgrel=1
 arch=(any)
 groups=('dev-utils')
 url='https://rubygems.org/'
-license=(MIT)
-# To avoid circular dependency with ruby, move it to makedepends
-makedepends=(ruby)
-backup=(etc/gemrc)
-checkdepends=(rake)
-source=(rubygems-$pkgver.zip::https://github.com/rubygems/rubygems/archive/v${pkgver}.zip
-        stop_so_duplication.patch
-	gemrc)
-sha512sums=('a5861bae0506aab70206b4b4a849a325cc2b340e8562628d44e37ecd795f89fb20bf7ca4eb0d3ff3ff06c8531a8f956440facb7317af988eb81fa1a3c62ae704'
-            '9919490bbf7dba979a1df7543e62eb3fca48e8a516e6b6ab0a73080952e1b58599b7f233259d122dc66bf93f032b434d70e0dd448a1cb86513f01acb51b2120e'
-            '8cafd14d414ee3c16aa94f79072bc6c100262f925dc1300e785846c3fabbbbffc1356b8e2223af5684e3340c55032d41231179ffa948bb12e01dbae0f4131911')
+license=('MIT')
+depends=(
+  ruby
+)
+makedepends=(
+  rubygems
+  ruby-rdoc
+)
+checkdepends=(
+  cmake
+  git
+  ruby-rake
+  ruby-test-unit
+  ruby-webrick
+)
+provides=(
+  ruby-rubygems
+)
+options=('!emptydirs')
+source=(
+  "https://github.com/rubygems/rubygems/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+  # https://github.com/rubygems/rubygems/pull/7143
+  #ruby-3.4-fix-test-install_extension_in_lib.patch
+  operating_system.rb)
+sha512sums=('962cc02c51588478a0cc80ac145beab0a34f5b7746a1890a36c77c1c525d1be8684c010ea5cb2fc2871ab40cfc91528d215665abebff1a620d663eb2f142a18d'
+            '9d74b5528fc87c78316abdd5423a15a8859aec0cd230b20906c53e7e05d8ba8a156af42dc0f6cff270f0c75196079e622c45cc9f0b2f512fc5311fd54e37ab11')
+b2sums=('dfd7d85f55f3b3fe3be9b6abc8ddcd701ea04b41bf871a3b0fdf9d6f9ba15b537652ddd69dbbea0ad8cec9715958508ca7352e1e51848edba6db001b6e53ca92'
+        '714ce47535ede25cad914002c45c908de7d4ff6eae5b25daf9ab1d3a75e09fffe6e17bc73422f9ba2fe16ae5e120352c536d2ab6152a36431a7f35e9c5466b47')
 
 prepare() {
-  cd rubygems-${pkgver}
-  patch -p1 < ../stop_so_duplication.patch
+  cd "rubygems-${pkgver}"
+
+  sed --in-place --regexp-extended 's|git ls-files|find -type f -not -path "*/\.git/*"|' Rakefile
+  # patch -Np1 < ../ruby-3.4-fix-test-install_extension_in_lib.patch
 }
 
 check() {
-  cd rubygems-${pkgver}
+  cd "rubygems-${pkgver}"
 
-  # disable as it requires a lot of ruby-* dependencies
-  #rake test
+  # rake update_manifest test
 }
 
 package() {
-  depends+=(ruby)
-  cd rubygems-${pkgver}
+  cd "rubygems-${pkgver}"
 
-  install -D -m644 "${srcdir}"/gemrc "${pkgdir}/etc/gemrc"
+  local _gemdir="$(ruby -e 'puts Gem.dir')"
+  local _extension_api_version="$(ruby -e 'puts Gem.extension_api_version')"
 
-  local rubyver=$(ruby --version | sed -r 's|^ruby ([[:digit:]]+\.[[:digit:]]+\.).*$|\1|')0
+  export GEM_HOME="${pkgdir}${_gemdir}"
 
-  install -d "${pkgdir}/usr/lib/ruby/${rubyver}/"
-  install -D -m755 bin/gem "${pkgdir}/usr/bin/gem"
-  cp -r lib/* "${pkgdir}/usr/lib/ruby/${rubyver}/"
-  install -D -m644 MIT.txt "${pkgdir}/usr/share/licenses/rubygems/MIT.txt"
+  install --verbose -d --mode=0755 \
+      "${GEM_HOME}" \
+      "${pkgdir}/usr/lib/ruby/${_extension_api_version}"
+
+  # define the current version as previous version to avoid printing the changelog
+  ruby setup.rb \
+    --destdir="${pkgdir}" \
+    --prefix="/usr" \
+    --previous-version="${pkgver}" \
+    --verbose
+
+  # fix package structure
+  mv --verbose "${pkgdir}/usr/lib/${pkgname}.rb" "${pkgdir}/usr/lib/ruby/${_extension_api_version}"
+  mv --verbose "${pkgdir}/usr/lib/${pkgname}" "${pkgdir}/usr/lib/ruby/${_extension_api_version}"
+
+  # cleanup - remove any bundler references as they are provided by https://archlinux.org/packages/community/any/ruby-bundler/
+  rm --force --verbose --recursive \
+    "${pkgdir}/usr/bin/"{bundle*,rake,rake-compiler,rspec,rdbg,rbs,typeprof,erb} \
+    "${pkgdir}/usr/gems" \
+    "${pkgdir}/usr/lib/bundler.rb" \
+    "${pkgdir}/usr/lib/bundler" \
+    "${pkgdir}/usr/specifications"
+
+  install --verbose -D --mode=0644 ../operating_system.rb --target-directory "${pkgdir}/usr/lib/ruby/vendor_ruby/rubygems/defaults"
+  install --verbose -D --mode=0644 LICENSE.txt MIT.txt --target-directory "${pkgdir}/usr/share/licenses/${pkgname}"
+  install --verbose -D --mode=0644 *.md --target-directory "${pkgdir}/usr/share/doc/${pkgname}"
 }
+
+

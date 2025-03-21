@@ -1,0 +1,26 @@
+From 9e4009eb4edc217a529117614f74e07e1c7eef64 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Sun, 22 Sep 2024 17:39:54 +0000
+Subject: [PATCH] data: Add to AudioVideo category
+
+The Desktop Menu Specification states that desktop entries have Video as main category must include AudioVideo as well. Since AudioVideo is the commonly used category for video players, remove the Utility category.
+---
+ data/org.gnome.Showtime.desktop.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/data/org.gnome.Showtime.desktop.in b/data/org.gnome.Showtime.desktop.in
+index cc6c63a..5f34ac3 100644
+--- a/data/org.gnome.Showtime.desktop.in
++++ b/data/org.gnome.Showtime.desktop.in
+@@ -6,7 +6,7 @@ Exec=showtime --new-window %U
+ Icon=@APP_ID@
+ Terminal=false
+ Type=Application
+-Categories=Utility;Video;Player;GNOME;GTK;
++Categories=AudioVideo;Video;Player;GNOME;GTK;
+ MimeType=video/3gp;video/3gpp;video/3gpp2;video/dv;video/divx;video/fli;video/flv;video/mp2t;video/mp4;video/mp4v-es;video/mpeg;video/mpeg-system;video/msvideo;video/ogg;video/quicktime;video/vivo;video/vnd.divx;video/vnd.mpegurl;video/vnd.rn-realvideo;video/vnd.vivo;video/webm;video/x-anim;video/x-avi;video/x-flc;video/x-fli;video/x-flic;video/x-flv;video/x-m4v;video/x-matroska;video/x-mjpeg;video/x-mpeg;video/x-mpeg2;video/x-ms-asf;video/x-ms-asf-plugin;video/x-ms-asx;video/x-msvideo;video/x-ms-wm;video/x-ms-wmv;video/x-ms-wvx;video/x-nsv;video/x-ogm+ogg;video/x-theora;video/x-theora+ogg;
+ StartupNotify=true
+ Actions=new-window;
+-- 
+GitLab
+

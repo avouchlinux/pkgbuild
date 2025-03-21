@@ -1,0 +1,55 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=eslint
+pkgver=9.14.0
+pkgrel=1
+pkgdesc='An AST-based pattern checker for JavaScript'
+arch=(any)
+groups=('app-text')
+url=https://eslint.org
+license=(MIT)
+depends=(
+  acorn
+  nodejs
+)
+makedepends=(
+  git
+  jq
+  npm
+  python
+)
+options=(!emptydirs)
+source=("git+https://github.com/$pkgname/$pkgname.git#tag=v$pkgver")
+b2sums=('8b5b42e40e5aa4368490b70ecfadcce2d4130656fcef3bdf8d16a6fc27e19cd75db80a196d2b76dba78313d33a99a106b6f67e1dfd2c094fbd9936c212b197b8')
+
+prepare() {
+  cd $pkgname
+  npm install
+}
+
+check() {
+  cd $pkgname
+  node Makefile.js mocha
+}
+
+package() {
+  local mod_dir=/usr/lib/node_modules/$pkgname
+
+  install -d "$pkgdir"/{usr/{bin,share/{doc,licenses}/$pkgname},$mod_dir}
+  ln -s $mod_dir/bin/$pkgname.js "$pkgdir"/usr/bin/$pkgname
+  ln -s $mod_dir/README.md "$pkgdir"/usr/share/doc/$pkgname
+  ln -s $mod_dir/LICENSE "$pkgdir"/usr/share/licenses/$pkgname
+
+  cd $pkgname
+  npm prune --production
+
+  readarray -t mod_files < <(jq -r '.files[]' package.json)
+  cp -r "${mod_files[@]}" node_modules package.json "$pkgdir"/$mod_dir
+  chmod +x "$pkgdir"/$mod_dir/bin/$pkgname.js
+
+  # Experimental dedup
+  rm -r "$pkgdir"/$mod_dir/node_modules/acorn
+}

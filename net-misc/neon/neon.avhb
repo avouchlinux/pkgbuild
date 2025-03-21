@@ -1,31 +1,62 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=neon
-pkgver=0.31.2
+pkgver=0.33.0
 pkgrel=1
 pkgdesc="HTTP and WebDAV client library with a C interface"
 arch=('x86_64')
 groups=('net-misc')
-url="https://notroj.github.io/neon/"
-license=('GPL' 'LGPL')
-depends=('krb5' 'expat' 'ca-certificates' 'zlib')
-source=(https://notroj.github.io/$pkgname/$pkgname-$pkgver.tar.gz)
+url='https://notroj.github.io/neon/'
+license=(LGPL-2.0-or-later)
+depends=(
+  ca-certificates
+  expat
+  glibc
+  krb5
+  openssl
+  zlib
+)
+makedepends=(
+  docbook-xsl
+  git
+  xmlto
+)
+source=("git+https://github.com/notroj/neon.git#tag=$pkgver")
+b2sums=(6f40999cca23e0379c1fb28b790ae5df34790a7da5826b1256167b86950aaceaaa99ef358df8610aa6d91e21c379c20da33dafced5b8b201e067b5d3d8ed8e3c)
+validpgpkeys=(190555472DCC589BEF01609C608A86DF9833CC49) # Joe Orton
+
+prepare() {
+  cd $pkgname
+
+  # Fix for autoreconf
+  git cherry-pick -n 23a4e2fbb1965013fe066255cb60bb318bbfb4f6
+
+  echo $pkgver > .version
+  autoreconf -fi
+}
 
 build() {
-  cd "${srcdir}"/${pkgname}-${pkgver}
-  ./configure --prefix=/usr \
-    --with-expat \
+  cd $pkgname
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
     --enable-shared \
-    --disable-static \
     --with-ssl=openssl \
     --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt
-  make ${MAKEFLAGS}
+  make
+  make docs compile-gmo
+}
+
+check() {
+  cd $pkgname
+  make check
 }
 
 package() {
-  cd "${srcdir}"/${pkgname}-${pkgver}
-  make DESTDIR="${pkgdir}" install
+  cd $pkgname
+  make DESTDIR="$pkgdir" install
 }

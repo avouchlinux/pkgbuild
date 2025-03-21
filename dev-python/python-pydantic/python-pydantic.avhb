@@ -1,0 +1,84 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_name=pydantic
+pkgname=python-$_name
+# WARNING: upstream pins pydantic-core down to the patch-level and using other versions breaks tests! only update in lock-step with python-pydantic-core!
+pkgver=2.10.6
+pkgrel=1
+pkgdesc='Data parsing and validation using Python type hints'
+arch=(any)
+groups=('dev-python')
+url="https://github.com/pydantic/pydantic"
+license=(MIT)
+depends=(
+  python
+  python-annotated-types
+  python-pydantic-core
+  python-typing_extensions
+)
+makedepends=(
+  cython
+  python-build
+  python-installer
+  python-hatchling
+  python-hatch-fancy-pypi-readme
+  python-wheel
+)
+checkdepends=(
+  python-ansi2html
+  python-cloudpickle
+  python-dirty-equals
+  python-email-validator
+  python-faker
+  python-greenlet
+  python-hypothesis
+  python-jsonschema
+  python-packaging
+  python-pygments
+  python-pytest
+  python-pytest-benchmark
+  python-pytest-examples
+  python-pytest-mock
+  python-pytest-pretty
+  python-pytz
+  python-sqlalchemy
+)
+optdepends=(
+  'mypy: for type validation with mypy'
+  'python-dotenv: for .env file support'
+  'python-email-validator: for email validation'
+  'python-hypothesis: for hypothesis plugin when using legacy v1'
+)
+source=($url/archive/v$pkgver/$_name-v$pkgver.tar.gz)
+sha512sums=('d40930469774a83a40ecdcbc89056b413894363c7c271291b3262ae66628f925f2a4f4a6afabc4b152dde571898bc6c2df9dbffba524e13cbd7165d0b93744e7')
+b2sums=('8035667f97c927dd14598e019f399f5338afb8b0547435e0f3b803e508bdc437d5132032fb9abb149461056f4aa21edf2446258de96a0d9799dc32e6d4525e4e')
+
+build() {
+  cd $_name-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+# check() {
+#   local pytest_options=(
+#     -vv
+#     --deselect tests/test_docs.py  # we are not interested in code formatting
+#     --deselect tests/test_types.py::test_string_fails
+#     --deselect 'tests/test_networks.py::test_address_invalid[foobar-An email address must have an @-sign.]'
+#   )
+#   local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
+
+#   cd $_name-$pkgver
+#   # install to temporary location, as importlib is used
+#   python -m installer --destdir=test_dir dist/*.whl
+#   export PYTHONPATH="$PWD/test_dir/$site_packages:$PYTHONPATH"
+#   pytest "${pytest_options[@]}"
+# }
+
+package() {
+  cd $_name-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -vDm 644 LICENSE -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

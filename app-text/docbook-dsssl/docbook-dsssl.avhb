@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,7 +13,7 @@ url='http://www.docbook.org/xml/'
 license=('custom')
 depends=('sgml-common' 'perl')
 install=${pkgname}.install
-source=(https://sourceforge.net/projects/docbook/files/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.bz2
+source=(https://sourceforge.net/projects/docbook/files/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.gz
         docbook-style-dsssl.Makefile)
 
 prepare() {

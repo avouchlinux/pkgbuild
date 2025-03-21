@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -39,12 +39,12 @@ build() {
 		--enable-nls \
 		--with-xz \
 		--without-included-gettext
-	make ${MAKEFLAGS}
+	make
 }
 
 check() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
-	# make ${MAKEFLAGS} check
+	# make check
 }
 
 package() {

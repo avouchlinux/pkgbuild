@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,69 +11,185 @@ pkgname=(
   gst-plugins-base
   gst-plugins-good
   gst-plugins-bad
-  gst-plugin-gtk
-  gst-plugin-msdk
-  gst-plugin-opencv
-  gst-plugin-qmlgl
-  gst-plugin-va
-  gst-plugin-wpe
   gst-plugins-ugly
   gst-libav
+  gst-plugin-gtk
+  gst-plugin-msdk
+#   gst-plugin-onnx
+  gst-plugin-opencv
+  gst-plugin-qml6
+  gst-plugin-qmlgl
+  gst-plugin-qsv
+  gst-plugin-va
+  gst-plugin-wpe
+  gst-devtools-libs
+  gst-devtools
   gst-rtsp-server
   gst-editing-services
   gstreamer-vaapi
-  gst-python3
-  gstreamer-docs
+  gst-python
+  # gstreamer-docs
 )
-pkgver=1.20.2
+pkgver=1.24.8
 pkgrel=1
 pkgdesc="Multimedia graph framework"
 url="https://gstreamer.freedesktop.org/"
 arch=(x86_64)
-groups=(media-libs)
-license=(LGPL)
+license=(LGPL-2.1-or-later)
 makedepends=(
-  # superproject
-  git meson
-
-  # gstreamer
-  valgrind libunwind gobject-introspection bash-completion gtk3 libcap python
-
-  # gst-plugins-base
-  cdparanoia graphene libvisual opus libtheora libxv sdl2 qt5-base qt5-tools
-  zlib libglvnd wayland wayland-protocols libx11 libgudev libdrm mesa orc
-
-  # gst-plugins-good
-  nasm v4l-utils aalib flac jack2 lame libcaca libdv mpg123 libraw1394
-  libavc1394 libiec61883 qt5-declarative qt5-x11extras qt5-wayland libpulse
-  libshout taglib twolame libvpx wavpack cairo libsoup3
-
-  # gst-plugins-bad
-  opencv vulkan-icd-loader vulkan-headers vulkan-validation-layers shaderc
-  libltc bluez-libs libavtp libbs2b bzip2 chromaprint libdca faac faad2
-  libfdk-aac fluidsynth libgme libkate liblrdf ladspa libde265 lilv lv2
-  libmicrodns mjpegtools libmpcdec neon openal libdvdnav rtmpdump sbc soundtouch
-  spandsp libsrtp svt-hevc zvbi libnice webrtc-audio-processing wildmidi
-  zxing-cpp zbar nettle libxml2 gsm libopenmpt wpewebkit libldac libfreeaptx
-  qrencode json-glib libva libxkbcommon-x11
-
-  # gst-plugins-ugly
-  a52dec opencore-amr libcdio libdvdread libmpeg2 libsidplay x264
-
-  # gst-libav
+  a52dec
+  aalib
+  alsa-lib
+  bash-completion
+  bluez-libs
+  bzip2
+  cairo
+  cdparanoia
+  chromaprint
+  faac
+  faad2
   ffmpeg
-
-  # gstreamer-vaapi
+  flac
+  fluidsynth
+  gcc-libs
+  gdk-pixbuf2
+  git
+  glib2-devel
+  glibc
+  gobject-introspection
+  graphene
+  gsm
+  gtk3
+  hicolor-icon-theme
+  imath
+  jack2
+  json-glib
+  ladspa
+  lame
+  libavc1394
+  libavtp
+  libbs2b
+  libcaca
+  libcap
+  libcdio
+  libdca
+  libde265
+  libdrm
+  libdv
+  libdvdnav
+  libdvdread
+  libelf
+  libfdk-aac
+  libfreeaptx
+  libglvnd
+  libgme
+  libgudev
+  libiec61883
+  libjpeg
+  liblc3
+  libldac
+  liblrdf
+  libltc
+  libmicrodns
+  libmodplug
+  libmpcdec
+  libmpeg2
+  libnice
+  libogg
+  libopenmpt
+  libpng
+  libpulse
+  libraw1394
+  libshout
+  libsoup3
+  libsrtp
+  libtheora
+  libunwind
+  libva
+  libvpl
+  libvpx
+  libwpe
+  libx11
+  libxcb
+  libxdamage
+  libxext
+  libxfixes
+  libxi
+  libxkbcommon
+  libxkbcommon-x11
+  libxml2
   libxrandr
-
-  # gst-python
-  python3-gobject
+  libxtst
+  libxv
+  lilv
+  lv2
+  mesa
+  meson
+  mjpegtools
+  mpg123
+  nasm
+  neon
+  nettle
+  onnxruntime
+  openal
+  opencore-amr
+  opencv
+  opentimelineio
+  opus
+  orc
+  pango
+  python
+  python-cairo
+  python-gobject
+  python-lxml
+  python-setuptools
+  qrencode
+  qt5-base
+  qt5-declarative
+  qt5-tools
+  qt5-wayland
+  qt5-x11extras
+  qt6-declarative
+  qt6-shadertools
+  qt6-tools
+  qt6-wayland
+  rtmpdump
+  rust
+  sbc
+  sdl2
+  shaderc
+  soundtouch
+  spandsp
+  speex
+  svt-av1
+  svt-hevc
+  systemd-libs
+  taglib
+  twolame
+  v4l-utils
+  valgrind
+  vulkan-headers
+  vulkan-icd-loader
+  vulkan-validation-layers
+  wavpack
+  wayland
+  wayland-protocols
+  webrtc-audio-processing-1
+  wildmidi
+  wpebackend-fdo
+  wpewebkit
+  x264
+  zbar
+  zlib
+  zvbi
+  zxing-cpp
 )
 checkdepends=(xorg-server-xvfb)
+
 options=(debug)
 source=(
-  "git+https://gitlab.freedesktop.org/gstreamer/gstreamer.git?signed#tag=$pkgver"
-  "https://gstreamer.freedesktop.org/src/gstreamer-docs/gstreamer-docs-$pkgver.tar.xz"{,.asc}
+  "https://gitlab.freedesktop.org/$pkgbase/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.gz"
+  # "https://gstreamer.freedesktop.org/src/gstreamer-docs/gstreamer-docs-$pkgver.tar.xz"{,.asc}
 )
 sha256sums=('SKIP'
             'ddd82f3d33b93aa355a69254c238324b2cdb8ac2ac8a27106c304c74e17e36af'
@@ -81,86 +197,85 @@ sha256sums=('SKIP'
 validpgpkeys=(D637032E45B8C6585B9456565D2EEE6F6F349D7C) # Tim Müller <tim@gstreamer-foundation.org>
 
 prepare() {
-  bsdtar -xf $srcarchivedir/gstreamer-docs-$pkgver.tar.xz
   cd $pkgbase-$pkgver
 
   # Fix linking with system orc
   sed -i "s/get_option('orc')/false/" meson.build
+  sed -i "s/orc_option.allowed()/orc_option/" meson.build
 
   # Disable broken tests
-  sed -i "/subdir('tests')/d" subprojects/{gst-editing-services,gstreamer-vaapi}/meson.build
-  sed -i "/subdir('testsuite')/d" subprojects/gst-python/meson.build
-  sed -i "/'gst\/rtspserver'/d" subprojects/gst-rtsp-server/tests/check/meson.build
+  patch -Np1 -i ../0001-HACK-meson-Disable-broken-tests.patch
+
+  # Fix build
+  patch -Np1 -i ../0002-ges-Fix-name-of-GESFrameCompositionMeta-API-type.patch
   
-  # Workaround broken detection of underscore prefixes
-  # https://github.com/mesonbuild/meson/issues/5482
-  sed -i 's/-DPREFIX/-UPREFIX/' subprojects/gst-plugins-good/gst/deinterlace/meson.build
+  # Fix build with x265 4.0
+  patch -Np1 -i ../0003-x265enc-Unbreak-build-with-x265-4.0.patch
+
 }
 
 build() {
   local meson_options=(
-    -D devtools=disabled
-    -D doc=disabled
     -D examples=disabled
+    -D gobject-cast-checks=disabled
     -D gpl=enabled
+    -D qt6=disabled
+    -D gst-devtools:debug_viewer=enabled
     -D gst-examples=disabled
-    -D libnice=disabled
-    -D vaapi=enabled
-    -D gstreamer:dbghelp=disabled
-    -D gstreamer:gobject-cast-checks=disabled
-    -D gstreamer:package-name="Avouch Linux gstreamer $pkgver-$pkgrel"
-    -D gstreamer:package-origin="https://www.avouch.org/"
-    -D gstreamer:ptp-helper-permissions=capabilities
-    -D gst-plugins-base:gobject-cast-checks=disabled
-    -D gst-plugins-base:package-name="Avouch Linux gst-plugins-base $pkgver-$pkgrel"
-    -D gst-plugins-base:package-origin="https://www.avouch.org/"
-    -D gst-plugins-base:tremor=disabled
-    -D gst-plugins-good:gobject-cast-checks=disabled
-    -D gst-plugins-good:package-name="Avouch Linux gst-plugins-good $pkgver-$pkgrel"
-    -D gst-plugins-good:package-origin="https://www.avouch.org/"
-    -D gst-plugins-good:rpicamsrc=disabled
+    -D gst-plugins-bad:aja=disabled
+    -D gst-plugins-bad:amfcodec=disabled
     -D gst-plugins-bad:directfb=disabled
+    -D gst-plugins-bad:directshow=disabled
+    -D gst-plugins-bad:directsound=disabled
     -D gst-plugins-bad:flite=disabled
-    -D gst-plugins-bad:gobject-cast-checks=disabled
     -D gst-plugins-bad:gs=disabled
     -D gst-plugins-bad:iqa=disabled
     -D gst-plugins-bad:isac=disabled
     -D gst-plugins-bad:magicleap=disabled
-    -D gst-plugins-bad:onnx=disabled
+    -D gst-plugins-bad:mfx_api=oneVPL
     -D gst-plugins-bad:openh264=disabled
     -D gst-plugins-bad:openni2=disabled
     -D gst-plugins-bad:opensles=disabled
-    -D gst-plugins-bad:package-name="Avouch Linux gst-plugins-bad $pkgver-$pkgrel"
-    -D gst-plugins-bad:package-origin="https://www.avouch.org/"
+    -D gst-plugins-bad:qt6d3d11=disabled
     -D gst-plugins-bad:tinyalsa=disabled
     -D gst-plugins-bad:voaacenc=disabled
     -D gst-plugins-bad:voamrwbenc=disabled
     -D gst-plugins-bad:wasapi2=disabled
     -D gst-plugins-bad:wasapi=disabled
-    -D gst-plugins-ugly:gobject-cast-checks=disabled
-    -D gst-plugins-ugly:package-name="Avouch Linux gst-plugins-ugly $pkgver-$pkgrel"
-    -D gst-plugins-ugly:package-origin="https://www.avouch.org/"
-    -D gst-libav:package-name="Avouch Linux gst-libav $pkgver-$pkgrel"
-    -D gst-libav:package-origin="https://www.avouch.org/"
-    -D gst-rtsp-server:gobject-cast-checks=disabled
-    -D gst-rtsp-server:package-name="Avouch Linux gst-rtsp-server $pkgver-$pkgrel"
-    -D gst-rtsp-server:package-origin="https://www.avouch.org/"
-    -D gst-editing-services:validate=disabled
-    -D gstreamer-vaapi:package-origin="https://www.avouch.org/"
+    -D gst-plugins-bad:wic=disabled
+    -D gst-plugins-bad:win32ipc=disabled
+    -D gst-plugins-bad:onnx=disabled
+    -D gst-plugins-base:libvisual=disabled
+    -D gst-plugins-base:tremor=disabled
+    -D gst-plugins-good:rpicamsrc=disabled
+    -D gst-plugins-ugly:sidplay=disabled
+    -D gstreamer:dbghelp=disabled
+    -D gstreamer:ptp-helper-permissions=capabilities
+    -D libnice=disabled
+    -D orc-source=system
+    -D package-name="Avouch Linux GStreamer $pkgver-$pkgrel"
+    -D package-origin="https://www.avouch.org/"
+    -D vaapi=enabled
+
   )
 
-  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
-  meson compile -C build
+    # https://gitlab.freedesktop.org/gstreamer/gstreamer/-/issues/3197
+    export GI_SCANNER_DISABLE_CACHE=1
+
+    avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
+    meson compile -C build
 }
 
-check() (
-  mkdir -p -m 700 "${XDG_RUNTIME_DIR:=$PWD/runtime-dir}"
-  export XDG_RUNTIME_DIR
+# check() (
+#   export XDG_RUNTIME_DIR="$PWD/runtime-dir"
+#   mkdir -p -m 700 "$XDG_RUNTIME_DIR"
 
-  # Flaky due to timeouts
-  xvfb-run -s '-nolisten local' \
-    meson test -C build --print-errorlogs || :
-)
+#   export NO_AT_BRIDGE=1 GTK_A11Y=none
+
+#   # Flaky due to timeouts
+#   xvfb-run -s "-nolisten local" \
+#     meson test -C build --print-errorlogs -t 5
+# )
 
 _install() {
   local src dir
@@ -173,11 +288,18 @@ _install() {
 
 package_gstreamer() {
   pkgdesc+=" - core"
-  depends=(libxml2 glib2 libunwind libcap libelf)
-  optdepends=('python3: gst-plugins-doc-cache-generator')
+  depends=(
+    gcc-libs
+    glib2
+    glibc
+    libcap
+    libelf
+    libunwind
+  )
+  optdepends=("python: gst-plugins-doc-cache-generator")
   install=gstreamer.install
 
-  DESTDIR="$srcdir/root" meson install -C build
+  meson install -C build --destdir "$srcdir/root"
 
   cd root; local files=(
     usr/include/gstreamer-1.0/gst/{base,check,controller,net,*.h}
@@ -211,17 +333,36 @@ package_gstreamer() {
 package_gst-plugins-bad-libs() {
   pkgdesc+=" - bad"
   depends=(
-    "gst-plugins-base-libs=$pkgver"
-    orc libdrm libx11 libgudev libusb libxkbcommon-x11
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    libdrm
+    libglvnd
+    libgudev
+    libnice
+    libusb
+    libva
+    libx11
+    libxcb
+    libxkbcommon
+    libxkbcommon-x11
+    mesa
+    orc
+    vulkan-icd-loader
+    wayland
+    zlib
   )
 
   cd root; local files=(
     usr/include/gstreamer-1.0/gst/audio/{audio-bad-prelude,gstnonstreamaudiodecoder,gstplanaraudioadapter}.h
-    usr/include/gstreamer-1.0/gst/{basecamerabinsrc,codecparsers,insertbin,interfaces,isoff,mpegts,play,player,sctp,transcoder,uridownloader,vulkan,wayland,webrtc}
-    usr/lib/libgst{adaptivedemux,badaudio,basecamerabinsrc,codecparsers,codecs,insertbin,isoff,mpegts,photography,play,player,sctp,transcoder,uridownloader,vulkan,wayland,webrtc}-1.0.so*
-    usr/lib/pkgconfig/gstreamer-{bad-audio,codecparsers,insertbin,mpegts,photography,play,player,sctp,transcoder,vulkan{,-wayland,-xcb},wayland,webrtc}-1.0.pc
-    usr/lib/girepository-1.0/Gst{BadAudio,Codecs,InsertBin,Mpegts,Play,Player,Transcoder,Vulkan{,Wayland,XCB},WebRTC}-1.0.typelib
-    usr/share/gir-1.0/Gst{BadAudio,Codecs,InsertBin,Mpegts,Play,Player,Transcoder,Vulkan{,Wayland,XCB},WebRTC}-1.0.gir
+    usr/include/gstreamer-1.0/gst/{analytics,basecamerabinsrc,codecparsers,cuda,insertbin,interfaces,isoff,mpegts,mse,play,player,sctp,transcoder,uridownloader,va,vulkan,wayland,webrtc}
+    usr/lib/libgst{adaptivedemux,analytics,badaudio,basecamerabinsrc,codecparsers,codecs,cuda,dxva,insertbin,isoff,mpegts,mse}-1.0.so*
+    usr/lib/libgst{photography,play,player,sctp,transcoder,uridownloader,va,vulkan,wayland,webrtc,webrtcnice}-1.0.so*
+    usr/lib/pkgconfig/gstreamer-{analytics,bad-audio,codecparsers,cuda,insertbin,mpegts,mse,photography,play,player,sctp,transcoder,vulkan{,-wayland,-xcb},va,wayland,webrtc{,-nice}}-1.0.pc
+    usr/lib/girepository-1.0/{CudaGst,Gst{Analytics,BadAudio,Codecs,Cuda,Dxva,InsertBin,Mpegts,Mse,Play,Player,Transcoder,Va,Vulkan{,Wayland,XCB},WebRTC}}-1.0.typelib
+    usr/share/gir-1.0/{CudaGst,Gst{Analytics,BadAudio,Codecs,Cuda,Dxva,InsertBin,Mpegts,Mse,Play,Player,Transcoder,Va,Vulkan{,Wayland,XCB},WebRTC}}-1.0.gir
 
     usr/lib/pkgconfig/gstreamer-plugins-bad-1.0.pc
     usr/lib/gstreamer-1.0/libgstaccurip.so
@@ -239,6 +380,7 @@ package_gst-plugins-bad-libs() {
     usr/lib/gstreamer-1.0/libgstbluez.so
     usr/lib/gstreamer-1.0/libgstcamerabin.so
     usr/lib/gstreamer-1.0/libgstcodecalpha.so
+    usr/lib/gstreamer-1.0/libgstcodectimestamper.so
     usr/lib/gstreamer-1.0/libgstcoloreffects.so
     usr/lib/gstreamer-1.0/libgstdebugutilsbad.so
     usr/lib/gstreamer-1.0/libgstdecklink.so
@@ -256,6 +398,7 @@ package_gst-plugins-bad-libs() {
     usr/lib/gstreamer-1.0/libgstgdp.so
     usr/lib/gstreamer-1.0/libgstgeometrictransform.so
     usr/lib/gstreamer-1.0/libgstid3tag.so
+    usr/lib/gstreamer-1.0/libgstinsertbin.so
     usr/lib/gstreamer-1.0/libgstinter.so
     usr/lib/gstreamer-1.0/libgstinterlace.so
     usr/lib/gstreamer-1.0/libgstipcpipeline.so
@@ -270,6 +413,7 @@ package_gst-plugins-bad-libs() {
     usr/lib/gstreamer-1.0/libgstmpegpsmux.so
     usr/lib/gstreamer-1.0/libgstmpegtsdemux.so
     usr/lib/gstreamer-1.0/libgstmpegtsmux.so
+    usr/lib/gstreamer-1.0/libgstmse.so
     usr/lib/gstreamer-1.0/libgstmxf.so
     usr/lib/gstreamer-1.0/libgstnetsim.so
     usr/lib/gstreamer-1.0/libgstnvcodec.so
@@ -291,6 +435,8 @@ package_gst-plugins-bad-libs() {
     usr/lib/gstreamer-1.0/libgstsubenc.so
     usr/lib/gstreamer-1.0/libgstswitchbin.so
     usr/lib/gstreamer-1.0/libgsttranscode.so
+    usr/lib/gstreamer-1.0/libgstunixfd.so
+    usr/lib/gstreamer-1.0/libgstuvcgadget.so
     usr/lib/gstreamer-1.0/libgstuvch264.so
     usr/lib/gstreamer-1.0/libgstv4l2codecs.so
     usr/lib/gstreamer-1.0/libgstvideofiltersbad.so
@@ -298,6 +444,8 @@ package_gst-plugins-bad-libs() {
     usr/lib/gstreamer-1.0/libgstvideoparsersbad.so
     usr/lib/gstreamer-1.0/libgstvideosignal.so
     usr/lib/gstreamer-1.0/libgstvmnc.so
+    usr/lib/gstreamer-1.0/libgstvulkan.so
+    usr/lib/gstreamer-1.0/libgstwaylandsink.so
     usr/lib/gstreamer-1.0/libgsty4mdec.so
 
     usr/share/gstreamer-1.0/encoding-profiles
@@ -312,8 +460,22 @@ package_gst-plugins-bad-libs() {
 package_gst-plugins-base-libs() {
   pkgdesc+=" - base"
   depends=(
-    "gstreamer=$pkgver"
-    orc libxv iso-codes libgudev libgl mesa
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    iso-codes
+    libdrm
+    libglvnd
+    libgudev
+    libx11
+    libxcb
+    libxext
+    libxi
+    libxv
+    mesa
+    orc
+    wayland
+    zlib
   )
 
   cd root; local files=(
@@ -332,7 +494,9 @@ package_gst-plugins-base-libs() {
     usr/lib/gstreamer-1.0/libgstaudiorate.so
     usr/lib/gstreamer-1.0/libgstaudioresample.so
     usr/lib/gstreamer-1.0/libgstaudiotestsrc.so
+    usr/lib/gstreamer-1.0/libgstbasedebug.so
     usr/lib/gstreamer-1.0/libgstcompositor.so
+    usr/lib/gstreamer-1.0/libgstdsd.so
     usr/lib/gstreamer-1.0/libgstencoding.so
     usr/lib/gstreamer-1.0/libgstgio.so
     usr/lib/gstreamer-1.0/libgstoverlaycomposition.so
@@ -342,9 +506,8 @@ package_gst-plugins-base-libs() {
     usr/lib/gstreamer-1.0/libgstsubparse.so
     usr/lib/gstreamer-1.0/libgsttcp.so
     usr/lib/gstreamer-1.0/libgsttypefindfunctions.so
-    usr/lib/gstreamer-1.0/libgstvideoconvert.so
+    usr/lib/gstreamer-1.0/libgstvideoconvertscale.so
     usr/lib/gstreamer-1.0/libgstvideorate.so
-    usr/lib/gstreamer-1.0/libgstvideoscale.so
     usr/lib/gstreamer-1.0/libgstvideotestsrc.so
     usr/lib/gstreamer-1.0/libgstvolume.so
     usr/lib/gstreamer-1.0/libgstximagesink.so
@@ -362,15 +525,27 @@ package_gst-plugins-base-libs() {
 package_gst-plugins-base() {
   pkgdesc+=" - base plugins"
   depends=(
-    "gst-plugins-base-libs=$pkgver"
-    alsa-lib cdparanoia libvisual libvorbis libtheora pango opus graphene libpng
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    alsa-lib
+    cairo
+    cdparanoia
+    glib2
+    glibc
+    graphene
     libjpeg
+    libogg
+    libpng
+    libtheora
+    libvorbis
+    libx11
+    opus
+    pango
   )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstalsa.so
     usr/lib/gstreamer-1.0/libgstcdparanoia.so
-    usr/lib/gstreamer-1.0/libgstlibvisual.so
     usr/lib/gstreamer-1.0/libgstogg.so
     usr/lib/gstreamer-1.0/libgstopengl.so
     usr/lib/gstreamer-1.0/libgstopus.so
@@ -383,19 +558,57 @@ package_gst-plugins-base() {
 package_gst-plugins-good() {
   pkgdesc+=" - good plugins"
   depends=(
-    "gst-plugins-base-libs=$pkgver"
-    libpulse libsoup3 gst-plugins-base-libs wavpack aalib taglib libdv libshout
-    libvpx gdk-pixbuf2 libcaca libavc1394 libiec61883 libxdamage v4l-utils cairo
-    libgudev speex flac libraw1394 lame mpg123 twolame
-    libjack.so
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    aalib
+    bzip2
+    cairo
+    flac
+    gcc-libs
+    gdk-pixbuf2
+    glib2
+    glibc
+    lame
+    libavc1394
+    libcaca
+    libdv
+    libgudev
+    libiec61883
+    libjpeg
+    libpng
+    libpulse
+    libraw1394
+    libshout
+    libsoup3
+    libvpx
+    libx11
+    libxdamage
+    libxext
+    libxfixes
+    libxml2
+    libxtst
+    mpg123
+    nettle
+    opencore-amr
+    orc
+    speex
+    taglib
+    twolame
+    v4l-utils
+    wavpack
+    zlib
   )
+  optdepends=("jack: JACK backend")
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgst1394.so
     usr/lib/gstreamer-1.0/libgstaasink.so
+    usr/lib/gstreamer-1.0/libgstadaptivedemux2.so
     usr/lib/gstreamer-1.0/libgstalaw.so
     usr/lib/gstreamer-1.0/libgstalpha.so
     usr/lib/gstreamer-1.0/libgstalphacolor.so
+    usr/lib/gstreamer-1.0/libgstamrnb.so
+    usr/lib/gstreamer-1.0/libgstamrwbdec.so
     usr/lib/gstreamer-1.0/libgstapetag.so
     usr/lib/gstreamer-1.0/libgstaudiofx.so
     usr/lib/gstreamer-1.0/libgstaudioparsers.so
@@ -460,10 +673,12 @@ package_gst-plugins-good() {
     usr/lib/gstreamer-1.0/libgstwavpack.so
     usr/lib/gstreamer-1.0/libgstwavparse.so
     usr/lib/gstreamer-1.0/libgstximagesrc.so
+    usr/lib/gstreamer-1.0/libgstxingmux.so
     usr/lib/gstreamer-1.0/libgsty4menc.so
 
     usr/share/gstreamer-1.0/presets/GstIirEqualizer{3,10}Bands.prs
-    usr/share/gstreamer-1.0/presets/Gst{QTMux,VP8Enc}.prs
+    usr/share/gstreamer-1.0/presets/GstQTMux.prs
+    usr/share/gstreamer-1.0/presets/Gst{Amrnb,VP8}Enc.prs
 
     usr/share/locale/*/LC_MESSAGES/gst-plugins-good-1.0.mo
   ); _install
@@ -472,18 +687,78 @@ package_gst-plugins-good() {
 package_gst-plugins-bad() {
   pkgdesc+=" - bad plugins"
   depends=(
-    "gst-plugins-bad-libs=$pkgver"
-    aom libass libbs2b bzip2 chromaprint pango lcms2 curl libxml2 libdc1394
-    libde265 openssl libdca faac faad2 libfdk-aac fluidsynth libgme nettle
-    libkate liblrdf lilv libmodplug mjpegtools libmpcdec neon openal openexr
-    openjpeg2 opus libdvdnav libdvdread librsvg rtmpdump sbc libsndfile libltc
-    soundtouch spandsp srt libsrtp zvbi vulkan-icd-loader libxcb wayland libwebp
-    libnice webrtc-audio-processing wildmidi x265 zbar gsm libopenmpt libldac
-    libfreeaptx qrencode json-glib libavtp libmicrodns svt-hevc zxing-cpp
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    aom
+    bzip2
+    cairo
+    chromaprint
+    curl
+    faac
+    faad2
+    fluidsynth
+    gcc-libs
+    glib2
+    glibc
+    gsm
+    imath
+    json-glib
+    lcms2
+    libass
+    libavtp
+    libbs2b
+    libdc1394
+    libdca
+    libde265
+    libdvdnav
+    libdvdread
+    libfdk-aac
+    libfreeaptx
+    libgme
+    liblc3
+    libldac
+    liblrdf
+    libltc
+    libmicrodns
+    libmodplug
+    libmpcdec
+    libopenmpt
+    librsvg
+    libsndfile
+    libsrtp
+    libwebp
+    libxml2
+    lilv
+    mjpegtools
+    neon
+    nettle
+    openal
+    openexr
+    openjpeg2
+    openssl
+    opus
+    orc
+    pango
+    qrencode
+    rtmpdump
+    sbc
+    soundtouch
+    spandsp
+    srt
+    svt-av1
+    svt-hevc
+    webrtc-audio-processing-1
+    wildmidi
+    x265
+    zbar
+    zvbi
+    zxing-cpp
   )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstaes.so
+    usr/lib/gstreamer-1.0/libgstanalyticsoverlay.so
     usr/lib/gstreamer-1.0/libgstaom.so
     usr/lib/gstreamer-1.0/libgstassrender.so
     usr/lib/gstreamer-1.0/libgstavtp.so
@@ -491,6 +766,7 @@ package_gst-plugins-bad() {
     usr/lib/gstreamer-1.0/libgstbz2.so
     usr/lib/gstreamer-1.0/libgstchromaprint.so
     usr/lib/gstreamer-1.0/libgstclosedcaption.so
+    usr/lib/gstreamer-1.0/libgstcodec2json.so
     usr/lib/gstreamer-1.0/libgstcolormanagement.so
     usr/lib/gstreamer-1.0/libgstcurl.so
     usr/lib/gstreamer-1.0/libgstdash.so
@@ -505,8 +781,8 @@ package_gst-plugins-bad() {
     usr/lib/gstreamer-1.0/libgstgme.so
     usr/lib/gstreamer-1.0/libgstgsm.so
     usr/lib/gstreamer-1.0/libgsthls.so
-    usr/lib/gstreamer-1.0/libgstkate.so
     usr/lib/gstreamer-1.0/libgstladspa.so
+    usr/lib/gstreamer-1.0/libgstlc3.so
     usr/lib/gstreamer-1.0/libgstldac.so
     usr/lib/gstreamer-1.0/libgstlv2.so
     usr/lib/gstreamer-1.0/libgstmicrodns.so
@@ -533,12 +809,11 @@ package_gst-plugins-bad() {
     usr/lib/gstreamer-1.0/libgstspandsp.so
     usr/lib/gstreamer-1.0/libgstsrt.so
     usr/lib/gstreamer-1.0/libgstsrtp.so
+    usr/lib/gstreamer-1.0/libgstsvtav1.so
     usr/lib/gstreamer-1.0/libgstsvthevcenc.so
     usr/lib/gstreamer-1.0/libgstteletext.so
     usr/lib/gstreamer-1.0/libgsttimecode.so
     usr/lib/gstreamer-1.0/libgstttmlsubs.so
-    usr/lib/gstreamer-1.0/libgstvulkan.so
-    usr/lib/gstreamer-1.0/libgstwaylandsink.so
     usr/lib/gstreamer-1.0/libgstwebp.so
     usr/lib/gstreamer-1.0/libgstwebrtc.so
     usr/lib/gstreamer-1.0/libgstwebrtcdsp.so
@@ -549,27 +824,119 @@ package_gst-plugins-bad() {
   ); _install
 }
 
+package_gst-plugins-ugly() {
+  pkgdesc+=" - ugly plugins"
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    a52dec
+    glib2
+    glibc
+    libcdio
+    libdvdread
+    libmpeg2
+    orc
+    x264
+  )
+
+  cd root; local files=(
+    usr/lib/gstreamer-1.0/libgsta52dec.so
+    usr/lib/gstreamer-1.0/libgstasf.so
+    usr/lib/gstreamer-1.0/libgstcdio.so
+    usr/lib/gstreamer-1.0/libgstdvdlpcmdec.so
+    usr/lib/gstreamer-1.0/libgstdvdread.so
+    usr/lib/gstreamer-1.0/libgstdvdsub.so
+    usr/lib/gstreamer-1.0/libgstmpeg2dec.so
+    usr/lib/gstreamer-1.0/libgstrealmedia.so
+    usr/lib/gstreamer-1.0/libgstx264.so
+
+    usr/share/gstreamer-1.0/presets/GstX264Enc.prs
+
+    usr/share/locale/*/LC_MESSAGES/gst-plugins-ugly-1.0.mo
+  ); _install
+}
+
+package_gst-libav() {
+  pkgdesc+=" - libav plugin"
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    ffmpeg
+    glib2
+    glibc
+  )
+  provides=("gst-ffmpeg=$pkgver-$pkgrel")
+
+  cd root; local files=(
+    usr/lib/gstreamer-1.0/libgstlibav.so
+  ); _install
+}
+
 package_gst-plugin-gtk() {
   pkgdesc+=" - gtk plugin"
-  depends=("gst-plugins-base-libs=$pkgver" gtk3)
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    cairo
+    glib2
+    glibc
+    gtk3
+    wayland
+  )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstgtk.so
+    usr/lib/gstreamer-1.0/libgstgtkwayland.so
   ); _install
 }
 
 package_gst-plugin-msdk() {
   pkgdesc+=" - msdk plugin"
-  depends=("gst-plugins-bad-libs=$pkgver" libmfx libva)
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    libdrm
+    libgudev
+    libva
+    libvpl
+  )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstmsdk.so
   ); _install
 }
 
+package_gst-plugin-onnx() {
+  pkgdesc+=" - onnx plugin"
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    onnxruntime
+  )
+
+  cd root; local files=(
+    usr/lib/gstreamer-1.0/libgstonnx.so
+  ); _install
+}
+
 package_gst-plugin-opencv() {
   pkgdesc+=" - opencv plugin"
-  depends=("gst-plugins-base-libs=$pkgver" opencv)
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    opencv
+  )
 
   cd root; local files=(
     usr/include/gstreamer-1.0/gst/opencv
@@ -579,11 +946,38 @@ package_gst-plugin-opencv() {
   ); _install
 }
 
+package_gst-plugin-qml6() {
+  pkgdesc+=" - qml6 plugin"
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    libglvnd
+    qt6-base
+    qt6-declarative
+    qt6-wayland
+  )
+
+  cd root; local files=(
+    usr/lib/gstreamer-1.0/libgstqml6.so
+  ); _install
+}
+
 package_gst-plugin-qmlgl() {
   pkgdesc+=" - qmlgl plugin"
   depends=(
-    "gst-plugins-base-libs=$pkgver"
-    qt5-declarative qt5-x11extras qt5-wayland
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    libglvnd
+    qt5-base
+    qt5-declarative
+    qt5-wayland
+    qt5-x11extras
   )
 
   cd root; local files=(
@@ -591,20 +985,58 @@ package_gst-plugin-qmlgl() {
   ); _install
 }
 
-package_gst-plugin-va() {
-  pkgdesc+=" - va plugin"
-  depends=("gst-plugins-bad-libs=$pkgver" libva)
+package_gst-plugin-qsv() {
+  pkgdesc+=" - qsv plugin"
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+  )
+  optdepends=(
+    "intel-media-sdk: runtime for legacy Intel GPUs"
+    "onevpl-intel-gpu: runtime for Tiger Lake and newer GPUs"
+  )
 
   cd root; local files=(
-    usr/lib/libgstva-1.0.so*
+    usr/lib/gstreamer-1.0/libgstqsv.so
+  ); _install
+}
 
+
+package_gst-plugin-va() {
+  pkgdesc+=" - va plugin"
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    libgudev
+    libva
+  )
+
+  cd root; local files=(
     usr/lib/gstreamer-1.0/libgstva.so
   ); _install
 }
 
 package_gst-plugin-wpe() {
   pkgdesc+=" - wpe plugin"
-  depends=("gst-plugins-base-libs=$pkgver" wpewebkit)
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    gcc-libs
+    glib2
+    glibc
+    libwpe
+    libxkbcommon
+    wayland
+    wpebackend-fdo
+    wpewebkit
+  )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstwpe.so
@@ -612,47 +1044,73 @@ package_gst-plugin-wpe() {
   ); _install
 }
 
-package_gst-plugins-ugly() {
-  pkgdesc+=" - ugly plugins"
+package_gst-devtools-libs() {
+  pkgdesc+=" - development and debugging libraries"
   depends=(
-    "gst-plugins-base-libs=$pkgver"
-    libdvdread libmpeg2 a52dec libsidplay libcdio x264 opencore-amr
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    json-glib
+    orc
+    zlib
   )
 
   cd root; local files=(
-    usr/lib/gstreamer-1.0/libgsta52dec.so
-    usr/lib/gstreamer-1.0/libgstamrnb.so
-    usr/lib/gstreamer-1.0/libgstamrwbdec.so
-    usr/lib/gstreamer-1.0/libgstasf.so
-    usr/lib/gstreamer-1.0/libgstcdio.so
-    usr/lib/gstreamer-1.0/libgstdvdlpcmdec.so
-    usr/lib/gstreamer-1.0/libgstdvdread.so
-    usr/lib/gstreamer-1.0/libgstdvdsub.so
-    usr/lib/gstreamer-1.0/libgstmpeg2dec.so
-    usr/lib/gstreamer-1.0/libgstrealmedia.so
-    usr/lib/gstreamer-1.0/libgstsid.so
-    usr/lib/gstreamer-1.0/libgstx264.so
-    usr/lib/gstreamer-1.0/libgstxingmux.so
-
-    usr/share/gstreamer-1.0/presets/Gst{Amrnb,X264}Enc.prs
-
-    usr/share/locale/*/LC_MESSAGES/gst-plugins-ugly-1.0.mo
+    usr/include/gstreamer-1.0/gst/validate
+    usr/lib/libgstvalidate-*
+    usr/lib/pkgconfig/gstreamer-validate-1.0.pc
+    usr/lib/girepository-1.0/GstValidate-1.0.typelib
+    usr/share/gir-1.0/GstValidate-1.0.gir
   ); _install
 }
 
-package_gst-libav() {
-  pkgdesc+=" - libav plugin"
-  depends=("gst-plugins-base-libs=$pkgver" bzip2 ffmpeg)
-  provides=("gst-ffmpeg=$pkgver")
+package_gst-devtools() {
+  pkgdesc+=" - development and debugging tools"
+  depends=(
+    "gst-devtools-libs=$pkgver-$pkgrel"
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gst-rtsp-server=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    cairo
+    glib2
+    glibc
+    gtk3
+    hicolor-icon-theme
+    json-glib
+    python
+    python-cairo
+    python-gobject
+    python-lxml
+  )
 
   cd root; local files=(
-    usr/lib/gstreamer-1.0/libgstlibav.so
+    usr/bin/gst-validate-*
+    usr/lib/gst-validate-launcher
+    usr/lib/gstreamer-1.0/libgstvalidatetracer.so
+    usr/lib/gstreamer-1.0/validate
+    usr/share/gstreamer-1.0/validate
+
+    usr/bin/gst-debug-viewer
+    usr/lib/python*/site-packages/GstDebugViewer
+    usr/share/applications/org.freedesktop.GstDebugViewer.desktop
+    usr/share/gst-debug-viewer
+    usr/share/icons/hicolor/*/apps/gst-debug-viewer.*
+    usr/share/metainfo/org.freedesktop.GstDebugViewer.appdata.xml
   ); _install
 }
 
 package_gst-rtsp-server() {
   pkgdesc+=" - rtsp server"
-  depends=("gst-plugins-base-libs=$pkgver")
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    orc
+    zlib
+  )
 
   cd root; local files=(
     usr/include/gstreamer-1.0/gst/rtsp-server
@@ -667,7 +1125,23 @@ package_gst-rtsp-server() {
 
 package_gst-editing-services() {
   pkgdesc+=" - editing services"
-  depends=("gst-plugins-base-libs=$pkgver" python3)
+  depends=(
+    "gst-devtools-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gst-python=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    json-glib
+    libxml2
+    orc
+    python
+    python-gobject
+    zlib
+  )
+  optdepends=(
+    "opentimelineio: Support for the OpenTimelineIO format"
+  )
 
   cd root; local files=(
     usr/include/gstreamer-1.0/ges
@@ -680,50 +1154,76 @@ package_gst-editing-services() {
     usr/lib/gstreamer-1.0/libgstnle.so
 
     usr/lib/python*/site-packages/gi/overrides/GES.py
+    usr/lib/python*/site-packages/gi/overrides/__pycache__/GES.*.pyc
 
     usr/bin/ges-launch-1.0
     usr/share/man/man1/ges-launch-1.0.1
 
     usr/share/bash-completion/completions/ges-launch-1.0
   ); _install
-
-  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
-  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
 }
 
 package_gstreamer-vaapi() {
   pkgdesc+=" - vaapi plugin"
-  depends=("gst-plugins-bad-libs=$pkgver" libva libxrandr)
+  depends=(
+    "gst-plugins-bad-libs=$pkgver-$pkgrel"
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    libglvnd
+    libva
+    libx11
+    libxrandr
+    systemd-libs
+    wayland
+  )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstvaapi.so
   ); _install
 }
 
-package_gst-python3() {
+package_gst-python() {
   pkgdesc+=" - python plugin"
-  depends=("gst-plugins-base-libs=$pkgver" python3-gobject)
+  depends=(
+    "gst-plugins-base-libs=$pkgver-$pkgrel"
+    "gstreamer=$pkgver-$pkgrel"
+    glib2
+    glibc
+    python
+    python-gobject
+  )
 
   cd root; local files=(
     usr/lib/gstreamer-1.0/libgstpython.so
     usr/lib/python*/site-packages/gi/overrides
   ); _install
-
-  python -m compileall -d /usr/lib "$pkgdir/usr/lib"
-  python -O -m compileall -d /usr/lib "$pkgdir/usr/lib"
 }
 
 package_gstreamer-docs() {
   pkgdesc+=" - documentation"
-  license=(GPL3 LGPL custom:BSD custom:CC-BY-SA-4.0 custom:MIT custom:OPL)
+  license=(
+    "BSD-2-Clause OR MIT OR LGPL-2.1-or-later"
+    CC-BY-SA-4.0
+    LGPL-2.1-or-later
+    MIT
+    OPUBL-1.0
+  )
+  options=(
+    !debug
+    !strip
+  )
 
   # make sure there are no files left to install
+  find root -depth ! -type d
   find root -depth -print0 | xargs -0 rmdir
 
-  cd gstreamer-docs-$pkgver
+  cd gstreamer-docs-${pkgver%%+*}
 
-  mkdir -p "$pkgdir/usr/share"
-  cp -a devhelp "$pkgdir/usr/share/devhelp"
+  mkdir -p "$pkgdir/usr/share/doc/$pkgbase"
+  cp -t "$pkgdir/usr/share" -a devhelp
+  cp -t "$pkgdir/usr/share/doc/$pkgbase" -a html README*
 
   install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 COPYING LICENSE*
 }

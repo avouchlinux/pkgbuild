@@ -1,0 +1,54 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=cython
+pkgver=3.0.11
+pkgrel=1
+pkgdesc='C-Extensions for Python'
+arch=(x86_64)
+groups=('dev-python')
+url='https://cython.org'
+license=(Apache-2.0)
+depends=(glibc
+         python)
+replaces=(cython-dev)
+makedepends=(git
+             python-build
+             python-installer
+             python-setuptools
+             python-wheel)
+checkdepends=(gdb
+              python-numpy
+              python-pytest
+              python-tests)
+source=(https://github.com/cython/cython/releases/download/$pkgver-1/cython-$pkgver.tar.gz
+        numpy-2.patch)
+sha256sums=('8f6bc386d85aaf9bbab8174bc3f8c771204b0bedacd6e7502261a5fdcc4d9c75'
+            '6f98a6cc46d0d65a01a1fb5ac9f40e6d2612f80a34ad8e95bd9ad1116e24855d')
+
+prepare() {
+  cd cython-$pkgver
+  patch -p1 -i ../numpy-2.patch # Fix tests with numpy 2
+}
+
+build() {
+  cd cython-$pkgver
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd cython-$pkgver
+  # python runtests.py -vv -j 64 --no-pyregr
+}
+
+package() {
+  cd cython-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+
+  for f in cygdb cython cythonize; do
+    mv "$pkgdir"/usr/bin/$f "$pkgdir"/usr/bin/${f}3
+    ln -s ${f}3 "$pkgdir"/usr/bin/$f
+  done
+}

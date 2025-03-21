@@ -1,0 +1,45 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-werkzeug
+pkgver=3.0.4
+pkgrel=1
+pkgdesc='Swiss Army knife of Python web development'
+url='https://werkzeug.palletsprojects.com/'
+arch=('any')
+groups=('dev-python')
+license=('custom:BSD')
+depends=('python-markupsafe')
+makedepends=('python-build' 'python-installer' 'python-flit-core')
+checkdepends=('python-pytest' 'python-pytest-timeout' 'python-pytest-xprocess' 'python-requests'
+              'python-ephemeral-port-reserve' 'python-greenlet' 'python-watchdog'
+              'python-cryptography')
+source=("https://github.com/pallets/werkzeug/archive/${pkgver}/$pkgname-$pkgver.tar.gz")
+sha512sums=('b89efc5193b5565f74188475e041961d2d3b24e579b60080fe38f806775f2d04ce7902909fdca43b0d40bde3fc5bef871b02eb1fc2a3b57dbb00d5b07dd16b57')
+
+prepare() {
+  cd "werkzeug-$pkgver"
+}
+
+build() {
+  cd "werkzeug-$pkgver"
+
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "werkzeug-$pkgver"
+  PYTHONPATH="src" pytest \
+    --deselect=tests/test_serving.py \
+    --deselect=tests/test_debug.py::test_basic \
+    --deselect=tests/middleware/test_http_proxy.py
+}
+
+package() {
+  cd "werkzeug-$pkgver"
+
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm 644 LICENSE.txt -t "$pkgdir/usr/share/licenses/$pkgname"
+}

@@ -1,11 +1,11 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=amf-headers
 _realname=AMF
-pkgver=1.4.21
+pkgver=1.4.35
 pkgrel=1
 pkgdesc='Header files for AMD Advanced Media Framework'
 arch=(any)
@@ -13,18 +13,11 @@ groups=('media-libs')
 url=https://github.com/GPUOpen-LibrariesAndSDKs/AMF/
 license=(MIT)
 makedepends=(git)
-_tag=3ee61d73b5599dcadbf86621a9f9c2d7e9c05811
-source=(git+https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git#tag=${_tag})
+source=(https://github.com/GPUOpen-LibrariesAndSDKs/$_realname/archive/refs/tags/v$pkgver.tar.gz)
 b2sums=(SKIP)
-
-# pkgver() {
-#   cd AMF
-
-#   git describe --tags | sed 's/^v.//'
-# }
 
 package() {
   install -dm 755 "${pkgdir}"/usr/include
-  cp -dr --no-preserve=ownership $_realname-v.$pkgver/amf/public/include "${pkgdir}"/usr/include/AMF
-  install -Dm 644 $_realname-v.$pkgver/LICENSE.txt -t "${pkgdir}"/usr/share/licenses/amf-headers/
+  cp -dr --no-preserve=ownership $_realname-$pkgver/amf/public/include "${pkgdir}"/usr/include/AMF
+  install -Dm 644 $_realname-$pkgver/LICENSE.txt -t "${pkgdir}"/usr/share/licenses/amf-headers/
 }

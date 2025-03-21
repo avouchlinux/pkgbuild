@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -14,7 +14,7 @@ url='https://glew.sourceforge.net/'
 license=(BSD GPL MIT)
 depends=(glu libxi libxmu)
 conflicts=(glew)
-source=("https://downloads.sourceforge.net/$_pkgbase/$_pkgbase-$pkgver.tgz")
+source=("https://downloads.sourceforge.net/$_realname/$_realname-$pkgver.tgz")
 
 prepare() {
   cd "$_realname-$pkgver"

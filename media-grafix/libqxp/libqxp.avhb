@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -11,7 +11,7 @@ arch=('x86_64')
 groups=('media-grafix')
 url="https://wiki.documentfoundation.org/DLP/Libraries/libqxp"
 license=('MPL2')
-depends=('librevenge')
+depends=('librevenge' 'icu' 'gcc-libs' 'glibc')
 makedepends=('boost' 'cppunit' 'doxygen')
 source=("https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz")
 sha256sums=('e137b6b110120a52c98edd02ebdc4095ee08d0d5295a94316a981750095a945c')
@@ -19,7 +19,8 @@ sha256sums=('e137b6b110120a52c98edd02ebdc4095ee08d0d5295a94316a981750095a945c')
 build() {
 	cd "$pkgname-$pkgver"
 	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+        sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+	make
 }
 
 check() {
@@ -31,3 +32,4 @@ package() {
 	cd "$pkgname-$pkgver"
 	make DESTDIR="$pkgdir/" install
 }
+

@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,10 +12,12 @@ groups=('net-misc')
 url="http://spice-space.org"
 license=('BSD' 'LGPL2.1')
 makedepends=('meson')
-source=(https://www.spice-space.org/download/releases/$pkgname-$pkgver.tar.bz2)
+source=(https://gitlab.freedesktop.org/spice/spice-protocol/-/archive/v$pkgver/spice-protocol-v$pkgver.tar.gz)
+sha256sums=('9c31fa533ad531d1b816ffd0c24b4785d133e7bb397f72d35f7a6d59bcd7d53a')
+
 
 build() {
-  avouch-meson $pkgname-$pkgver build
+  avouch-meson $pkgname-v$pkgver build
   ninja -C build
 }
 

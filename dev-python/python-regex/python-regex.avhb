@@ -1,0 +1,41 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+_pkgbase=regex
+pkgname=python-regex
+pkgver=2024.9.11
+pkgrel=1
+pkgdesc="Alternative python regular expression module."
+arch=('x86_64')
+groups=('dev-python')
+url="https://github.com/mrabarnett/mrab-regex"
+license=('Python' 'Apache')
+depends=('python')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+options=(!emptydirs)
+source=("https://files.pythonhosted.org/packages/source/r/${_pkgbase}/${_pkgbase}-${pkgver}.tar.gz")
+sha256sums=('6c188c307e8433bcb63dc1915022deb553b4203a70722fc542c363bf120a01fd')
+b2sums=('6ddf11954723183aa2cf15568592e0466a072897f7d69a22139c3db08fbf113a5b5df5df8b7982e4dc1987be836bbd323612549ba4723408cc235b36c21ae7b1')
+
+build() {
+  cd "regex-${pkgver}"
+
+  python -m build -wn
+}
+
+check() {
+  cd "regex-${pkgver}"
+
+  local _pyver=cpython-$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
+  cd "$PWD/build/lib.linux-$CARCH-$_pyver"
+  python -m unittest regex/test_regex.py
+}
+
+package() {
+  cd "regex-${pkgver}"
+
+  python -m installer --d "${pkgdir}" dist/*.whl
+  install -Dm644 LICENSE.txt "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE.txt
+}

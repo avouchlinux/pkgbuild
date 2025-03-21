@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,21 +12,21 @@ groups=('sys-libs')
 url="https://github.com/williamh/dotconf"
 license=('LGPL2.1')
 depends=('glibc')
-source=("https://github.com/williamh/${pkgname}/tarball/v${pkgver}")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/williamh/${pkgname}/tarball/v${pkgver}")
 
 prepare() {
-	cd ${srcdir}/${pkgname}
+	cd williamh-${pkgname}-4cd7b3a
 
 	autoreconf -i
 }
 
 build() {
-	cd ${srcdir}/${pkgname}
+	cd williamh-${pkgname}-4cd7b3a
 	./configure --prefix=/usr --disable-static
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}
+	cd williamh-${pkgname}-4cd7b3a
 	make DESTDIR="${pkgdir}" install
 }

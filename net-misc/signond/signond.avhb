@@ -1,28 +1,40 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=signond
 _realname=$pkgname-VERSION
-pkgver=8.60
+pkgver=8.61
 pkgrel=1
 pkgdesc="A D-Bus service which performs user authentication on behalf of its clients"
 arch=('x86_64')
 groups=('net-misc')
-url="https://gitlab.com/accounts-sso/signond/"
+url='https://gitlab.com/accounts-sso/signond/'
 license=(LGPL)
-depends=(qt5-base libproxy)
-makedepends=(doxygen graphviz ttf-font qt5-tools)
-source=("https://gitlab.com/accounts-sso/$pkgname/-/archive/VERSION_$pkgver/$pkgname-VERSION_$pkgver.tar.bz2")
+depends=(gcc-libs
+         glibc
+         qt6-base)
+makedepends=(doxygen
+             git
+             graphviz
+             qt6-tools
+             ttf-font)
+# source=(https://gitlab.com/accounts-sso/signond/-/archive/VERSION_$pkgver/signond-VERSION_$pkgver.tar.bz2)
+_commit=c8ad98249af541514ff7a81634d3295e712f1a39
+source=(git+https://gitlab.com/nicolasfella/signond#commit=$_commit)
+sha256sums=('SKIP')
 
 build() {
-  cd ${_realname}_${pkgver}
-  qmake PREFIX=/usr LIBDIR=/usr/lib
-  make ${MAKEFLAGS}
+  cd $pkgname
+  qmake6 \
+    PREFIX=/usr \
+    LIBDIR=/usr/lib
+  make
 }
 
 package() {
-  cd ${_realname}_${pkgver}
+  cd $pkgname
   make INSTALL_ROOT="$pkgdir" install
 
   # Do not ship docs

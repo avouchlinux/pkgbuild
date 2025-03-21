@@ -1,36 +1,45 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libbsd
-pkgver=0.10.0
+pkgver=0.11.8
 pkgrel=1
 pkgdesc="Provides useful functions commonly found on BSD systems like strlcpy()"
 arch=('x86_64')
 groups=('sys-base')
 url="https://libbsd.freedesktop.org"
 license=('custom')
-depends=('glibc')
+depends=('glibc' 'libmd')
+makedepends=('git')
 options=('staticlibs')
-source=("https://libbsd.freedesktop.org/releases/$pkgname-$pkgver.tar.xz"{,.asc})
+source=("git+https://gitlab.freedesktop.org/libbsd/libbsd.git?signed#tag=${pkgver}")
+sha512sums=('SKIP')
 validpgpkeys=('4F3E74F436050C10F5696574B972BF3EA4AE57A3') # Guillem Jover
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd "$pkgname"
+
+  autoreconf -vfi
+  CFLAGS+=' -ffat-lto-objects' \
+  ./configure --prefix=/usr
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd "$pkgname"
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
-	rm "${pkgdir}"/usr/lib/libbsd.a
-	# included in man-pages
-	rm -f "${pkgdir}"/usr/share/man/man3/explicit_bzero.3
+  cd "$pkgname"
+
+  make DESTDIR="$pkgdir" install
+  rm "${pkgdir}"/usr/lib/libbsd.a
+  install -D -m644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+
+  # included now in man-pages, FS#53351
+  rm -f "${pkgdir}"/usr/share/man/man3/explicit_bzero.3
 }
 

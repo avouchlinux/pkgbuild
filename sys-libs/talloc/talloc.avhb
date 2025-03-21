@@ -1,25 +1,23 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=talloc
-pkgver=2.3.3
+pkgver=2.4.2
 pkgrel=1
 pkgdesc="Hierarchical pool based memory allocator with destructors"
 arch=('x86_64')
 groups=('sys-libs')
 license=('GPL3')
 url="https://talloc.samba.org/"
-depends=('glibc')
-makedepends=('python3' 'docbook-xsl')
-optdepends=('python3: for python3 bindings')
-source=(https://www.samba.org/ftp/talloc/talloc-$pkgver.tar.gz)
+depends=('glibc' 'libxcrypt')
+makedepends=('python' 'docbook-xsl')
+optdepends=('python: for python bindings')
+source=(https://www.samba.org/ftp/talloc/talloc-$pkgver.tar.{gz,asc})
+sha512sums=('fb91665ffbe0cce96b1359940ff3ed21330c81c5331140788a26aa94f82b50492176e6000ff54b31d1a434bb1cb53a6a2c7894153545252a1fd91bda7c05a213'
+            'SKIP')
 validpgpkeys=(9147A339719518EE9011BCB54793916113084025) # samba-bugs@samba.org
-
-prepare() {
-   cd "${srcdir}/${pkgname}-${pkgver}"
-}
 
 build() {
    cd "${srcdir}/${pkgname}-${pkgver}"
@@ -29,12 +27,12 @@ build() {
      --bundled-libraries=NONE \
      --builtin-libraries=replace \
      --enable-talloc-compat1
-   make ${MAKEFLAGS}
+   make
 }
 
 check() {
   cd "${srcdir}/${pkgname}-${pkgver}"
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {

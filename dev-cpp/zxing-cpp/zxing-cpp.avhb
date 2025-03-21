@@ -1,17 +1,18 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=zxing-cpp
-pkgver=1.2.0
+pkgver=2.2.1
 pkgrel=1
 pkgdesc="A command-line tool to decode QRCode"
 arch=('x86_64')
 groups=('dev-cpp')
 url="https://github.com/nu-book/zxing-cpp"
 license=(Apache)
-depends=(gcc-libs)
+depends=(gcc-libs
+         glibc)
 makedepends=(cmake)
 source=("https://github.com/nu-book/zxing-cpp/archive/v$pkgver.tar.gz")
 
@@ -20,7 +21,8 @@ build() {
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=None \
     -DBUILD_EXAMPLES=OFF \
-    -DBUILD_BLACKBOX_TESTS=OFF
+	-DBUILD_BLACKBOX_TESTS=OFF \
+	-DBUILD_UNIT_TESTS=OFF
   ninja -C build
 }
 

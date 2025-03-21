@@ -1,42 +1,71 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=pcsclite
 _realname=pcsc-lite
-pkgver=1.8.25
+pkgver=2.3.0
 pkgrel=1
 pkgdesc="PC/SC Architecture smartcard middleware library"
 arch=('x86_64')
 groups=('net-misc')
 url='https://pcsclite.apdu.fr/'
-license=('BSD')
-depends=('python' 'systemd')
-makedepends=('pkg-config')
-options=('!docs')
-source=("https://pcsclite.apdu.fr/files/pcsc-lite-${pkgver}.tar.bz2"{,.asc})
+# https://salsa.debian.org/rousseau/PCSC/-/blob/2.0.3/COPYING
+license=(
+  'BSD-3-Clause'        # Most of it
+  'GPL-3.0-or-later'    # doc/example/pcsc_demo.c, src/spy/, UnitaryTests/
+  'BSD-2-Clause'        # src/auth.c, src/auth.h
+  '0BSD'                # src/simclist.c, src/simclist.h
+)
+depends=(
+  'libsystemd.so'
+  'libudev.so'
+  'libpolkit-gobject-1.so'
+)
+makedepends=(
+  'git'
+  'meson'
+  'polkit'
+  'systemd'
+)
+optdepends=(
+  'python: API call trace logging with the pcsc-spy'
+  'ccid: USB Chip/Smart Card Interface Devices driver'
+)
+provides=(
+  'libpcsclite.so'
+  'libpcsclite_real.so'
+  'libpcscspy.so'
+)
 validpgpkeys=('F5E11B9FFE911146F41D953D78A1B4DFE8F9C57E') # Ludovic Rousseau <rousseau@debian.org>
+source=(
+  "git+https://github.com/LudovicRousseau/PCSC.git#tag=${pkgver}?signed"
+)
+sha256sums=('04bbbb8f63172cd2203d07b801f8e650c94cbcc9c222aa5f18fbabbf807f22e3')
 
 build() {
-  cd "pcsc-lite-$pkgver"
+  local meson_options=(
+    -D libsystemd=true
+    -D libudev=true
+    -D polkit=true
+    -D serial=true
+    -D systemdunit=system
+  )
+  avouch-meson PCSC build "${meson_options[@]}"
+  meson compile -C build
 
-  ./configure \
-    --prefix=/usr \
-    --sbindir=/usr/bin \
-    --sysconfdir=/etc \
-    --enable-filter \
-    --enable-ipcdir=/run/pcscd \
-    --enable-libudev \
-    --enable-usbdropdir=/usr/lib/pcsc/drivers \
-    --with-systemdsystemunitdir=/usr/lib/systemd/system
-
-  make ${MAKEFLAGS} 
+  # namcap requires separate files for each "uncommon" license (ex: BSD* ones), so splitting the upstream COPYING file
+  awk '/David Corcoran/{flag=1} /GNU GPL v3/ {flag=0} flag' PCSC/COPYING > LICENSE.BSD-3-Clause
+  awk '/GNU GPL v3/    {flag=1} /auth.c/     {flag=0} flag' PCSC/COPYING > LICENSE.GPL-3.0-or-later
+  awk '/auth.c/        {flag=1} /simclist.c/ {flag=0} flag' PCSC/COPYING > LICENSE.BSD-2-Clause
+  awk '/simclist.c/    {flag=1} flag'                       PCSC/COPYING > LICENSE.0BSD
 }
 
 package() {
-  cd "pcsc-lite-$pkgver"
-  make DESTDIR="$pkgdir" install
+  meson install -C build --destdir "${pkgdir}"
 
-  install -D -m644 "$srcdir/pcsc-lite-$pkgver/COPYING" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -D -m0644 LICENSE.* -t "$pkgdir/usr/share/licenses/$pkgname"
   install -d "$pkgdir/usr/lib/pcsc/drivers"
 }
+

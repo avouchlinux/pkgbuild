@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxcvt
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=1
 pkgdesc="library providing a standalone version of the X server implementation of the VESA CVT standard timing modelines generator"
 arch=('x86_64')

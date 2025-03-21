@@ -1,24 +1,27 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libvisual
-pkgver=0.4.0
+pkgver=0.4.2
 pkgrel=1
 pkgdesc="Abstraction library that comes between applications and audio visualisation plugins"
 arch=('x86_64')
 groups=('media-libs')
-url="http://sourceforge.net/projects/libvisual/"
+url="https://sourceforge.net/projects/libvisual/"
 license=('LGPL')
-source=("http://downloads.sourceforge.net/sourceforge/libvisual/libvisual-${pkgver}.tar.gz")
+depends=('glibc' 'sdl12-compat')
+source=(https://github.com/Libvisual/libvisual/releases/download/$pkgname-$pkgver/$pkgname-$pkgver.tar.gz)
+sha256sums=('63085fd9835c42c9399ea6bb13a7ebd4b1547ace75c4595ce8e9759512bd998a')
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make
+  cd ${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

@@ -1,32 +1,70 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gtksourceview5
+pkgbase=gtksourceview5
+pkgname=(
+  gtksourceview5
+  gtksourceview5-docs
+)
 _realname=gtksourceview
-pkgver=5.10.0
+pkgver=5.16.0
 pkgrel=1
 pkgdesc="A text widget adding syntax highlighting and more to GNOME"
 url="https://wiki.gnome.org/Projects/GtkSourceView"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(gtk3 libxml2)
-makedepends=(intltool gobject-introspection vala gtk-doc autoconf-archive glade
-             yelp-tools meson)
-source=("http://ftp.gnome.org/pub/GNOME/sources/$_realname/4.2/$_realname-$pkgver.tar.xz")
-sha256sums=('SKIP')
+license=(LGPL-2.1-or-later)
+depends=(
+  cairo
+  fontconfig
+  fribidi
+  gdk-pixbuf2
+  glib2
+  gtk4
+  hicolor-icon-theme
+  libxml2
+  pango
+  pcre2
+)
+makedepends=(
+  gi-docgen
+  git
+  gobject-introspection
+  meson
+  vala
+)
+checkdepends=(xorg-server-xvfb)
+source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
+b2sums=('SKIP')
 
-build() {
-    avouch-meson ${_realname}-${pkgver} build
-    ninja -C build
+prepare() {
+  cd gtksourceview-$pkgver
 }
 
-# check() {
-#     meson test -C build
-# }
+build() {
+  avouch-meson gtksourceview-$pkgver build -D documentation=true
+  meson compile -C build
+}
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+check() {
+  GTK_A11Y=none dbus-run-session xvfb-run -s '-nolisten local' \
+    meson test -C build --print-errorlogs
+}
+
+package_gtksourceview5() {
+  provides=(libgtksourceview-${pkgver%%.*}.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/doc
+}
+
+package_gtksourceview5-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
 }

@@ -1,4 +1,4 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -12,9 +12,22 @@ url="https://wiki.gnome.org/Projects/NetworkManager"
 arch=('x86_64')
 groups=('net-misc')
 license=(GPL)
-depends=(libnm libsecret vpnc)
-makedepends=(libnma intltool python git)
-optdepends=('libnma: GUI support')
+depends=(
+  libnm
+  libsecret
+  vpnc
+)
+makedepends=(
+  git
+  intltool
+  libnma
+  libnma-gtk4
+  python
+)
+optdepends=(
+  'libnma-gtk4: GUI support (GTK 4)'
+  'libnma: GUI support (GTK 3)'
+)
 source=("https://gitlab.gnome.org/GNOME/$_realname/-/archive/$pkgver/$_realname-$pkgver.tar.bz2")
 
 
@@ -31,7 +44,7 @@ build() {
     --libexecdir=/usr/lib/NetworkManager --disable-static \
     --with-libnm-gtk=no
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
-  make ${MAKEFLAGS}
+  make
 }
 
 package() {

@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libusb
-pkgver=1.0.23
+pkgver=1.0.26
 pkgrel=1
 depends=('glibc')
 pkgdesc="Library to enable user space application programs to communicate with USB devices."
@@ -22,6 +23,10 @@ md5sums=('466267889daead47674df933cea9cacb')
 build() {
 	cd "$srcdir/$pkgname-$pkgver"
 	./configure --prefix=/usr
+	
+	# prevent excessive overlinking due to libtool
+  	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
 	make ${MAKEFLAGS}
 }
 

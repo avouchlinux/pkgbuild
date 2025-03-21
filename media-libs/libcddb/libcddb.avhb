@@ -1,4 +1,5 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
@@ -11,15 +12,24 @@ arch=('x86_64')
 groups=('media-libs')
 license=('LGPL')
 depends=('glibc')
-source=("http://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.bz2")
+source=("https://downloads.sourceforge.net/sourceforge/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+        switch-default-server-to-gnudb.org.patch)
+sha256sums=('35ce0ee1741ea38def304ddfe84a958901413aa829698357f0bee5bb8f0a223b'
+            '3ee8610efa71322adb9095405da11b56386ac2c5825f976a84410c6270e59149')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -Np1 -i ../switch-default-server-to-gnudb.org.patch
+}
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd ${pkgname}-${pkgver}
+  export CFLAGS+=" -Wno-incompatible-pointer-types"
+  ./configure --prefix=/usr
+  make
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
+  cd ${pkgname}-${pkgver}
+  make DESTDIR="${pkgdir}" install
 }

@@ -1,11 +1,11 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libgexiv2
 _realname=gexiv2
-pkgver=0.14.2
+pkgver=0.14.3
 pkgrel=1
 pkgdesc='GObject-based wrapper around the Exiv2 library'
 url='https://wiki.gnome.org/Projects/gexiv2'

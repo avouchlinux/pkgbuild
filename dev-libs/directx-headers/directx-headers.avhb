@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=directx-headers
 _realname=DirectX-Headers
-pkgver=1.600.10
+pkgver=1.614.0
 pkgrel=1
 pkgdesc="DirectX headers for using D3D12"
 arch=('x86_64')

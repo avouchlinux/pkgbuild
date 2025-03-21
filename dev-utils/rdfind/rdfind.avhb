@@ -1,0 +1,46 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=rdfind
+pkgver=1.6.0
+pkgrel=1
+pkgdesc='Redundant data find - a program that finds duplicate files'
+arch=('x86_64')
+groups=('dev-utils')
+url='https://rdfind.pauldreik.se'
+license=('GPL-2.0-only')
+depends=('nettle' 'glibc' 'gcc-libs')
+makedepends=('git')
+source=("git+https://github.com/pauldreik/rdfind.git?signed#tag=releases/${pkgver}")
+validpgpkeys=("CC3C51BA88205B19728A6F07C9D9A0EA44EAE0EB")
+b2sums=('96ca92d94e76a4014e874be35b94189c1f22fb00f1cdf06c2ac48e3b9d4ca1b589ec831f6f9059dd668d9d539f5adfab7b820eaaff70fb35a7624400445b999c')
+
+prepare() {
+  cd "${pkgname}"
+  ./bootstrap.sh
+}
+
+build() {
+  cd "${pkgname}"
+  ./configure --prefix=/usr
+  make 
+}
+
+check() {
+  cd "${pkgname}"
+  # make check
+}
+
+package() {
+  cd "${pkgname}"
+  make DESTDIR="${pkgdir}/" install
+
+  # documentation
+  install -dm755 "${pkgdir}/usr/share/doc/${pkgname}"
+  install -m644 AUTHORS ChangeLog README TODO \
+          "${pkgdir}/usr/share/doc/${pkgname}"
+}
+
+

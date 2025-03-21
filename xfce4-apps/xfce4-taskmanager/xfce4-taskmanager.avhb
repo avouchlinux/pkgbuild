@@ -1,10 +1,10 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=xfce4-taskmanager
-pkgver=1.5.2
+pkgver=1.5.7
 pkgrel=1
 pkgdesc="Easy to use task manager"
 arch=('x86_64')
@@ -22,7 +22,7 @@ build() {
 		--sysconfdir=/etc \
 		--localstatedir=/var \
 		--disable-debug
-	make ${MAKEFLAGS}
+	make
 }
 
 package() {

@@ -1,39 +1,71 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=cairo
-pkgver=1.17.6
+pkgbase=cairo
+pkgname=(
+  cairo
+  cairo-docs
+)
+pkgver=1.18.2
 pkgrel=1
 pkgdesc="Cairo vector graphics library"
 arch=('x86_64')
 groups=('x11-libs')
-license=('LGPL' 'MPL')
-url="https://cairographics.org/"
-license=(LGPL MPL)
-depends=(libpng libxrender libxext fontconfig pixman glib2 lzo)
-makedepends=(librsvg gtk2 poppler-glib libspectre gtk-doc valgrind git)
-checkdepends=(ttf-dejavu gsfonts)
+license=('LGPL-2.1-only OR MPL-1.1')
+depends=(
+  fontconfig
+  freetype2
+  glib2
+  libpng
+  libx11
+  libxcb
+  libxext
+  libxrender
+  lzo
+  pixman
+  zlib
+)
+makedepends=(
+  git
+  gtk-doc
+  meson
+  valgrind
+)
 source=("https://gitlab.freedesktop.org/cairo/cairo/-/archive/$pkgver/cairo-$pkgver.tar.bz2")
-
-prepare() {
-	cd "${pkgname}-${pkgver}"
-	# FS#74354
-	patch -Np1 -i ../0001-Fix-type1-subset-indexing.patch
-
-}
+b2sums=('SKIP')
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    -D spectre=disabled \
-    -D tee=enabled \
-    -D tests=disabled \
-    -D symbol-lookup=disabled \
+  local meson_options=(
+    -D dwrite=disabled
     -D gtk_doc=true
+    -D spectre=disabled
+    -D symbol-lookup=disabled
+    -D tests=disabled
+  )
+
+  avouch-meson cairo-$pkgver build "${meson_options[@]}"
   meson compile -C build
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+package_cairo() {
+  provides=(
+    libcairo-gobject.so
+    libcairo-script-interpreter.so
+    libcairo.so
+  )
+
+  meson install -C build --destdir "$pkgdir"
+
+  mkdir -p doc/usr/share
+  mv {"$pkgdir",doc}/usr/share/gtk-doc
 }
+
+package_cairo-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv doc/* "$pkgdir"
+}
+

@@ -1,57 +1,61 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=libsrtp
-pkgver=2.3.0
+pkgbase=libsrtp
+pkgname=(
+  libsrtp
+  libsrtp-docs
+)
+pkgver=2.6.0
 pkgrel=1
 epoch=1
 pkgdesc="Library for SRTP (Secure Realtime Transport Protocol)"
 url="https://github.com/cisco/libsrtp"
 arch=('x86_64')
 groups=('net-libs')
-license=(BSD)
-depends=(openssl)
-makedepends=(git)
-checkdepends=(libpcap procps-ng)
-options=(staticlibs)
-source=("https://github.com/cisco/libsrtp/archive/v$pkgver.tar.gz")
-
-# getsrc() {
-#   git clone https://github.com/cisco/libsrtp
-# }
-
-prepare() {
-  cd $pkgname-$pkgver
-
-  # Fixup pkgver: There are tags like v1.5.4 but also "moving" tags like v1 and v1.5
-  #git tag | grep -Pv '^v\d+.\d+.\d+$' | xargs git tag -d
-
-  # Fix shared lib so ldconfig doesn't complain
-  patch -Np1 -i ../libsrtp-2.3.0-shared-fix.patch
-  # Fix namespace issue in test/util.c
-  patch -Np1 -i ../libsrtp-2.3.0-test-util.patch
-  # Link test binaries against shared lib
-  patch -Np1 -i ../libsrtp-2.3.0-shared-test-fix.patch
-
-  #autoreconf -fvi
-}
+license=(BSD-3-Clause)
+depends=(nss)
+makedepends=(
+  doxygen
+  git
+  libpcap
+  meson
+)
+checkdepends=(procps-ng)
+source=("$pkgbase-$pkgver.tar.gz::https://github.com/cisco/$pkgbase/archive/refs/tags/v$pkgver.tar.gz")
+b2sums=('SKIP')
 
 build() {
-  cd $pkgname-$pkgver
-  ./configure --prefix=/usr --enable-openssl
-  make ${MAKEFLAGS} all
-  make shared_library  # Keep separate to link test apps against static lib
+  local meson_options=(
+    --buildtype release
+    -D crypto-library=nss
+    -D crypto-library-kdf=disabled
+  )
+
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
+  meson compile -C build
+  meson compile -C build doc
 }
 
 check() {
-  cd $pkgname-$pkgver
-  make ${MAKEFLAGS} runtest
+  meson test -C build --print-errorlogs
 }
 
-package() {
-  cd $pkgname-$pkgver
-  make DESTDIR="$pkgdir" install
-  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 LICENSE
+package_libsrtp() {
+  provides=("libsrtp${pkgver%%.*}.so")
+
+  meson install -C build --destdir "$pkgdir"
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/LICENSE
+}
+
+package_libsrtp-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mkdir -p "$pkgdir/usr/share/doc"
+  cp -a build/html "$pkgdir/usr/share/doc/libsrtp"
+
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgbase-$pkgver/LICENSE
 }

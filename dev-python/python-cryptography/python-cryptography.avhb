@@ -1,0 +1,44 @@
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgname=python-cryptography
+pkgver=42.0.8
+pkgrel=1
+pkgdesc="A package designed to expose cryptographic recipes and primitives to Python developers"
+arch=('x86_64')
+groups=('dev-python')
+license=('Apache')
+url="https://github.com/pyca/cryptography"
+depends=('python-cffi')
+makedepends=('git' 'python-setuptools-rust' 'llvm' 'clang' 'lld' 'python-build' 'python-installer' 'python-wheel')
+checkdepends=('python-pytest' 'python-pytest-subtests' 'python-iso8601' 'python-pretend'
+              'python-hypothesis' 'python-pytz' 'python-certifi')
+source=("https://github.com/pyca/cryptography/archive/refs/tags/$pkgver.tar.gz")
+sha512sums=('8f6d45273662f4bda624c39c77dbe6476e2d4ffefdfb8c47c39aab1caa9f306638ac9fc34e3e087cf6d28f950325dc4892d15b870fd935647b442ea711e24a33')
+
+prepare() {
+  cd cryptography-$pkgver
+  # Drop all benchmark tests, this means we don't have to checkdepends on pytest-benchmark nor are
+  # benchmark tests interesting for a distribution.
+  rm -rf tests/bench
+}
+
+build() {
+  cd cryptography-$pkgver
+  echo $RUSTFLAGS
+  # https://github.com/pyca/cryptography/issues/9023
+  CC=clang RUSTFLAGS+="-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld" python -m build --wheel --no-isolation
+}
+
+check() {
+  cd cryptography-$pkgver
+  local python_version=$(python -c 'import sys; print("".join(map(str, sys.version_info[:2])))')
+  PYTHONPATH="$PWD/build/lib.linux-$CARCH-cpython-$python_version:$PWD/vectors" pytest -o addopts=''
+}
+
+package() {
+  cd cryptography-$pkgver
+  python -m installer --destdir="$pkgdir" dist/*.whl
+}

@@ -1,32 +1,34 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libetonyek
-pkgver=0.1.9
+pkgver=0.1.10
 pkgrel=1
 pkgdesc='Library and a set of tools for reading and converting Apple Keynote presentations'
 arch=('x86_64')
 groups=('media-grafix')
 url="https://wiki.documentfoundation.org/DLP/Libraries/libetonyek"
-license=('MPL')
-depends=('libxml2' 'zlib' 'libwpd' 'boost-libs' 'librevenge' 'liblangtag')
+license=('MPL-2.0')
+depends=('libxml2' 'zlib' 'libwpd' 'librevenge' 'liblangtag' 'gcc-libs' 'glibc')
 makedepends=('boost' 'cppunit' 'gperf' 'doxygen' 'glm' 'mdds')
 source=(https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz)
+sha256sums=('b430435a6e8487888b761dc848b7981626eb814884963ffe25eb26a139301e9a')
 
 build() {
   cd $pkgname-$pkgver
-  ./configure --prefix=/usr --with-mdds=1.5
-  make ${MAKEFLAGS}
+  ./configure --prefix=/usr --with-mdds=2.1
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS} check
+  make check
 }
 
 package() {
   cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

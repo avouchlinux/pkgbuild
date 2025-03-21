@@ -1,73 +1,84 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
+
+# README
+# this package requires glibc-debug to run the check() function
+# as -debug packages are not available in [core], it has to be applied manually
+# whenever the tests shall run
+#
+# For a fresh build:
+# pkgctl build -I ../../glibc/trunk/glibc-debug*.pkg.tar.zst
+# pkgctl build
+
 pkgname=valgrind
-pkgver=3.18.1
+pkgver=3.24.0
 pkgrel=1
 pkgdesc='Tool to help find memory-management problems in programs'
 arch=('x86_64')
 groups=('dev-utils')
-license=('GPL')
-url='http://valgrind.org/'
-depends=('glibc' 'perl')
+license=('GPL-2.0-or-later')
+url='https://valgrind.org/'
+depends=('glibc' 'perl' 'debuginfod')
 makedepends=('gdb' 'lib32-glibc' 'lib32-gcc-libs' 'docbook-xml'
              'docbook-xsl' 'docbook-sgml')
 checkdepends=('procps-ng')
-optdepends=('lib32-glibc: 32-bit ABI support')
+optdepends=(
+  'lib32-glibc: 32-bit ABI support'
+  'python: cg_* scripts'
+)
 provides=('valgrind-multilib')
 replaces=('valgrind-multilib')
 options=('!emptydirs' '!strip')
 source=(https://sourceware.org/pub/valgrind/valgrind-${pkgver}.tar.bz2{,.asc}
-        valgrind-3.7.0-respect-flags.patch
-        valgrind-3.18.1-glibc-2.35.patch)
+        valgrind-3.7.0-respect-flags.patch)
 validpgpkeys=(
   0E9FFD0C16A1856CF9C7C690BA0166E698FA6035 # Julian Seward <jseward@acm.org>
   EC3CFE88F6CA0788774F5C1D1AA44BE649DE760A # Mark Wielaard <mjw@gnu.org>
 )
-sha512sums=('a03b5cd7eafab4a1cea07f46464c1546ae1cb3d106649626b1e55658badf90e58d1f3854a38a33d5dffd8237f5555ae7e1f27a4b40e06254f87825c7fc61b59b'
+sha512sums=('6c131ff93d1f432d8362a47285cc377cba224ebca4f18e922c6156f7736d43020ece14d8fd16913498ab00fd18c85e2042a7d5351c3901e80413c584ebb406f3'
             'SKIP'
-            'e0cec39381cefeca09ae4794cca309dfac7c8693e6315e137e64f5c33684598726d41cfbb4edf764fe985503b13ff596184ca5fc32b159d500ec092e4cf8838c'
-            '7ea1bb314c9da0cc7ad5779facb953ece38ae2c9a541d1af1fd044eb01f44c51acbdfc9cc1667ad96ed21475d35b3416884011eecd2ceab97126d5123c2827f9')
-b2sums=('a98322e4c12ae1bc495659217bd398b85e459288e775ba5f543b9ce1faa5bdfc17791178c0e7b9703a31588cc4c7cbde814b7a43b2ec76e7362e2aeeb100d935'
+            'e0cec39381cefeca09ae4794cca309dfac7c8693e6315e137e64f5c33684598726d41cfbb4edf764fe985503b13ff596184ca5fc32b159d500ec092e4cf8838c')
+b2sums=('e11ad08f0062bd39788cd71d7ce058dec7a7207fbbe25f0dbfc7fb5735667809681cec2c843659553fbd49bcc6c71bdb93d87ffda3589247e4ee87c98fe51332'
         'SKIP'
-        'af556fdf3c02e37892bfe9afebc954cf2f1b2fa9b75c1caacfa9f3b456ebc02bf078475f9ee30079b3af5d150d41415a947c3d04235c1ea8412cf92b959c484a'
-        '2fd0865716de0690cdc468f1cb81fa5b830be450525c46e97821d263d0547158aee6ab3c954081564b3821e47143e01d9f9b07f9589e2000bd02132ef5e9de97')
+        'af556fdf3c02e37892bfe9afebc954cf2f1b2fa9b75c1caacfa9f3b456ebc02bf078475f9ee30079b3af5d150d41415a947c3d04235c1ea8412cf92b959c484a')
 options=(!lto) # https://bugs.kde.org/show_bug.cgi?id=338252
 
 prepare() {
   cd valgrind-${pkgver}
-  patch -Np1 < ../valgrind-3.7.0-respect-flags.patch
+  patch -Np1 < ../valgrind-3.9.0-cachegrind-improvements.patch
+  patch -Np1 < ../valgrind-3.9.0-ldso-supp.patch
+	patch -Np1 < ../valgrind-3.16.0-some-stack-protector.patch
+  patch -Np1 < ../valgrind-3.16.0-some-Wl-z-now.patch
+
+
   sed -i 's|sgml/docbook/xsl-stylesheets|xml/docbook/xsl-stylesheets-1.79.2-nons|' docs/Makefile.am
 
-  # https://sourceware.org/git/?p=valgrind.git;a=commitdiff;h=1024237358
-  patch -p1 -i "${srcdir}"/valgrind-3.18.1-glibc-2.35.patch
-
   autoreconf -ifv
-
 }
 
 build() {
-  disable_ld_gold
-  # valgrind build failed with our flags
-  export CFLAGS=""
-  export CPPFLAGS=""
-  export CXXFLAGS=""
-  export LDFLAGS=""
-
   cd valgrind-${pkgver}
+
+  export CFLAGS=
+  export LDFLAGS=
   ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
     --libexecdir=/usr/lib \
-    --mandir=/usr/share/man
-  make ${MAKEFLAGS}
+    --mandir=/usr/share/man \
+    --enable-lto=yes
+  make
   # make -C docs man-pages
 }
 
 check() {
+  # only run if glibc-debug is supplied manually
+  if ! pacman -Q glibc-debug; then echo -e "\033[1;31mcheck() not run, supply glibc-debug if unintended!\033[0m"; return 0; fi
+
   cd valgrind-${pkgver}
 
   # Make sure a basic binary runs. There should be no errors.
@@ -75,7 +86,7 @@ check() {
 
   # Make sure no extra FLAGS leak through, the testsuite
   # sets all flags necessary. See also configure above.
-  make ${MAKEFLAGS} check CPPFLAGS= CFLAGS= CXXFLAGS= LDFLAGS=
+  make check CPPFLAGS= CFLAGS= CXXFLAGS= LDFLAGS=
 
   # XXX: run full regtest but only report issues some tests fail duo
   # current toolchain and expectations, take a manual look if its fine

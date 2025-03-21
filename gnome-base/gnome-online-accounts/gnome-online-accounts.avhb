@@ -1,35 +1,107 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gnome-online-accounts
-pkgver=3.48.0
+pkgbase=gnome-online-accounts
+pkgname=(
+  gnome-online-accounts
+  libgoa
+)
+pkgver=3.54.1
 pkgrel=1
 pkgdesc="Single sign-on framework for GNOME"
 url="https://wiki.gnome.org/Projects/GnomeOnlineAccounts"
 arch=('x86_64')
 groups=('gnome-base')
 license=(LGPL)
-depends=(webkit2gtk json-glib libnotify rest libsecret krb5 gcr)
-makedepends=(gobject-introspection gtk-doc vala git meson)
-optdepends=('gvfs-goa: Virtual file systems, e.g. OwnCloud'
-            'gvfs-google: Google Drive')
-source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
+depends=(
+  dbus
+  dconf
+  gcc-libs
+  gcr-4
+  glib2
+  glibc
+  gtk4
+  hicolor-icon-theme
+  json-glib
+  keyutils
+  krb5
+  libadwaita
+  librest
+  libsecret
+  libsoup3
+  libxml2
+)
+makedepends=(
+  git
+  gi-docgen
+  glib2-devel
+  gobject-introspection
+  meson
+  vala
+)
+source=(https://gitlab.gnome.org/GNOME/$pkgbase/-/archive/$pkgver/$pkgbase-$pkgver.tar.bz2)
+
+prepare() {
+  cd $pkgbase-$pkgver
+}
 
 build() {
-  avouch-meson $pkgname-$pkgver build \
-    -D lastfm=true \
-    -D media_server=true \
-    -D gtk_doc=true \
+  local meson_options=(
+    -D gtk_doc=true
     -D man=true
-  ninja -C build
+  )
+
+  avouch-meson $pkgbase-$pkgver build "${meson_options[@]}"
+  meson compile -C build
 }
 
 check() {
-  meson test -C build
+  meson test -C build --print-errorlogs
 }
 
-package() {
-  DESTDIR="$pkgdir" meson install -C build
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_gnome-online-accounts() {
+  depends+=("libgoa=$pkgver-$pkgrel")
+  optdepends=(
+    'epiphany: (or another modern browser): OAuth authentication'
+    'gvfs-goa: Virtual file systems, e.g. OwnCloud'
+    'gvfs-google: Google Drive'
+    'gvfs-onedrive: Microsoft OneDrive'
+  )
+  provides=(libgoa-backend-1.0.so)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick goa usr/include/goa-1.0/goa
+  _pick goa usr/lib/libgoa-1.0.so*
+  _pick goa usr/lib/girepository-1.0/Goa-1.0.typelib
+  _pick goa usr/lib/goa-1.0/include
+  _pick goa usr/lib/pkgconfig/goa-1.0.pc
+  _pick goa usr/share/gir-1.0/Goa-1.0.gir
+  _pick goa usr/share/vala/vapi/goa-1.0.*
+  _pick goa usr/share/doc
+}
+
+package_libgoa() {
+  pkgdesc+=" - client library"
+  depends=(
+    glibc
+    libg{lib,object,io}-2.0.so
+  )
+  provides=(libgoa-1.0.so)
+
+  mv goa/* "$pkgdir"
 }

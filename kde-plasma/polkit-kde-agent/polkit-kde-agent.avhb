@@ -1,28 +1,44 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=polkit-kde-agent
 _realname=polkit-kde-agent-1
-pkgver=5.27.8
+pkgver=6.3.3
+_dirver=$(echo $pkgver | cut -d. -f1-3)
 pkgrel=1
 pkgdesc='Daemon providing a polkit authentication UI for KDE'
 arch=('x86_64')
 groups=('kde-plasma')
-url='https://www.kde.org/workspaces/plasmadesktop/'
-license=(LGPL)
-depends=(kiconthemes kdbusaddons kcrash)
-makedepends=(extra-cmake-modules kdoctools python)
-source=("https://download.kde.org/stable/plasma/$pkgver/$pkgname-1-$pkgver.tar.xz"{,.sig})
-validpgpkeys=('2D1D5B0588357787DE9EE225EC94D18F7F05997E'  # Jonathan Riddell
-              '348C8651206633FD983A8FC4DEACEA00075E1D76'  # KDE Neon
-              'D07BD8662C56CB291B316EB2F5675605C74E02CF') # David Edmundson
+url='https://kde.org/plasma-desktop/'
+license=(LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         ki18n
+         kirigami
+         kwindowsystem
+         polkit-qt6
+         qt6-base
+         qt6-declarative)
+makedepends=(extra-cmake-modules
+             kdoctools)
+source=(https://download.kde.org/stable/plasma/$_dirver/$pkgname-1-$pkgver.tar.xz{,.sig})
+sha256sums=('c6650c57de4e1d59cc5148edb2b8d7f17a66c20785613ec30535174a7b6dcb10'
+            'SKIP')
+validpgpkeys=('E0A3EB202F8E57528E13E72FD7574483BB57B18D'  # Jonathan Esk-Riddell <jr@jriddell.org>
+              '0AAC775BB6437A8D9AF7A3ACFE0784117FBCE11D'  # Bhushan Shah <bshah@kde.org>
+              'D07BD8662C56CB291B316EB2F5675605C74E02CF'  # David Edmundson <davidedmundson@kde.org>
+              '1FA881591C26B276D7A5518EEAAF29B42A678C20') # Marco Martin <notmart@gmail.com>
 
 build() {
 	cmake -S ${_realname}-${pkgver} -B build -G Ninja \
 		-DCMAKE_INSTALL_PREFIX=/usr \
 		-DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
 		-DBUILD_TESTING=OFF
 	ninja -C build
 }

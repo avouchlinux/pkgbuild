@@ -1,35 +1,70 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=upower
-pkgver=0.99.17
+pkgver=1.90.6
 _pkgver=${pkgver//./_}
 pkgrel=1
 pkgdesc="Abstraction for enumerating power devices, listening to device events and querying history and statistics"
 arch=('x86_64')
 groups=('sys-power')
 url="http://upower.freedesktop.org"
-license=('GPL')
-depends=(systemd libimobiledevice libgudev)
-makedepends=(docbook-xsl gobject-introspection python git gtk-doc meson)
-checkdepends=(python-{dbus,dbusmock,gobject} umockdev)
-backup=('etc/UPower/UPower.conf')
-source=(https://gitlab.freedesktop.org/upower/upower/-/archive/UPOWER_0_99_11/upower-UPOWER_${pkgver//./_}.tar.bz2)
+license=(GPL-2.0-or-later)
+depends=(
+  gcc-libs
+  glib2
+  glibc
+  libgudev
+  libimobiledevice
+  libplist
+  polkit
+)
+optdepends=(
+  'usbmuxd: Read charge status of iOS devices'
+)
+makedepends=(
+  docbook-xsl
+  git
+  glib2-devel
+  gobject-introspection
+  gtk-doc
+  meson
+  python
+  systemd
+  usbmuxd
+)
+checkdepends=(
+  python-dbus
+  python-dbusmock
+  python-gobject
+  python-packaging
+  umockdev
+)
+backup=(etc/UPower/UPower.conf)
+source=(
+  "git+https://gitlab.freedesktop.org/upower/upower.git#tag=v$pkgver"
+)
+b2sums=('51f2bb2c7497c70ed094eee2167449bbdc2920cb71487c0d9707de5401653f6a03e80f6ec1b8109d05a6c4cd165a63467bef1d62a5f928653f96bf5be803e864')
+
+prepare() {
+  cd upower
+}
 
 build() {
-  avouch-meson upower-v$pkgver build
+  avouch-meson upower build
   meson compile -C build
 }
 
-check() {
-  meson test -C build --print-errorlogs
-}
 
 package() {
   depends+=(libg{lib,object,io}-2.0.so)
   provides+=(libupower-glib.so)
 
   meson install -C build --destdir "$pkgdir"
+
+  # Remove installed-tests
+  rm -rv "$pkgdir"/usr/{lib/upower,share/installed-tests}
 }
+

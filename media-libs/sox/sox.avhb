@@ -1,90 +1,111 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=sox
-pkgver=14.4.2
+# using a git snapshot as 14.4.2 has many unfixed security vulns
+pkgver=14.4.2+r184+gf3094754
 pkgrel=1
 pkgdesc="The Swiss Army knife of sound processing tools"
 arch=('x86_64')
 groups=('media-libs')
-url="http://sox.sourceforge.net/"
-license=('GPL' 'LGPL')
-depends=('libltdl' 'file' 'libsndfile' 'libpng' 'lame' 'opencore-amr' 'gsm')
-makedepends=('libao' 'libmad' 'libid3tag' 'wavpack' 'libpulse' 'opusfile' 'twolame')
+url="https://sox.sourceforge.net/"
+license=('GPL2' 'LGPL2.1')
+depends=(
+  'file'
+  'gcc-libs'
+  'gsm'
+  'libid3tag'
+  'libltdl'
+  'libpng'
+  'zlib'
+)
+makedepends=(
+  'alsa-lib'
+  'autoconf-archive'
+  'flac'
+  'git'
+  'lame'
+  'libao'
+  'libmad'
+  'libpulse'
+  'libsndfile'
+  'libvorbis'
+  'opencore-amr'
+  'opusfile'
+  'twolame'
+  'wavpack'
+)
 checkdepends=('time')
-optdepends=('libao: for ao plugin'
-            'libmad: for mp3 plugin'
-            'libid3tag: for mp3 plugin'
-            'wavpack: for wavpack plugin'
-            'libpulse: for pulse plugin'
-            'opusfile: for opus plugin'
-            'twolame: for mp3 plugin')
-source=("https://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
-        CVE-2017-15371.patch::https://github.com/mansr/sox/commit/818bdd0.patch
-        CVE-2017-11358.patch::https://github.com/mansr/sox/commit/6cb44a4.patch
-        CVE-2017-15370.patch::https://github.com/mansr/sox/commit/ef3d8be.patch
-        CVE-2017-11332.patch::https://github.com/mansr/sox/commit/7405bca.patch
-        CVE-2017-11359.patch::https://github.com/mansr/sox/commit/8b590b3.patch
-        CVE-2017-15372.patch::https://github.com/mansr/sox/commit/001c337.patch
-        CVE-2017-15642.patch::https://github.com/mansr/sox/commit/0be259e.patch
-        CVE-2017-18189.patch
-        update-exported-symbol-list.patch
-        add-destdir.patch
-        cleanup-lsx_malloc.patch
-        CVE-2019-8354.patch
-        CVE-2019-8355.patch
-        CVE-2019-8356.patch
-        CVE-2019-8357.patch)
+optdepends=(
+  'alsa-lib: alsa plugin'
+  'flac: flac plugin'
+  'lame: mp3 plugin'
+  'libao: ao plugin'
+  'libmad: mp3 plugin'
+  'libpulse: pulse plugin'
+  'libsndfile: caf, fap, mat4, mat5, paf, pvf, sd2, sndfile, w64 and xi plugins'
+  'libvorbis: vorbis plugin'
+  'opencore-amr: amr_nb and amr_wb plugins'
+  'opusfile: opus plugin'
+  'twolame: mp3 plugin'
+  'wavpack: wavpack plugin'
+)
+provides=('libsox.so')
+_commit=f3094754a7c2a7e55c35621d20fa9945736e72df  # master
+source=("sox-code::git+https://git.code.sf.net/p/sox/code#commit=${_commit}"
+        "unfixed-issues.patch"
+        "CVE-2023-32627.patch")
+sha256sums=('affffe2c3901b4859beb41bfc1d663ab959c968a3635a448359d50b1142a3d6a'
+            '1dc118fb304bc98e1e92f31ae90aa6e55ef1518a262d79a17c70b37ac6dcab9d'
+            '0fff925c8d1c743e2e524bcb01c16fc9c9d1781f661806a0ed602050fc3b8d67')
+
+pkgver() {
+  cd sox-code
+  git describe --tags | sed 's/^sox-//;s/[^-]*-g/r&/;s/-/+/g'
+}
 
 prepare() {
-  cd ${pkgname}-${pkgver}
-  # fix man page installation
-  sed -e 's|man1/sox.1 soxeffect.7|man1/sox.1.gz soxeffect.7.gz|' \
-      -i Makefile.in
-
-  # patch all (known) CVEs from 2017
-  for _cve in 15371 11358 15370 11332 11359 15372 15642 18189; do
-    patch -Np1 -i ../CVE-2017-$_cve.patch
-  done
-
-  # applying patches required to apply CVE patches cleanly
-  patch -Np1 -i ../add-destdir.patch
-  patch -Np1 -i ../update-exported-symbol-list.patch
-  patch -Np1 -i ../cleanup-lsx_malloc.patch
-
-  # patch all (known) CVEs from 2019
-  for _cve in 8354 8355 8356 8357; do
-    patch -p1 -i ../CVE-2019-$_cve.patch
-  done
-
-	# bug #386027 frpm Gentoo
-	sed -i -e 's:CFLAGS="-g":CFLAGS="$CFLAGS -g":' configure.ac
-
-  # test fails with CVE-2017-11359.patch
-  sed -e '/hcom/d' -i src/tests.sh
+  cd sox-code
+  # https://www.openwall.com/lists/oss-security/2023/02/03/3
+  patch -Np1 -i ../unfixed-issues.patch
+  # https://sourceforge.net/p/sox/bugs/369/
+  patch -Np1 -i ../CVE-2023-32627.patch
   autoreconf -vfi
 }
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr --sysconfdir=/etc \
-	--with-dyn-default --with-distro="Avouch Linux"
-	make ${MAKEFLAGS}
+  local configure_flags=(
+    --prefix=/usr
+    --sysconfdir=/etc
+    --localstatedir=/var
+    --enable-formats=dyn
+    --with-distro="Arch Linux"
+  )
+
+  cd sox-code
+  ./configure "${configure_flags[@]}"
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make all README
 }
 
-check() {		
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make bindir=. installcheck
-}
+check() (
+  cd sox-code/src
 
-package() {	
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
+  export DESTDIR="${PWD}/tmp"
+  mkdir -p "${DESTDIR}"
 
-	install -vDm 644 {AUTHORS,ChangeLog,README} \
+  export LD_LIBRARY_PATH="${DESTDIR}/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+  make sox_sample_test
+  make install
+  make installcheck
+)
+
+package() {
+  cd sox-code
+  make DESTDIR="${pkgdir}" install
+  install -vDm644 AUTHORS ChangeLog README \
     -t "${pkgdir}/usr/share/doc/${pkgname}"
-
-	  # license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }

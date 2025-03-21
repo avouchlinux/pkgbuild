@@ -1,10 +1,11 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=aspell-en
 _realname=aspell6-en
-pkgver=2019.10.06
+pkgver=2020.12.07
 pkgrel=1
 pkgdesc="English dictionary for Aspell.  It requires Aspell version 0.60 or better"
 arch=('x86_64')
@@ -12,7 +13,7 @@ groups=('sys-libs')
 url="http://aspell.net/"
 license=('custom')
 depends=('aspell')
-source=("ftp://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-$pkgver-0.tar.bz2")
+source=("https://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-$pkgver-0.tar.bz2")
 
 build() {
 	cd "${srcdir}/${_realname}-${pkgver}-0"

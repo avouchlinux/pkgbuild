@@ -1,33 +1,70 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=itinerary
-pkgver=23.08.1
+pkgver=24.12.3
 pkgrel=1
 pkgdesc='Itinerary and boarding pass management application'
 arch=(x86_64)
 groups=('kde-release-service')
 url='https://apps.kde.org/itinerary/'
-license=(LGPL BSD)
-depends=(kitinerary kio networkmanager-qt kosmindoormap khealthcertificate qt5-location qqc2-desktop-style prison hicolor-icon-theme)
-makedepends=(extra-cmake-modules)
+license=(BSD-3-Clause
+         LGPL-2.0-or-later)
+depends=(gcc-libs
+         glibc
+         kcalendarcore
+         kcontacts
+         kcoreaddons
+         kcrash
+         kdbusaddons
+         kfilemetadata
+         khealthcertificate
+         kholidays
+         ki18n
+         kio
+         kirigami
+         kirigami-addons
+         kitinerary
+         kitemmodels
+         knotifications
+         kosmindoormap
+         kpkpass
+         kpublictransport
+         kunitconversion
+         kwindowsystem
+         libquotient
+         networkmanager-qt
+         prison
+         qqc2-desktop-style
+         qt6-base
+         qt6-declarative
+         qt6-location
+         qt6-multimedia
+         qt6-positioning
+         qtkeychain-qt6
+         zlib)
+makedepends=(extra-cmake-modules
+             python)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig})
-sha256sums=('f65e94e46088a018a38123f2450e0a35e905cf3c8148b960396e65c99630be9f'
+sha256sums=('30e867467ea79c4edb4e0df8cdd1e15a3e346cf17cab01113a8b497c66ba3604'
             'SKIP')
 validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aacid@kde.org>
               F23275E4BF10AFC1DF6914A6DBD2CE893E2D1C87  # Christoph Feck <cfeck@kde.org>
               D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DLIB_INSTALL_DIR=lib \
-    -DBUILD_TESTING=OFF
+  cmake -B build -S $pkgname-$pkgver -G Ninja \
+  	    -DCMAKE_INSTALL_PREFIX=/usr \
+		    -DLIB_INSTALL_DIR=lib \
+        -DCMAKE_INSTALL_LIBEXECDIR=lib \
+        -DBUILD_TESTING=OFF
   cmake --build build
 }
 
 package() {
   DESTDIR="$pkgdir" cmake --install build
+
+  install -Dm644 $pkgname-$pkgver/LICENSES/* -t "$pkgdir"/usr/share/licenses/$pkgname
 }

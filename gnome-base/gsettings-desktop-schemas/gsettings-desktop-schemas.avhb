@@ -1,25 +1,74 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
-pkgname=gsettings-desktop-schemas
-pkgver=45.0
+pkgbase=gsettings-desktop-schemas
+pkgname=(
+  gsettings-desktop-schemas
+  gsettings-system-schemas
+)
+pkgver=48.rc
 pkgrel=1
 pkgdesc="Shared GSettings schemas for the desktop"
 arch=(any)
 groups=('gnome-base')
 url="https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas"
-license=(GPL)
-depends=(glib2 dconf cantarell-fonts adobe-source-code-pro-fonts)
-makedepends=(gobject-introspection git meson)
-source=(http://ftp.gnome.org/pub/gnome/sources/$pkgname/${pkgver%.*}/$pkgname-$pkgver.tar.xz)
+license=(LGPL-2.1-or-later)
+makedepends=(
+  adobe-source-code-pro-fonts
+  cantarell-fonts
+  dconf
+  git
+  glib2-devel
+  gobject-introspection
+  meson
+)
+source=("https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas/-/archive/$pkgver/gsettings-desktop-schemas-$pkgver.tar.bz2")
+b2sums=('ff80d8cee04d1a498993632195242d24d3869225bdcc315fb680b7dce9f9fc9761cdf6f64d35af29707dbe29a3ce0f5c57c814a93d4cc95fc3586de260e83802')
 
-build() {
-    avouch-meson ${pkgname}-${pkgver} build
-    ninja -C build
+prepare() {
+  cd $pkgbase-$pkgver
 }
 
-package() {
-    DESTDIR="$pkgdir" meson install -C build
+build() {
+  avouch-meson $pkgbase-$pkgver build
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_gsettings-desktop-schemas() {
+  pkgdesc+=" desktop components"
+  depends=(
+    "gsettings-system-schemas=$pkgver-$pkgrel"
+    adobe-source-code-pro-fonts
+    cantarell-fonts
+    dconf
+  )
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+  _pick system usr/share/glib-2.0/schemas/org.gnome.desktop.enums.xml
+  _pick system usr/share/glib-2.0/schemas/org.gnome.system.*.gschema.xml
+}
+
+package_gsettings-system-schemas() {
+  pkgdesc+=" system components"
+  depends=(dconf)
+
+  mv system/* "$pkgdir"
 }

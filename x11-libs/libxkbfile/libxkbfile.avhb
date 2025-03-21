@@ -1,29 +1,36 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libxkbfile
-pkgver=1.1.0
+pkgver=1.1.3
 pkgrel=1
 pkgdesc="X11 keyboard file manipulation library"
 arch=('x86_64')
 groups=('x11-libs')
-license=('custom')
-url="http://xorg.freedesktop.org/"
-depends=('libx11')
-makedepends=('xorg-util-macros')
-source=("${url}/releases/individual/lib/${pkgname}-${pkgver}.tar.bz2")
+license=('LicenseRef-libxkbfile')
+url="https://gitlab.freedesktop.org/xorg/lib/libxkbfile"
+depends=('libx11' 'xorgproto' 'glibc')
+makedepends=('xorg-util-macros' 'meson')
+source=(https://xorg.freedesktop.org/releases/individual/lib/${pkgname}-${pkgver}.tar.xz{,.sig})
+sha512sums=('d80ac41f6fa3a1ffad77ea1f8f9d9542f0bd210d74b263802bc6e6c1594fe325b27f42b5454aeeb36352518963b1ed1fdbbad95d7db3690b2e36d54742b7c236'
+            'SKIP')
+validpgpkeys=('4A193C06D35E7C670FA4EF0BA2FB9E081F2D130E') #Alan Coopersmith <alan.coopersmith@oracle.com>
+#validpgpkeys=('3BB639E56F861FA2E86505690FDD682D974CA72A') # Matt Turner <mattst88@gmail.com>
 
 build() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	./configure --prefix=/usr --sysconfdir=/etc --disable-static
-	make ${MAKEFLAGS}
+  avouch-meson $pkgname-$pkgver build
+  # Print config
+  meson configure build
+  ninja -C build
+}
+
+check() {
+  meson test -C build
 }
 
 package() {
-	cd ${srcdir}/${pkgname}-${pkgver}
-	make DESTDIR="${pkgdir}" install
-	# license
-	install -Dm644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  DESTDIR="$pkgdir" meson install -C build
+  install -Dt "$pkgdir/usr/share/licenses/$pkgname" -m644 $pkgname-$pkgver/COPYING
 }
-

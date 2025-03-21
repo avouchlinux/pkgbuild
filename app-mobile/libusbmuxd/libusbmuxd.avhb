@@ -1,50 +1,42 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libusbmuxd
-pkgver=2.0.2
+pkgver=2.1.0
 pkgrel=1
 pkgdesc="The usbmuxd communication interface library"
 arch=('x86_64')
 groups=('app-mobile')
-url="http://www.libimobiledevice.org/"
-license=('LGPL2.1')
-depends=('libusb' 'libplist')
+url='https://libimobiledevice.org/'
+license=('GPL-2.0-or-later AND LGPL-2.1-or-later')
+depends=(
+  gcc-libs
+  glibc
+  libimobiledevice-glue
+  libplist
+)
 makedepends=(git)
-_commit=ce98c346b7c1dc2a21faea4fd3f32c88e27ca2af
-source=("https://github.com/libimobiledevice/libusbmuxd")
-
-getsrc(){
-  git clone $source
-}
-
-pkgver() {
-  cd $pkgname
-  git describe --tags | sed 's/-/+/g'
-  git checkout $_commit
-  git describe --tags | sed 's/-/+/g'
-}
-
-
-check() {
-  cd $pkgname
-  make check
-}
+source=("git+https://github.com/libimobiledevice/libusbmuxd.git#tag=$pkgver")
+b2sums=(6497cf5ac4a3af89ec41f8e9bc19540124d759404737af832d87fd99a7ad1781d83fc6524a16fb64196dc1615a58a73c8e8913627220d55eecff68db34feed0c)
 
 prepare() {
   cd $pkgname
-  NOCONFIGURE=1 ./autogen.sh
+  autoreconf -fi
 }
 
 build() {
   cd $pkgname
-  ./configure --prefix=/usr
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
   make
 }
 
 package() {
   cd $pkgname
-  make DESTDIR="${pkgdir}" install
+  make DESTDIR="$pkgdir" install
 }
+

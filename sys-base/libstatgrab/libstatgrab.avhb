@@ -1,9 +1,10 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libstatgrab
-pkgver=0.92
+pkgver=0.92.1
 pkgrel=1
 pkgdesc="A library that provides cross platform access to statistics about the system on which it's run"
 arch=('x86_64')

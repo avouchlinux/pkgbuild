@@ -1,10 +1,10 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=rhythmbox
-pkgver=3.4.7
+pkgver=3.4.8
 pkgrel=1
 pkgdesc="Music playback and management application"
 arch=('x86_64')

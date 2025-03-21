@@ -1,32 +1,38 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=wasi-compiler-rt
 _realname=compiler-rt
-pkgver=14.0.0
+pkgver=18.1.8
 pkgrel=1
 pkgdesc='WASI LLVM compiler runtime'
 arch=('any')
 groups=('dev-libs')
 url='https://compiler-rt.llvm.org/'
-license=('custom:Apache 2.0 with LLVM Exception')
+license=('Apache-2.0 WITH LLVM-exception')
 depends=('wasi-libc')
 makedepends=('cmake' 'ninja' 'llvm' 'clang' 'lld')
-source=("https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/compiler-rt-${pkgver}.src.tar.xz"{,.sig}
+source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/compiler-rt-${pkgver}.src.tar.xz{,.sig}
+        https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/cmake-$pkgver.src.tar.xz{,.sig}
         WASI.cmake
         wasi-toolchain.cmake)
-b2sums=('65f99d2b982e47bec47fc110987774a30bf185069d96d0a3d85adb55df9283ddce5c1cff48b77d93affa18d55f05ca90d710e0302cc8655f889fffa5928f237f'
+b2sums=('6cfac94a35ecf228655aace45cf976a0370d30dab8293cd54b677db674a2e52c67fcdd4aa3dea33b33b7603541f29122d74e024a671a67087493766552f26d11'
+        'SKIP'
+        '024a1fb1038176827acb1dc3971ddc66e3a5a199af2a2b99040dcfcf3e8962727f4da494e7dbea7f19101b8b4cfba3d9a024109b298638d36be1bf5d680c9ccf'
         'SKIP'
         'c829d807c257921fddb8c4d3752ad2291a2beb116d414dd31e34b7f6b01599d8c4807db87ef9930456ed8c9f30e8648e77028fa0b903c3a5ea840514f6022cf4'
         '74c63bb838bc2e6d7980370fb3d47f8fd2f1dd8b6dc82302c7cc0b80e0fb1e8e21c1c62d6de0b78e478fc22611a5867e52b1ef7a566796fe831fffd98b17c940')
-options=('staticlibs !strip')
-validpgpkeys+=('B6C8F98282B944E3B0D5C2530FC3042E345AD05D') # Hans Wennborg <hans@chromium.org>
-validpgpkeys+=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
+options=('staticlibs')
+validpgpkeys=(
+  '474E22316ABF4785A88C6E8EA2C794A986419D8A' # Tom Stellard <tstellar@redhat.com>
+  #'D574BD5D1D0E98895E3BF90044F2485E45D59042' # Tobias Hieta <tobias@hieta.se>
+)
 
 prepare() {
   # Platform files have been copied from here https://github.com/WebAssembly/wasi-sdk
+  mv cmake{-$pkgver.src,}
   mkdir -p cmake/Platform
   cp WASI.cmake cmake/Platform
 }
@@ -34,7 +40,7 @@ prepare() {
 build() {
   # Build options are derived from here https://github.com/WebAssembly/wasi-sdk/blob/main/Makefile
 
-  # Currently, wasi-sdk requires C++ code be compiled with -fno-exceptions. libc++abi is compiled, however it is currently compiled with exception-handling support disabled.
+  # Currently, wasi-sdk requires C++ code be compiled with -fno-exceptions. libc++abi is compiled, however is is currently compiled with exception-handling support disabled.
   # https://github.com/WebAssembly/wasi-sdk/issues/52#issuecomment-530619365
   cmake -B build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
@@ -49,7 +55,7 @@ build() {
     -DCOMPILER_RT_OS_DIR=wasi \
     -DWASI_SDK_PREFIX=/usr \
     -DCMAKE_C_FLAGS="-fno-exceptions --sysroot=/usr/share/wasi-sysroot" \
-    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/${pkgver}/ \
+    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/${pkgver%%.*}/ \
     compiler-rt-${pkgver}.src/lib/builtins
   cmake --build build -v
 }
@@ -57,5 +63,9 @@ build() {
 package() {
   DESTDIR="${pkgdir}" cmake --install build -v
 
+  ln -sr "${pkgdir}"/usr/lib/clang/${pkgver%%.*}/lib/{wasi,wasip1}
+  ln -sr "${pkgdir}"/usr/lib/clang/${pkgver%%.*}/lib/{wasi,wasip2}
+
   install -Dm644 compiler-rt-${pkgver}.src/LICENSE.TXT "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 }
+

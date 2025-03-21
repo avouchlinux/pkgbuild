@@ -1,33 +1,36 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=exempi
-pkgver=2.5.2
+pkgver=2.6.5
 pkgrel=1
 pkgdesc="A library to parse XMP metadata"
 arch=('x86_64')
 groups=('sys-libs')
-url="https://libopenraw.pages.freedesktop.org/exempi/"
-license=(custom:BSD)
-depends=(gcc-libs expat zlib)
-makedepends=(boost git autoconf-archive)
-source=("https://libopenraw.pages.freedesktop.org/download/$pkgname-$pkgver.tar.bz2")
+url='https://libopenraw.freedesktop.org/exempi/'
+license=('BSD-3-Clause')
+depends=('expat' 'gcc-libs' 'glibc' 'zlib')
+makedepends=('boost')
+source=("https://libopenraw.freedesktop.org/download/$pkgname-$pkgver.tar.xz"{,.asc})
+sha256sums=('ff538114e82c51e5287064dfbec7d9790ac91479bf2390bcc6408fad4d77fb12'
+            'SKIP')
 validpgpkeys=('6C44DB3E0BF3EAF5B433239A5FEE05E6A56E15A3') # Hubert Figuiere
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	./configure --prefix=/usr
-	make ${MAKEFLAGS}
+  cd $pkgname-$pkgver
+  ./configure --prefix=/usr
+  make
 }
 
 check() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make ${MAKEFLAGS} check
+  cd $pkgname-$pkgver
+  make check
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	make DESTDIR="$pkgdir" install
+  cd $pkgname-$pkgver
+  make DESTDIR="$pkgdir" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }

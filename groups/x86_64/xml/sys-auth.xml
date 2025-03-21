@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>polkit</Name>
+	 <Name>polkit-qt</Name>
+	 <Name>rtkit</Name>
+</Packages>

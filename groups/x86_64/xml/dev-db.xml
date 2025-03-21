@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Packages>
+	 <Name>db</Name>
+	 <Name>freetds</Name>
+	 <Name>ldb</Name>
+	 <Name>leveldb</Name>
+	 <Name>libdbi</Name>
+	 <Name>libdbi-drivers</Name>
+	 <Name>libfbclient</Name>
+	 <Name>lmdb</Name>
+	 <Name>mariadb</Name>
+	 <Name>postgresql</Name>
+	 <Name>sqlcipher</Name>
+	 <Name>sqlite</Name>
+	 <Name>sqlitebrowser</Name>
+	 <Name>tdb</Name>
+	 <Name>tinycdb</Name>
+	 <Name>unixodbc</Name>
+</Packages>

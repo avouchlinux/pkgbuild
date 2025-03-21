@@ -1,4 +1,4 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -13,7 +13,7 @@ groups=('gnome-base')
 license=(LGPL)
 depends=(libxklavier gtk3 dconf)
 makedepends=(gobject-introspection git meson)
-source=(http://ftp.gnome.org/pub/gnome/sources/${pkgname}/${pkgver:0:3}/$pkgname-$pkgver.tar.xz)
+source=(https://gitlab.gnome.org/Archive/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2)
 
 prepare() {
   cd $pkgname-$pkgver

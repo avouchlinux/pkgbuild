@@ -1,10 +1,10 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libtorrent-rasterbar
-pkgver=2.0.5
+pkgver=2.0.10
 _pkgver=${pkgver//./_}
 pkgrel=1
 epoch=1
@@ -13,31 +13,34 @@ url="https://www.rasterbar.com/products/libtorrent/"
 arch=('x86_64')
 groups=('net-libs')
 license=('BSD')
-depends=('boost-libs')
-makedepends=('boost' 'python2' 'python')
+depends=('boost-libs' 'openssl')
+makedepends=('boost' 'cmake' 'ninja' 'python-setuptools')
 options=('!emptydirs')
-source=(https://github.com/arvidn/libtorrent/archive/libtorrent_${_pkgver}/$pkgname-$pkgver.tar.gz)
+source=(https://github.com/arvidn/libtorrent/releases/download/v$pkgver/$pkgname-$pkgver.tar.gz
+        fortify-source-3.patch)
+sha512sums=('a6406ccdd1d0c8d42543419a3b9edca880ab85e0849bfba29e3b1bd98f9630244aa3e88110cdf95e476792c9ea87a141fcb16a8c3b3e0c44c0076ebf6f9adbee'
+            '0687883a84f4395afaa824f5a2a9ee5366d654d84f546045b202297084ff24c445e4b95e92df63a8d9d2cd28cbd665933f3c649de91ab13334507f7a7d2c3c5d')
 
 prepare() {
-  mkdir -p build
+  # remove usage of malloc_usable_size for _FORTIFY_SOURCE=3 compatibility
+  # https://github.com/arvidn/libtorrent/issues/7519
   cd $pkgname-$pkgver
-  patch -p1 -i ../71d608fc.patch # Fix build with boost 1.78
+  patch -Np1 -i ../fortify-source-3.patch
 }
 
 build() {
-  cd build
-  cmake -DCMAKE_BUILD_TYPE=Release \
+  cmake -B build -S $pkgname-$pkgver \
+    -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="/usr" \
     -DCMAKE_INSTALL_LIBDIR="lib" \
     -Dpython-bindings=ON \
     -Dboost-python-module-name="python" \
     -Dpython-egg-info=ON \
-    -GNinja ../$pkgname-$pkgver
-  ninja
+    -Wno-dev
+  cmake --build build
 }
 
 package() {
-  cd build
-  DESTDIR="$pkgdir" ninja install
-  install -Dm644 ../$pkgname-$pkgver/COPYING -t "$pkgdir"/usr/share/licenses/$pkgname/
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 $pkgname-$pkgver/COPYING -t "$pkgdir"/usr/share/licenses/$pkgname/
 }

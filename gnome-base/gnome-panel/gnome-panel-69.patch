@@ -1,0 +1,64 @@
+From 62418b71eeb0e0ab7238c279cf9f39b864c3de7d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ball=C3=B3=20Gy=C3=B6rgy?= <ballogyor@gmail.com>
+Date: Thu, 29 Feb 2024 18:25:49 +0100
+Subject: [PATCH] menu: Don't create lock_logout object twice
+
+Fixes: 995641d7aebae209a71713ceda64df5fa80de12e
+---
+ modules/menu/gp-menu-button-applet.c | 20 --------------------
+ modules/menu/gp-menu-module.c        |  8 --------
+ 2 files changed, 28 deletions(-)
+
+diff --git a/modules/menu/gp-menu-button-applet.c b/modules/menu/gp-menu-button-applet.c
+index d4c49fcd5..f6884bdb7 100644
+--- a/modules/menu/gp-menu-button-applet.c
++++ b/modules/menu/gp-menu-button-applet.c
+@@ -277,26 +277,6 @@ append_user_item (GpMenuButtonApplet *menu_button,
+                           G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE |
+                           G_BINDING_INVERT_BOOLEAN);
+ 
+-  priv->lock_logout = gp_lock_logout_new ();
+-
+-  g_object_bind_property (menu_button, "enable-tooltips",
+-                          priv->lock_logout, "enable-tooltips",
+-                          G_BINDING_DEFAULT |
+-                          G_BINDING_SYNC_CREATE);
+-
+-  g_object_bind_property (menu_button, "locked-down",
+-                          priv->lock_logout, "locked-down",
+-                          G_BINDING_DEFAULT |
+-                          G_BINDING_SYNC_CREATE);
+-
+-  g_object_bind_property (menu_button, "menu-icon-size",
+-                          priv->lock_logout, "menu-icon-size",
+-                          G_BINDING_DEFAULT |
+-                          G_BINDING_SYNC_CREATE);
+-
+-  g_signal_connect_swapped (priv->lock_logout, "changed",
+-                            G_CALLBACK (gp_user_menu_reload), user_menu);
+-
+   gp_user_menu_set_append_func (GP_USER_MENU (user_menu),
+                                 (GpAppendMenuItemsFunc) append_lock_logout,
+                                 priv);
+diff --git a/modules/menu/gp-menu-module.c b/modules/menu/gp-menu-module.c
+index b9da2e20e..c27065dea 100644
+--- a/modules/menu/gp-menu-module.c
++++ b/modules/menu/gp-menu-module.c
+@@ -517,14 +517,6 @@ append_user_item (StandaloneMenuData *data,
+                           G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE |
+                           G_BINDING_INVERT_BOOLEAN);
+ 
+-  data->lock_logout = gp_lock_logout_new ();
+-
+-  g_object_set (data->lock_logout,
+-                "enable-tooltips", data->enable_tooltips,
+-                "locked-down", data->locked_down,
+-                "menu-icon-size", data->menu_icon_size,
+-                NULL);
+-
+   gp_user_menu_set_append_func (GP_USER_MENU (user_menu),
+                                 (GpAppendMenuItemsFunc) append_lock_logout,
+                                 data);
+-- 
+GitLab
+

@@ -1,38 +1,36 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=libcdr
-pkgver=0.1.6
+pkgver=0.1.7
 pkgrel=1
 pkgdesc="CorelDraw file format importer library for LibreOffice"
 arch=('x86_64')
 groups=('media-grafix')
 url="https://wiki.documentfoundation.org/DLP/Libraries/libcdr"
 license=('GPL2' 'LGPL2.1' 'MPL')
-depends=('libwpd' 'lcms2' 'icu' 'librevenge')
+depends=('lcms2' 'icu' 'librevenge'
+         'zlib' 'gcc-libs' 'glibc')
 makedepends=('libwpg' 'boost' 'doxygen' 'cppunit')
-source=(https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz
-        icu68.patch)
-
-prepare() {
-  cd $pkgname-$pkgver
-  patch -Np0 -i ../icu68.patch
-}
+source=(https://dev-www.libreoffice.org/src/$pkgname/$pkgname-$pkgver.tar.xz)
+sha256sums=('5666249d613466b9aa1e987ea4109c04365866e9277d80f6cd9663e86b8ecdd4')
 
 build() {
   cd $pkgname-$pkgver
   ./configure --prefix=/usr
-  make ${MAKEFLAGS}
+  sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+  make
 }
 
 check() {
   cd $pkgname-$pkgver
-  make ${MAKEFLAGS} -k check
+  make -k check
 }
 
 package() {
   cd $pkgname-$pkgver
   make DESTDIR="$pkgdir" install
 }
+

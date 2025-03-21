@@ -1,24 +1,24 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=libxcrypt
 pkgname=(libxcrypt libxcrypt-compat)
-pkgver=4.4.28
+pkgver=4.4.36
 pkgrel=1
 pkgdesc='Modern library for one-way hashing of passwords'
 arch=('x86_64')
 groups=('sys-security')
 url='https://github.com/besser82/libxcrypt/'
-license=('GPL')
+url='https://github.com/besser82/libxcrypt/'
+license=('LGPL')
 depends=('glibc')
 provides=('libcrypt.so')
-options=('debug')
 install=libxcrypt.install
 validpgpkeys=('678CE3FEE430311596DB8C16F52E98007594C21D') # Björn 'besser82' Esser
 source=("${url}/releases/download/v${pkgver}/${pkgbase}-${pkgver}.tar.xz"{,.asc})
-sha256sums=('9e936811f9fad11dbca33ca19bd97c55c52eb3ca15901f27ade046cc79e69e87'
+sha256sums=('e5e1f4caee0a01de2aee26e3138807d6d3ca2b8e67287966d1fefd65e1fd8943'
             'SKIP')
 
 build() {

@@ -1,0 +1,596 @@
+#!/bin/bash
+
+# Avouch installer
+
+DRIVE="${1}"
+USERNAME="${2}"
+PASSWORD="${3}"
+HOSTNAME="${4}"
+FULLNAME="${@:5}"
+SRCDIR="/run/media/avouch/Avouch/avouch/avh02/packages/x86_64"
+FILESYSTEM="btrfs"
+MOUNTPOINT="/mnt"
+CHROOTDIR="/mnt"
+DATA_DRIVE="${DRIVE}"
+EFI_MOUNTPOINT="/boot/efi"
+DATA_MOUNTPOINT="/mnt"
+ARCH="$(uname -m)"
+BASENAME="$(basename "${PWD}")"
+KERVER="4.14.6-1-avouch"
+AVH_REL_STRING="Avouch Linux Release 0.6.0"
+
+PKGFILES=("${PWD}"/*.install)
+
+### example
+# ./avouch-plasma "<partition>" "<username>" "<password>" "<hostname>" "<fullname>"
+# ./avouch-plasma "/dev/sdb2" "avouch" "Avouch" "avouch-pc" "Avouch"
+
+echo "Drive is    : ${DRIVE}"
+echo "Username is : ${USERNAME}"
+echo "Password is : ${PASSWORD}"
+echo "Hostname is : ${HOSTNAME}"
+echo "Fullname is : ${FULLNAME}"
+
+### change to english locale!
+export LANG="en_US"
+
+### SUBROUTINES ###
+plain() {
+	local mesg=$1; shift
+	printf "${BOLD}    ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+success_msg() {
+	local mesg=$1; shift
+	printf "${GREEN}==> ${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+info_msg() {
+	local mesg=$1; shift
+	printf "${BLUE}==> ${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+warning() {
+	local mesg=$1; shift
+	printf "${YELLOW}==> $(gettext "WARNING:")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+error() {
+	local mesg=$1; shift
+	printf "${RED}==> $(gettext "ERROR:")${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+# chroot_mount()
+# prepares target system as a chroot
+#
+### check for root
+check_root () {
+	if ! [[ ${UID} -eq 0 ]]; then 
+		echo "ERROR: Please run installer as root!"
+		exit 1
+	fi
+}
+
+check_root
+
+# get_uuid()
+# converts /dev/[hs]d?[0-9] devices to UUIDs
+#
+# parameters: device file
+# outputs:    UUID on success
+#             nothing on failure
+# returns:    nothing
+get_uuid()
+{
+    if [ "${DRIVE%%/[hs]d?[0-9]}" != "${DRIVE}" ]; then
+        echo "$(blkid -s UUID -o value ${DRIVE})"
+    fi
+}
+
+get_fstype()
+{
+    if [ "${DRIVE%%/[hs]d?[0-9]}" != "${DRIVE}" ]; then
+        echo "$(blkid -s TYPE -o value ${DRIVE})"
+    fi
+}
+
+get_swapdrive(){
+
+# blkid and find the swap drive , 
+# grep swap drive string starting with /dev and end at :.
+echo "$(blkid | grep -n 'swap' | grep -o '/dev[^:]*')"
+
+}
+
+format_volume () {
+	
+# First unmount the partition
+if grep -qs $DRIVE /proc/mounts; then
+  	echo "Filesystem is mounted."
+	umount -l $DRIVE || exit 1		
+else
+  		echo "Filesystem is not mounted."
+fi
+	
+# formate partition
+echo y | mkfs.$FILESYSTEM -f "${DRIVE}"  || exit 1
+
+}
+
+mount_volume () {
+
+# format partition
+local fstype="$(get_fstype ${DRIVE})"
+
+[ -e "${MOUNTPOINT}" ] || mkdir "${MOUNTPOINT}"
+mount -t ${fstype} $DRIVE $MOUNTPOINT || exit 1
+
+echo "Mount point is ${MOUNTPOINT}"
+cd "${MOUNTPOINT}" || exit 1
+
+if [ -d "${MOUNTPOINT}/var/avouch/log" ]; then
+	rm -r "${MOUNTPOINT}/var/avouch/log"
+else
+	mkdir -p "${MOUNTPOINT}/var/avouch/log"
+	touch "${MOUNTPOINT}/var/avouch/log/avouch-installl.log"
+
+fi
+
+}
+
+chroot_mount(){
+	[ -e "${MOUNTPOINT}/sys" ] || mkdir "${MOUNTPOINT}/sys"
+	[ -e "${MOUNTPOINT}/proc" ] || mkdir "${MOUNTPOINT}/proc"
+	[ -e "${MOUNTPOINT}/dev" ] || mkdir "${MOUNTPOINT}/dev"
+	mount -t sysfs sysfs "${MOUNTPOINT}/sys"
+	mount -t proc proc "${MOUNTPOINT}/proc"
+	mount -o bind /dev "${MOUNTPOINT}/dev"
+}
+
+# umount_volume()
+# unmount the mount point and slected partition
+#
+umount_volume(){
+	# change directory from mountpoint
+	cd /
+	umount $MOUNTPOINT/proc
+	umount $MOUNTPOINT/sys
+	umount $MOUNTPOINT/dev
+	# unmount the drive
+	umount -l ${MOUNTPOINT}
+}
+
+packages_to_install () {
+
+# find total number of files in an array
+echo "Total files in array : ${#PKGFILES[*]}"
+
+	for SRCFILES in "${PKGFILES[@]}"
+		do  	
+			# display the file to be installed
+			echo "$SRCFILES"
+			# check the file and call the install package function
+			if [ -f "${SRCFILES}" ]; then
+				# install the packages
+				install_packages
+				colored_echo "Package ${SRCFILES} installed sucessfully"	green	
+			else
+				colored_echo "Packages files ${SRCFILES} not found" red
+			fi
+		done
+			
+}
+
+install_packages () {
+	
+	for FILES in $(grep -v '^#' "${SRCFILES}")
+		do  	
+		if [ -f "${SRCFILES}" ]; then	
+			bsdtar -xf "$SRCDIR/${FILES}"	
+			echo "Package ${FILES} installed sucessfully"
+		else
+			coloredEcho "Packages files ${FILES} not found" red
+		fi	
+
+		#log the entire loop
+		done 2>&1 | tee -a "$MOUNTPOINT/var/avouch/log/avouch-installl.log" 
+
+}
+
+fstab_setup(){
+	#drive_uuid=( $( echo $(blkid -s UUID -o value ${DRIVE})))
+	local drive_uuid="$(get_uuid ${DRIVE})"
+	local root_drive="UUID=${drive_uuid}"
+	local fstype="$(get_fstype ${DRIVE})"
+	local swap_drive="$(get_swapdrive)"
+
+
+	echo "${root_drive}   /   ${fstype}   defaults   0   1" >> ${MOUNTPOINT}/etc/fstab
+	if [ "${swap_drive}" != " " ]; then
+		echo "${swap_drive}  none   swap   defaults   0    0" >> ${MOUNTPOINT}/etc/fstab
+	fi
+}
+
+genrate_locale(){
+
+### change to english locale!
+#systemd-nspawn  export LANG="en_US"
+
+# generating locales
+echo "Generating locales"
+sed -i 's/#de_DE/de_DE/g' ${MOUNTPOINT}/etc/locale.gen
+sed -i 's/#en_GB/en_GB/g' ${MOUNTPOINT}/etc/locale.gen
+sed -i 's/#en_US/en_US/g' ${MOUNTPOINT}/etc/locale.gen
+sed -i 's/#en_US/en_US/g' ${MOUNTPOINT}/etc/locale.gen
+sed -i 's/#fr_FR/fr_FR/g' ${MOUNTPOINT}/etc/locale.gen
+
+chroot ${CHROOTDIR} /usr/bin/locale-gen
+
+rm ${MOUNTPOINT}/etc/resolv.conf 
+rm ${MOUNTPOINT}/etc/hostname
+echo ${HOSTNAME} > ${MOUNTPOINT}/etc/hostname
+echo "127.0.1.1    localhost.localdomain    ${HOSTNAME}" >> ${MOUNTPOINT}/etc/hosts
+#chroot ${CHROOTDIR} hostnamectl set-hostname "${HOSTNAME}"
+
+
+# ca-certificates
+echo "updating ca-certificates"
+#export LC_ALL=C
+chroot ${CHROOTDIR} /usr/bin/update-ca-trust
+#chroot ${CHROOTDIR} /usr/bin/setup-nsssysinit.sh on
+#systemd-nspawn  /usr/bin/ca-legacy install
+chroot ${CHROOTDIR} unbound-anchor -a "/etc/unbound/root.key"
+echo "ca-certificates updated"
+
+#touch ${MOUNTPOINT}/etc/passwd-
+chroot ${CHROOTDIR} grpck
+touch ${CHROOTDIR}/etc/passwd-
+chroot ${CHROOTDIR} pwconv
+chroot ${CHROOTDIR} grpconv
+
+}
+
+add_users(){
+
+# rpcbind
+#echo "Adding user rpc"
+#chroot ${CHROOTDIR} groupadd -r -g 34 rpc >/dev/null
+#chroot ${CHROOTDIR} useradd -r -u 34 -g rpc -d /dev/null -s /bin/false -c "Rpcbind Daemon" rpc
+
+# colord
+#echo "Adding user colord"
+#chroot ${CHROOTDIR} groupadd -g 35 colord
+#chroot ${CHROOTDIR} useradd -d /var/lib/colord -u 35 -g colord -s /bin/false colord
+
+# argyllcms
+#echo "Adding user argyllcms"
+#chroot ${CHROOTDIR} groupadd -g 36 plugdev
+
+# kvm group for qemu
+#chroot ${CHROOTDIR} groupadd kvm -f -g 65
+#usermod -a -G kvm <username>
+
+	# enable services by systemctl preset
+	echo "Generating systemd preset"
+	chroot ${CHROOTDIR} systemd-sysusers \
+	avahi.conf \
+	openldap.conf \
+	sddm.conf \
+	>/dev/null 2>&1 || :
+	
+	chroot ${CHROOTDIR} systemd-tmpfiles --create \
+	openldap.conf \
+	sddm.conf \
+	>/dev/null 2>&1 || :
+
+# polkit
+echo "Adding user polkitd"
+chroot ${CHROOTDIR} groupadd -g 70 polkitd
+chroot ${CHROOTDIR} useradd -c 'Policy Kit Daemon' -u 70 -g polkitd -d '/' -s /bin/false polkitd
+chroot ${CHROOTDIR} passwd -l polkitd &>/dev/null
+
+# rtkit
+echo "Adding user rtkit"
+chroot ${CHROOTDIR} groupadd -g 71 rtkit 
+chroot ${CHROOTDIR} useradd -u 71 -g rtkit -c 'RealtimeKit' -s /sbin/nologin -d /proc rtkit
+
+# SDDM
+#chroot ${CHROOTDIR} groupadd -g 82 sddm
+#chroot ${CHROOTDIR} useradd -c 'Simple Desktop Display Manager' -u 82 -g 82 -d /var/lib/sddm -s /sbin/nologin sddm
+#chroot ${CHROOTDIR} passwd -l sddm  > /dev/null
+#chroot ${CHROOTDIR} mkdir -p /var/lib/sddm
+#chroot ${CHROOTDIR} chown -R 82:82 /var/lib/sddm
+
+# usbmuxd
+echo "Adding user usbmux"
+chroot ${CHROOTDIR} groupadd -g 110 usbmux
+chroot ${CHROOTDIR} useradd -c 'usbmux user' -u 110 -g usbmux -d / -s /sbin/nologin usbmux
+chroot ${CHROOTDIR} passwd -l usbmux
+
+# openldap
+echo "Adding user ldap"
+#chroot ${CHROOTDIR} groupadd -g 120 ldap
+#chroot ${CHROOTDIR} useradd -u 120 -g ldap -d /var/lib/openldap -s /bin/false ldap
+#chroot ${CHROOTDIR} mkdir -p /var/lib/openldap
+#chroot ${CHROOTDIR} chown -R ldap:ldap /var/lib/openldap
+#chroot ${CHROOTDIR} systemd-sysusers openldap.conf
+
+
+## Networkmanager openconnect
+chroot ${CHROOTDIR} useradd -r -U -d / -c 'NetworkManager OpenConnect' -s /usr/bin/nologin nm-openconnect
+
+echo "Adding user ${USERNAME}"
+chroot ${CHROOTDIR} useradd -c "${FULLNAME}" -m "${USERNAME}" -s /bin/bash
+chroot ${CHROOTDIR} usermod -a -G wheel "${USERNAME}"
+
+chroot ${CHROOTDIR} passwd -d "${USERNAME}" > /dev/null
+$(echo -e "${PASSWORD}\n${PASSWORD}" | chroot ${CHROOTDIR} passwd ${USERNAME})
+echo "Password for ${USERNAME} is set ${PASSWORD}"
+
+# give default user sudo privileges
+echo "%wheel     ALL=(ALL)     NOPASSWD: ALL" >> "${MOUNTPOINT}/etc/sudoers"
+
+# incase of failure
+chroot ${CHROOTDIR} touch /root/.Xauthority
+chroot ${CHROOTDIR} touch /home/${USERNAME}/.Xauthority
+chroot ${CHROOTDIR} chown ${USERNAME}  /home/${USERNAME}/.Xauthority
+
+}
+
+systemd_setup(){
+
+echo "Generating systemd machine id"
+chroot ${CHROOTDIR} systemd-machine-id-setup
+
+echo "updating journalctl cataloge"
+chroot ${CHROOTDIR} /usr/lib/systemd/systemd-random-seed save
+chroot ${CHROOTDIR} udevadm hwdb --update
+chroot ${CHROOTDIR} journalctl --update-catalog
+
+echo "creating systemd-tmpfiles"
+chroot ${CHROOTDIR} systemd-tmpfiles --create
+
+# Apply ACL to the journal directory
+chroot ${CHROOTDIR} setfacl -Rnm g:wheel:rx,d:g:wheel:rx,g:adm:rx,d:g:adm:rx /var/log/journal/
+
+# enable services by systemctl preset
+echo "Generating systemd preset"
+chroot ${CHROOTDIR} systemctl preset \
+remote-fs.target \
+getty@.service \
+serial-getty@.service \
+console-getty.service \
+debug-shell.service \
+systemd-timesyncd.service \
+systemd-networkd.service \
+systemd-networkd-wait-online.service \
+systemd-resolved.service \
+lvm2-lvmetad.service \
+lvm2-monitor.service \
+avahi-daemon.service \
+bluetooth.service \
+ModemManager.service \
+NetworkManager.service \
+sddm.service \
+>/dev/null 2>&1 || :
+
+	# Enable xdg-user-dirs-update by default
+chroot ${CHROOTDIR} systemctl --global enable xdg-user-dirs-update.service
+
+# update udev dtabase
+chroot ${CHROOTDIR} udevadm hwdb --update
+
+}
+
+generate_cache(){
+
+echo "ldconfig"
+chroot ${CHROOTDIR} /usr/bin/ldconfig
+
+# fonts cache
+echo "Generating fonts cache"
+chroot ${CHROOTDIR} fc-cache -f
+chroot ${CHROOTDIR} mkfontdir /usr/share/fonts/*
+
+# gdk-pixbuf update cache
+echo "Updating gdk-pixbuf cache"
+chroot ${CHROOTDIR} /usr/bin/gdk-pixbuf-query-loaders --update-cache
+
+# gtk cache
+echo "Updating gtk2 cache"
+chroot ${CHROOTDIR} /usr/bin/gtk-query-immodules-2.0 --update-cache
+
+# gtk3 cache
+echo "Updating gtk3 cache"
+chroot ${CHROOTDIR} /usr/bin/gtk-query-immodules-3.0 --update-cache
+
+# glib compile schema
+echo "Compiling glib schemas"
+chroot ${CHROOTDIR} /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas
+
+# icon cache
+echo "Updating icone cache"
+chroot ${CHROOTDIR} /usr/bin/gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor
+chroot ${CHROOTDIR} /usr/bin/gtk-update-icon-cache -q -t -f /usr/share/icons/locolor
+chroot ${CHROOTDIR} /usr/bin/gtk-update-icon-cache -q -t -f /usr/share/icons/oxygen
+chroot ${CHROOTDIR} /usr/bin/gtk-update-icon-cache -q -t -f /usr/share/icons/breeze
+
+# mime database
+echo "Updating mime-database"
+chroot ${CHROOTDIR} /usr/bin/update-mime-database /usr/share/mime
+
+# desktop database
+echo "Updating desktop-database"
+chroot ${CHROOTDIR} /usr/bin/update-desktop-database -q
+
+}
+
+final_config(){
+
+# as gnome-terminal does not support utf language.
+cat > ${MOUNTPOINT}/etc/locale.conf << "EOF"
+LANG=en_US.UTF-8
+EOF
+
+# set plymouth theme to avouch
+sed -i "s/spinner/avouch/g" ${MOUNTPOINT}/etc/plymouth/plymouthd.conf
+
+
+# install info
+echo "Installing info files"
+pushd ${MOUNTPOINT}/usr/share/info
+
+for f in *
+  do install-info $f dir 2>/dev/null
+done
+popd
+
+# enable gdm-initial-setup
+#if [ -d ${MOUNTPOINT}/etc/gdm/custom.conf ]; then
+#	rm -r ${MOUNTPOINT}/etc/gdm/custom.conf
+#fi
+
+#cat > ${MOUNTPOINT}/etc/gdm/custom.conf << "EOF"
+#[daemon]
+#InitialSetupEnable=True
+#EOF
+
+# give default user sudo privileges
+echo "%wheel     ALL=(ALL)     NOPASSWD: ALL" >> "${MOUNTPOINT}/etc/sudoers"
+
+# fix for polkit until all packagesare updates for polkiy group 70
+chown 70:0 "${MOUNTPOINT}/etc/polkit-1/rules.d"
+chown 70:0 "${MOUNTPOINT}/usr/share/polkit-1/rules.d"
+
+chmod 700 "${MOUNTPOINT}/etc/polkit-1/rules.d"
+chmod 700 "${MOUNTPOINT}/usr/share/polkit-1/rules.d"
+
+# Avouch version
+echo "${AVH_REL_STRING}" >> ${MOUNTPOINT}/etc/avouch-release
+
+# set thr theme for root
+# so that application gui behave as they look in normal usr
+# A temporay fix 
+mkdir "${MOUNTPOINT}/root/.themes"
+mkdir "${MOUNTPOINT}/root/.icons"
+ln -s -t "${MOUNTPOINT}/root/.themes" "/usr/share/themes/breeze"
+ln -s -t "${MOUNTPOINT}/root/.icons" "/usr/share/icons/breeze"
+
+}
+
+cleanup(){
+
+	# remove duplicate files till its fixed in package
+	rm "${MOUNTPOINT}/usr/lib/tmpfiles.d/lastlog.conf"
+
+	# delete the sttice lib accept below
+	#local stlibs=(libc.a libdl.a libm.a libpthread.a libbfd.a libopcodes.a 
+	#libasan.a libatomic.a libcilkrts.a libgfortran.a libgo.a libgomp.a libitm.a
+	#liblsan.a libmpx.a libmpxwrappers.a libobjc.a libquadmath.a libstdc++.a 
+	#libtsan.a libubsan.a libvtv.a)
+
+	#mkdir -p /tmp/stlibs
+
+	#pushd ${MOUNTPOINT}/usr/lib
+		#for lib in ${stlibs[@]}; do
+		#	mv $lib /tmp/stlibs/$lib
+		#done
+
+		#rm *.a
+	find "${MOUNTPOINT}/usr" -type f -name '*.a' -delete
+
+		#for lib in ${stlibs[@]}; do
+		#	mv /tmp/stlibs/$lib $lib
+		#done
+
+	# remove rarely used documentation
+	#echo "Cleaning up rarely used docs"
+	#rm -Rf ${MOUNTPOINT}/usr/share/doc/*
+	rm -Rf ${MOUNTPOINT}/usr/share/doc/gtkmm-2.4/*
+	rm -Rf ${MOUNTPOINT}/usr/share/doc/libreoffice/*
+	rm -Rf ${MOUNTPOINT}/usr/share/gtk-doc/html/*
+	rm -Rf ${MOUNTPOINT}/usr/share/devhelp/books/*
+	
+	# Remove all help files except en_GB, eu
+	#mkdir ${MOUNTPOINT}/tmp/docs
+	#mv ${MOUNTPOINT}/usr/share/help/en_GB ${MOUNTPOINT}/tmp/docs/en_GB
+	#mv ${MOUNTPOINT}/usr/share/help/eu ${MOUNTPOINT}/tmp/docs.eu
+	#rm -rf ${MOUNTPOINT}/usr/share/help/*
+	#mv ${MOUNTPOINT}/tmp/docs/en_GB ${MOUNTPOINT}/usr/share/help/en_GB
+	#mv ${MOUNTPOINT}/tmp/docs/eu ${MOUNTPOINT}/usr/share/help/eu
+	#rm -rf ${MOUNTPOINT}/tmp/docs
+	#find ${MOUNTPOINT}/usr/share/help/ -mindepth 1 -maxdepth 1 -type d -not -name en_GB -exec rm -rf {} \;
+
+	# remove pkginfo file
+	if [ ${MOUNTPOINT}/.AUTHORS ];then
+		rm ${MOUNTPOINT}/.AUTHORS
+	fi
+	if [ ${MOUNTPOINT}/.INSTALL ];then
+		rm ${MOUNTPOINT}/.INSTALL
+	fi
+	if [ ${MOUNTPOINT}/.LICENSE ];then
+		rm ${MOUNTPOINT}/.LICENSE
+	fi
+	if [ ${MOUNTPOINT}/.PKGINFO ];then
+		rm ${MOUNTPOINT}/.PKGINFO
+	fi
+
+}
+
+make_initramfs(){
+
+echo "Generating initramfs.img"
+chroot ${CHROOTDIR} depmod -a ${KERVER}
+chroot ${CHROOTDIR} dracut '/boot/vmlinuz-linux.img' ${KERVER} --force
+
+}
+
+grub_bios(){
+	# extract the base drive from ${DRIVE}
+	local grub_drive="${DRIVE%?}"
+			
+	info_msg "$(gettext "Installing Grub boot loader for BIOS")"	
+
+	# Install Grub for BIOS
+	chroot ${CHROOTDIR} /usr/bin/grub-install ${grub_drive}
+}
+
+grub_uefi(){
+	info_msg "$(gettext "Installing Grub boot loader for UEFI")"	
+	sudo grub-install --target=x86_64-efi --efi-directory=${EFI_MOUNTPOINT} --boot-directory=${DATA_MOUNTPOINT}/boot  --recheck
+}
+
+install_grub(){
+	
+	sudo mkdir -p ${DATA_MOUNTPOINT}/boot/grub
+	
+	if [[ -d /sys/firmware/efi ]];then
+		grub_uefi
+	else 
+		grub_bios
+	fi
+	# os-prober takes too long time, so disable it still if fixed
+	sed -i "s/#GRUB_DISABLE_OS_PROBER/GRUB_DISABLE_OS_PROBER/g" ${MOUNTPOINT}/etc/default/grub
+		
+	echo "installing grub boot loader"  
+
+	chroot ${CHROOTDIR} /usr/bin/grub-mkconfig -o /boot/grub/grub.cfg
+
+	# enable os-prober
+	sed -i "s/GRUB_DISABLE_OS_PROBER/#GRUB_DISABLE_OS_PROBER/g" ${MOUNTPOINT}/etc/default/grub
+}
+
+format_volume
+mount_volume
+packages_to_install
+chroot_mount
+fstab_setup
+genrate_locale
+add_users
+systemd_setup
+generate_cache
+final_config
+cleanup
+make_initramfs
+#install_grub
+umount_volume

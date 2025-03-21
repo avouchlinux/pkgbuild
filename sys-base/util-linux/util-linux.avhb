@@ -1,23 +1,40 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=util-linux
 pkgname=(util-linux util-linux-libs)
-_pkgmajor=2.39.2
-pkgver=${_pkgmajor}
+_tag='2.40.2'
+pkgver="${_tag/-/}"
 pkgrel=1
 pkgdesc="Miscellaneous system utilities for Linux"
 url='https://github.com/karelzak/util-linux'
 arch=('x86_64')
-license=('GPL2')
+license=(
+  'BSD-2-Clause'
+  'BSD-3-Clause'
+  'BSD-4-Clause-UC'
+  'GPL-2.0-only'
+  'GPL-2.0-or-later'
+  'GPL-3.0-or-later'
+  'ISC'
+  'LGPL-2.1-or-later'
+  'LicenseRef-PublicDomain'
+)
 groups=('sys-base')
-makedepends=('git' 'meson' 'asciidoctor' 'bash-completion' 'libcap-ng'
-             'libutempter' 'libxcrypt' 'python' 'systemd')
-options=('strip' 'debug')
+makedepends=('asciidoctor'
+             'bash-completion'
+             'git'
+             'libcap-ng'
+             'libxcrypt'
+             'meson'
+             'python'
+             'sqlite'
+             'systemd')
+options=('strip')
 validpgpkeys=('B0C64D14301CC6EFAEDF60E4E4B71D5EEC39C284')  # Karel Zak
-source=("https://www.kernel.org/pub/linux/utils/util-linux/v$_pkgmajor/$pkgbase-$pkgver.tar."{xz,sign}
+source=("https://github.com/util-linux/util-linux/archive/refs/tags/v$_tag.tar.gz"
       https://raw.githubusercontent.com/Cyan4973/xxHash/f035303b8a86c1db9be70cbb638678ef6ef4cb2d/LICENSE
         pam-{login,common,runuser,su}
         'util-linux.sysusers'
@@ -31,6 +48,7 @@ build() {
     -Dfs-search-path=/usr/bin:/usr/local/bin
 
     -Dlibuser=disabled
+    -Dlibutempter=disabled
     -Dncurses=disabled
     -Dncursesw=enabled
     -Deconf=disabled
@@ -41,6 +59,7 @@ build() {
     -Dbuild-newgrp=enabled
     -Dbuild-vipw=enabled
     -Dbuild-write=enabled
+
   )
 
   avouch-meson "${pkgbase}-${pkgver}" build "${_meson_options[@]}"

@@ -1,4 +1,4 @@
-# Copyright 2010-2020 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
@@ -19,7 +19,7 @@ source=(https://downloads.sourceforge.net/${_pkgname}/${_pkgname}-${pkgver}.tar.
 build() {
   cd ${_realname}-${pkgver}
   ./configure --prefix=/usr --program-suffix="-3"
-  make ${MAKEFLAGS}
+  make
 }
 
 check() {

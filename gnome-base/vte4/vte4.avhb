@@ -1,0 +1,189 @@
+# Copyright 2010-2025 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
+# Maintainer: Qurban Ullah <qurbanullah@avouch.org>
+# Contributor: Qurban Ullah <qurbanullah@avouch.org>
+
+pkgbase=vte4
+pkgname=(
+  vte-common
+  vte3
+  vte3-utils
+  vte4
+  vte4-utils
+  vte-docs
+)
+_realname=vte
+pkgver=0.80.0
+pkgrel=1
+pkgdesc="Virtual Terminal Emulator widget for use with GTK3"
+url="https://wiki.gnome.org/Apps/Terminal/VTE"
+arch=('x86_64')
+groups=('gnome-base')
+license=(
+  # Library
+  LGPL-3.0-or-later
+
+  # Demo app, some supporting files
+  GPL-3.0-or-later
+)
+depends=(
+  cairo
+  fribidi
+  gcc-libs
+  gdk-pixbuf2
+  glib2
+  glibc
+  gnutls
+  graphene
+  icu
+  lz4
+  pango
+  pcre2
+  systemd
+  systemd-libs
+)
+makedepends=(
+  at-spi2-core
+  gi-docgen
+  fast_float
+  git
+  glib2-devel
+  gobject-introspection
+  gperf
+  gtk3
+  gtk4
+  meson
+  vala
+)
+options=(!lto)
+source=("git+https://gitlab.gnome.org/GNOME/vte.git#tag=$pkgver")
+b2sums=('6e0ca4a641faf5658491f58d692be8945a6fe53cb675fb614ad5c5c38905ea18833c8b7b83535e790bc4772b21943bee46e4a967e6dac986eb3476c32000ea9e')
+
+prepare() {
+  cd vte
+}
+
+build() {
+  local meson_options=(
+    -D docs=true
+  )
+
+  avouch-meson vte build "${meson_options[@]}"
+  meson compile -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
+}
+
+_pick() {
+  local p="$1" f d; shift
+  for f; do
+    d="$srcdir/$p/${f#$pkgdir/}"
+    mkdir -p "$(dirname "$d")"
+    mv "$f" "$d"
+    rmdir -p --ignore-fail-on-non-empty "$(dirname "$f")"
+  done
+}
+
+package_vte-common() {
+  pkgdesc+=" (common files)"
+  depends=(glibc)
+
+  meson install -C build --destdir "$pkgdir"
+
+  cd "$pkgdir"
+
+  _pick vte3 usr/include/vte-2.91
+  _pick vte3 usr/lib/libvte-2.91.so*
+  _pick vte3 usr/lib/pkgconfig/vte-2.91.pc
+  _pick vte3 usr/lib/girepository-1.0/Vte-2.91.typelib
+  _pick vte3 usr/share/gir-1.0/Vte-2.91.gir
+  _pick vte3 usr/share/glade
+  _pick vte3 usr/share/vala/vapi/vte-2.91.{deps,vapi}
+
+  _pick vte3-utils usr/bin/vte-2.91
+  _pick vte3-utils usr/share/applications/org.gnome.Vte.App.Gtk3.desktop
+  _pick vte3-utils usr/share/xdg-terminals/org.gnome.Vte.App.Gtk3.desktop
+
+  _pick vte4 usr/include/vte-2.91-gtk4
+  _pick vte4 usr/lib/libvte-2.91-gtk4.so*
+  _pick vte4 usr/lib/pkgconfig/vte-2.91-gtk4.pc
+  _pick vte4 usr/lib/girepository-1.0/Vte-3.91.typelib
+  _pick vte4 usr/share/gir-1.0/Vte-3.91.gir
+  _pick vte4 usr/share/vala/vapi/vte-2.91-gtk4.{deps,vapi}
+
+  _pick vte4-utils usr/bin/vte-2.91-gtk4
+  _pick vte4-utils usr/share/applications/org.gnome.Vte.App.Gtk4.desktop
+  _pick vte4-utils usr/share/xdg-terminals/org.gnome.Vte.App.Gtk4.desktop
+
+  _pick docs usr/share/doc
+}
+
+
+package_vte3() {
+  pkgdesc+=" (GTK3)"
+  license=(LGPL-3.0-or-later)
+  depends+=(
+    at-spi2-core
+    gtk3
+    vte-common
+  )
+  provides+=(libvte-2.91.so)
+
+  mv vte3/* "$pkgdir"
+}
+
+package_vte3-utils() {
+  pkgdesc="VTE3 test utilities"
+  license=(GPL-3.0-or-later)
+  depends=(
+    cairo
+    gcc-libs
+    gdk-pixbuf2
+    glib2
+    glibc
+    gtk3
+    pango
+    vte3
+  )
+
+  mv vte3-utils/* "$pkgdir"
+}
+
+package_vte4() {
+  pkgdesc+=" (GTK4)"
+  license=(LGPL-3.0-or-later)
+  depends+=(
+    gtk4
+    vte-common
+  )
+  provides+=(libvte-2.91-gtk4.so)
+
+  mv vte4/* "$pkgdir"
+}
+
+package_vte4-utils() {
+  pkgdesc="VTE4 test utilities"
+  license=(GPL-3.0-or-later)
+  depends=(
+    cairo
+    gcc-libs
+    gdk-pixbuf2
+    glib2
+    glibc
+    gtk4
+    pango
+    vte4
+  )
+
+  mv vte4-utils/* "$pkgdir"
+}
+
+package_vte-docs() {
+  pkgdesc+=" (documentation)"
+  depends=()
+
+  mv docs/* "$pkgdir"
+}
+

@@ -1,25 +1,54 @@
-# Copyright 2010-2023 Avouch Authors
+# Copyright 2010-2025 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=gnome-calendar
-pkgver=45.0
+pkgver=48.rc
 pkgrel=1
 pkgdesc="Simple and beautiful calendar application designed to perfectly fit the GNOME desktop"
-url="https://wiki.gnome.org/Apps/Calendar"
+url="https://apps.gnome.org/Calendar"
 arch=('x86_64')
 groups=('gnome-base')
-license=(GPL)
-depends=(evolution-data-server gsettings-desktop-schemas gnome-control-center libdazzle libhandy-0)
-makedepends=(python3 appstream-glib git meson gtk-doc)
-optdepends=('evolution: ICS file import')
+license=(GPL-3.0-or-later)
+depends=(
+  dconf
+  evolution-data-server
+  gcc-libs
+  geoclue
+  geocode-glib-2
+  glib2
+  glibc
+  graphene
+  gsettings-desktop-schemas
+  gtk4
+  hicolor-icon-theme
+  libadwaita
+  libedataserverui4
+  libgweather-4
+  libical
+  libsoup3
+  pango
+)
+makedepends=(
+  git
+  glib2-devel
+  meson
+)
+optdepends=(
+  'gnome-control-center: Manage online accounts'
+  'xdg-desktop-portal-impl: Various user settings (e.g. 24-hour clock)'
+)
 source=(https://gitlab.gnome.org/GNOME/$pkgname/-/archive/$pkgver/$pkgname-$pkgver.tar.bz2
         null-icaltime.diff)
 
 build() {
     avouch-meson ${pkgname}-${pkgver} build
     ninja -C build
+}
+
+check() {
+  meson test -C build --print-errorlogs
 }
 
 package() {

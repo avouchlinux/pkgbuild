@@ -1,57 +1,53 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mailutils
-pkgver=3.9
+pkgver=3.17
 pkgrel=1
 pkgdesc="MUA command line tool (mailx)"
 arch=('x86_64')
 groups=('net-mail')
-url="http://www.gnu.org/software/mailutils/"
+url="https://www.gnu.org/software/mailutils/"
 license=('GPL')
 depends=('libldap' 'pam' 'gnutls' 'gsasl')
 makedepends=('emacs')
 options=(!emptydirs)
+validpgpkeys=('325F650C4C2B6AD58807327A3602B07F55D0C732')
 source=(https://ftp.gnu.org/gnu/mailutils/mailutils-$pkgver.tar.bz2{,.sig}
         fix-build-mb-len-max.patch)
-validpgpkeys=('325F650C4C2B6AD58807327A3602B07F55D0C732')
+sha512sums=('7c3ca0af5bd4ff6f71c96589cc8cc263f75a5e587a9db4658799594d0774a5781e626fe7928e20e5893745964d36c0235a4d2dfbf87d7e98f588ec8909e869d2'
+            'SKIP'
+            '48248bfae1cc3b80c3decfcb99f803b65fd0d068f6c09625eb5e3763b3184090d7bd97fa3bc916b3e2e8c737b2bd501aa25482a96aceb555c08307b54c2a24a8')
 
 prepare() {
-    cd "$srcdir/mailutils-$pkgver"
-    # Include limits.h in frm/frm.h so it doesn't misdefine MB_LEN_MAX to 4
-    # (patch from github.com/NixOS/nixpkgs)
-    #patch -Np1 -i ../fix-build-mb-len-max.patch
-
-    patch -Np1 -i ../mailutils-3.5-add-include.patch
-	patch -Np1 -i ../mailutils-3.9-underlinking.patch
-	patch -Np1 -i ../mailutils-3.8-fno-common.patch
-	patch -Np1 -i ../mailutils-3.9-python-config.patch
-    
-    autoreconf -vif
+  cd "$srcdir/mailutils-$pkgver"
+  # Include limits.h in frm/frm.h so it doesn't misdefine MB_LEN_MAX to 4
+  # (patch from github.com/NixOS/nixpkgs)
+  patch -Np1 -i ../fix-build-mb-len-max.patch
 }
 
 build() {
-    cd "$srcdir/mailutils-$pkgver"
-    ./configure \
-        --prefix=/usr \
-        --sbindir=/usr/bin \
-        --libexecdir=/usr/lib/$pkgname \
-        --with-gdbm \
-        --with-gnutls \
-        --without-guile \
-		--with-readline \
-        --disable-python \
-		--disable-debug \
-        --disable-tests 
-    make ${MAKEFLAGS} CFLAGS="$CFLAGS"
+  cd "$srcdir/mailutils-$pkgver"
+  ./configure \
+	--prefix=/usr \
+	--sbindir=/usr/bin \
+	--libexecdir=/usr/lib/$pkgname \
+	--sysconfdir=/etc \
+	--with-gdbm \
+	--with-gnutls \
+	--disable-python \
+	--without-guile
+  make CFLAGS="$CFLAGS -O2" || make CFLAGS="$CFLAGS -O2" LDFLAGS="-L`pwd`/lib -lmutcpwrap -ltinfo"
 }
 
 package() {
-    cd "$srcdir/mailutils-$pkgver"
-    make -j1 DESTDIR="$pkgdir" install
-    rm -f "$pkgdir"/usr/share/info/dir
-    mv "$pkgdir"/usr/bin/mail "$pkgdir"/usr/bin/gnu-mail
-    mv "$pkgdir"/usr/share/man/man1/mail.1 "$pkgdir"/usr/share/man/man1/gnu-mail.1
-    chown -R root:root "$pkgdir"
+  cd "$srcdir/mailutils-$pkgver"
+  make -j1 DESTDIR="$pkgdir" install
+  rm -f "$pkgdir"/usr/share/info/dir
+  mv "$pkgdir"/usr/bin/mail "$pkgdir"/usr/bin/gnu-mail
+  mv "$pkgdir"/usr/share/man/man1/mail.1 "$pkgdir"/usr/share/man/man1/gnu-mail.1
+  chown -R root:root "$pkgdir"
 }
+

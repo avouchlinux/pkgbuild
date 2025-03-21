@@ -1,61 +1,178 @@
-# $Id$
+# Copyright 2010-2024 Avouch Authors
+# Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgname=mpd
-pkgver=0.21.22
+_realname=MPD
+pkgver=0.23.15
 pkgrel=1
 pkgdesc='Flexible, powerful, server-side application for playing music'
-url='https://www.musicpd.org/'
-license=('GPL')
-arch=('x86_64')
-groups=('media-sound')
-depends=('libao' 'ffmpeg' 'libmodplug' 'audiofile' 'libshout' 'libmad' 'curl'
-	 'faad2' 'sqlite' 'jack' 'libmms' 'wavpack' 'avahi' 'libid3tag' 'yajl'
-	 'libmpdclient' 'icu' 'libupnp' 'libnfs' 'libsamplerate' 'libsoxr'
-	 'smbclient' 'libgme' 'zziplib')
-makedepends=('boost' 'doxygen')
-validpgpkeys=('0392335A78083894A4301C43236E8A58C6DB4512')
-#source=("https://www.musicpd.org/download/${pkgname}/${pkgver}/${pkgname}-${pkgver}.tar.xz"{,.sig}
-source=("https://www.musicpd.org/download/${pkgname}/${pkgver%.*}/${pkgname}-${pkgver}.tar.xz"{,.sig}
-        'tmpfiles.d'
-        'sysusers.d'
-        'conf')
-
-backup=('etc/mpd.conf')
+url="https://www.musicpd.org/"
+license=(
+  BSD-2-Clause
+  GPL-2.0-or-later
+)
+depends=(
+  gcc-libs
+  glibc
+  hicolor-icon-theme
+  libcdio
+  libcdio-paranoia
+  libgme
+  libmad
+  libmms
+  libmodplug
+  libmpcdec
+  libnfs
+  libshout
+  libsidplayfp
+  libsoxr
+  # smbclient  # disabled because of https://bugzilla.samba.org/show_bug.cgi?id=11413
+  pcre2
+  wavpack
+  wildmidi
+  zlib
+  zziplib
+)
+makedepends=(
+  alsa-lib
+  audiofile
+  avahi
+  boost
+  bzip2
+  chromaprint
+  curl
+  dbus
+  expat
+  faad2
+  ffmpeg
+  flac
+  fluidsynth
+  fmt
+  git
+  icu
+  jack
+  lame
+  libao
+  libid3tag
+  libmikmod
+  libmpdclient
+  libogg
+  libopenmpt
+  libpulse
+  libsamplerate
+  libsndfile
+  libupnp
+  liburing
+  libvorbis
+  meson
+  mpg123
+  openal
+  opus
+  libpipewire
+  python-sphinx
+  sqlite
+  systemd
+  twolame
+  yajl
+)
+backup=(etc/$pkgname.conf)
+source=(
+  $_realname-$pkgver.tar.gz::https://github.com/MusicPlayerDaemon/MPD/archive/refs/tags/v0.23.15.tar.gz
+  fmt-v11.patch::https://github.com/MusicPlayerDaemon/MPD/commit/1402869715e3efca87942d79c3173a6b21a6925d.patch
+  $pkgname.conf
+  $pkgname.sysusers
+  $pkgname.tmpfiles
+  $pkgname.service.override
+)
+sha512sums=('bce2314087725e709e5936f9e5e74ac1b4713cb3402aecf75ebc81d7eb7cab0237a6dfc90ba71672ffe60593a9c627b918c44c79e4f081b1b8987dbc2c029e17'
+            '70be1c46cafc95751f6bc144f2263a3a6e1752f948005477edea15b07fd83959839c33d58021838af23bc25b6726c5e168a44dc7f23f138f811266da68df4039'
+            '25a823740d92da8e186916701413114142eb6ad91a172c592e68b569c8e4f50fa99580e555ccf6cd31fc4f55a09bfe0278efa46e4e76ee0fe02846292fadf3c1'
+            '6e467481406279767b709ec6d5c06dbd825c0de09045c52ffa2d21d0604dcfe19b7a92bf42bed25163d66a3a0d1dbde6185a648b433eaf5eac56be90491e2e18'
+            'db473db27cd68994c3ee26e78e0fb34d13126301d8861563dcc12a22d62ecb14c4ffb1e0798c6aaccdff34e73bae3fbeeff7b42606c901a2d35e278865cdf35d'
+            'c1782b82f9db1d30aece43a07230c5d57370f2494a16e108af03815d83968805472f10f53ea5495cf0e08ff8f245430c3c3bc44025af43aaf9ecd12fcd6afc6c')
+b2sums=('c48d421ed44e13026ae880f62e03577b8a9dbf23e05adb217f5cfbc5702a7a66d08c353e9d85784203e0e511d23037836dad3053b9a82748c46f1b9d5a5d17a0'
+        '830b76cf97a9c517db0445fed911ebedef5048a1bd2afc3ede0eaeca3ee327462ea124f3764df0905adba34ebd212d926b4dee1c5387544a7f544e78a21a826a'
+        '0969a3c477b6a3f34b44e067e515d7f306414dd14e0163584417b9d071e3cc825898219f7ff66ead7905b15429b8411304052d3b2b14a72e560bfabf9bf0adcf'
+        '4ab6e415284c77802a39d0913d701fe55e56f3c22b19557661fbef77e456b5e1d151da4202695282b956602e716a7afdb994aa2fc17368b9a0d0d051d47a3afb'
+        'd7b587c25dd5830c27af475a8fdd8102139d7c8fdd6f04fe23b36be030e4411582e289f575c299255ff8183096f7d47247327276f9a24641cbd032d9675b837a'
+        '753664445d7d5cc0b36f51ac66549beea403b9731cbcb81b0a782974a0a73d90559ba93e6afcaa470b6f2f5a844c09ef695bdf3b1e6dfee97aa080f41b7fe513')
+validpgpkeys=('0392335A78083894A4301C43236E8A58C6DB4512') # Max Kellermann <max@blarg.de>
 
 prepare() {
-	cd "${srcdir}/${pkgname}-${pkgver}"
-	rm -fr build
-	install -d build
+  patch -d $_realname-$pkgver -Np1 -i "$srcdir/fmt-v11.patch"
 }
 
 build() {
-	cd "${srcdir}/${pkgname}-${pkgver}/build"
-	_opts=('-Ddocumentation=true'
-	       '-Dchromaprint=disabled' # appears not to be used for anything
-	       '-Dsidplay=disabled' # ibsidplayfp nor libsidplay2 available
-	       '-Dadplug=disabled' # not in official repo
-	       '-Dsndio=disabled' # interferes with detection of alsa devices
-	       '-Dtremor=disabled' # not in official repo
-	)
-	avouch-meson .. ${_opts[@]}
-	ninja
+  local _meson_options=(
+    -D documentation=enabled
+    -D adplug=disabled
+    -D sndio=disabled
+    -D shine=disabled
+    -D tremor=disabled
+    -D b_ndebug=true
+  )
+
+  # NOTE: sndio conflicts with alsa
+  # TODO: package adplug
+  # TODO: package shine
+  avouch-meson "${_meson_options[@]}" build $_realname-$pkgver
+  ninja -C build
+}
+
+check() {
+  ninja -C build test
 }
 
 package() {
-	cd "${srcdir}/${pkgname}-${pkgver}/build"
-	DESTDIR="${pkgdir}" ninja install
-	install -Dm644 ../doc/mpdconf.example "${pkgdir}"/usr/share/doc/mpd/mpdconf.example
-	install -Dm644 ../doc/mpd.conf.5 "${pkgdir}"/usr/share/man/man5/mpd.conf.5
-	install -Dm644 ../doc/mpd.1 "${pkgdir}"/usr/share/man/man1/mpd.1
+  depends+=(
+    alsa-lib libasound.so
+    audiofile libaudiofile.so
+    avahi libavahi-{client,common}.so
+    bzip2 libbz2.so
+    chromaprint libchromaprint.so
+    curl libcurl.so
+    dbus libdbus-1.so
+    expat libexpat.so
+    faad2 libfaad.so
+    ffmpeg libav{codec,filter,format,util}.so
+    flac libFLAC.so
+    fluidsynth libfluidsynth.so
+    fmt libfmt.so 
+    icu libicui18n.so libicuuc.so
+    jack libjack.so
+    lame libmp3lame.so
+    libao libao.so
+    libid3tag libid3tag.so
+    libmikmod libmikmod.so
+    libmpdclient libmpdclient.so
+    libogg libogg.so
+    libopenmpt libopenmpt.so
+    libpipewire libpipewire-0.3.so
+    libpulse libpulse.so
+    libsamplerate libsamplerate.so
+    libsndfile libsndfile.so
+    libupnp libixml.so libupnp.so
+    liburing liburing.so
+    libvorbis libvorbis{,enc}.so
+    mpg123 libmpg123.so
+    openal libopenal.so
+    opus libopus.so
+    sqlite libsqlite3.so
+    systemd-libs libsystemd.so
+    twolame libtwolame.so
+    yajl libyajl.so
+  )
 
-	install -Dm644 ../../tmpfiles.d "${pkgdir}"/usr/lib/tmpfiles.d/mpd.conf
-	install -Dm644 ../../sysusers.d "${pkgdir}"/usr/lib/sysusers.d/mpd.conf
-	install -Dm644 ../../conf "${pkgdir}"/etc/mpd.conf
-
-	sed \
-		-e '/\[Service\]/a User=mpd' \
-		-e '/WantedBy=/c WantedBy=default.target' \
-		-i "${pkgdir}"/usr/lib/systemd/system/mpd.service
+  DESTDIR="$pkgdir" ninja -C build install
+  install -vDm 644 $_realname-$pkgver/doc/${pkgname}conf.example -t "$pkgdir/usr/share/doc/$pkgname/"
+  # NOTE: BSD-2-Clause license file currently missing: https://github.com/MusicPlayerDaemon/MPD/issues/1877
+  # install -vDm 644 $pkgname-$pkgver/LICENSES/BSD-2-Clause -t "$pkgdir/usr/share/licenses/$pkgname/"
+  install -vDm 644 $pkgname.service.override "$pkgdir/usr/lib/systemd/system/mpd.service.d/00-arch.conf"
+  install -vDm 644 $pkgname.conf -t "$pkgdir/etc/"
+  install -vDm 644 $pkgname.sysusers "$pkgdir/usr/lib/sysusers.d/$pkgname.conf"
+  install -vDm 644 $pkgname.tmpfiles "$pkgdir/usr/lib/tmpfiles.d/$pkgname.conf"
 }
+
+

@@ -1,11 +1,11 @@
-# Copyright 2010-2022 Avouch Authors
+# Copyright 2010-2024 Avouch Authors
 # Distributed under the terms of the GNU General Public License v2
 # Maintainer: Qurban Ullah <qurbanullah@avouch.org>
 # Contributor: Qurban Ullah <qurbanullah@avouch.org>
 
 pkgbase=ibus
 pkgname=(ibus libibus)
-pkgver=1.5.26
+pkgver=1.5.29-rc2
 pkgrel=1
 pkgdesc="Next Generation Input Bus for Linux"
 arch=('x86_64')
